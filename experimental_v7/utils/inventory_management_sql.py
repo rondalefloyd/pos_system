@@ -1,8 +1,7 @@
 import os
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 
-# for storing item data
-class InventoryManagement():
+class InventoryManagementSQL():
     def __init__(self, db_file='SALES.db'):
         super().__init__()
         # Creates folder for the db file
@@ -14,7 +13,8 @@ class InventoryManagement():
         self.conn = sqlite3.connect(database=self.db_file_path)
         self.cursor = self.conn.cursor()
 
-    def insertStockData(self, supplier_id, item_id, on_hand, available):
+# for storing item data
+    def insertStockData(self, supplier_id, item_id, on_hand_stock, available_stock):
         self.cursor.execute('''
         INSERT INTO Stock (SupplierId, ItemId, OnHand, Available)
         SELECT ?, ?, ?, ?
@@ -27,139 +27,17 @@ class InventoryManagement():
             Stock.ItemId = ? AND
             Stock.OnHand = ? AND
             Stock.Available = ?
-        )''', (supplier_id, item_id, on_hand, available,
-              supplier_id, item_id, on_hand, available))
+        )''', (supplier_id, item_id, on_hand_stock, available_stock,
+              supplier_id, item_id, on_hand_stock, available_stock))
         self.conn.commit()
 
-# for retrieving ids
-    def selectItemTypeId(self, item_type):
-        self.cursor.execute('''
-        SELECT ItemTypeId FROM ItemType
-        WHERE Name = ?
-        ''', (item_type,))
-
-        item_type_id = self.cursor.fetchone()
-
-        return item_type_id[0]
-
-    def selectBrandId(self, brand):
-        self.cursor.execute('''
-        SELECT BrandId FROM Brand
-        WHERE Name = ?
-        ''', (brand,))
-
-        brand_id = self.cursor.fetchone()
-
-        return brand_id[0]
-
-    def selectSalesGroupId(self, sales_group):
-        self.cursor.execute('''
-        SELECT SalesGroupId FROM SalesGroup
-        WHERE Name = ?
-        ''', (sales_group,))
-
-        sales_group_id = self.cursor.fetchone()
-
-        return sales_group_id[0]
-
-    def selectSupplierId(self, supplier):
-        self.cursor.execute('''
-        SELECT SupplierId FROM Supplier
-        WHERE Name = ?
-        ''', (supplier,))
-
-        supplier_id = self.cursor.fetchone()
-
-        return supplier_id[0]
-
-    def selectItemId(self, item_name, barcode, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id):
-        self.cursor.execute('''
-        SELECT ItemId FROM Item
-        WHERE ItemName = ? AND Barcode = ? AND ExpireDt = ? AND ItemTypeId = ? AND BrandId = ? AND SalesGroupId = ? AND SupplierId = ?
-        ''', (item_name, barcode, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id))
-
-        item_id = self.cursor.fetchone()
-
-        return item_id[0]
-
-    def selectItemPriceId(self, item_id, cost, discount, sell_price, effective_dt):
-        self.cursor.execute('''
-        SELECT ItemPriceId FROM ItemPrice
-        WHERE ItemId = ? AND Cost = ? AND Discount = ? AND SellPrice = ? AND EffectiveDt = ?
-        ''', (item_id, cost, discount, sell_price, effective_dt))
-
-        item_price_id = self.cursor.fetchone()
-
-        return item_price_id[0]
-
-        # self.cursor.execute('''
-        # CREATE TABLE IF NOT EXISTS Promo (
-        #     PromoId INTEGER PRIMARY KEY AUTOINCREMENT,
-        #     Name TEXT,
-        #     PromoTyp TEXT,
-        #     Description TEXT,
-        #     DaysToExp INTEGER,
-        #     LessPerc INTEGER,
-        #     StartDt DATETIME,
-        #     EndDt DATETIME,
-        #     UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
-        # );
-        # ''')
-        # self.conn.commit()
-
-        # self.cursor.execute('''
-        # CREATE TABLE IF NOT EXISTS Customer (
-        #     CustId INTEGER PRIMARY KEY AUTOINCREMENT,
-        #     CustName TEXT,
-        #     Address TEXT,
-        #     Phone TEXT,
-        #     Type TEXT,
-        #     Status TEXT,
-        #     UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
-        # );
-        # ''')
-        # self.conn.commit()
-
-        # self.cursor.execute('''
-        # CREATE TABLE IF NOT EXISTS Stock (
-        #     StockId INTEGER PRIMARY KEY AUTOINCREMENT,
-        #     SupplierId INTEGER DEFAULT 0,
-        #     ItemId INTEGER DEFAULT 0,
-        #     Description TEXT,
-        #     OnHand INTEGER,
-        #     Available INTEGER,
-        #     UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP,
-        #     FOREIGN KEY (SupplierId) REFERENCES Supplier(SupplierId),
-        #     FOREIGN KEY (ItemId) REFERENCES Item(ItemId)
-        # );
-        # ''')
-        # self.conn.commit()
-
-        # self.cursor.execute('''
-        # CREATE TABLE IF NOT EXISTS ItemSold (
-        #     ItemSoldId INTEGER PRIMARY KEY AUTOINCREMENT,
-        #     ItemPriceId INTEGER DEFAULT 0,
-        #     CustId INTEGER DEFAULT 0,
-        #     StockId INTEGER DEFAULT 0,
-        #     UserId INTEGER DEFAULT 0,
-        #     Quantity INTEGER,
-        #     TotalAmount DECIMAL(15, 2),
-        #     Void BIT DEFAULT 0, 
-        #     UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP,
-        #     FOREIGN KEY (ItemPriceId) REFERENCES ItemPrice(ItemPriceId),
-        #     FOREIGN KEY (CustId) REFERENCES Customer(CustId),
-        #     FOREIGN KEY (StockId) REFERENCES Stock(StockId)
-        # );
-        # ''')
-        # self.conn.commit()
-
 # for editing items
-    def UpdateStockData(self, on_hand, available, supplier_id, item_id):
+    def updateStockData(self, on_hand_stock, available_stock, supplier_id, item_id):
         self.cursor.execute('''
         UPDATE Stock
         SET OnHand = ?, Available = ?
         WHERE SupplierId = ? AND ItemId = ?
-        ''', (on_hand, available, supplier_id, item_id))
+        ''', (on_hand_stock, available_stock, supplier_id, item_id))
         self.conn.commit()
 
 # for listing data
