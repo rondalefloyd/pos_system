@@ -117,7 +117,9 @@ class ItemListTable(QTableWidget):
         self.setRowCount(len(all_item_data))
 
         for row_index, row_value in enumerate(all_item_data):
-            for col_index, col_value in enumerate(row_value):
+            total_cell = row_value[:11] # limits the data shown in the table
+
+            for col_index, col_value in enumerate(total_cell):
                 self.setItem(row_index, col_index + 1, QTableWidgetItem(str(col_value)))
             
             self.edit_button = QPushButton()
@@ -130,7 +132,9 @@ class ItemListTable(QTableWidget):
         self.setRowCount(50)
 
         for row_index, row_value in enumerate(all_item_data):
-            for col_index, col_value in enumerate(row_value):
+            total_cell = row_value[:11] # limits the data shown in the table
+
+            for col_index, col_value in enumerate(total_cell):
                 self.setItem(row_index, col_index + 1, QTableWidgetItem(str(col_value)))
             
             self.edit_button = QPushButton()
