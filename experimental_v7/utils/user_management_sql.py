@@ -2,7 +2,7 @@ import os
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 
 class UserManagementSQL():
-    def __init__(self, db_file='SEC.db'):
+    def __init__(self, db_file='USERS.db'):
         super().__init__()
         # Creates folder for the db file
         self.db_folder_path = 'database/users/'  # Adjust the path
