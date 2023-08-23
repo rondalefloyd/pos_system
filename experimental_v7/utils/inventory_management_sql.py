@@ -13,6 +13,22 @@ class InventoryManagementSQL():
         self.conn = sqlite3.connect(database=self.db_file_path)
         self.cursor = self.conn.cursor()
 
+# for creating stock table
+    def createStockTable(self):
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Stock (
+            StockId INTEGER PRIMARY KEY AUTOINCREMENT,
+            SupplierId INTEGER DEFAULT 0,
+            ItemId INTEGER DEFAULT 0,
+            OnHand INTEGER,
+            Available INTEGER,
+            UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (SupplierId) REFERENCES Supplier(SupplierId),
+            FOREIGN KEY (ItemId) REFERENCES Item(ItemId)
+        );
+        ''')
+        self.conn.commit()
+
 # for storing item data
     def insertStockData(self, supplier_id, item_id, on_hand_stock, available_stock):
         self.cursor.execute('''
@@ -60,6 +76,7 @@ class InventoryManagementSQL():
         WHERE
             Stock.OnHand IS NOT NULL AND
             Stock.Available IS NOT NULL
+        ORDER BY Item.ItemId DESC
         ''')
         
         all_data = self.cursor.fetchall()

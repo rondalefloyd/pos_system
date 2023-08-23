@@ -7,7 +7,6 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from utils.sales_database_table_setup import *
 from utils.user_management_sql import *
 
 class AddUserWindow(QDialog):

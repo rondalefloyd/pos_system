@@ -7,7 +7,6 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from utils.sales_database_table_setup import *
 from utils.customer_management_sql import *
 
 class AddCustomerWindow(QDialog):
@@ -286,7 +285,6 @@ class CustomerManagement(QGroupBox):
         self.createLayout()
 
     def callSQLUtils(self):
-        self.sales_database_table_setup = SalesDatabaseSetup()
         self.manage_customer = CustomerManagementSQL()
 
     def fillCustomerListTable(self):
@@ -309,7 +307,7 @@ class CustomerManagement(QGroupBox):
         self.add_button.clicked.connect(self.openAddCustomerWindow)
 
     def createLayout(self):
-        self.sales_database_table_setup.createDatabaseTable()
+        self.manage_customer.createCustomerTable()
 
         self.grid_layout = QGridLayout()
 

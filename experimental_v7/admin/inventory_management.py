@@ -7,7 +7,6 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from utils.sales_database_table_setup import *
 from utils.item_management_sql import *
 from utils.inventory_management_sql import *
 
@@ -132,7 +131,7 @@ class ItemListTable(QTableWidget):
         self.setRowCount(50)
 
         for row_index, row_value in enumerate(all_item_data):
-            total_cell = row_value[:11] # limits the data shown in the table
+            total_cell = row_value[:4] # limits the data shown in the table
 
             for col_index, col_value in enumerate(total_cell):
                 self.setItem(row_index, col_index + 1, QTableWidgetItem(str(col_value)))
@@ -149,7 +148,7 @@ class ItemListTable(QTableWidget):
         self.displayItemList('')
 
 # main layout
-class ItemManagement(QGroupBox):
+class InventoryManagement(QGroupBox):
     def __init__(self):
         super().__init__()
 
@@ -159,7 +158,7 @@ class ItemManagement(QGroupBox):
         self.createLayout()
 
     def callSQLUtils(self):
-        self.sales_database_table_setup = SalesDatabaseSetup()
+        self.manage_inventory = InventoryManagementSQL()
 
     def fillItemListTable(self):
         filter_text = self.filter_bar.text()
@@ -174,7 +173,7 @@ class ItemManagement(QGroupBox):
         self.filter_bar.textChanged.connect(self.fillItemListTable)
 
     def createLayout(self):
-        self.sales_database_table_setup.createDatabaseTable()
+        self.manage_inventory.createStockTable()
 
         self.grid_layout = QGridLayout()
 
@@ -191,7 +190,7 @@ class ItemManagement(QGroupBox):
 
 if __name__ == ('__main__'):
     pos_app = QApplication(sys.argv)
-    window = ItemManagement()
+    window = InventoryManagement()
     window.show()
     sys.exit(pos_app.exec())
 

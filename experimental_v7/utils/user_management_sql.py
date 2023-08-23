@@ -34,23 +34,6 @@ class UserManagementSQL():
         all_data = self.cursor.fetchall()        
         return all_data
         
-    def selectAllFilteredUserData(self, filtered_text):
-        self.cursor.execute('''
-        SELECT Name, AccessLevel
-        FROM User
-        WHERE Name LIKE ? OR AccessLevel LIKE ?
-        ''', ('%' + filtered_text + '%', '%' + filtered_text + '%'))
-        all_data = self.cursor.fetchall()
-        return all_data
-    
-    def selectAllUserData(self, text):
-        self.cursor.execute('''
-        SELECT Name, AccessLevel
-        FROM User
-        ''')
-        all_data = self.cursor.fetchall()
-        return all_data
-
     def insertUserData(self, name, password, access_level):
         self.cursor.execute('''
         INSERT INTO User (Name, Password, AccessLevel)
@@ -78,3 +61,22 @@ class UserManagementSQL():
         WHERE   Name = ?                                                        
         )''', (name,))
         self.conn.commit()    
+
+    def selectAllFilteredUserData(self, filtered_text):
+        self.cursor.execute('''
+        SELECT Name, AccessLevel
+        FROM User
+        WHERE Name LIKE ? OR AccessLevel LIKE ?
+        ORDER BY CustomerId DESC
+        ''', ('%' + filtered_text + '%', '%' + filtered_text + '%'))
+        all_data = self.cursor.fetchall()
+        return all_data
+    
+    def selectAllUserData(self, text):
+        self.cursor.execute('''
+        SELECT Name, AccessLevel
+        FROM User
+        ORDER BY UserId DESC
+        ''')
+        all_data = self.cursor.fetchall()
+        return all_data

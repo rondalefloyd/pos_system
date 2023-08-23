@@ -13,43 +13,24 @@ class CustomerManagementSQL():
         self.conn = sqlite3.connect(database=self.db_file_path)
         self.cursor = self.conn.cursor()
 
-
-    def selectAllCustomerData(self, text):
+# Customer
+    def createCustomerTable(self):
         self.cursor.execute('''
-        SELECT CustomerName, Address, Barrio, Town, Phone, Age, Gender, MaritalStatus FROM Customer
-        WHERE 
-            CustomerName LIKE ? OR 
-            Address LIKE ? OR 
-            Barrio LIKE ? OR
-            Town LIKE ? OR
-            Phone LIKE ? OR
-            Age LIKE ? OR
-            Gender LIKE ? OR
-            MaritalStatus LIKE ?
-        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+        CREATE TABLE IF NOT EXISTS Customer (
+            CustomerId INTEGER PRIMARY KEY AUTOINCREMENT,
+            CustomerName TEXT,
+            Address TEXT,
+            Barrio TEXT,
+            Town TEXT,
+            Phone TEXT,
+            Age INTEGER,
+            Gender TEXT,
+            MaritalStatus TEXT,
+            UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        ''')
+        self.conn.commit()
 
-        all_data = self.cursor.fetchall()
-
-        return all_data
-
-    def selectAllFilteredCustomerData(self, text):
-        self.cursor.execute('''
-        SELECT CustomerName, Address, Barrio, Town, Phone, Age, Gender, MaritalStatus FROM Customer
-        WHERE 
-            CustomerName LIKE ? OR 
-            Address LIKE ? OR 
-            Barrio LIKE ? OR
-            Town LIKE ? OR
-            Phone LIKE ? OR
-            Age LIKE ? OR
-            Gender LIKE ? OR
-            MaritalStatus LIKE ?
-        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
-
-        all_data = self.cursor.fetchall()
-
-        return all_data
-    
     def insertCustomerData(self, customer_name, address, barrio, town, phone, age, gender, marital_status):
         self.cursor.execute('''
         INSERT INTO Customer (CustomerName, Address, Barrio, Town, Phone, Age, Gender, MaritalStatus)
@@ -71,3 +52,42 @@ class CustomerManagementSQL():
         WHERE CustomerName = ?                                                                                                                   
         ''', (address, barrio, town, phone, age, gender, marital_status, customer_name))
         self.conn.commit()
+
+    def selectAllCustomerData(self, text):
+        self.cursor.execute('''
+        SELECT CustomerName, Address, Barrio, Town, Phone, Age, Gender, MaritalStatus FROM Customer
+        WHERE 
+            CustomerName LIKE ? OR 
+            Address LIKE ? OR 
+            Barrio LIKE ? OR
+            Town LIKE ? OR
+            Phone LIKE ? OR
+            Age LIKE ? OR
+            Gender LIKE ? OR
+            MaritalStatus LIKE ?
+        ORDER BY CustomerId DESC
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+
+        all_data = self.cursor.fetchall()
+
+        return all_data
+
+    def selectAllFilteredCustomerData(self, text):
+        self.cursor.execute('''
+        SELECT CustomerName, Address, Barrio, Town, Phone, Age, Gender, MaritalStatus FROM Customer
+        WHERE 
+            CustomerName LIKE ? OR 
+            Address LIKE ? OR 
+            Barrio LIKE ? OR
+            Town LIKE ? OR
+            Phone LIKE ? OR
+            Age LIKE ? OR
+            Gender LIKE ? OR
+            MaritalStatus LIKE ?
+        ORDER BY CustomerId DESC
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+
+        all_data = self.cursor.fetchall()
+
+        return all_data
+    

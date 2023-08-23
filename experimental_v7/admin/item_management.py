@@ -7,7 +7,6 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from utils.sales_database_table_setup import *
 from utils.item_management_sql import *
 from utils.inventory_management_sql import *
 
@@ -88,7 +87,7 @@ class AddItemWindow(QDialog):
             QMessageBox.critical(self, "Error", "All fields must be filled.")
             
         else:
-            if (converted_on_hand_stock == 0 or converted_available_stock == 0):
+            if self.track_y.isChecked() and (converted_on_hand_stock == 0 or converted_available_stock == 0):
                  QMessageBox.critical(self, "Error", "All fields must be filled.")
             else:
                 self.manage_item.insertItemTypeData(converted_item_type)
@@ -466,7 +465,7 @@ class ItemManagement(QGroupBox):
         self.createLayout()
 
     def callSQLUtils(self):
-        self.sales_database_table_setup = SalesDatabaseSetup()
+        self.manage_item = ItemManagementSQL()
 
     def fillItemListTable(self):
         filter_text = self.filter_bar.text()
@@ -488,7 +487,7 @@ class ItemManagement(QGroupBox):
         self.add_button.clicked.connect(self.openAddItemWindow)
 
     def createLayout(self):
-        self.sales_database_table_setup.createDatabaseTable()
+        self.manage_item.createAllItemTable()
 
         self.grid_layout = QGridLayout()
 
