@@ -7,7 +7,7 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from utils.database_table_setup import *
+from utils.sales_database_table_setup import *
 from utils.item_management_sql import *
 from utils.inventory_management_sql import *
 
@@ -466,7 +466,7 @@ class ItemManagement(QGroupBox):
         self.createLayout()
 
     def callSQLUtils(self):
-        self.database_table_setup = DatabaseTableSetup()
+        self.sales_database_table_setup = SalesDatabaseSetup()
 
     def fillItemListTable(self):
         filter_text = self.filter_bar.text()
@@ -488,7 +488,7 @@ class ItemManagement(QGroupBox):
         self.add_button.clicked.connect(self.openAddItemWindow)
 
     def createLayout(self):
-        self.database_table_setup.createDatabaseTable()
+        self.sales_database_table_setup.createDatabaseTable()
 
         self.grid_layout = QGridLayout()
 

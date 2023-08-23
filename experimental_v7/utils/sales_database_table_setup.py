@@ -1,7 +1,7 @@
 import os
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 
-class DatabaseTableSetup():
+class SalesDatabaseSetup():
     def __init__(self, db_file='SALES.db'):
         super().__init__()
         # Creates folder for the db file
