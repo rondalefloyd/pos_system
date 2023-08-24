@@ -23,93 +23,75 @@ class AddPromoWindow(QDialog):
     def callSQLUtils(self):
         self.manage_promo = PromoManagementSQL()
 
-    # def fillComboBox(self):
-    #     item_name = self.manage_item.selectItemData()
-    #     for row in item_name:
-    #         self.item_name.addItem(row)
+    def fillComboBox(self, text):
+        promo_data = self.manage_promo.selectPromoData('')
+        promo_type = self.manage_promo.selectPromoTypeData('')
+        promo_type_value = self.manage_promo.selectPromoTypeValueData('')
 
-    #     item_type = self.manage_item.selectItemTypeData()
-    #     for row in item_type:
-    #         self.item_type.addItem(row)
+        for row in promo_data:
+            self.promo_name.addItem(row)
 
-    #     brand = self.manage_item.selectBrandData()
-    #     for row in brand:
-    #         self.brand.addItem(row)
+        for row in promo_type:
+            self.promo_type.addItem(row)
 
-    #     supplier = self.manage_item.selectSupplierData()
-    #     for row in supplier:
-    #         self.supplier.addItem(row)
+        for row in promo_type_value:
+            self.promo_type_value.addItem(row)
 
-    def saveItem(self):
+    def savePromo(self):
         # convert input
         converted_promo_name = str(self.promo_name.currentText())
-        converted_address = str(self.address.text())
-        converted_barrio = str(self.barrio.currentText())
-        converted_town = str(self.town.currentText())
-        converted_phone = str(self.phone.text())
-        converted_age = str(self.age.text())
-        converted_gender = str(self.gender.currentText())
-        converted_martial_status = str(self.martial_status.currentText())
+        converted_description = str(self.description.toPlainText())
+        converted_promo_type = str(self.promo_type.currentText())
+        converted_promo_type_value = str(self.promo_type_value.currentText())
 
         # Perform input validation here
-        if (converted_promo_name == '' or converted_address == '' or converted_barrio == '' or converted_town == '' or converted_phone == '' or converted_age == '' or converted_gender == '' or converted_martial_status == ''):
+        if (converted_promo_name == '' or converted_description == '' or converted_promo_type == '' or converted_promo_type_value == ''):
             QMessageBox.critical(self, "Error", "All fields must be filled.")
             
         else:
-            self.manage_promo.insertPromoData(converted_promo_name, converted_address, converted_barrio, converted_town, converted_phone, converted_age, converted_gender, converted_martial_status)
+            self.manage_promo.insertPromoData(converted_promo_name, converted_description, converted_promo_type, converted_promo_type_value)
 
             print('STEP A -- DONE')
 
             self.data_saved.emit()
 
-            print('NEW CUSTOMER ADDED!')
+            QMessageBox.information(self, 'Success', 'New promo has been added!')
+
+            print('NEW PROMO ADDED!')
             
             self.accept()
 
     def setWidgetsAttributes(self):
-        self.promo_name.setEditable(True)
-        self.barrio.setEditable(True)
-        self.town.setEditable(True)
+        self.promo_name.setEditable(True) 
+        self.promo_type.setEditable(True) 
+        self.promo_type_value.setEditable(True) 
+        
+        self.description.setPlaceholderText('Promo description')
 
-        self.address.setPlaceholderText('Address')
-        self.phone.setPlaceholderText('Phone')
-        self.age.setPlaceholderText('Age')
-
-        self.gender.addItem('Male')
-        self.gender.addItem('Female')
-        self.martial_status.addItem('Single')
-        self.martial_status.addItem('Married')
-        self.martial_status.addItem('Separated')
-        self.martial_status.addItem('Widowed')
+        self.promo_name.clearEditText()
+        self.promo_type.clearEditText()
+        self.promo_type_value.clearEditText()
 
         self.save_button.setText('SAVE')
-        self.save_button.clicked.connect(self.saveItem)
+        self.save_button.clicked.connect(self.savePromo)
 
     def createLayout(self):
         self.grid_layout = QGridLayout()
 
         self.promo_name = QComboBox()
-        self.address = QLineEdit()
-        self.barrio = QComboBox()
-        self.town = QComboBox()
-        self.phone = QLineEdit()
-        self.age = QLineEdit()
-        self.gender = QComboBox()
-        self.martial_status = QComboBox()
+        self.description = QTextEdit()
+        self.promo_type = QComboBox()
+        self.promo_type_value = QComboBox()
         self.save_button = QPushButton()
         
-        # self.fillComboBox()
+        self.fillComboBox('')
         self.setWidgetsAttributes()
 
         self.grid_layout.addWidget(self.promo_name, 0, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.address, 1, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.barrio, 2, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.town, 3, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.phone, 4, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.age, 5, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.gender, 6, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.martial_status, 7, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.save_button, 8, 0) # -- save_button (widget[3]) x
+        self.grid_layout.addWidget(self.description, 1, 0) # -- promo_name (widget[0])
+        self.grid_layout.addWidget(self.promo_type, 2, 0) # -- promo_name (widget[0])
+        self.grid_layout.addWidget(self.promo_type_value, 3, 0) # -- promo_name (widget[0])
+        self.grid_layout.addWidget(self.save_button, 4, 0) # -- save_button (widget[3]) x
 
         self.setLayout(self.grid_layout)
 
@@ -127,73 +109,56 @@ class EditPromoWindow(QDialog):
     def callSQLUtils(self):
         self.manage_promo = PromoManagementSQL()
 
-    # def fillComboBox(self):
-    #     item_name = self.manage_item.selectItemData()
-    #     for row in item_name:
-    #         self.item_name.addItem(row)
+    def fillComboBox(self, text):
+        promo_data = self.manage_promo.selectPromoData('')
+        promo_type = self.manage_promo.selectPromoTypeData('')
+        promo_type_value = self.manage_promo.selectPromoTypeValueData('')
 
-    #     item_type = self.manage_item.selectItemTypeData()
-    #     for row in item_type:
-    #         self.item_type.addItem(row)
+        for row in promo_data:
+            self.promo_name.addItem(row)
 
-    #     brand = self.manage_item.selectBrandData()
-    #     for row in brand:
-    #         self.brand.addItem(row)
+        for row in promo_type:
+            self.promo_type.addItem(row)
 
-    #     supplier = self.manage_item.selectSupplierData()
-    #     for row in supplier:
-    #         self.supplier.addItem(row)
+        for row in promo_type_value:
+            self.promo_type_value.addItem(row)
 
     def savePromo(self, row_value):
         # convert input
         converted_promo_name = str(self.promo_name.currentText())
-        converted_address = str(self.address.text())
-        converted_barrio = str(self.barrio.currentText())
-        converted_town = str(self.town.currentText())
-        converted_phone = str(self.phone.text())
-        converted_age = int(self.age.text())
-        converted_gender = str(self.gender.currentText())
-        converted_martial_status = str(self.martial_status.currentText())
+        converted_description = str(self.description.toPlainText())
+        converted_promo_type = str(self.promo_type.currentText())
+        converted_promo_type_value = str(self.promo_type_value.currentText())
+        converted_old_promo_name = str(row_value[0].currentText())
 
         # Perform input validation here
-        if (converted_promo_name == '' or converted_address == '' or converted_barrio == '' or converted_town == '' or converted_phone == '' or converted_age == '' or converted_gender == '' or converted_martial_status == ''):
+        if (converted_promo_name == '' or converted_description == '' or converted_promo_type == '' or converted_promo_type_value == ''):
             QMessageBox.critical(self, "Error", "All fields must be filled.")
             
         else:
-            self.manage_promo.updatePromoData(converted_promo_name, converted_address, converted_barrio, converted_town, converted_phone, converted_age, converted_gender, converted_martial_status)
+            self.manage_promo.updatePromoData(converted_promo_name, converted_description, converted_promo_type, converted_promo_type_value, converted_old_promo_name)
 
             print('STEP A -- DONE')
 
             self.data_saved.emit()
 
-            print('CUSTOMER HAS BEEN EDITED!')
+            print('PROMO HAS BEEN EDITED!')
             
+            QMessageBox.information(self, 'Success', 'Promo has been edited!')
+
             self.accept()
             
     def setWidgetsAttributes(self, row_index, row_value):
-        self.promo_name.setEditable(True)
-        self.barrio.setEditable(True)
-        self.town.setEditable(True)
-
-        self.address.setPlaceholderText('Address')
-        self.phone.setPlaceholderText('Phone')
-        self.age.setPlaceholderText('Age')
-
-        self.gender.addItem('Male')
-        self.gender.addItem('Female')
-        self.martial_status.addItem('Single')
-        self.martial_status.addItem('Married')
-        self.martial_status.addItem('Separated')
-        self.martial_status.addItem('Widowed')
+        self.promo_name.setEditable(True) 
+        self.promo_type.setEditable(True) 
+        self.promo_type_value.setEditable(True) 
+        
+        self.description.setPlaceholderText('Promo description')
 
         self.promo_name.setCurrentText(row_value[0])
-        self.address.setText(row_value[1])
-        self.barrio.setCurrentText(row_value[2])
-        self.town.setCurrentText(row_value[3])
-        self.phone.setText(row_value[4])
-        self.age.setText(str(row_value[5]))
-        self.gender.setCurrentText(row_value[6])
-        self.martial_status.setCurrentText(row_value[7])
+        self.description.setPlainText(row_value[1])
+        self.promo_type.setCurrentText(row_value[2])
+        self.promo_type_value.setCurrentText(row_value[3])
 
         self.save_button.setText('SAVE')
         self.save_button.clicked.connect(self.savePromo)
@@ -202,27 +167,19 @@ class EditPromoWindow(QDialog):
         self.grid_layout = QGridLayout()
 
         self.promo_name = QComboBox()
-        self.address = QLineEdit()
-        self.barrio = QComboBox()
-        self.town = QComboBox()
-        self.phone = QLineEdit()
-        self.age = QLineEdit()
-        self.gender = QComboBox()
-        self.martial_status = QComboBox()
+        self.description = QTextEdit()
+        self.promo_type = QComboBox()
+        self.promo_type_value = QComboBox()
         self.save_button = QPushButton()
         
-        # self.fillComboBox()
+        self.fillComboBox('')
         self.setWidgetsAttributes(row_index, row_value)
 
         self.grid_layout.addWidget(self.promo_name, 0, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.address, 1, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.barrio, 2, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.town, 3, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.phone, 4, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.age, 5, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.gender, 6, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.martial_status, 7, 0) # -- promo_name (widget[0])
-        self.grid_layout.addWidget(self.save_button, 8, 0) # -- save_button (widget[3]) x
+        self.grid_layout.addWidget(self.description, 1, 0) # -- promo_name (widget[0])
+        self.grid_layout.addWidget(self.promo_type, 2, 0) # -- promo_name (widget[0])
+        self.grid_layout.addWidget(self.promo_type_value, 3, 0) # -- promo_name (widget[0])
+        self.grid_layout.addWidget(self.save_button, 4, 0) # -- save_button (widget[3]) x
 
         self.setLayout(self.grid_layout)
 
@@ -269,8 +226,8 @@ class PromoListTable(QTableWidget):
             self.setCellWidget(row_index, 0, self.edit_button)
 
     def setAttributes(self):
-        self.setColumnCount(9) # counts starting from 1 to n
-        self.setHorizontalHeaderLabels(['', 'Name', 'Address', 'Barrio', 'Town', 'Phone', 'Age', 'Gender', 'Martial status'])
+        self.setColumnCount(5) # counts starting from 1 to n
+        self.setHorizontalHeaderLabels(['','Promo name','Description','Promo type','Promo type value'])
         
         self.displayPromoList('')
 

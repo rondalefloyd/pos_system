@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.item_management_sql import *
 from utils.inventory_management_sql import *
+from utils.promo_management_sql import *
 
 class AddItemWindow(QDialog):
     data_saved = pyqtSignal()
@@ -24,23 +25,42 @@ class AddItemWindow(QDialog):
     def callSQLUtils(self):
         self.manage_item = ItemManagementSQL()
         self.manage_inventory = InventoryManagementSQL()
+        self.manage_promo = PromoManagementSQL()
 
     def fillComboBox(self):
         item_name = self.manage_item.selectItemData()
+        item_type = self.manage_item.selectItemTypeData()
+        brand = self.manage_item.selectBrandData()
+        supplier = self.manage_item.selectSupplierData()
+        promo = self.manage_promo.selectPromoData('')
+
         for row in item_name:
             self.item_name.addItem(row)
 
-        item_type = self.manage_item.selectItemTypeData()
         for row in item_type:
             self.item_type.addItem(row)
 
-        brand = self.manage_item.selectBrandData()
         for row in brand:
             self.brand.addItem(row)
 
-        supplier = self.manage_item.selectSupplierData()
         for row in supplier:
             self.supplier.addItem(row)
+
+        for row in promo:
+            self.promo.addItem(row)
+
+
+    def onToggledPromo(self):
+        flag = self.promo.currentText()
+
+        if flag == 'None':
+            self.start_dt.hide()
+            self.end_dt.hide()
+            self.effective_dt.show()
+        else:
+            self.start_dt.show()
+            self.end_dt.show()
+            self.effective_dt.hide()
 
     def onToggledTrack(self, flag):
         if flag == 'Yes':
@@ -132,9 +152,13 @@ class AddItemWindow(QDialog):
         self.item_type.setEditable(True)
         self.brand.setEditable(True)
         self.supplier.setEditable(True)
-        
+
+        self.promo.currentIndexChanged.connect(self.onToggledPromo)
+
         self.sales_group.addItem('Retail')
         self.sales_group.addItem('Wholesale')
+        self.promo.insertItem(0,'None')
+        self.promo.setCurrentIndex(0)
 
         self.barcode.setPlaceholderText('Barcode')
         self.cost.setPlaceholderText('Cost')
@@ -180,7 +204,12 @@ class AddItemWindow(QDialog):
         self.sales_group = QComboBox()
         self.supplier = QComboBox()
         self.cost = QLineEdit()
+
+        self.promo = QComboBox()
         self.discount = QLineEdit()
+        self.start_dt = QDateEdit()
+        self.end_dt = QDateEdit()
+
         self.sell_price = QLineEdit()
         self.effective_dt = QDateEdit()
         self.inventory_track_prompt = QLabel() 
@@ -201,15 +230,20 @@ class AddItemWindow(QDialog):
         self.grid_layout.addWidget(self.sales_group, 5, 0) # -- sales_group (widget[5])
         self.grid_layout.addWidget(self.supplier, 6, 0) # -- supplier (widget[6])
         self.grid_layout.addWidget(self.cost, 7, 0) # -- cost (widget[7])
-        self.grid_layout.addWidget(self.discount, 8, 0) # -- discount (widget[8])
-        self.grid_layout.addWidget(self.sell_price, 9, 0) # -- sell_price (widget[9])
-        self.grid_layout.addWidget(self.effective_dt, 10, 0) # -- effective_dt (widget[10])
-        self.grid_layout.addWidget(self.inventory_track_prompt, 11, 0) # -- inventory_track_prompt (widget[11]) x
-        self.grid_layout.addWidget(self.track_y, 12, 0) # -- track_y (widget[12]) x
-        self.grid_layout.addWidget(self.track_n, 13, 0) # -- track_n (widget[13]) x
-        self.grid_layout.addWidget(self.on_hand_stock, 14, 0) # -- on_hand_stock (widget[14])
-        self.grid_layout.addWidget(self.available_stock, 15, 0) # -- available_stock (widget[15])
-        self.grid_layout.addWidget(self.save_button, 16, 0) # -- save_button (widget[16]) x
+
+        self.grid_layout.addWidget(self.promo, 9, 0) # -- discount (widget[8])
+        self.grid_layout.addWidget(self.discount, 10, 0) # -- discount (widget[8])
+        self.grid_layout.addWidget(self.start_dt, 11, 0) # -- discount (widget[8])
+        self.grid_layout.addWidget(self.end_dt, 12, 0) # -- discount (widget[8])
+        
+        self.grid_layout.addWidget(self.sell_price, 13, 0) # -- sell_price (widget[9])
+        self.grid_layout.addWidget(self.effective_dt, 14, 0) # -- effective_dt (widget[10])
+        self.grid_layout.addWidget(self.inventory_track_prompt, 15, 0) # -- inventory_track_prompt (widget[11]) x
+        self.grid_layout.addWidget(self.track_y, 16, 0) # -- track_y (widget[12]) x
+        self.grid_layout.addWidget(self.track_n, 17, 0) # -- track_n (widget[13]) x
+        self.grid_layout.addWidget(self.on_hand_stock, 18, 0) # -- on_hand_stock (widget[14])
+        self.grid_layout.addWidget(self.available_stock, 19, 0) # -- available_stock (widget[15])
+        self.grid_layout.addWidget(self.save_button, 20, 0) # -- save_button (widget[16]) x
 
         self.setLayout(self.grid_layout)
 

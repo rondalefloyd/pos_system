@@ -93,3 +93,4 @@ if __name__ == ('__main__'):
     window = AdminMain()
     window.show()
     sys.exit(pos_app.exec())
+ 

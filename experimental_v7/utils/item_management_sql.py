@@ -352,7 +352,7 @@ class ItemManagementSQL():
     def selectItemTypeData(self):
         self.cursor.execute('''
         SELECT DISTINCT Name FROM ItemType
-        ORDER BY ItemTypeId DESC
+        ORDER BY UpdateTs DESC
         ''')
 
         item_types = [row[0] for row in self.cursor.fetchall()]
@@ -361,7 +361,7 @@ class ItemManagementSQL():
     def selectBrandData(self):
         self.cursor.execute('''
         SELECT DISTINCT Name FROM Brand
-        ORDER BY BrandId DESC
+        ORDER BY UpdateTs DESC
         ''')
         
         brands = [row[0] for row in self.cursor.fetchall()]
@@ -370,7 +370,7 @@ class ItemManagementSQL():
     def selectSalesGroupData(self):
         self.cursor.execute('''
         SELECT DISTINCT Name FROM SalesGroup
-        ORDER BY SalesGroupId DESC
+        ORDER BY UpdateTs DESC
         ''')
         
         sales_groups = [row[0] for row in self.cursor.fetchall()]
@@ -379,7 +379,7 @@ class ItemManagementSQL():
     def selectSupplierData(self):
         self.cursor.execute('''
         SELECT DISTINCT Name FROM Supplier
-        ORDER BY SupplierId DESC
+        ORDER BY UpdateTs DESC
         ''')
         
         suppliers = [row[0] for row in self.cursor.fetchall()]
@@ -388,9 +388,10 @@ class ItemManagementSQL():
     def selectItemData(self):
         self.cursor.execute('''
         SELECT DISTINCT ItemName FROM Item
-        ORDER BY ItemId DESC
+        ORDER BY UpdateTs DESC
         ''')
         
         items = [row[0] for row in self.cursor.fetchall()]
         
         return items
+

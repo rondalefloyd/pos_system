@@ -19,9 +19,9 @@ class PromoManagementSQL():
         CREATE TABLE IF NOT EXISTS Promo (
             PromoId INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT,
+            Description TEXT,
             PromoType TEXT,
             PromoTypeValue TEXT,
-            Description TEXT,
             DaysToExp INTEGER,
             LessPerc INTEGER,
             StartDt DATETIME,
@@ -70,3 +70,34 @@ class PromoManagementSQL():
         
         return all_data
     
+
+# for filling combo boxes
+    def selectPromoData(self, text):
+        self.cursor.execute('''
+        SELECT DISTINCT Name FROM Promo
+        ORDER BY UpdateTs DESC
+        ''')
+
+        promo_names = [row[0] for row in self.cursor.fetchall()]
+
+        return promo_names
+    
+    def selectPromoTypeData(self, text):
+        self.cursor.execute('''
+        SELECT DISTINCT PromoType FROM Promo
+        ORDER BY UpdateTs DESC
+        ''')
+
+        promo_types = [row[0] for row in self.cursor.fetchall()]
+
+        return promo_types
+    
+    def selectPromoTypeValueData(self, text):
+        self.cursor.execute('''
+        SELECT DISTINCT PromoTypeValue FROM Promo
+        ORDER BY UpdateTs DESC
+        ''')
+
+        promo_type_values = [row[0] for row in self.cursor.fetchall()]
+
+        return promo_type_values
