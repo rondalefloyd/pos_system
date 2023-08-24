@@ -111,7 +111,7 @@ class ItemListTable(QTableWidget):
         edit_item_window.exec()
 
     def displayFilteredItemList(self, text_filter):
-        all_item_data = self.manage_inventory.selectAllFilteredStockData(text_filter)
+        all_item_data = self.manage_inventory.selectAllStockData(text_filter)
 
         self.setRowCount(len(all_item_data))
 

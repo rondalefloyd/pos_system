@@ -57,9 +57,9 @@ class AddUserWindow(QDialog):
 
             self.data_saved.emit()
 
+            QMessageBox.information(self, 'Success', 'New user has been added!')
+
             print('NEW CUSTOMER ADDED!')
-            
-            self.accept()
 
     def setWidgetsAttributes(self):
         self.user_name.setPlaceholderText('Name')
@@ -135,9 +135,9 @@ class EditUserWindow(QDialog):
 
             self.data_saved.emit()
 
-            print('USER HAS BEEN EDITED!')
+            QMessageBox.information(self, 'Success', 'Item has been edited!')
 
-            self.accept()
+            print('USER HAS BEEN EDITED!')
 
     def setWidgetsAttributes(self, row_index, row_value):
         self.user_name.setPlaceholderText('Name')
@@ -184,7 +184,7 @@ class UserListTable(QTableWidget):
         edit_user_window.exec()
 
     def displayFilteredUserList(self, text_filter):
-        all_user_data = self.manage_user.selectAllFilteredUserData(text_filter)
+        all_user_data = self.manage_user.selectAllUserData(text_filter)
 
         self.setRowCount(len(all_user_data))
 

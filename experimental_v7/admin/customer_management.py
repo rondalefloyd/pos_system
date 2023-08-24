@@ -62,9 +62,9 @@ class AddCustomerWindow(QDialog):
 
             self.data_saved.emit()
 
+            QMessageBox.information(self, 'Success', 'New customer has been added!')
+
             print('NEW CUSTOMER ADDED!')
-            
-            self.accept()
 
     def setWidgetsAttributes(self):
         self.customer_name.setEditable(True)
@@ -166,9 +166,9 @@ class EditCustomerWindow(QDialog):
 
             self.data_saved.emit()
 
+            QMessageBox.information(self, 'Success', 'Customer has been edited!')
+
             print('CUSTOMER HAS BEEN EDITED!')
-            
-            self.accept()
             
     def setWidgetsAttributes(self, row_index, row_value):
         self.customer_name.setEditable(True)
@@ -242,7 +242,7 @@ class CustomerListTable(QTableWidget):
         edit_customer_window.exec()
 
     def displayFilteredCustomerList(self, text_filter):
-        all_customer_data = self.manage_customer.selectAllFilteredCustomerData(text_filter)
+        all_customer_data = self.manage_customer.selectAllCustomerData(text_filter)
 
         self.setRowCount(len(all_customer_data))
 

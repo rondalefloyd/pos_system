@@ -72,22 +72,3 @@ class CustomerManagementSQL():
 
         return all_data
 
-    def selectAllFilteredCustomerData(self, text):
-        self.cursor.execute('''
-        SELECT CustomerName, Address, Barrio, Town, Phone, Age, Gender, MaritalStatus FROM Customer
-        WHERE 
-            CustomerName LIKE ? OR 
-            Address LIKE ? OR 
-            Barrio LIKE ? OR
-            Town LIKE ? OR
-            Phone LIKE ? OR
-            Age LIKE ? OR
-            Gender LIKE ? OR
-            MaritalStatus LIKE ?
-        ORDER BY CustomerId DESC
-        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
-
-        all_data = self.cursor.fetchall()
-
-        return all_data
-    

@@ -19,7 +19,8 @@ class PromoManagementSQL():
         CREATE TABLE IF NOT EXISTS Promo (
             PromoId INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT,
-            PromoTyp TEXT,
+            PromoType TEXT,
+            PromoTypeValue TEXT,
             Description TEXT,
             DaysToExp INTEGER,
             LessPerc INTEGER,
@@ -69,18 +70,3 @@ class PromoManagementSQL():
         
         return all_data
     
-    def selectAllFilteredPromoData(self, text):
-        self.cursor.execute('''
-        SELECT
-            Name,
-            Description, 
-            PromoType,
-            PromoTypeValue  
-        FROM Promo
-        WHERE
-            Name LIKE ? OR Description LIKE ? OR PromoType LIKE ? OR PromoTypeValue LIKE ?
-        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
-
-        all_data = self.cursor.fetchall()
-
-        return all_data

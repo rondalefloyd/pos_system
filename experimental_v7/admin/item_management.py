@@ -114,14 +114,14 @@ class AddItemWindow(QDialog):
                     self.manage_inventory.insertStockData(converted_supplier_id, converted_item_id, converted_on_hand_stock, converted_available_stock)
 
                     print('ITEM TRACKED!')
-                    self.accept()
                 else:
                     print('ITEM NOT TRACKED!!')
-                    self.accept()
 
                 print('STEP C -- DONE')
 
                 self.data_saved.emit()
+
+                QMessageBox.information(self, 'Success', 'New item has been added!')
 
                 print('NEW ITEM ADDED!')
 
@@ -292,9 +292,10 @@ class EditItemWindow(QDialog):
 
             self.data_saved.emit()
 
-            print('ITEM HAS BEEN EDITED!')
+            QMessageBox.information(self, 'Success', 'Item has been edited!')
 
-            self.accept()
+
+            print('ITEM HAS BEEN EDITED!')
 
     def setWidgetsAttributes(self, row_index, row_value):
         self.setNumericInputValidator()

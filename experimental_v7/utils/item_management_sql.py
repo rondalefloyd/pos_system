@@ -348,44 +348,6 @@ class ItemManagementSQL():
 
         return all_data
     
-    def selectAllFilteredItemData(self, text):
-        self.cursor.execute('''
-        SELECT DISTINCT
-            COALESCE(Item.Barcode, 'unk'),
-            COALESCE(Item.ItemName, 'unk'),
-            COALESCE(Item.ExpireDt, 'unk'), 
-            COALESCE(ItemType.Name, 'unk') AS ItemType, 
-            COALESCE(Brand.Name, 'unk') AS Brand, 
-            COALESCE(SalesGroup.Name, 'unk') AS SalesGroup, 
-            COALESCE(Supplier.Name, 'unk') AS Supplier, 
-            COALESCE(ItemPrice.Cost, 0.00) AS Cost, 
-            COALESCE(ItemPrice.Discount, 0.00) AS Discount, 
-            COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
-            COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            Item.ItemId,
-            ItemType.ItemTypeId,
-            Brand.BrandId,
-            SalesGroup.SalesGroupId,
-            Supplier.SupplierId
-        FROM ItemPrice
-            LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
-            LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
-            LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
-            LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
-            LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
-        WHERE
-            Item.Barcode LIKE ? OR
-            Item.ItemName LIKE ? OR
-            ItemType.Name LIKE ? OR
-            Brand.Name LIKE ? OR
-            SalesGroup.Name LIKE ? OR
-            Supplier.Name LIKE ?
-        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
-
-        item = self.cursor.fetchall()
-
-        return item
-    
 # for combo boxes in AddItemWindow
     def selectItemTypeData(self):
         self.cursor.execute('''

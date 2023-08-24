@@ -57,33 +57,8 @@ class InventoryManagementSQL():
         self.conn.commit()
 
 # for listing data
-    def selectAllStockData(self, text):
-        self.cursor.execute('''
-        SELECT
-            COALESCE(Supplier.Name, 'unk') AS Supplier,
-            COALESCE(Item.ItemName, 'unk') AS ItemName, 
-            Stock.OnHand,
-            Stock.Available,
-            Supplier.SupplierId,
-            Item.ItemId     
-        FROM ItemPrice
-            LEFT JOIN Item
-                ON ItemPrice.ItemId = Item.ItemId
-            LEFT JOIN Supplier
-                ON Item.SupplierId = Supplier.SupplierId
-            LEFT JOIN Stock
-                ON Stock.ItemId = Item.ItemId
-        WHERE
-            Stock.OnHand IS NOT NULL AND
-            Stock.Available IS NOT NULL
-        ORDER BY Item.ItemId DESC
-        ''')
-        
-        all_data = self.cursor.fetchall()
-
-        return all_data
     
-    def selectAllFilteredStockData(self, text):
+    def selectAllStockData(self, text):
         self.cursor.execute('''
         SELECT
             COALESCE(Supplier.Name, 'unk') AS Supplier,
@@ -102,6 +77,6 @@ class InventoryManagementSQL():
             (Supplier.Name LIKE ? OR Item.ItemName LIKE ? OR Stock.OnHand LIKE ? OR Stock.Available LIKE ?)
         ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
 
-        stock = self.cursor.fetchall()
+        all_item_data = self.cursor.fetchall()
 
-        return stock
+        return all_item_data

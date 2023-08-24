@@ -62,21 +62,13 @@ class UserManagementSQL():
         )''', (name,))
         self.conn.commit()    
 
-    def selectAllFilteredUserData(self, filtered_text):
-        self.cursor.execute('''
-        SELECT Name, AccessLevel
-        FROM User
-        WHERE Name LIKE ? OR AccessLevel LIKE ?
-        ORDER BY CustomerId DESC
-        ''', ('%' + filtered_text + '%', '%' + filtered_text + '%'))
-        all_data = self.cursor.fetchall()
-        return all_data
-    
     def selectAllUserData(self, text):
         self.cursor.execute('''
         SELECT Name, AccessLevel
         FROM User
+        WHERE Name LIKE ? OR AccessLevel LIKE ?
         ORDER BY UserId DESC
-        ''')
+        ''', ('%' + text + '%', '%' + text + '%'))
         all_data = self.cursor.fetchall()
         return all_data
+    
