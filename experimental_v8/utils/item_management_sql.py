@@ -167,6 +167,14 @@ class ItemManagementSQL():
               item_id, cost, discount, sell_price, effective_dt))
         self.conn.commit()
 
+    def insertItemPromoPriceData(self, item_id, promo_id, cost, discount, sell_price, effective_dt):
+        self.cursor.execute('''
+        INSERT INTO ItemPrice (ItemId, PromoId, Cost, Discount, SellPrice, EffectiveDt)
+        SELECT ?, ?, ?, ?, ?, ?
+        ''', (item_id, promo_id, cost, discount, sell_price, effective_dt,
+              item_id, promo_id, cost, discount, sell_price, effective_dt))
+        self.conn.commit()
+        
 # for retrieving ids
     def selectItemTypeId(self, item_type):
         self.cursor.execute('''
@@ -228,66 +236,6 @@ class ItemManagementSQL():
 
         return item_price_id[0]
 
-        # self.cursor.execute('''
-        # CREATE TABLE IF NOT EXISTS Promo (
-        #     PromoId INTEGER PRIMARY KEY AUTOINCREMENT,
-        #     Name TEXT,
-        #     PromoTyp TEXT,
-        #     Description TEXT,
-        #     DaysToExp INTEGER,
-        #     LessPerc INTEGER,
-        #     StartDt DATETIME,
-        #     EndDt DATETIME,
-        #     UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
-        # );
-        # ''')
-        # self.conn.commit()
-
-        # self.cursor.execute('''
-        # CREATE TABLE IF NOT EXISTS Customer (
-        #     CustId INTEGER PRIMARY KEY AUTOINCREMENT,
-        #     CustName TEXT,
-        #     Address TEXT,
-        #     Phone TEXT,
-        #     Type TEXT,
-        #     Status TEXT,
-        #     UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
-        # );
-        # ''')
-        # self.conn.commit()
-
-        # self.cursor.execute('''
-        # CREATE TABLE IF NOT EXISTS Stocks (
-        #     StockId INTEGER PRIMARY KEY AUTOINCREMENT,
-        #     SupplierId INTEGER DEFAULT 0,
-        #     ItemId INTEGER DEFAULT 0,
-        #     Description TEXT,
-        #     OnHand INTEGER,
-        #     Available INTEGER,
-        #     UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP,
-        #     FOREIGN KEY (SupplierId) REFERENCES Supplier(SupplierId),
-        #     FOREIGN KEY (ItemId) REFERENCES Item(ItemId)
-        # );
-        # ''')
-        # self.conn.commit()
-
-        # self.cursor.execute('''
-        # CREATE TABLE IF NOT EXISTS ItemSold (
-        #     ItemSoldId INTEGER PRIMARY KEY AUTOINCREMENT,
-        #     ItemPriceId INTEGER DEFAULT 0,
-        #     CustId INTEGER DEFAULT 0,
-        #     StockId INTEGER DEFAULT 0,
-        #     UserId INTEGER DEFAULT 0,
-        #     Quantity INTEGER,
-        #     TotalAmount DECIMAL(15, 2),
-        #     Void BIT DEFAULT 0, 
-        #     UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP,
-        #     FOREIGN KEY (ItemPriceId) REFERENCES ItemPrice(ItemPriceId),
-        #     FOREIGN KEY (CustId) REFERENCES Customer(CustId),
-        #     FOREIGN KEY (StockId) REFERENCES Stocks(StockId)
-        # );
-        # ''')
-        # self.conn.commit()
 
 # for editing items
     def updateItemData(self, barcode, item_name, expire_dt, item_id, item_type_id, brand_id, sales_group_id, supplier_id):
@@ -321,6 +269,7 @@ class ItemManagementSQL():
             Brand.BrandId,
             SalesGroup.SalesGroupId,
             Supplier.SupplierId
+            Promo.PromoId
                             
         FROM ItemPrice
             LEFT JOIN Item
@@ -333,6 +282,8 @@ class ItemManagementSQL():
                 ON Item.SupplierId = Supplier.SupplierId
             LEFT JOIN SalesGroup
                 ON Item.SalesGroupId = SalesGroup.SalesGroupId
+            LEFT JOIN Promo
+                ON Item.PromoId = Promo.PromoId
         WHERE
             Item.Barcode LIKE ? OR
             Item.ItemName LIKE ? OR
@@ -394,3 +345,13 @@ class ItemManagementSQL():
         items = [row[0] for row in self.cursor.fetchall()]
         
         return items
+    
+    def selectPromoTypeDataByName(self, name):
+        self.cursor.execute('''
+        SELECT DISTINCT PromoType FROM Promo
+        WHERE Name = ?
+        ''', (name,))
+        
+        promo_types = [row[0] for row in self.cursor.fetchall()]
+        
+        return promo_types
