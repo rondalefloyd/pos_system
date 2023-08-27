@@ -171,8 +171,7 @@ class ItemManagementSQL():
         self.cursor.execute('''
         INSERT INTO ItemPrice (ItemId, PromoId, Cost, Discount, SellPrice, EffectiveDt)
         SELECT ?, ?, ?, ?, ?, ?
-        ''', (item_id, promo_id, cost, discount, sell_price, effective_dt,
-              item_id, promo_id, cost, discount, sell_price, effective_dt))
+        ''', (item_id, promo_id, cost, discount, sell_price, effective_dt))
         self.conn.commit()
         
 # for retrieving ids
@@ -264,12 +263,7 @@ class ItemManagementSQL():
             COALESCE(ItemPrice.Discount, 0.00) AS Discount, 
             COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
             COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            Item.ItemId,
-            ItemType.ItemTypeId,
-            Brand.BrandId,
-            SalesGroup.SalesGroupId,
-            Supplier.SupplierId
-            Promo.PromoId
+            ItemPrice.PromoId
                             
         FROM ItemPrice
             LEFT JOIN Item
@@ -282,8 +276,7 @@ class ItemManagementSQL():
                 ON Item.SupplierId = Supplier.SupplierId
             LEFT JOIN SalesGroup
                 ON Item.SalesGroupId = SalesGroup.SalesGroupId
-            LEFT JOIN Promo
-                ON Item.PromoId = Promo.PromoId
+            
         WHERE
             Item.Barcode LIKE ? OR
             Item.ItemName LIKE ? OR
@@ -346,12 +339,28 @@ class ItemManagementSQL():
         
         return items
     
+    def selectAllPromoDataById(self, promo_id):
+        self.cursor.execute('''
+        SELECT
+            Name,
+            PromoType, 
+            PromoTypeValue,
+            Description
+        FROM Promo
+        WHERE
+            PromoId = ?
+        ''', (promo_id,))
+
+        all_data = self.cursor.fetchall()
+
+        return all_data
+
     def selectPromoTypeDataByName(self, name):
         self.cursor.execute('''
-        SELECT DISTINCT PromoType FROM Promo
+        SELECT PromoType FROM Promo
         WHERE Name = ?
         ''', (name,))
         
-        promo_types = [row[0] for row in self.cursor.fetchall()]
+        promo_types = self.cursor.fetchone()
         
-        return promo_types
+        return promo_types[0]

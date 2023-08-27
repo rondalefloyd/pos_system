@@ -53,16 +53,6 @@ class PromoManagementSQL():
         WHERE Name = ? 
         ''', (name, promo_type, promo_type_value, description, old_name))
         self.conn.commit()
-
-    def selectPromoId(self, name, promo_type):
-        self.cursor.execute('''
-        SELECT PromoId FROM Promo
-        WHERE Name = ? AND PromoType = ?
-        ''', (name, promo_type))
-
-        promo_id = self.cursor.fetchone()
-
-        return promo_id[0]
     
     def selectAllPromoData(self, text):
         self.cursor.execute('''
@@ -80,15 +70,25 @@ class PromoManagementSQL():
         
         return all_data
     
+    def selectPromoId(self, name, promo_type):
+        self.cursor.execute('''
+        SELECT PromoId FROM Promo
+        WHERE Name = ? AND PromoType = ?
+        ''', (name, promo_type))
+
+        promo_id = self.cursor.fetchone()
+
+        return promo_id[0]
+    
     def selectPromoData(self):
         self.cursor.execute('''
         SELECT DISTINCT Name FROM Promo
         ORDER BY PromoId DESC
         ''')
         
-        promos = [row[0] for row in self.cursor.fetchall()]
+        promos = self.cursor.fetchall()
         
-        return promos
+        return promos[0]
     
     def selectPromoTypeData(self):
         self.cursor.execute('''

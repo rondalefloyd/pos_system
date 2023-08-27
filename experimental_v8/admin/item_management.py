@@ -36,6 +36,11 @@ class GlobalWidget():
             combo_box.insertItem(0,"Track inventory for this item")
             combo_box.insertItem(1,"Don't track inventory for this item")
             combo_box.setCurrentIndex(0)
+        
+        if manage_item_mode == 'edit_item':
+            if ref == 'item_type' or ref == 'brand' or ref == 'brand' or ref == 'supplier':
+                combo_box.setDisabled(True)
+
         return combo_box
     def customDateEdit(self, manage_item_mode, ref):
         date_edit = QDateEdit()
@@ -47,12 +52,13 @@ class GlobalWidget():
         return push_button
 
 class ManageItemDialog(QDialog):
-    def __init__(self, manage_item_mode):
+    def __init__(self, manage_item_mode, row_value=None):
         super().__init__()
 
         self.callClass()
         self.setMainLayout(manage_item_mode)
         self.setWidgetSignal(manage_item_mode)
+        self.setCurrentAttributes(row_value)
         self.setDefaultAttributes()
     
     def callClass(self):
@@ -99,13 +105,14 @@ class ManageItemDialog(QDialog):
 
             self.item_management_sql.insertItemData(converted_barcode, converted_item_name, converted_expire_dt, retrieved_item_type_id, retrieved_brand_id, retrieved_sales_group_id, retrieved_supplier_id)
 
+            retrieved_item_id = self.item_management_sql.selectItemId(converted_barcode, converted_item_name, converted_expire_dt, retrieved_item_type_id, retrieved_brand_id, retrieved_sales_group_id, retrieved_supplier_id)
             # step c
             if converted_promo == 'No promo':
-                retrieved_item_id = self.item_management_sql.selectItemId(converted_barcode, converted_item_name, converted_expire_dt, retrieved_item_type_id, retrieved_brand_id, retrieved_sales_group_id, retrieved_supplier_id)
 
                 self.item_management_sql.insertItemPriceData(retrieved_item_id, converted_cost, converted_discount, converted_sell_price, converted_effective_dt)
             else:
                 retrieved_promo_id = self.promo_management_sql.selectPromoId(converted_promo, converted_promo_type)
+                print('WITH PROMO!', retrieved_promo_id)
 
                 self.item_management_sql.insertItemPromoPriceData(retrieved_item_id, retrieved_promo_id, converted_cost, converted_discount, converted_sell_price, converted_promo_start_dt)
                 pass
@@ -160,7 +167,7 @@ class ManageItemDialog(QDialog):
 
         converted_promo_type = self.item_management_sql.selectPromoTypeDataByName(converted_promo)
 
-        self.promo_type.setText('text')
+        self.promo_type.setText(converted_promo_type)
 
         print(converted_promo_type)
 
@@ -191,21 +198,56 @@ class ManageItemDialog(QDialog):
         except ValueError:
             self.sell_price.setText('Error')
 
+    def setWidgetSignal(self, manage_item_mode):
+        self.promo.currentIndexChanged.connect(self.onClickedPromo)
+
+        self.cost.textChanged.connect(self.calculateDiscount)
+        self.discount.textChanged.connect(self.calculateDiscount)
+
+        self.promo.currentTextChanged.connect(lambda: self.onCurrentTextChangedPromoType(self.promo))
+
+        self.inventory_status.currentIndexChanged.connect(self.onClickedInventoryStatus)
+        self.save_item_button.clicked.connect(lambda: self.onSaveItemButton(manage_item_mode))
+
+    def setCurrentAttributes(self, row_value):
+        pass
+        # self.barcode.setText(row_value[0])
+        # self.item_name.setCurrentText(row_value[1])
+        # self.expire_dt.setDate(row_value[2])
+
+        # self.item_type.setCurrentText(row_value[3])
+        # self.brand.setCurrentText(row_value[4])
+        # self.sales_group.setCurrentText(row_value[5])
+        # self.supplier.setCurrentText(row_value[6])
+        
+        # self.cost.setText(row_value[7])
+        # self.promo_type.setText(row_value[8])
+        # if self.promo_type.text() != '':
+        #     pass
+        #     # self.promo.setCurrentText(row_value[8])
+        # self.discount.setText(row_value[9])
+        # self.sell_price.setText(row_value[10])
+        # self.promo_start_dt.setDate(row_value[11])
+        # self.promo_end_dt.setDate(row_value[12])
+        # self.effective_dt.setDate(row_value[13])
+
+        # self.on_hand_stock.setText(row_value[14])
+        # self.available_stock.setText(row_value[15])
+        # # self.inventory_status.setCurrentText(row_value[15])
+
     def setDefaultAttributes(self):
         self.item_management_sql.createAllItemTable()
         self.inventory_management_sql.createStockTable()
         self.promo_management_sql.createPromoTable()
 
+        self.cost.setText('0')
+        self.discount.setText('0')
+        self.sell_price.setText('0')
+        self.on_hand_stock.setText('0')
+        self.available_stock.setText('0')
+
         self.onClickedPromo(0)
         self.fillAllItemDataComboBox()
-
-    def setWidgetSignal(self, manage_item_mode):
-        self.promo.currentIndexChanged.connect(self.onClickedPromo)
-        self.cost.textChanged.connect(self.calculateDiscount)
-        self.discount.textChanged.connect(self.calculateDiscount)
-        self.promo.currentTextChanged.connect(lambda: self.onCurrentTextChangedPromoType(self.promo))
-        self.inventory_status.currentIndexChanged.connect(self.onClickedInventoryStatus)
-        self.save_item_button.clicked.connect(lambda: self.onSaveItemButton(manage_item_mode))
     
     def setMainLayout(self, manage_item_mode):
         self.main_layout = QFormLayout()
@@ -275,10 +317,46 @@ class ListItemTable(QTableWidget):
     def __init__(self):
         super().__init__()
 
-        self.setMainLayout()
+        self.callClass()
+        self.setDefaultAttributes()
+        self.setWidgetSignal()
     
-    def setMainLayout(self):
+    def callClass(self):
+        self.global_widget = GlobalWidget()
+        self.item_management_sql = ItemManagementSQL()
+        self.inventory_management_sql = InventoryManagementSQL()
+        self.promo_management_sql = PromoManagementSQL()
+    
+    def onClickedEditItemButton(self, manage_item_mode, row_value=None):
+        self.manage_item_dialog = ManageItemDialog(manage_item_mode, row_value)
+        self.manage_item_dialog.exec()
+
+    def fillListItemTable(self):
+        all_item_data = self.item_management_sql.selectAllItemData('')
+
+        for row_index, row_value in enumerate(all_item_data):
+            total_cell = row_value[:11]
+            for col_index, col_value in enumerate(total_cell):
+                data = QTableWidgetItem(str(col_value))
+                self.setItem(row_index, col_index + 1, data)
+
+                if row_value[11] != 0:
+                    data.setForeground(QColor(255, 0, 0))
+            
+            self.edit_item_button = self.global_widget.customPushButton('EDIT')
+            self.setCellWidget(row_index, 0, self.edit_item_button)
+            self.setWidgetSignal(row_value)
+
+
+    def setWidgetSignal(self, row_value=None):
+        self.edit_item_button.clicked.connect(lambda: self.onClickedEditItemButton('edit_item', row_value))
         pass
+
+    def setDefaultAttributes(self):
+        self.setColumnCount(12)
+        self.setHorizontalHeaderLabels(['', 'barcode', 'item_name', 'expire_dt', 'item_type', 'brand', 'sales_group', 'supplier', 'cost', 'discount', 'sell_price', 'effective_dt'])
+        self.setRowCount(50)
+        self.fillListItemTable()
 
 class ItemManagementWindow(QGroupBox):
     def __init__(self):
