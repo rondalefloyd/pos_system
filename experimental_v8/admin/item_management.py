@@ -17,7 +17,7 @@ class GlobalWidget():
         return label
     def customLineEdit(self, manage_item_mode, ref):
         line_edit = QLineEdit()
-        if ref == 'sell_price':
+        if ref == 'discount':
             line_edit.setDisabled(True)
         if ref == 'promo_type':
             line_edit.setDisabled(True)
@@ -262,10 +262,10 @@ class ManageItemDialog(QDialog):
         self.supplier = self.global_widget.customComboBox(manage_item_mode, ref='supplier')
         
         self.cost = self.global_widget.customLineEdit(manage_item_mode, ref='cost')
+        self.sell_price = self.global_widget.customLineEdit(manage_item_mode, ref='sell_price')
         self.promo = self.global_widget.customComboBox(manage_item_mode, ref='promo')
         self.promo_type = self.global_widget.customLineEdit(manage_item_mode, ref='promo_type')
         self.discount = self.global_widget.customLineEdit(manage_item_mode, ref='discount')
-        self.sell_price = self.global_widget.customLineEdit(manage_item_mode, ref='sell_price')
         self.promo_start_dt = self.global_widget.customDateEdit(manage_item_mode, ref='promo_start_dt')
         self.promo_end_dt = self.global_widget.customDateEdit(manage_item_mode, ref='promo_end_dt')
         self.effective_dt = self.global_widget.customDateEdit(manage_item_mode, ref='effective_dt')
@@ -297,10 +297,10 @@ class ManageItemDialog(QDialog):
         self.main_layout.addRow('supplier: ', self.supplier)
 
         self.main_layout.addRow('cost: ', self.cost)
+        self.main_layout.addRow('sell_price: ', self.sell_price)
         self.main_layout.addRow(self.label_promo, self.promo)
         self.main_layout.addRow(self.label_promo_type, self.promo_type)
         self.main_layout.addRow('discount: ', self.discount)
-        self.main_layout.addRow('sell_price: ', self.sell_price)
         self.main_layout.addRow(self.label_promo_start_dt, self.promo_start_dt)
         self.main_layout.addRow(self.label_promo_end_dt, self.promo_end_dt)
         self.main_layout.addRow(self.label_effective_dt, self.effective_dt)

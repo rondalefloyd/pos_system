@@ -89,7 +89,7 @@ class ManagePromoDialog(QDialog):
         # add widget
         self.main_layout.addRow('promo: ', self.promo)
         self.main_layout.addRow('promo_type: ', self.promo_type)
-        self.main_layout.addRow('promo_type_value: ', self.promo_type_value)
+        self.main_layout.addRow('promo_type_value (%): ', self.promo_type_value)
         self.main_layout.addRow('description: ', self.description)
         # self.main_layout.addRow('start_dt: ', self.start_dt)
         # self.main_layout.addRow('end_dt: ', self.end_dt)

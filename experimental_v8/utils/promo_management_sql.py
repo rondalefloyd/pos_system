@@ -90,12 +90,12 @@ class PromoManagementSQL():
         
         return promos[0]
     
-    def selectPromoTypeData(self):
-        self.cursor.execute('''
-        SELECT DISTINCT Name FROM Promo
-        ORDER BY PromoId DESC
-        ''')
+    # def selectPromoTypeData(self):
+    #     self.cursor.execute('''
+    #     SELECT DISTINCT Name FROM Promo
+    #     ORDER BY PromoId DESC
+    #     ''')
         
-        promo_types = self.cursor.fetchall()
+    #     promo_types = self.cursor.fetchall()
         
-        return promo_types[0]
+    #     return promo_types[0]
