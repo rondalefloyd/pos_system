@@ -1,7 +1,7 @@
 import os
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 
-class SalesDatabaseSetup():
+class SalesDataManager():
     def __init__(self, db_file='SALES.db'):
         super().__init__()
         # Creates folder for the db file
@@ -108,8 +108,6 @@ class SalesDatabaseSetup():
             PromoType TEXT,
             DiscountPercent DECIMAL,
             Description TEXT,
-            StartDt DATETIME,
-            EndDt DATETIME,
             UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
         );
         ''')
@@ -181,17 +179,17 @@ class SalesDatabaseSetup():
             supplier,
             cost,
             sell_price,
+            new_sell_price,
             effective_dt,
             promo_name,
             inventory_status,
-            new_sell_price=None,
-            promo_type=None,
-            discount_percent=None,
-            discount_value=None,
-            start_dt=None,
-            end_dt=None,
-            on_hand_stock=None,
-            available_stock=None
+            promo_type,
+            discount_percent,
+            discount_value,
+            start_dt,
+            end_dt,
+            on_hand_stock,
+            available_stock
         ):
         # step a: insert item_type, brand, sales_group, and supplier into their respective tables
         self.cursor.execute('''
@@ -273,7 +271,8 @@ class SalesDatabaseSetup():
         item_id = self.cursor.fetchone()[0]
 
         # step d: insert item_price data depending on the conditions
-        if promo_name == 'No promo': # -- if promo_name has current text 'No promo', insert item_id, cost, sell_price, discount_value, and effective_dt into the item_price table 
+        # -- condition 1
+        if promo_name == 'No promo':
             self.cursor.execute('''
             INSERT INTO ItemPrice (ItemId, Cost, SellPrice, DiscountValue, EffectiveDt)
             SELECT ?, ?, ?, 0, ?
@@ -288,13 +287,14 @@ class SalesDatabaseSetup():
             )''', (item_id, cost, sell_price, effective_dt,
                 item_id, cost, sell_price, effective_dt))
             self.conn.commit()
-        else: # -- if promo_name has current text except 'No promo', select promo_id to get its id
+
+        # -- condition 2
+        else:
             # select promo_id to get its id
             promo_id = self.cursor.execute('''
             SELECT PromoId FROM Promo
             WHERE Name = ? AND PromoType = ? AND DiscountPercent = ?
             ''', (promo_name, promo_type, discount_percent))
-
             promo_id = self.cursor.fetchone()[0]
 
             # insert item_price with end_date 
@@ -378,7 +378,7 @@ class SalesDatabaseSetup():
         else: # -- if promo_name has current text except 'No promo', select promo_id to get its id
             pass
 
-    def listItem(self, text=None):
+    def listItem(self, text):
         self.cursor.execute('''
         SELECT
             COALESCE(Item.Barcode, 'unk'),
@@ -417,10 +417,11 @@ class SalesDatabaseSetup():
         ORDER BY Item.ItemId DESC, EffectiveDt DESC
                             
         ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
-        
-        data = self.cursor.fetchall()
+   
+        item = self.cursor.fetchall()
 
-        return data       
+        return item       
+
 
     def addNewPromo(self, promo_name, promo_type, discount_percent, description):
         self.cursor.execute('''
@@ -437,12 +438,12 @@ class SalesDatabaseSetup():
               promo_name, promo_type, discount_percent, description))
         self.conn.commit()
 
-
     def listPromo(self):
         self.cursor.execute('''
         SELECT DISTINCT Name, PromoType, DiscountPercent, Description FROM Promo
         ORDER BY PromoId DESC, UpdateTs DESC
         ''')
+        
         promo = self.cursor.fetchall()
         
         return promo
@@ -456,7 +457,7 @@ class SalesDatabaseSetup():
         
         return promo_id
 
-    def getPromoTypeAndDiscountValue(self, promo_name):
+    def getPromoTypeAndDiscountPercent(self, promo_name):
         self.cursor.execute('''
         SELECT DISTINCT PromoType, DiscountPercent FROM Promo
         WHERE Name = ?
