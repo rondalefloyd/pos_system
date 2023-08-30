@@ -7,7 +7,7 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from utils.databse_manager import *
+from utils.database_manager import *
 
 class CustomLineEdit(QLineEdit):
     def __init__(self, reference=None):

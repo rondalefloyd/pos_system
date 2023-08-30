@@ -7,7 +7,7 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from utils.databse_manager import *
+from utils.database_manager import *
 
 class CustomLabel(QLabel):
     def __init__(self, text, reference=None):
@@ -16,12 +16,14 @@ class CustomLabel(QLabel):
         self.ref = reference
 
         if self.ref in [
+            'current_promo_name',
             'promo_type',
             'discount_percent',
             'discount_value',
             'new_sell_price',
             'start_dt',
-            'end_dt'
+            'end_dt',
+            'current_effective_dt'
         ]:
             self.hide()
 
@@ -37,7 +39,15 @@ class CustomLineEdit(QLineEdit):
             self.setText('0')
             self.textChanged.connect(self.handleTextChanged)
 
-        if self.ref in ['promo_type', 'discount_percent', 'discount_value', 'new_sell_price']:
+        if self.ref in [
+            'promo_type', 
+            'discount_percent', 
+            'discount_value', 
+            'new_sell_price',
+            'current_promo_type',
+            'current_discount_percent',
+            'current_discount_value'
+        ]:
             self.setDisabled(True)
             self.hide()
 
@@ -68,6 +78,7 @@ class CustomComboBox(QComboBox):
 
         self.ref = reference
 
+
         if self.ref in ['item_name', 'item_type', 'brand', 'supplier']:
             self.setEditable(True)
 
@@ -75,12 +86,15 @@ class CustomComboBox(QComboBox):
             self.addItem('Retail')
             self.addItem('Wholesale')
 
-        if self.ref == 'promo_name':
+        if self.ref in ['promo_name', 'current_promo_name']:
             self.setDisabled(True)
             self.addItem('No promo')
             data = self.sales_data_manager.listPromo()
             for row in data:
                 self.addItem(row[0])
+
+        if self.ref == 'current_promo_name':
+            self.hide()
 
         if self.ref == 'inventory_status':
             self.addItem('Track inventory')
@@ -89,26 +103,30 @@ class CustomComboBox(QComboBox):
     def prepareDataManagement(self):
         self.sales_data_manager = SalesDataManager()
     
-
 class CustomDateEdit(QDateEdit):
     def __init__(self, reference=None):
         super().__init__()
 
         self.ref = reference
 
+
         self.setCalendarPopup(True)
         self.setMinimumDate(QDate.currentDate())
 
-        if self.ref in ['start_dt', 'end_dt']:
+        if self.ref in ['start_dt', 'end_dt', 'current_effective_dt']:
             self.hide()
 
+        if self.ref == 'current_effective_dt':
+            self.setDisabled(True)
+
 class CustomPushButton(QPushButton):
-    def __init__(self, text=None):
+    def __init__(self, text=None, reference=None):
         super().__init__()
         
         self.setText(text)
 
-        pass
+        if reference == 'save_button':
+            pass
 
 class CustomTableWidget(QTableWidget):
     def __init__(self, reference=None):
@@ -118,8 +136,8 @@ class CustomTableWidget(QTableWidget):
 
         if self.ref == 'list_table':
             self.setRowCount(50)
-            self.setColumnCount(12)
-            self.setHorizontalHeaderLabels(['',
+            self.setColumnCount(13)
+            self.setHorizontalHeaderLabels(['','',
                 'barcode',
                 'item_name',
                 'expire_dt',
@@ -141,6 +159,7 @@ class CustomGroupBox(QGroupBox):
 
         if self.ref == 'panel_b':
             self.setFixedWidth(300)
+            self.hide()
         pass
 
 # ------------------------------------------------------------------------------- #
@@ -154,9 +173,171 @@ class ItemManagementWindow(QGroupBox):
         self.prepareDataManagement()
         self.setMainLayout()
 
-    # -------------------------------------------------------- #
+    # PANEL B SECTION-------------------------------------------------------- #
+    def updateEditPanelB(self, row_index, row_data):
+        self.label_inventory_status.hide()
+        self.inventory_status.hide()
+        self.label_on_hand_stock.hide()
+        self.on_hand_stock.hide()
+        self.label_available_stock.hide()
+        self.available_stock.hide()
+        self.save_add_button.hide()
 
-    def onClickedSaveButton(self):
+        self.item_type.setDisabled(True)
+        self.brand.setDisabled(True)
+        self.sales_group.setDisabled(True)
+        self.supplier.setDisabled(True)
+
+        data = row_data
+
+        self.item_id = data[11]
+        self.item_price_id = data[12]
+        self.promo_id = data[13]
+
+        if self.promo_id == 0:
+            print('this item has no promo')
+            self.label_promo_name.show()
+            self.promo_name.show()
+            self.label_current_promo_name.hide()
+            self.current_promo_name.hide()
+            self.label_current_promo_name.hide()
+            self.current_promo_name.hide()
+            self.label_current_promo_type.hide()
+            self.current_promo_type.hide()
+            self.label_current_discount_percent.hide()
+            self.current_discount_percent.hide()
+            self.label_current_discount_value.hide()
+            self.current_discount_value.hide()
+            self.label_effective_dt.show()
+            self.effective_dt.show()
+            self.label_current_effective_dt.hide()
+            self.current_effective_dt.hide()
+            self.save_edit_button.show()
+
+
+            self.barcode.setDisabled(False)
+            self.item_name.setDisabled(False)
+            self.expire_dt.setDisabled(False)
+            self.cost.setDisabled(False)
+            self.sell_price.setDisabled(False)
+
+            self.barcode.setText(str(data[0]))
+            self.item_name.setCurrentText(str(data[1]))
+            self.expire_dt.setDate(QDate.fromString(data[2], Qt.DateFormat.ISODate))
+
+            self.item_type.setCurrentText(str(data[3]))
+            self.brand.setCurrentText(str(data[4]))
+            self.sales_group.setCurrentText(str(data[5]))
+            self.supplier.setCurrentText(str(data[6]))
+            self.cost.setText(str(data[7]))
+            self.sell_price.setText(str(data[8]))
+            self.promo_name.setCurrentText(str('No promo'))
+            self.effective_dt.setDate(QDate.fromString(data[10], Qt.DateFormat.ISODate))
+
+        else:
+            print('this item has promo')
+            self.label_promo_name.hide()
+            self.promo_name.hide()
+            self.label_current_promo_name.show()
+            self.current_promo_name.show()
+            self.label_current_promo_name.show()
+            self.current_promo_name.show()
+            self.label_current_promo_type.show()
+            self.current_promo_type.show()
+            self.label_current_discount_percent.show()
+            self.current_discount_percent.show()
+            self.label_current_discount_value.show()
+            self.current_discount_value.show()
+            self.label_effective_dt.hide()
+            self.effective_dt.hide()
+            self.label_current_effective_dt.show()
+            self.current_effective_dt.show()
+            self.save_edit_button.hide()
+            
+            self.barcode.setDisabled(True)
+            self.item_name.setDisabled(True)
+            self.expire_dt.setDisabled(True)
+            self.cost.setDisabled(True)
+            self.sell_price.setDisabled(True)
+
+            self.barcode.setText(str(data[0]))
+            self.item_name.setCurrentText(str(data[1]))
+            self.expire_dt.setDate(QDate.fromString(data[2], Qt.DateFormat.ISODate))
+
+            self.item_type.setCurrentText(str(data[3]))
+            self.brand.setCurrentText(str(data[4]))
+            self.sales_group.setCurrentText(str(data[5]))
+            self.supplier.setCurrentText(str(data[6]))
+
+            self.cost.setText(str(data[7]))
+            self.sell_price.setText(str(data[8]))
+            self.current_promo_name.setCurrentText(str(data[14]))
+            self.current_promo_type.setText(str(data[15]))
+            self.current_discount_percent.setText(str(data[16]))
+            self.current_discount_value.setText(str(data[9]))
+            self.current_effective_dt.setDate(QDate.fromString(data[10], Qt.DateFormat.ISODate))
+
+    def updateAddPanelB(self):
+        self.label_promo_name.show()
+        self.promo_name.show()
+        self.label_current_promo_name.hide()
+        self.current_promo_name.hide()
+        self.label_current_promo_name.hide()
+        self.current_promo_name.hide()
+        self.label_current_promo_type.hide()
+        self.current_promo_type.hide()
+        self.label_current_discount_percent.hide()
+        self.current_discount_percent.hide()
+        self.label_current_discount_value.hide()
+        self.current_discount_value.hide()
+        self.label_effective_dt.show()
+        self.effective_dt.show()
+        self.label_current_effective_dt.hide()
+        self.current_effective_dt.hide()
+        self.label_inventory_status.show()
+        self.inventory_status.show()
+        self.label_on_hand_stock.show()
+        self.on_hand_stock.show()
+        self.label_available_stock.show()
+        self.available_stock.show()
+        self.save_add_button.show()
+        self.save_edit_button.hide()
+
+        self.item_type.setDisabled(False)
+        self.brand.setDisabled(False)
+        self.sales_group.setDisabled(False)
+        self.supplier.setDisabled(False)
+        self.cost.setDisabled(False)
+        self.sell_price.setDisabled(False)
+
+        self.barcode.setText(str(''))
+        self.item_name.setCurrentText(str(''))
+        self.expire_dt.setDate(QDate.currentDate())
+        self.item_type.setCurrentText(str(''))
+        self.brand.setCurrentText(str(''))
+        self.sales_group.setCurrentText(str(''))
+        self.supplier.setCurrentText(str(''))
+        self.cost.setText(str(''))
+        self.sell_price.setText(str(''))
+        self.promo_name.setCurrentText(str(''))
+        self.promo_type.setText(str(''))
+        self.discount_percent.setText(str(''))
+        self.discount_value.setText(str(''))
+        self.new_sell_price.setText(str(''))
+        self.start_dt.setDate(QDate.currentDate())
+        self.end_dt.setDate(QDate.currentDate())
+        self.effective_dt.setDate(QDate.currentDate())
+        self.inventory_status.setCurrentText(str(''))
+        self.on_hand_stock.setText(str(''))
+        self.available_stock.setText(str(''))
+        self.current_promo_name.setCurrentText(str(''))
+        self.current_promo_type.setText(str(''))
+        self.current_discount_percent.setText(str(''))
+        self.current_discount_value.setText(str(''))
+        self.current_effective_dt.setDate(QDate.currentDate())
+        pass
+
+    def onSaveButtonClicked(self, reference):
         converted_barcode = str(self.barcode.text())
         converted_item_name = str(self.item_name.currentText())
         converted_expire_dt = self.expire_dt.date().toString(Qt.DateFormat.ISODate)
@@ -181,55 +362,64 @@ class ItemManagementWindow(QGroupBox):
         converted_on_hand_stock = str(int(self.on_hand_stock.text()))
         converted_available_stock = str(int(self.available_stock.text()))
 
-        print('converted_barcode: ', converted_barcode)
-        print('converted_item_name: ', converted_item_name)
-        print('converted_expire_dt: ', converted_expire_dt)
-        print('converted_item_type: ', converted_item_type)
-        print('converted_brand: ', converted_brand)
-        print('converted_sales_group: ', converted_sales_group)
-        print('converted_supplier: ', converted_supplier)
-        print('converted_cost: ', converted_cost)
-        print('converted_sell_price: ', converted_sell_price)
-        print('converted_promo_name: ', converted_promo_name)
-        print('converted_promo_type: ', converted_promo_type)
-        print('converted_discount_percent: ', converted_discount_percent)
-        print('converted_discount_value: ', converted_discount_value)
-        print('converted_new_sell_price: ', converted_new_sell_price)
-        print('converted_start_dt: ', converted_start_dt)
-        print('converted_end_dt: ', converted_end_dt)
-        print('converted_effective_dt: ', converted_effective_dt)
-        print('converted_inventory_status: ', converted_inventory_status)
-        print('converted_on_hand_stock: ', converted_on_hand_stock)
-        print('converted_available_stock: ', converted_available_stock)
+        if reference == 'add':
+            self.sales_data_manager.addNewItem(
+                converted_barcode,
+                converted_item_name,
+                converted_expire_dt,
+                converted_item_type,
+                converted_brand,
+                converted_sales_group,
+                converted_supplier,
+                converted_cost,
+                converted_sell_price,
+                converted_new_sell_price,
+                converted_effective_dt,
+                converted_promo_name,
+                converted_promo_type,
+                converted_discount_percent,
+                converted_discount_value,
+                converted_start_dt,
+                converted_end_dt,
+                converted_inventory_status,
+                converted_on_hand_stock,
+                converted_available_stock
+            )
+            QMessageBox.information(self, "Success", "New item has been added!")
+            self.data_saved.emit()
 
-        self.sales_data_manager.addNewItem(
-            converted_barcode,
-            converted_item_name,
-            converted_expire_dt,
-            converted_item_type,
-            converted_brand,
-            converted_sales_group,
-            converted_supplier,
-            converted_cost,
-            converted_sell_price,
-            converted_new_sell_price,
-            converted_effective_dt,
-            converted_promo_name,
-            converted_inventory_status,
-            converted_promo_type,
-            converted_discount_percent,
-            converted_discount_value,
-            converted_start_dt,
-            converted_end_dt,
-            converted_on_hand_stock,
-            converted_available_stock
-        )
+        elif reference == 'edit':
+            print(reference)
+            self.sales_data_manager.editSelectedItem(
+                converted_barcode,
+                converted_item_name,
+                converted_expire_dt,
+                converted_item_type,
+                converted_brand,
+                converted_sales_group,
+                converted_supplier,
+                converted_cost,
+                converted_sell_price,
+                converted_new_sell_price,
+                converted_effective_dt,
+                converted_promo_name,
+                converted_promo_type,
+                converted_discount_percent,
+                converted_discount_value,
+                converted_start_dt,
+                converted_end_dt,
+                self.item_id,
+                self.item_price_id,
+                self.promo_id
+            )
+            QMessageBox.information(self, "Success", "Item has been edited!")
+            self.data_saved.emit()
 
-        self.data_saved.emit()
 
     def handleTextChanged(self, text, reference=None):
         if reference == 'sell_price':
             if text == '0' or text == '':
+                self.promo_name.setCurrentText('No promo')
                 self.promo_name.setDisabled(True)
             else:
                 self.promo_name.setDisabled(False)
@@ -304,7 +494,7 @@ class ItemManagementWindow(QGroupBox):
                 
                 except ValueError:
                     pass
-            
+
         if reference == 'inventory_status':
             if currentText == 'Track inventory':
                 self.label_on_hand_stock.show()
@@ -318,7 +508,7 @@ class ItemManagementWindow(QGroupBox):
                 self.label_available_stock.hide()
                 self.available_stock.hide()   
 
-    def onClickedCloseButton(self):
+    def onCloseButtonClicked(self):
         self.panel_b.hide()
         self.add_button.setDisabled(False)
 
@@ -328,7 +518,7 @@ class ItemManagementWindow(QGroupBox):
 
         self.close_button = CustomPushButton(text='BACK')
         self.close_button.setFixedWidth(50)
-        self.close_button.clicked.connect(self.onClickedCloseButton)
+        self.close_button.clicked.connect(self.onCloseButtonClicked)
 
         self.barcode = CustomLineEdit(reference='barcode')
         self.item_name = CustomComboBox(reference='item_name')
@@ -342,32 +532,50 @@ class ItemManagementWindow(QGroupBox):
         self.cost = CustomLineEdit(reference='cost')
         self.sell_price = CustomLineEdit(reference='sell_price')
         self.sell_price.textChanged.connect(lambda text: self.handleTextChanged(text, reference='sell_price'))
+        self.label_promo_name = CustomLabel(text='promo_name: ', reference='promo_name')
         self.promo_name = CustomComboBox(reference='promo_name')
         self.promo_name.currentTextChanged.connect(lambda currentText: self.handleCurrentTextChanged(currentText, reference='promo_name'))
-        self.label_promo_type = CustomLabel(text='promo_type', reference='promo_type')
+
+        self.label_promo_type = CustomLabel(text='promo_type: ', reference='promo_type')
         self.promo_type = CustomLineEdit(reference='promo_type')
-        self.label_discount_percent = CustomLabel(text='discount_percent', reference='discount_percent')
+        self.label_discount_percent = CustomLabel(text='discount_percent: ', reference='discount_percent')
         self.discount_percent = CustomLineEdit(reference='discount_percent')
-        self.label_discount_value = CustomLabel(text='discount_value', reference='discount_value')
+        self.label_discount_value = CustomLabel(text='discount_value: ', reference='discount_value')
         self.discount_value = CustomLineEdit(reference='discount_value')
-        self.label_new_sell_price = CustomLabel(text='new_sell_price', reference='new_sell_price')
+        self.label_new_sell_price = CustomLabel(text='new_sell_price: ', reference='new_sell_price')
         self.new_sell_price = CustomLineEdit(reference='new_sell_price')
-        self.label_start_dt = CustomLabel(text='start_dt', reference='start_dt')
+        self.label_start_dt = CustomLabel(text='start_dt: ', reference='start_dt')
         self.start_dt = CustomDateEdit(reference='start_dt')
-        self.label_end_dt = CustomLabel(text='end_dt', reference='end_dt')
+        self.label_end_dt = CustomLabel(text='end_dt: ', reference='end_dt')
         self.end_dt = CustomDateEdit(reference='end_dt')
-        self.label_effective_dt = CustomLabel(text='effective_dt', reference='effective_dt')
+        self.label_effective_dt = CustomLabel(text='effective_dt: ', reference='effective_dt')
         self.effective_dt = CustomDateEdit()
 
+        self.label_inventory_status = CustomLabel(text='inventory_status: ')
         self.inventory_status = CustomComboBox(reference='inventory_status')
         self.inventory_status.currentTextChanged.connect(lambda currentText: self.handleCurrentTextChanged(currentText, reference='inventory_status'))
-        self.label_on_hand_stock = CustomLabel(text='on_hand_stock', reference='on_hand_stock')
+        self.label_on_hand_stock = CustomLabel(text='on_hand_stock: ', reference='on_hand_stock')
         self.on_hand_stock = CustomLineEdit(reference='on_hand_stock')
-        self.label_available_stock = CustomLabel(text='available_stock', reference='available_stock')
+        self.label_available_stock = CustomLabel(text='available_stock: ', reference='available_stock')
         self.available_stock = CustomLineEdit(reference='available_stock')
 
-        self.save_button = CustomPushButton(text='SAVE')
-        self.save_button.clicked.connect(self.onClickedSaveButton)
+        # additional widgets
+        self.label_current_promo_name = CustomLabel(text='current_promo_name: ', reference='current_promo_name')
+        self.current_promo_name = CustomComboBox(reference='current_promo_name')
+        self.label_current_promo_type = CustomLabel(text='current_promo_type: ', reference='current_promo_type')
+        self.current_promo_type = CustomLineEdit(reference='current_promo_type')
+        self.label_current_discount_percent = CustomLabel(text='current_discount_percent: ', reference='current_discount_percent')
+        self.current_discount_percent = CustomLineEdit(reference='current_discount_percent')
+        self.label_current_discount_value = CustomLabel(text='current_discount_value: ', reference='current_discount_value')
+        self.current_discount_value = CustomLineEdit(reference='current_discount_value')
+        self.label_current_effective_dt = CustomLabel(text='current_effective_dt: ', reference='current_effective_dt')
+        self.current_effective_dt = CustomDateEdit(reference='current_effective_dt')
+
+        self.save_add_button = CustomPushButton(text='SAVE ADD', reference='save_button')
+        self.save_add_button.clicked.connect(lambda: self.onSaveButtonClicked('add'))
+
+        self.save_edit_button = CustomPushButton(text='SAVE EDIT', reference='save_button')
+        self.save_edit_button.clicked.connect(lambda: self.onSaveButtonClicked('edit'))
         
         panel_layout.addRow(self.close_button)
 
@@ -382,51 +590,117 @@ class ItemManagementWindow(QGroupBox):
 
         panel_layout.addRow('cost: ', self.cost)
         panel_layout.addRow('sell_price', self.sell_price)
-        panel_layout.addRow('promo_name: ', self.promo_name)
+
+        panel_layout.addRow(self.label_promo_name, self.promo_name)
+        panel_layout.addRow(self.label_current_promo_name, self.current_promo_name)
+
         panel_layout.addRow(self.label_promo_type, self.promo_type)
+        panel_layout.addRow(self.label_current_promo_type, self.current_promo_type)
+
         panel_layout.addRow(self.label_discount_percent, self.discount_percent)
+        panel_layout.addRow(self.label_current_discount_percent, self.current_discount_percent)
+
         panel_layout.addRow(self.label_discount_value, self.discount_value)
+        panel_layout.addRow(self.label_current_discount_value, self.current_discount_value)
+
         panel_layout.addRow(self.label_new_sell_price, self.new_sell_price)
         panel_layout.addRow(self.label_start_dt, self.start_dt)
         panel_layout.addRow(self.label_end_dt, self.end_dt)
-        panel_layout.addRow(self.label_effective_dt, self.effective_dt)
 
-        panel_layout.addRow('inventory_status: ', self.inventory_status)
+        panel_layout.addRow(self.label_effective_dt, self.effective_dt)
+        panel_layout.addRow(self.label_current_effective_dt, self.current_effective_dt)
+
+        panel_layout.addRow(self.label_inventory_status, self.inventory_status)
         panel_layout.addRow(self.label_on_hand_stock, self.on_hand_stock)
         panel_layout.addRow(self.label_available_stock, self.available_stock)
 
-        panel_layout.addRow(self.save_button)
+        panel_layout.addRow(self.save_add_button)
+        panel_layout.addRow(self.save_edit_button)
 
         panel.setLayout(panel_layout)
 
         return panel
 
-    # -------------------------------------------------------- #
+    # PANEL A SECTION -------------------------------------------------------- #
+    def showRemoveConfirmationDialog(self, row_index, row_data):
+        data = row_data
+
+        item_name = str(data[1])
+        item_price_id = str(data[12])
+        effective_dt = QDate.fromString(data[10], 'yyyy-MM-dd')
+        current_dt = QDateTime.currentDateTime().date()
+
+        # Convert current_datetime to QDate
+
+        if effective_dt >= current_dt:
+            confirmation = QMessageBox.warning(self, "Remove", f"Are you sure you want to remove <b>{item_name}</b>?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            if confirmation == QMessageBox.StandardButton.Yes:
+                    self.sales_data_manager.removeSelectedItem(item_price_id)
+                    print(effective_dt)
+                    print(item_price_id)
+                    self.data_saved.emit()
+            else:
+                pass
+        else:
+            converted_effective_dt = effective_dt.toString('MM-dd-yyyy')
+            converted_current_dt = current_dt.toString('MM-dd-yyyy')
+            print(converted_effective_dt)
+            print(converted_current_dt)
+            QMessageBox.critical(self, "Invalid action", f"Item cannot be deleted.")
+
+    def onRemoveButtonClicked(self, row_index, row_data):
+        self.showRemoveConfirmationDialog(row_index, row_data)
+
+    def onEditButtonClicked(self, row_index, row_data):
+        self.updateEditPanelB(row_index, row_data)
+        self.panel_b.show()
+        self.add_button.setDisabled(True)
     
+    def onAddButtonClicked(self):
+        self.updateAddPanelB()
+        self.panel_b.show()
+        self.add_button.setDisabled(True)
+
     def populateTable(self):
+        self.list_table.clearContents()
         data = self.sales_data_manager.listItem('')
 
         for row_index, row_data in enumerate(data):
-            total_cell = row_data[:11]
+            data = row_data
+            total_cell = data[:11]
+
+            effective_dt = QDate.fromString(data[10], 'yyyy-MM-dd')
+            current_dt = QDateTime.currentDateTime().date()
+            item_id = data[11]
+            item_price_id = data[12]
+            promo_id = data[13]
+            
+
             for col_index, col_data in enumerate(total_cell):
                 cell = QTableWidgetItem(str(col_data))
 
-                self.list_table.setItem(row_index, col_index + 1, cell)
+                self.list_table.setItem(row_index, col_index + 2, cell)
+
+                if data[13] != 0:
+                    cell.setForeground(QColor(255, 0, 255))
 
             self.edit_button = CustomPushButton(text='EDIT')
+            self.edit_button.clicked.connect(lambda row_index=row_index, row_data=row_data: self.onEditButtonClicked(row_index, row_data))
             self.list_table.setCellWidget(row_index, 0, self.edit_button)
 
-    def onClickedAddButton(self):
-        self.panel_b.show()
-        self.add_button.setDisabled(True)
+            self.remove_button = CustomPushButton(text='REMOVE')
+            self.remove_button.clicked.connect(lambda row_index=row_index, row_data=row_data: self.onRemoveButtonClicked(row_index, row_data))
+            self.list_table.setCellWidget(row_index, 1, self.remove_button)
+                
+
 
     def showPanelA(self): # -- PANEL A
         panel = CustomGroupBox()
         panel_layout = QGridLayout()
 
-        self.filter_bar = CustomLineEdit()
+        self.filter_bar = CustomLineEdit(reference='filter_bar')
         self.add_button = CustomPushButton(text='ADD')
-        self.add_button.clicked.connect(self.onClickedAddButton)
+        self.add_button.clicked.connect(self.onAddButtonClicked)
         self.list_table = CustomTableWidget(reference='list_table')
         self.populateTable()
         self.data_saved.connect(self.populateTable)
@@ -439,8 +713,7 @@ class ItemManagementWindow(QGroupBox):
 
         return panel
    
-    # -------------------------------------------------------- #
-
+    # MAIN SECTION -------------------------------------------------------- #
     def setMainLayout(self):
         self.main_layout = QGridLayout()
 

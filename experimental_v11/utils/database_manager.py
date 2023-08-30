@@ -169,6 +169,8 @@ class SalesDataManager():
         ''')
         self.conn.commit()
 
+    # ITEM MANAGEMENT
+    # -- for adding
     def addNewItem(self,
             barcode,
             item_name,
@@ -182,12 +184,12 @@ class SalesDataManager():
             new_sell_price,
             effective_dt,
             promo_name,
-            inventory_status,
             promo_type,
             discount_percent,
             discount_value,
             start_dt,
             end_dt,
+            inventory_status,
             on_hand_stock,
             available_stock
         ):
@@ -343,41 +345,199 @@ class SalesDataManager():
         else:
             pass
     
-
-    # needs to be fixed xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    def editItem(self,
+    def getPromoTypeAndDiscountPercent(self, promo_name):
+        self.cursor.execute('''
+        SELECT DISTINCT PromoType, DiscountPercent FROM Promo
+        WHERE Name = ?
+        ''', (promo_name,))
+        data = self.cursor.fetchall()
+        
+        return data
+    
+    # -- for editing
+    def editSelectedItem(self,
             barcode,
             item_name,
             expire_dt,
+            item_type,
+            brand,
+            sales_group,
+            supplier,
             cost,
             sell_price,
-            discount_value,
+            new_sell_price,
+            effective_dt,
             promo_name,
             promo_type,
-            effective_dt,
+            discount_percent,
+            discount_value,
+            start_dt,
+            end_dt,
             item_id,
-            promo_id,
-            item_price_id
+            item_price_id,
+            promo_id
         ):
-        
-        # step a:
-        self.cursor.execute('''
-            UPDATE Item
-            SET Barcode = ?, ItemName = ?, ExpireDt = ?, UpdateTs =  CURRENT_TIMESTAMP
-            WHERE ItemId = ?
-        ''', (barcode, item_name, expire_dt, item_id))
-
-        # step d: insert item_price data depending on the conditions
-        if promo_name == 'No promo': # -- if promo_name has current text 'No promo', insert item_id, cost, sell_price, discount_value, and effective_dt into the item_price table 
+        # edit without promo and no promo name
+        if str(promo_id) == '0' and promo_name == 'No promo':
+            print("A")
             self.cursor.execute('''
-                UPDATE ItemPrice
-                SET Cost = ?, SellPrice = ?, EffectiveDt = ?, UpdateTs =  CURRENT_TIMESTAMP
-                WHERE ItemPriceId = ?
-            ''', (cost, sell_price, effective_dt, item_price_id))
-            
-        else: # -- if promo_name has current text except 'No promo', select promo_id to get its id
-            pass
+            UPDATE Item
+            SET Barcode = ?, ItemName = ?, ExpireDt = ?
+            WHERE ItemId = ?
+            ''', (barcode, item_name, expire_dt, item_id))
+            self.conn.commit()
 
+            self.cursor.execute('''
+            UPDATE ItemPrice
+            SET Cost = ?, SellPrice = ?, EffectiveDt = ?
+            WHERE ItemPriceId = ? AND EffectiveDt > CURRENT_DATE
+            ''', (cost, sell_price, effective_dt, item_price_id))
+            self.conn.commit()
+        
+        # edit without promo but has promo name
+        elif str(promo_id) == '0' and promo_name != 'No promo':
+            print("B")
+            # step a: insert item_type, brand, sales_group, and supplier into their respective tables
+            self.cursor.execute('''
+            INSERT INTO ItemType (Name)
+            SELECT ? WHERE NOT EXISTS (SELECT 1 FROM ItemType WHERE Name = ?)
+            ''', (item_type, item_type))
+            self.conn.commit()
+
+            self.cursor.execute('''
+            INSERT INTO Brand (Name)
+            SELECT ? WHERE NOT EXISTS (SELECT 1 FROM Brand WHERE Name = ?)
+            ''', (brand, brand))
+            self.conn.commit()
+
+            self.cursor.execute('''
+            INSERT INTO SalesGroup (Name)
+            SELECT ? WHERE NOT EXISTS (SELECT 1 FROM SalesGroup WHERE Name = ?)
+            ''', (sales_group, sales_group))
+            self.conn.commit()
+
+            self.cursor.execute('''
+            INSERT INTO Supplier (Name)
+            SELECT ? WHERE NOT EXISTS (SELECT 1 FROM Supplier WHERE Name = ?)
+            ''', (supplier, supplier))
+            self.conn.commit()
+
+            # step b: select item_type_id, brand_id, sales_group_id, and supplier_id to get their ids
+            item_type_id = self.cursor.execute('''
+            SELECT ItemTypeId FROM ItemType
+            WHERE Name = ?
+            ''', (item_type,))
+            item_type_id = self.cursor.fetchone()[0]
+
+            brand_id = self.cursor.execute('''
+            SELECT BrandId FROM Brand
+            WHERE Name = ?
+            ''', (brand,))
+            brand_id = self.cursor.fetchone()[0]
+
+            sales_group_id = self.cursor.execute('''
+            SELECT SalesGroupId FROM SalesGroup
+            WHERE Name = ?
+            ''', (sales_group,))
+            sales_group_id = self.cursor.fetchone()[0]
+
+            supplier_id = self.cursor.execute('''
+            SELECT SupplierId FROM Supplier
+            WHERE Name = ?
+            ''', (supplier,))
+            supplier_id = self.cursor.fetchone()[0]
+
+            # step c: insert barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, and supplier_id into the item table
+            self.cursor.execute('''
+            INSERT INTO Item (Barcode, ItemName, ExpireDt, ItemTypeId, BrandId, SalesGroupId, SupplierId)
+            SELECT ?, ?, ?, ?, ?, ?, ?
+            WHERE NOT EXISTS(
+            SELECT 1 FROM Item
+                INNER JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
+                INNER JOIN Brand ON Item.BrandId = Brand.BrandId
+                INNER JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
+                INNER JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
+            WHERE
+                Item.Barcode = ? AND
+                Item.ItemName = ? AND
+                Item.ExpireDt = ? AND
+                Item.ItemTypeId = ? AND
+                Item.BrandId = ? AND
+                Item.SupplierId = ? AND
+                Item.SalesGroupId = ?
+            )''', (barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id,
+                barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id))
+            self.conn.commit()
+
+            # step d:
+            # select item_id to get its id
+            item_id = self.cursor.execute('''
+            SELECT ItemId FROM Item
+            WHERE Barcode = ? AND ItemName = ? AND ExpireDt = ? AND ItemTypeId = ? AND BrandId = ? AND SalesGroupId = ? AND SupplierId = ?
+            ''', (barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id))
+            item_id = self.cursor.fetchone()[0]
+
+            # select promo_id to get its id
+            new_promo_id = self.cursor.execute('''
+            SELECT PromoId FROM Promo
+            WHERE Name = ? AND PromoType = ? AND DiscountPercent = ?
+            ''', (promo_name, promo_type, discount_percent))
+            new_promo_id = self.cursor.fetchone()[0]
+
+            # insert item_price with end_date 
+            self.cursor.execute('''
+            INSERT INTO ItemPrice (ItemId, Cost, SellPrice, PromoId, DiscountValue, EffectiveDt)
+            SELECT ?, ?, ?, 0, 0, DATE(?, '+1 day')
+            WHERE NOT EXISTS (
+            SELECT 1 FROM ItemPrice
+            WHERE 
+                ItemId = ? AND
+                Cost = ? AND
+                SellPrice = ? AND
+                PromoId = 0 AND
+                DiscountValue = 0 AND
+                EffectiveDt = DATE(?, '+1 day')
+            )''', (item_id, cost, sell_price, end_dt,
+                item_id, cost, sell_price, end_dt))
+            self.conn.commit()
+
+            # insert item_price with start_date
+            self.cursor.execute('''
+            INSERT INTO ItemPrice (ItemId, Cost, SellPrice, PromoId, DiscountValue, EffectiveDt)
+            SELECT ?, ?, ?, ?, ?, ?
+            WHERE NOT EXISTS (
+            SELECT 1 FROM ItemPrice
+            WHERE 
+                ItemId = ? AND
+                Cost = ? AND
+                SellPrice = ? AND
+                PromoId = ? AND
+                DiscountValue = ? AND
+                EffectiveDt = ?
+            )''', (item_id, cost, new_sell_price, new_promo_id, discount_value, start_dt,
+                item_id, cost, new_sell_price, promo_id, discount_value, start_dt))
+            self.conn.commit()
+
+        # edit with promo and promo name
+        elif str(promo_id) != '0' and promo_name != 'No promo':
+            print("C, ", promo_id)
+            self.cursor.execute('''
+            UPDATE Item
+            SET Barcode = ?, ItemName = ?, ExpireDt = ?
+            WHERE ItemId = ?
+            ''', (barcode, item_name, expire_dt, item_id))
+            self.conn.commit()
+
+    # -- for removing
+    def removeSelectedItem(self, item_price_id):
+        self.cursor.execute('''
+        DELETE FROM ItemPrice
+        WHERE ItemPriceId = ? AND EffectiveDt >= CURRENT_DATE
+        ''', (item_price_id,))
+        self.conn.commit()
+
+
+    # -- for populating
     def listItem(self, text):
         self.cursor.execute('''
         SELECT
@@ -394,7 +554,11 @@ class SalesDataManager():
             COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
             ItemPrice.ItemId,
             ItemPrice.ItemPriceId,
-            ItemPrice.PromoId
+            ItemPrice.PromoId,
+            Promo.Name,
+            Promo.PromoType,
+            Promo.DiscountPercent,
+            Stock.StockId
                             
         FROM ItemPrice
             LEFT JOIN Item
@@ -407,6 +571,10 @@ class SalesDataManager():
                 ON Item.SupplierId = Supplier.SupplierId
             LEFT JOIN SalesGroup
                 ON Item.SalesGroupId = SalesGroup.SalesGroupId
+            LEFT JOIN Promo
+                ON ItemPrice.PromoId = Promo.PromoId
+            LEFT JOIN Stock
+                ON Item.ItemId = Stock.ItemId
         WHERE
             Item.Barcode LIKE ? OR
             Item.ItemName LIKE ? OR
@@ -414,7 +582,7 @@ class SalesDataManager():
             Brand.Name LIKE ? OR
             SalesGroup.Name LIKE ? OR
             Supplier.Name LIKE ?
-        ORDER BY Item.ItemId DESC, EffectiveDt DESC
+        ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, Item.UpdateTs DESC
                             
         ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
    
@@ -423,6 +591,8 @@ class SalesDataManager():
         return item       
 
 
+    # PROMO MANAGEMENT
+    # -- for adding
     def addNewPromo(self, promo_name, promo_type, discount_percent, description):
         self.cursor.execute('''
         INSERT INTO Promo (Name, PromoType, DiscountPercent, Description)
@@ -438,33 +608,33 @@ class SalesDataManager():
               promo_name, promo_type, discount_percent, description))
         self.conn.commit()
 
+    # -- for editing
+    def editSelectedPromo(self, promo_name, promo_type, discount_percent, description, promo_id):
+        self.cursor.execute('''
+        UPDATE Promo
+        SET Name = ?, PromoType = ?, DiscountPercent = ?, Description = ?
+        WHERE PromoId = ?
+        ''', (promo_name, promo_type, discount_percent, description, promo_id))
+        self.conn.commit()
+
+    # -- for removing
+    def removeSelectedPromo(self, promo_id):
+        self.cursor.execute('''
+        DELETE FROM Promo
+        WHERE PromoId = ?
+        ''', (promo_id,))
+        self.conn.commit()
+
+    # -- for populating
     def listPromo(self):
         self.cursor.execute('''
-        SELECT DISTINCT Name, PromoType, DiscountPercent, Description FROM Promo
+        SELECT DISTINCT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
         ORDER BY PromoId DESC, UpdateTs DESC
         ''')
         
         promo = self.cursor.fetchall()
         
         return promo
-    
-    def getPromoNameById(self, promo_id):
-        self.cursor.execute('''
-        SELECT DISTINCT Name FROM Promo
-        WHERE PromoId = ?
-        ''', (promo_id))
-        promo_id = self.cursor.fetchone()[0]
-        
-        return promo_id
-
-    def getPromoTypeAndDiscountPercent(self, promo_name):
-        self.cursor.execute('''
-        SELECT DISTINCT PromoType, DiscountPercent FROM Promo
-        WHERE Name = ?
-        ''', (promo_name,))
-        data = self.cursor.fetchall()
-        
-        return data
     
 
 class AccountsDatabaseSetup():
