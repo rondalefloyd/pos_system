@@ -344,16 +344,7 @@ class SalesDataManager():
             self.conn.commit()
         else:
             pass
-    
-    def getPromoTypeAndDiscountPercent(self, promo_name):
-        self.cursor.execute('''
-        SELECT DISTINCT PromoType, DiscountPercent FROM Promo
-        WHERE Name = ?
-        ''', (promo_name,))
-        data = self.cursor.fetchall()
-        
-        return data
-    
+
     # -- for editing
     def editSelectedItem(self,
             barcode,
@@ -535,8 +526,7 @@ class SalesDataManager():
         WHERE ItemPriceId = ? AND EffectiveDt >= CURRENT_DATE
         ''', (item_price_id,))
         self.conn.commit()
-
-
+        
     # -- for populating
     def listItem(self, text):
         self.cursor.execute('''
@@ -552,13 +542,13 @@ class SalesDataManager():
             COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
             COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
             COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
+            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'N/A' END AS Promo,
+            Promo.PromoType,
+            Promo.DiscountPercent,
             ItemPrice.ItemId,
             ItemPrice.ItemPriceId,
             ItemPrice.PromoId,
-            Promo.Name,
-            Promo.PromoType,
-            Promo.DiscountPercent,
-            Stock.StockId
+            CASE WHEN Stock.StockId <> 0 THEN 'Tracked' ELSE 'Not tracked' END AS InventoryStatus
                             
         FROM ItemPrice
             LEFT JOIN Item
@@ -578,19 +568,70 @@ class SalesDataManager():
         WHERE
             Item.Barcode LIKE ? OR
             Item.ItemName LIKE ? OR
-            ItemType.Name LIKE ? OR
-            Brand.Name LIKE ? OR
-            SalesGroup.Name LIKE ? OR
-            Supplier.Name LIKE ?
+            Item.ExpireDt LIKE ? OR 
+            ItemType.Name LIKE ? OR 
+            Brand.Name LIKE ? OR 
+            SalesGroup.Name LIKE ? OR 
+            Supplier.Name LIKE ? OR 
+            ItemPrice.Cost LIKE ? OR 
+            ItemPrice.SellPrice LIKE ? OR
+            ItemPrice.DiscountValue LIKE ? OR 
+            ItemPrice.EffectiveDt LIKE ? OR
+            Promo LIKE ? OR
+            InventoryStatus LIKE ?
+                            
         ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, Item.UpdateTs DESC
                             
-        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+        ''', (
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%',))
    
         item = self.cursor.fetchall()
 
         return item       
 
+    # -- for filling combo box
+    def fillItemComboBox(self):
+        self.cursor.execute('''
+        SELECT DISTINCT
+            COALESCE(Item.ItemName, 'unk'),
+            COALESCE(ItemType.Name, 'unk') AS ItemType, 
+            COALESCE(Brand.Name, 'unk') AS Brand, 
+            COALESCE(Supplier.Name, 'unk') AS Supplier,
+            COALESCE(Promo.Name, 'N/A') AS Promo
+                            
+        FROM ItemPrice
+            LEFT JOIN Item
+                ON ItemPrice.ItemId = Item.ItemId
+            LEFT JOIN ItemType
+                ON Item.ItemTypeId = ItemType.ItemTypeId
+            LEFT JOIN Brand
+                ON Item.BrandId = Brand.BrandId
+            LEFT JOIN Supplier
+                ON Item.SupplierId = Supplier.SupplierId
+            LEFT JOIN SalesGroup
+                ON Item.SalesGroupId = SalesGroup.SalesGroupId
+            LEFT JOIN Promo
+                ON ItemPrice.PromoId = Promo.PromoId
+    
+        ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, Item.UpdateTs DESC
+        ''')
+            
+        item = self.cursor.fetchall()
 
+        return item   
+    
     # PROMO MANAGEMENT
     # -- for adding
     def addNewPromo(self, promo_name, promo_type, discount_percent, description):
@@ -626,16 +667,32 @@ class SalesDataManager():
         self.conn.commit()
 
     # -- for populating
-    def listPromo(self):
+    def listPromo(self, text):
         self.cursor.execute('''
-        SELECT DISTINCT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        WHERE
+            Name LIKE ? OR
+            PromoType LIKE ? OR
+            DiscountPercent LIKE ? OR
+            Description LIKE ?
         ORDER BY PromoId DESC, UpdateTs DESC
-        ''')
+                            
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
         
         promo = self.cursor.fetchall()
         
         return promo
     
+    # -- for filling combo box
+    def fillPromoComboBox(self):
+        self.cursor.execute('''
+        SELECT DISTINCT Name, PromoType FROM Promo
+        ORDER BY PromoId DESC, UpdateTs DESC                
+        ''')
+        
+        promo = self.cursor.fetchall()
+        
+        return promo
 
 class AccountsDatabaseSetup():
     def __init__(self, db_file='ACCOUNTS.db'):

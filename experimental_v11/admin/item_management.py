@@ -71,13 +71,14 @@ class CustomLineEdit(QLineEdit):
         pass
 
 class CustomComboBox(QComboBox):
+    data_saved = pyqtSignal()
+
     def __init__(self, reference=None):
         super().__init__()
 
         self.prepareDataManagement()
 
         self.ref = reference
-
 
         if self.ref in ['item_name', 'item_type', 'brand', 'supplier']:
             self.setEditable(True)
@@ -89,7 +90,7 @@ class CustomComboBox(QComboBox):
         if self.ref in ['promo_name', 'current_promo_name']:
             self.setDisabled(True)
             self.addItem('No promo')
-            data = self.sales_data_manager.listPromo()
+            data = self.sales_data_manager.listPromo('')
             for row in data:
                 self.addItem(row[0])
 
@@ -99,6 +100,33 @@ class CustomComboBox(QComboBox):
         if self.ref == 'inventory_status':
             self.addItem('Track inventory')
             self.addItem("Don't track inventory")
+
+        self.updateComboBox()
+
+    def updateComboBox(self):
+        data = self.sales_data_manager.fillItemComboBox()
+
+        if self.ref == 'item_name':
+            self.clear()
+            for row in data:
+                self.addItem(row[0])
+
+        if self.ref == 'item_type':
+            self.clear()
+            for row in data:
+                self.addItem(row[1])
+
+        if self.ref == 'brand':
+            self.clear()
+            for row in data:
+                self.addItem(row[2])
+
+        if self.ref == 'supplier':
+            self.clear()
+            for row in data:
+                self.addItem(row[3])
+
+        self.data_saved.emit()
 
     def prepareDataManagement(self):
         self.sales_data_manager = SalesDataManager()
@@ -136,7 +164,7 @@ class CustomTableWidget(QTableWidget):
 
         if self.ref == 'list_table':
             self.setRowCount(50)
-            self.setColumnCount(13)
+            self.setColumnCount(15)
             self.setHorizontalHeaderLabels(['','',
                 'barcode',
                 'item_name',
@@ -148,7 +176,9 @@ class CustomTableWidget(QTableWidget):
                 'cost',
                 'sell_price',
                 'discount_value',
-                'effective_dt'
+                'effective_dt',
+                'promo_name',
+                'inventory_status'
             ])
 
 class CustomGroupBox(QGroupBox):
@@ -174,6 +204,12 @@ class ItemManagementWindow(QGroupBox):
         self.setMainLayout()
 
     # PANEL B SECTION-------------------------------------------------------- #
+    def refreshComboBox(self):
+        self.item_name.updateComboBox()
+        self.item_type.updateComboBox()
+        self.brand.updateComboBox()
+        self.supplier.updateComboBox()
+
     def updateEditPanelB(self, row_index, row_data):
         self.label_inventory_status.hide()
         self.inventory_status.hide()
@@ -190,9 +226,12 @@ class ItemManagementWindow(QGroupBox):
 
         data = row_data
 
-        self.item_id = data[11]
-        self.item_price_id = data[12]
-        self.promo_id = data[13]
+        self.item_id = data[14]
+        self.item_price_id = data[15]
+        self.promo_id = data[16]
+        print('item_id: ', self.item_id)
+        print('item_price_id: ', self.item_price_id)
+        print('promo_id: ', self.promo_id)
 
         if self.promo_id == 0:
             print('this item has no promo')
@@ -271,9 +310,9 @@ class ItemManagementWindow(QGroupBox):
 
             self.cost.setText(str(data[7]))
             self.sell_price.setText(str(data[8]))
-            self.current_promo_name.setCurrentText(str(data[14]))
-            self.current_promo_type.setText(str(data[15]))
-            self.current_discount_percent.setText(str(data[16]))
+            self.current_promo_name.setCurrentText(str(data[11]))
+            self.current_promo_type.setText(str(data[12]))
+            self.current_discount_percent.setText(str(data[13]))
             self.current_discount_value.setText(str(data[9]))
             self.current_effective_dt.setDate(QDate.fromString(data[10], Qt.DateFormat.ISODate))
 
@@ -303,6 +342,9 @@ class ItemManagementWindow(QGroupBox):
         self.save_add_button.show()
         self.save_edit_button.hide()
 
+        self.barcode.setDisabled(False)
+        self.item_name.setDisabled(False)
+        self.expire_dt.setDisabled(False)
         self.item_type.setDisabled(False)
         self.brand.setDisabled(False)
         self.sales_group.setDisabled(False)
@@ -310,32 +352,11 @@ class ItemManagementWindow(QGroupBox):
         self.cost.setDisabled(False)
         self.sell_price.setDisabled(False)
 
-        self.barcode.setText(str(''))
-        self.item_name.setCurrentText(str(''))
         self.expire_dt.setDate(QDate.currentDate())
-        self.item_type.setCurrentText(str(''))
-        self.brand.setCurrentText(str(''))
-        self.sales_group.setCurrentText(str(''))
-        self.supplier.setCurrentText(str(''))
-        self.cost.setText(str(''))
-        self.sell_price.setText(str(''))
-        self.promo_name.setCurrentText(str(''))
-        self.promo_type.setText(str(''))
-        self.discount_percent.setText(str(''))
-        self.discount_value.setText(str(''))
-        self.new_sell_price.setText(str(''))
         self.start_dt.setDate(QDate.currentDate())
         self.end_dt.setDate(QDate.currentDate())
         self.effective_dt.setDate(QDate.currentDate())
-        self.inventory_status.setCurrentText(str(''))
-        self.on_hand_stock.setText(str(''))
-        self.available_stock.setText(str(''))
-        self.current_promo_name.setCurrentText(str(''))
-        self.current_promo_type.setText(str(''))
-        self.current_discount_percent.setText(str(''))
-        self.current_discount_value.setText(str(''))
         self.current_effective_dt.setDate(QDate.currentDate())
-        pass
 
     def onSaveButtonClicked(self, reference):
         converted_barcode = str(self.barcode.text())
@@ -415,8 +436,11 @@ class ItemManagementWindow(QGroupBox):
             QMessageBox.information(self, "Success", "Item has been edited!")
             self.data_saved.emit()
 
-
     def handleTextChanged(self, text, reference=None):
+        if reference == 'filter_bar':
+            self.populateTable(text)
+            print(text)
+        
         if reference == 'sell_price':
             if text == '0' or text == '':
                 self.promo_name.setCurrentText('No promo')
@@ -438,7 +462,7 @@ class ItemManagementWindow(QGroupBox):
                     pass
                 except ValueError:
                     pass
-
+        
     def handleCurrentTextChanged(self, currentText, reference=None):
         if reference == 'promo_name':
             if currentText == 'No promo':
@@ -456,6 +480,7 @@ class ItemManagementWindow(QGroupBox):
                 self.end_dt.hide()
                 self.label_effective_dt.show()
                 self.effective_dt.show()
+
             else:
                 self.label_new_sell_price.show()
                 self.new_sell_price.show()
@@ -473,10 +498,11 @@ class ItemManagementWindow(QGroupBox):
                 self.effective_dt.hide()
 
                 # -- setup the connection of promo_name to promo_type, discount_percent
-                data = self.sales_data_manager.getPromoTypeAndDiscountPercent(currentText)
+                data = self.sales_data_manager.listItem('')
+
                 for row in data:
-                    self.promo_type.setText(row[0])
-                    self.discount_percent.setText(str(row[1]))
+                    self.promo_type.setText(row[12])
+                    self.discount_percent.setText(str(row[13]))
 
                 # -- setup the calculation of discount_value
                 try:
@@ -511,6 +537,7 @@ class ItemManagementWindow(QGroupBox):
     def onCloseButtonClicked(self):
         self.panel_b.hide()
         self.add_button.setDisabled(False)
+
 
     def showPanelB(self): # -- PANEL B
         panel = CustomGroupBox(reference='panel_b')
@@ -626,7 +653,7 @@ class ItemManagementWindow(QGroupBox):
         data = row_data
 
         item_name = str(data[1])
-        item_price_id = str(data[12])
+        item_price_id = str(data[15])
         effective_dt = QDate.fromString(data[10], 'yyyy-MM-dd')
         current_dt = QDateTime.currentDateTime().date()
 
@@ -650,7 +677,7 @@ class ItemManagementWindow(QGroupBox):
 
     def onRemoveButtonClicked(self, row_index, row_data):
         self.showRemoveConfirmationDialog(row_index, row_data)
-
+    
     def onEditButtonClicked(self, row_index, row_data):
         self.updateEditPanelB(row_index, row_data)
         self.panel_b.show()
@@ -661,37 +688,49 @@ class ItemManagementWindow(QGroupBox):
         self.panel_b.show()
         self.add_button.setDisabled(True)
 
-    def populateTable(self):
+    def populateTable(self, text):
         self.list_table.clearContents()
-        data = self.sales_data_manager.listItem('')
+
+        if text == '':
+            data = self.sales_data_manager.listItem('')
+        else:
+            data = self.sales_data_manager.listItem(text)
+
 
         for row_index, row_data in enumerate(data):
             data = row_data
-            total_cell = data[:11]
+            total_cell = data[:12]
 
             effective_dt = QDate.fromString(data[10], 'yyyy-MM-dd')
             current_dt = QDateTime.currentDateTime().date()
-            item_id = data[11]
-            item_price_id = data[12]
-            promo_id = data[13]
-            
+            item_id = data[14]
+            item_price_id = data[15]
+            promo_id = data[16]
+            stock_id = data[17]
+            print('stock_id: ', stock_id)
+
 
             for col_index, col_data in enumerate(total_cell):
                 cell = QTableWidgetItem(str(col_data))
+                inventory_status = QTableWidgetItem(str(stock_id))
+
+                self.edit_button = CustomPushButton(text='EDIT')
+                self.edit_button.clicked.connect(lambda row_index=row_index, row_data=row_data: self.onEditButtonClicked(row_index, row_data))
+                self.list_table.setCellWidget(row_index, 0, self.edit_button)
+                
+                self.remove_button = CustomPushButton(text='REMOVE')
+                self.remove_button.clicked.connect(lambda row_index=row_index, row_data=row_data: self.onRemoveButtonClicked(row_index, row_data))
+                self.list_table.setCellWidget(row_index, 1, self.remove_button)
 
                 self.list_table.setItem(row_index, col_index + 2, cell)
+                self.list_table.setItem(row_index, 14, inventory_status)
 
-                if data[13] != 0:
+                if promo_id != 0:
                     cell.setForeground(QColor(255, 0, 255))
-
-            self.edit_button = CustomPushButton(text='EDIT')
-            self.edit_button.clicked.connect(lambda row_index=row_index, row_data=row_data: self.onEditButtonClicked(row_index, row_data))
-            self.list_table.setCellWidget(row_index, 0, self.edit_button)
-
-            self.remove_button = CustomPushButton(text='REMOVE')
-            self.remove_button.clicked.connect(lambda row_index=row_index, row_data=row_data: self.onRemoveButtonClicked(row_index, row_data))
-            self.list_table.setCellWidget(row_index, 1, self.remove_button)
+                    self.edit_button.setText('VIEW')
                 
+                if effective_dt < current_dt:
+                    self.remove_button.setDisabled(True)
 
 
     def showPanelA(self): # -- PANEL A
@@ -699,11 +738,13 @@ class ItemManagementWindow(QGroupBox):
         panel_layout = QGridLayout()
 
         self.filter_bar = CustomLineEdit(reference='filter_bar')
+        self.filter_bar.textChanged.connect(lambda text: self.handleTextChanged(text, reference='filter_bar'))
         self.add_button = CustomPushButton(text='ADD')
         self.add_button.clicked.connect(self.onAddButtonClicked)
         self.list_table = CustomTableWidget(reference='list_table')
-        self.populateTable()
-        self.data_saved.connect(self.populateTable)
+        self.populateTable('')
+        self.data_saved.connect(lambda: self.populateTable(''))
+        self.data_saved.connect(self.refreshComboBox)
 
         panel_layout.addWidget(self.filter_bar,0,0)
         panel_layout.addWidget(self.add_button,0,1)

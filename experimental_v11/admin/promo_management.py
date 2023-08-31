@@ -40,17 +40,38 @@ class CustomLineEdit(QLineEdit):
         pass
 
 class CustomComboBox(QComboBox):
+    data_saved = pyqtSignal()
+
     def __init__(self, reference=None):
         super().__init__()
 
-        self.ref = reference
+        self.prepareDataManagement()    
 
+        self.ref = reference
 
         if self.ref in ['promo_name', 'promo_type']:
             self.setEditable(True)
 
-        pass
+        self.updateComboBox()
+        
+    def updateComboBox(self):
+        data = self.sales_data_manager.fillPromoComboBox()
+        
+        self.clear()
 
+        if self.ref == 'promo_name': 
+            for row in data:
+                self.addItem(row[0])
+
+        if self.ref == 'promo_type':
+            for row in data:
+                self.addItem(row[1])
+
+        self.data_saved.emit()
+
+    def prepareDataManagement(self):
+        self.sales_data_manager = SalesDataManager()
+    
 class CustomTextEdit(QTextEdit):
     def __init__(self, ref=None):
         super().__init__()
@@ -98,6 +119,10 @@ class PromoManagementWindow(QGroupBox):
         self.setMainLayout()
 
     # PANEL B SECTION -------------------------------------------------------- #
+    def refreshComboBox(self):
+        self.promo_name.updateComboBox()
+        self.promo_type.updateComboBox()
+    
     def updateEditPanelB(self, row_index, row_data):
         self.save_add_button.hide()
         self.save_edit_button.show()
@@ -114,11 +139,6 @@ class PromoManagementWindow(QGroupBox):
         self.save_add_button.show()
         self.save_edit_button.hide()
 
-        self.promo_name.setCurrentText('')
-        self.promo_type.setCurrentText('')
-        self.discount_percent.setText('')
-        self.desciption.setPlainText('')
-
     def onSaveButtonClicked(self, reference):
         converted_promo_name = str(self.promo_name.currentText())
         converted_promo_type = str(self.promo_type.currentText())
@@ -129,13 +149,21 @@ class PromoManagementWindow(QGroupBox):
             print(reference)
             self.sales_data_manager.addNewPromo(converted_promo_name, converted_promo_type, converted_discount_percent, converted_description)
             QMessageBox.information(self, "Success", "New promo has been added!")
-            self.data_saved.emit()
+            
 
         elif reference == 'edit':
             print(reference)
             self.sales_data_manager.editSelectedPromo(converted_promo_name, converted_promo_type, converted_discount_percent, converted_description, self.promo_id)
             QMessageBox.information(self, "Success", "Promo has been edited!")
-            self.data_saved.emit()
+            
+
+        self.data_saved.emit()
+        
+
+    def handleTextChanged(self, text, reference=None):
+        if reference == 'filter_bar':
+            self.populateTable(text)
+            print(text)
 
     def onCloseButtonClicked(self):
         self.panel_b.hide()
@@ -175,8 +203,12 @@ class PromoManagementWindow(QGroupBox):
         return panel
 
     # PANEL A SECTION -------------------------------------------------------- #
-    def showRemoveConfirmationDialog(self, promo_id):
-        confirmation = QMessageBox.question(self, "Confirmation", "Are you sure you want to remove this promo?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+    def showRemoveConfirmationDialog(self, row_index, row_data):
+        data = row_data
+        promo_name = str(data[0])
+        promo_id = str(data[4])
+
+        confirmation = QMessageBox.question(self, "Remove", f"Are you sure you want to remove {promo_name}", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if confirmation == QMessageBox.StandardButton.Yes:
             self.sales_data_manager.removeSelectedPromo(promo_id)
             self.data_saved.emit()
@@ -184,8 +216,7 @@ class PromoManagementWindow(QGroupBox):
             pass
 
     def onRemoveButtonClicked(self, row_index, row_data):
-        promo_id = str(row_data[4])
-        self.showRemoveConfirmationDialog(promo_id)
+        self.showRemoveConfirmationDialog(row_index, row_data)
     
     def onEditButtonClicked(self, row_index, row_data):
         self.updateEditPanelB(row_index, row_data)
@@ -197,10 +228,14 @@ class PromoManagementWindow(QGroupBox):
         self.panel_b.show()
         self.add_button.setDisabled(True)
 
-    def populateTable(self):
+    def populateTable(self, text):
         self.list_table.clearContents()
-        data = self.sales_data_manager.listPromo()
+        if text == '':
+            data = self.sales_data_manager.listPromo('')
+        else:
+            data = self.sales_data_manager.listPromo(text)
 
+    
         for row_index, row_data in enumerate(data):
             total_cell = row_data[:4]
 
@@ -223,11 +258,14 @@ class PromoManagementWindow(QGroupBox):
         panel_layout = QGridLayout()
 
         self.filter_bar = CustomLineEdit(reference='filter_bar')
+        self.filter_bar.textChanged.connect(lambda text: self.handleTextChanged(text, reference='filter_bar'))
         self.add_button = CustomPushButton(text='ADD')
         self.add_button.clicked.connect(self.onAddButtonClicked)
         self.list_table = CustomTableWidget(reference='list_table')
-        self.populateTable()
-        self.data_saved.connect(self.populateTable)
+        self.populateTable('')
+        self.data_saved.connect(lambda: self.populateTable(''))
+        self.data_saved.connect(self.refreshComboBox)
+
 
         panel_layout.addWidget(self.filter_bar,0,0)
         panel_layout.addWidget(self.add_button,0,1)
