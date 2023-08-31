@@ -334,7 +334,7 @@ class SalesDataManager():
             self.conn.commit()
         
         # step e: insert stock data depending on the conditions
-        if inventory_status == 'Track inventory':
+        if inventory_status == 'Tracked':
             self.cursor.execute('''
             INSERT INTO Stock (SupplierId, ItemId, OnHand, Available)
             SELECT ?, ?, ?, ?
@@ -345,6 +345,15 @@ class SalesDataManager():
         else:
             pass
 
+    def getPromoTypeAndDiscountPercent(self, promo_name):
+        self.cursor.execute('''
+        SELECT DISTINCT PromoType, DiscountPercent FROM Promo
+        WHERE Name = ?
+        ''', (promo_name,))
+        data = self.cursor.fetchall()
+        
+        return data
+    
     # -- for editing
     def editSelectedItem(self,
             barcode,
@@ -693,6 +702,70 @@ class SalesDataManager():
         promo = self.cursor.fetchall()
         
         return promo
+
+    # INVENTORY MANAGEMENT
+    # -- for adding
+    def addNewStock(self, supplier_id, item_id, on_hand_stock, available_stock):
+        self.cursor.execute('''
+        INSERT INTO Stock (SupplierId, ItemId, OnHand, Available)
+        SELECT ?, ?, ?, ?
+        WHERE NOT EXISTS(
+        SELECT 1 FROM Stock
+        WHERE
+            SupplierId = ? AND 
+            ItemId = ? AND
+            OnHand = ? AND
+            Available = ?
+        )''', (supplier_id, item_id, on_hand_stock, available_stock,
+              supplier_id, item_id, on_hand_stock, available_stock))
+        self.conn.commit()
+
+    # -- for editing
+    def editSelectedStock(self, on_hand_stock, available_stock, supplier_id, item_id, stock_id):
+        self.cursor.execute('''
+        UPDATE Stock
+        SET OnHand = ?, Available = ?
+        WHERE SupplierId = ? OR ItemId = ? OR StockId = ?
+        ''', (on_hand_stock, available_stock, supplier_id, item_id, stock_id))
+        self.conn.commit()
+
+    # -- for removing
+    def removeSelectedStock(self, stock_id):
+        self.cursor.execute('''
+        DELETE FROM Stock
+        WHERE StockId = ?
+        ''', (stock_id,))
+        self.conn.commit()
+
+    # -- for populating
+    def listStock(self, text):
+        self.cursor.execute('''
+        SELECT
+            COALESCE(Supplier.Name, 'unk'),
+            COALESCE(Item.ItemName, 'unk'),
+            Stock.OnHand,
+            Stock.Available,
+            Stock.SupplierId,
+            Stock.ItemId,
+            StockId
+        FROM Stock
+            LEFT JOIN Supplier
+                ON Stock.SupplierId = Supplier.SupplierId
+            LEFT JOIN Item
+                ON Stock.ItemId = Item.ItemId
+        WHERE
+            Supplier.Name LIKE ? OR
+            Item.ItemName LIKE ? OR
+            Stock.OnHand LIKE ? OR
+            Stock.Available LIKE ?
+        ORDER BY Item.ItemName, Item.UpdateTs DESC
+                            
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+        
+        stock = self.cursor.fetchall()
+        
+        return stock
+    
 
 class AccountsDatabaseSetup():
     def __init__(self, db_file='ACCOUNTS.db'):

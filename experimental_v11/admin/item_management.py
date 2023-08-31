@@ -23,7 +23,10 @@ class CustomLabel(QLabel):
             'new_sell_price',
             'start_dt',
             'end_dt',
-            'current_effective_dt'
+            'current_effective_dt',
+            'current_inventory_status',
+            'on_hand_stock',
+            'available_stock'
         ]:
             self.hide()
 
@@ -49,6 +52,9 @@ class CustomLineEdit(QLineEdit):
             'current_discount_value'
         ]:
             self.setDisabled(True)
+            self.hide()
+
+        if self.ref in ['on_hand_stock', 'available_stock']:
             self.hide()
 
     def handleTextChanged(self, text):
@@ -94,12 +100,13 @@ class CustomComboBox(QComboBox):
             for row in data:
                 self.addItem(row[0])
 
-        if self.ref == 'current_promo_name':
+        if self.ref in ['current_promo_name', 'current_inventory_status']:
+            self.setDisabled(True)
             self.hide()
 
-        if self.ref == 'inventory_status':
-            self.addItem('Track inventory')
-            self.addItem("Don't track inventory")
+        if self.ref in ['inventory_status', 'current_inventory_status']:
+            self.addItem('Not tracked')
+            self.addItem('Tracked')
 
         self.updateComboBox()
 
@@ -213,10 +220,8 @@ class ItemManagementWindow(QGroupBox):
     def updateEditPanelB(self, row_index, row_data):
         self.label_inventory_status.hide()
         self.inventory_status.hide()
-        self.label_on_hand_stock.hide()
-        self.on_hand_stock.hide()
-        self.label_available_stock.hide()
-        self.available_stock.hide()
+        self.label_current_inventory_status.show()
+        self.current_inventory_status.show()
         self.save_add_button.hide()
 
         self.item_type.setDisabled(True)
@@ -229,9 +234,11 @@ class ItemManagementWindow(QGroupBox):
         self.item_id = data[14]
         self.item_price_id = data[15]
         self.promo_id = data[16]
+        self.inventory_id = data[17]
         print('item_id: ', self.item_id)
         print('item_price_id: ', self.item_price_id)
         print('promo_id: ', self.promo_id)
+        print('inventory_status: ', self.inventory_id)
 
         if self.promo_id == 0:
             print('this item has no promo')
@@ -272,6 +279,11 @@ class ItemManagementWindow(QGroupBox):
             self.sell_price.setText(str(data[8]))
             self.promo_name.setCurrentText(str('No promo'))
             self.effective_dt.setDate(QDate.fromString(data[10], Qt.DateFormat.ISODate))
+
+            if self.inventory_id == 'Tracked':
+                self.current_inventory_status.setCurrentText(str(self.inventory_id))
+            else:
+                self.current_inventory_status.setCurrentText(str(self.inventory_id))
 
         else:
             print('this item has promo')
@@ -316,6 +328,11 @@ class ItemManagementWindow(QGroupBox):
             self.current_discount_value.setText(str(data[9]))
             self.current_effective_dt.setDate(QDate.fromString(data[10], Qt.DateFormat.ISODate))
 
+            if self.inventory_id == 'Tracked' or self.inventory_id == 'Not tracked':
+                self.current_inventory_status.setCurrentText(str(self.inventory_id))
+
+
+
     def updateAddPanelB(self):
         self.label_promo_name.show()
         self.promo_name.show()
@@ -335,10 +352,8 @@ class ItemManagementWindow(QGroupBox):
         self.current_effective_dt.hide()
         self.label_inventory_status.show()
         self.inventory_status.show()
-        self.label_on_hand_stock.show()
-        self.on_hand_stock.show()
-        self.label_available_stock.show()
-        self.available_stock.show()
+        self.label_current_inventory_status.hide()
+        self.current_inventory_status.hide()
         self.save_add_button.show()
         self.save_edit_button.hide()
 
@@ -498,11 +513,10 @@ class ItemManagementWindow(QGroupBox):
                 self.effective_dt.hide()
 
                 # -- setup the connection of promo_name to promo_type, discount_percent
-                data = self.sales_data_manager.listItem('')
-
+                data = self.sales_data_manager.getPromoTypeAndDiscountPercent(currentText)
                 for row in data:
-                    self.promo_type.setText(row[12])
-                    self.discount_percent.setText(str(row[13]))
+                    self.promo_type.setText(row[0])
+                    self.discount_percent.setText(str(row[1]))
 
                 # -- setup the calculation of discount_value
                 try:
@@ -522,13 +536,13 @@ class ItemManagementWindow(QGroupBox):
                     pass
 
         if reference == 'inventory_status':
-            if currentText == 'Track inventory':
+            if currentText == 'Tracked':
                 self.label_on_hand_stock.show()
                 self.on_hand_stock.show()
                 self.label_available_stock.show()
                 self.available_stock.show()
             
-            elif currentText == "Don't track inventory":
+            else:
                 self.label_on_hand_stock.hide()
                 self.on_hand_stock.hide()
                 self.label_available_stock.hide()
@@ -581,6 +595,8 @@ class ItemManagementWindow(QGroupBox):
         self.label_inventory_status = CustomLabel(text='inventory_status: ')
         self.inventory_status = CustomComboBox(reference='inventory_status')
         self.inventory_status.currentTextChanged.connect(lambda currentText: self.handleCurrentTextChanged(currentText, reference='inventory_status'))
+        self.label_current_inventory_status = CustomLabel(text='current_inventory_status: ', reference='current_inventory_status')
+        self.current_inventory_status = CustomComboBox(reference='current_inventory_status')
         self.label_on_hand_stock = CustomLabel(text='on_hand_stock: ', reference='on_hand_stock')
         self.on_hand_stock = CustomLineEdit(reference='on_hand_stock')
         self.label_available_stock = CustomLabel(text='available_stock: ', reference='available_stock')
@@ -638,6 +654,7 @@ class ItemManagementWindow(QGroupBox):
         panel_layout.addRow(self.label_current_effective_dt, self.current_effective_dt)
 
         panel_layout.addRow(self.label_inventory_status, self.inventory_status)
+        panel_layout.addRow(self.label_current_inventory_status, self.current_inventory_status)
         panel_layout.addRow(self.label_on_hand_stock, self.on_hand_stock)
         panel_layout.addRow(self.label_available_stock, self.available_stock)
 
