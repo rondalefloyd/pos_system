@@ -206,7 +206,7 @@ class CustomerManagementWindow(QGroupBox):
                 converted_marital_status,
                 self.customer_id
             )
-            QMessageBox.information(self, "Success", "customer has been edited!")
+            QMessageBox.information(self, "Success", "Customer has been edited!")
             
 
         self.data_saved.emit()
