@@ -150,7 +150,7 @@ class SalesDataManager():
         self.cursor.execute('''
         CREATE TABLE IF NOT EXISTS Reward (
             RewardId INTEGER PRIMARY KEY AUTOINCREMENT,
-            Name TEXT,               
+            Name TEXT,
             Description TEXT,
             PointsRate FLOAT,
             UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -159,7 +159,7 @@ class SalesDataManager():
         self.conn.commit()
 
         self.cursor.execute('''
-        CREATE TABLE IF NOT EXISTS CustReward (
+        CREATE TABLE IF NOT EXISTS CustomerReward (
             CustomerId INTEGER,
             RewardId INTEGER,
             Points INTEGER,               
@@ -641,6 +641,7 @@ class SalesDataManager():
 
         return item   
     
+
     # PROMO MANAGEMENT
     # -- for adding
     def addNewPromo(self, promo_name, promo_type, discount_percent, description):
@@ -702,6 +703,7 @@ class SalesDataManager():
         promo = self.cursor.fetchall()
         
         return promo
+
 
     # INVENTORY MANAGEMENT
     # -- for adding
@@ -765,6 +767,7 @@ class SalesDataManager():
         stock = self.cursor.fetchall()
         
         return stock
+
 
     # CUSTOMER MANAGEMENT
     # -- for adding
@@ -870,6 +873,88 @@ class SalesDataManager():
         customer = self.cursor.fetchall()
         
         return customer
+
+
+    # REWARD MANAGEMENT
+    # -- for adding
+    def addNewReward(self, reward_name, description, points_rate):
+        self.cursor.execute('''
+        INSERT INTO Reward (
+            Name,
+            Description,
+            PointsRate
+        )
+        SELECT ?, ?, ?
+        WHERE NOT EXISTS(
+        SELECT 1 FROM Reward
+        WHERE
+            Name = ? AND
+            Description = ? AND
+            PointsRate = ?
+        )''', (reward_name, description, points_rate,
+              reward_name, description, points_rate))
+        self.conn.commit()
+
+    # -- for editing
+    def editSelectedReward(self, reward_name, description, points_rate, customer_id):
+        self.cursor.execute('''
+        UPDATE Reward
+        SET 
+            Name = ?,
+            Description = ?,
+            PointsRate = ?
+        WHERE RewardId = ?
+        ''', (reward_name, description, points_rate, customer_id))
+        self.conn.commit()
+
+    # -- for removing
+    def removeSelectedReward(self, customer_id):
+        self.cursor.execute('''
+        DELETE FROM Reward
+        WHERE RewardId = ?
+        ''', (customer_id,))
+        self.conn.commit()
+
+    # -- for populating
+    def listReward(self, text):
+        self.cursor.execute('''
+        SELECT
+            Name,
+            Description,
+            PointsRate,
+            RewardId
+        FROM Reward
+        WHERE
+            Name LIKE ? OR
+            Description LIKE ? OR
+            PointsRate LIKE ?
+        ORDER BY RewardId DESC, UpdateTs DESC
+                            
+        ''', (
+            '%' + text + '%',
+            '%' + text + '%',
+            '%' + text + '%'))
+        
+        reward = self.cursor.fetchall()
+        
+        return reward
+    
+    # -- for filling combo box
+    def fillRewardComboBox(self):
+        self.cursor.execute('''
+        SELECT DISTINCT
+            Name,
+            Description,
+            PointsRate,
+            RewardId
+        FROM Reward
+        ORDER BY RewardId DESC, UpdateTs DESC                
+        ''')
+        
+        reward = self.cursor.fetchall()
+        
+        return reward
+
 
 
 
