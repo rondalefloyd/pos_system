@@ -24,7 +24,7 @@ class CustomLineEdit(QLineEdit):
             self.setText('0')
 
     def keyPressEvent(self, event):
-        if self.ref == 'access_level':
+        if self.ref in ['age', 'phone']:
             if event.text().isdigit() or event.key() == 16777219:  # Digit or Backspace key
                 if self.text() == '0' and event.key() == 16777219:  # Backspace key
                     return
@@ -48,25 +48,51 @@ class CustomComboBox(QComboBox):
 
         self.ref = reference
 
-        if self.ref == 'user_name':
+        if self.ref in ['customer_name', 'barrio', 'town']:
             self.setEditable(True)
+
+        if self.ref == 'gender':
+            self.addItem('Male')
+            self.addItem('Female')
+
+        if self.ref == 'marital_status':
+            self.addItem('Single')
+            self.addItem('Married')
+            self.addItem('Separated')
+            self.addItem('Widowed')
 
         self.updateComboBox()
         
     def updateComboBox(self):
-        data = self.accounts_data_manager.fillUserComboBox()
+        data = self.sales_data_manager.fillCustomerComboBox()
         
-        self.clear()
 
-        if self.ref == 'user_name': 
+        if self.ref == 'customer_name': 
+            self.clear()
             for row in data:
                 self.addItem(row[0])
+
+        if self.ref == 'barrio': 
+            self.clear()
+            for row in data:
+                self.addItem(row[1])
+
+        if self.ref == 'town': 
+            self.clear()
+            for row in data:
+                self.addItem(row[2])
 
         self.data_saved.emit()
 
     def prepareDataManagement(self):
-        self.accounts_data_manager = AccountsDataManager()
+        self.sales_data_manager = SalesDataManager()
     
+class CustomTextEdit(QTextEdit):
+    def __init__(self, reference=None):
+        super().__init__()
+
+        self.ref = reference
+
 class CustomPushButton(QPushButton):
     def __init__(self, text=None, reference=None):
         super().__init__()
@@ -81,8 +107,17 @@ class CustomTableWidget(QTableWidget):
 
         if self.ref == 'list_table':
             self.setRowCount(50)
-            self.setColumnCount(5)
-            self.setHorizontalHeaderLabels(['','','user_name','password','access_level'])
+            self.setColumnCount(10)
+            self.setHorizontalHeaderLabels(['','',
+                'customer_name',
+                'address',
+                'barrio',
+                'town',
+                'phone',
+                'age',
+                'gender',
+                'marital_status'
+            ])
 
 class CustomGroupBox(QGroupBox):
     def __init__(self, reference=None):
@@ -97,7 +132,7 @@ class CustomGroupBox(QGroupBox):
 
 # ------------------------------------------------------------------------------- #
 
-class UserManagementWindow(QGroupBox):
+class CustomerManagementWindow(QGroupBox):
     data_saved = pyqtSignal()
 
     def __init__(self):
@@ -108,7 +143,9 @@ class UserManagementWindow(QGroupBox):
 
     # PANEL B SECTION -------------------------------------------------------- #
     def refreshComboBox(self):
-        self.user_name.updateComboBox()
+        self.customer_name.updateComboBox()
+        self.barrio.updateComboBox()
+        self.town.updateComboBox()
     
     def updateEditPanelB(self, row_index, row_data):
         self.save_add_button.hide()
@@ -116,31 +153,60 @@ class UserManagementWindow(QGroupBox):
 
         data = row_data
 
-        self.user_name.setCurrentText(str(data[0]))
-        self.password.setText(str(data[1]))
-        self.access_level.setText(str(data[2]))
-        self.user_id = str(data[3])
+        self.customer_name.setCurrentText(str(data[0]))
+        self.address.setPlainText(str(data[1]))
+        self.barrio.setCurrentText(str(data[2]))
+        self.town.setCurrentText(str(data[3]))
+        self.phone.setText(str(data[4]))
+        self.age.setText(str(data[5]))
+        self.gender.setCurrentText(str(data[6]))
+        self.marital_status.setCurrentText(str(data[7]))
+        self.customer_id = str(data[8])
 
     def updateAddPanelB(self):
         self.save_add_button.show()
         self.save_edit_button.hide()
 
     def onSaveButtonClicked(self, reference):
-        converted_user_name = str(self.user_name.currentText())
-        converted_password = str(self.password.text())
-        converted_access_level = int(self.access_level.text())
+        converted_customer_name = str(self.customer_name.currentText())
+        converted_address = str(self.address.toPlainText())
+        converted_barrio = str(self.barrio.currentText())
+        converted_town = str(self.town.currentText())
+        converted_phone = str(self.phone.text())
+        converted_age = str(self.age.text())
+        converted_gender = str(self.gender.currentText())
+        converted_marital_status = str(self.marital_status.currentText())
 
 
         if reference == 'add':
             print(reference)
-            self.accounts_data_manager.addNewUser(converted_user_name, converted_password, converted_access_level)
-            QMessageBox.information(self, "Success", "New user has been added!")
+            self.sales_data_manager.addNewCustomer(
+                converted_customer_name,
+                converted_address,
+                converted_barrio,
+                converted_town,
+                converted_phone,
+                converted_age,
+                converted_gender,
+                converted_marital_status
+            )
+            QMessageBox.information(self, "Success", "New customer has been added!")
             
 
         elif reference == 'edit':
             print(reference)
-            self.accounts_data_manager.editSelectedUser(converted_user_name, converted_password, converted_access_level, self.user_id)
-            QMessageBox.information(self, "Success", "User has been edited!")
+            self.sales_data_manager.editSelectedCustomer(
+                converted_customer_name,
+                converted_address,
+                converted_barrio,
+                converted_town,
+                converted_phone,
+                converted_age,
+                converted_gender,
+                converted_marital_status,
+                self.customer_id
+            )
+            QMessageBox.information(self, "Success", "customer has been edited!")
             
 
         self.data_saved.emit()
@@ -163,9 +229,14 @@ class UserManagementWindow(QGroupBox):
         self.close_button.setFixedWidth(50)
         self.close_button.clicked.connect(self.onCloseButtonClicked)
 
-        self.user_name = CustomComboBox(reference='user_name')
-        self.password = CustomLineEdit(reference='password')
-        self.access_level = CustomLineEdit(reference='access_level')
+        self.customer_name = CustomComboBox(reference='customer_name')
+        self.address = CustomTextEdit(reference='address')
+        self.barrio = CustomComboBox(reference='barrio')
+        self.town = CustomComboBox(reference='town')
+        self.phone = CustomLineEdit(reference='phone')
+        self.age = CustomLineEdit(reference='age')
+        self.gender = CustomComboBox(reference='gender')
+        self.marital_status = CustomComboBox(reference='marital_status')
 
         self.save_add_button = CustomPushButton(text='SAVE ADD', reference='save_button')
         self.save_add_button.clicked.connect(lambda: self.onSaveButtonClicked('add'))
@@ -175,9 +246,14 @@ class UserManagementWindow(QGroupBox):
         
         panel_layout.addRow(self.close_button)
 
-        panel_layout.addRow('user_name: ', self.user_name)
-        panel_layout.addRow('password: ', self.password)
-        panel_layout.addRow('access_level: ', self.access_level)
+        panel_layout.addRow('customer_name: ', self.customer_name)
+        panel_layout.addRow('address: ', self.address)
+        panel_layout.addRow('barrio: ', self.barrio)
+        panel_layout.addRow('town: ', self.town)
+        panel_layout.addRow('phone: ', self.phone)
+        panel_layout.addRow('age: ', self.age)
+        panel_layout.addRow('gender: ', self.gender)
+        panel_layout.addRow('marital_status: ', self.marital_status)
 
 
         panel_layout.addRow(self.save_add_button)
@@ -190,12 +266,12 @@ class UserManagementWindow(QGroupBox):
     # PANEL A SECTION -------------------------------------------------------- #
     def showRemoveConfirmationDialog(self, row_index, row_data):
         data = row_data
-        user_name = str(data[0])
-        user_id = str(data[3])
+        customer_name = str(data[0])
+        customer_id = str(data[8])
 
-        confirmation = QMessageBox.question(self, "Remove", f"Are you sure you want to remove {user_name}", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirmation = QMessageBox.question(self, "Remove", f"Are you sure you want to remove {customer_name}", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if confirmation == QMessageBox.StandardButton.Yes:
-            self.accounts_data_manager.removeSelectedUser(user_id)
+            self.sales_data_manager.removeSelectedCustomer(customer_id)
             self.data_saved.emit()
         else:
             pass
@@ -216,13 +292,12 @@ class UserManagementWindow(QGroupBox):
     def populateTable(self, text):
         self.list_table.clearContents()
         if text == '':
-            data = self.accounts_data_manager.listUser('')
+            data = self.sales_data_manager.listCustomer('')
         else:
-            data = self.accounts_data_manager.listUser(text)
+            data = self.sales_data_manager.listCustomer(text)
 
-    
         for row_index, row_data in enumerate(data):
-            total_cell = row_data[:4]
+            total_cell = row_data[:8]
 
             for col_index, col_data in enumerate(total_cell):
                 cell = QTableWidgetItem(str(col_data))
@@ -273,11 +348,11 @@ class UserManagementWindow(QGroupBox):
         self.setLayout(self.main_layout)
 
     def prepareDataManagement(self):
-        self.accounts_data_manager = AccountsDataManager()
-        self.accounts_data_manager.createAccountsTable() # -- for temporary used while main_admin_window is not yet existing
+        self.sales_data_manager = SalesDataManager()
+        self.sales_data_manager.createSalesTable() # -- for temporary used while main_admin_window is not yet existing
 
 if __name__ == ('__main__'):
     pos_app = QApplication(sys.argv)
-    window = UserManagementWindow()
+    window = CustomerManagementWindow()
     window.show()
     sys.exit(pos_app.exec())
