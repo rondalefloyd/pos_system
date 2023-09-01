@@ -15,10 +15,7 @@ class CustomLineEdit(QLineEdit):
 
         self.ref = reference
 
-        if self.ref in ['supplier', 'item_name']:
-            self.setDisabled(True)
-
-        if self.ref in ['on_hand_stock', 'available_stock']:
+        if self.ref == 'access_level':
             self.setText('0')
             self.textChanged.connect(self.handleTextChanged)
 
@@ -27,7 +24,7 @@ class CustomLineEdit(QLineEdit):
             self.setText('0')
 
     def keyPressEvent(self, event):
-        if self.ref in ['on_hand_stock', 'available_stock']:
+        if self.ref == 'access_level':
             if event.text().isdigit() or event.key() == 16777219:  # Digit or Backspace key
                 if self.text() == '0' and event.key() == 16777219:  # Backspace key
                     return
@@ -41,6 +38,35 @@ class CustomLineEdit(QLineEdit):
             super().keyPressEvent(event)
         pass
 
+class CustomComboBox(QComboBox):
+    data_saved = pyqtSignal()
+
+    def __init__(self, reference=None):
+        super().__init__()
+
+        self.prepareDataManagement()    
+
+        self.ref = reference
+
+        if self.ref == 'user_name':
+            self.setEditable(True)
+
+        self.updateComboBox()
+        
+    def updateComboBox(self):
+        data = self.accounts_data_manager.fillUserComboBox()
+        
+        self.clear()
+
+        if self.ref == 'user_name': 
+            for row in data:
+                self.addItem(row[0])
+
+        self.data_saved.emit()
+
+    def prepareDataManagement(self):
+        self.accounts_data_manager = AccountsDataManager()
+    
 class CustomPushButton(QPushButton):
     def __init__(self, text=None, reference=None):
         super().__init__()
@@ -55,8 +81,8 @@ class CustomTableWidget(QTableWidget):
 
         if self.ref == 'list_table':
             self.setRowCount(50)
-            self.setColumnCount(6)
-            self.setHorizontalHeaderLabels(['','','supplier','item_name','on_hand_stock', 'available_stock'])
+            self.setColumnCount(5)
+            self.setHorizontalHeaderLabels(['','','user_name','password','access_level'])
 
 class CustomGroupBox(QGroupBox):
     def __init__(self, reference=None):
@@ -71,7 +97,7 @@ class CustomGroupBox(QGroupBox):
 
 # ------------------------------------------------------------------------------- #
 
-class InventoryManagementWindow(QGroupBox):
+class UserManagementWindow(QGroupBox):
     data_saved = pyqtSignal()
 
     def __init__(self):
@@ -80,40 +106,45 @@ class InventoryManagementWindow(QGroupBox):
         self.prepareDataManagement()
         self.setMainLayout()
 
-    # PANEL B SECTION -------------------------------------------------------- # 
+    # PANEL B SECTION -------------------------------------------------------- #
+    def refreshComboBox(self):
+        self.user_name.updateComboBox()
+    
     def updateEditPanelB(self, row_index, row_data):
         self.save_add_button.hide()
         self.save_edit_button.show()
 
         data = row_data
-    
-        self.supplier.setText(str(data[0]))
-        self.item_name.setText(str(data[1]))
-        self.on_hand_stock.setText(str(data[2]))
-        self.available_stock.setText(str(data[3]))
-        self.supplier_id = str(data[4])
-        self.item_id = str(data[5])
-        self.stock_id = str(data[6])
+
+        self.user_name.setCurrentText(str(data[0]))
+        self.password.setText(str(data[1]))
+        self.access_level.setText(str(data[2]))
+        self.user_id = str(data[3])
+
+    def updateAddPanelB(self):
+        self.save_add_button.show()
+        self.save_edit_button.hide()
 
     def onSaveButtonClicked(self, reference):
-        converted_on_hand_stock = str('{:.2f}'.format(float(self.on_hand_stock.text())))
-        converted_available_stock = str('{:.2f}'.format(float(self.available_stock.text())))
+        converted_user_name = str(self.user_name.currentText())
+        converted_password = str(self.password.text())
+        converted_access_level = int(self.access_level.text())
 
-        if reference == 'edit':
+
+        if reference == 'add':
             print(reference)
-            self.sales_data_manager.editSelectedStock(
-                converted_on_hand_stock,
-                converted_available_stock,
-                self.supplier_id,
-                self.item_id,
-                self.stock_id
-            )
-            QMessageBox.information(self, "Success", "Stock has been edited!")
-        else:
-            pass
+            self.accounts_data_manager.addNewUser(converted_user_name, converted_password, converted_access_level)
+            QMessageBox.information(self, "Success", "New user has been added!")
+            
+
+        elif reference == 'edit':
+            print(reference)
+            self.accounts_data_manager.editSelectedUser(converted_user_name, converted_password, converted_access_level, self.user_id)
+            QMessageBox.information(self, "Success", "User has been edited!")
             
 
         self.data_saved.emit()
+        
 
     def handleTextChanged(self, text, reference=None):
         if reference == 'filter_bar':
@@ -122,7 +153,7 @@ class InventoryManagementWindow(QGroupBox):
 
     def onCloseButtonClicked(self):
         self.panel_b.hide()
-
+        self.add_button.setDisabled(False)
 
     def showPanelB(self): # -- PANEL B
         panel = CustomGroupBox(reference='panel_b')
@@ -132,11 +163,9 @@ class InventoryManagementWindow(QGroupBox):
         self.close_button.setFixedWidth(50)
         self.close_button.clicked.connect(self.onCloseButtonClicked)
 
-        self.supplier = CustomLineEdit(reference='supplier')
-        self.item_name = CustomLineEdit(reference='item_name')
-
-        self.on_hand_stock = CustomLineEdit(reference='on_hand_stock')
-        self.available_stock = CustomLineEdit(reference='available_stock')
+        self.user_name = CustomComboBox(reference='user_name')
+        self.password = CustomLineEdit(reference='password')
+        self.access_level = CustomLineEdit(reference='access_level')
 
         self.save_add_button = CustomPushButton(text='SAVE ADD', reference='save_button')
         self.save_add_button.clicked.connect(lambda: self.onSaveButtonClicked('add'))
@@ -146,11 +175,11 @@ class InventoryManagementWindow(QGroupBox):
         
         panel_layout.addRow(self.close_button)
 
-        panel_layout.addRow('supplier: ', self.supplier)
-        panel_layout.addRow('item_name: ', self.item_name)
+        panel_layout.addRow('user_name: ', self.user_name)
+        panel_layout.addRow('password: ', self.password)
+        panel_layout.addRow('access_level: ', self.access_level)
 
-        panel_layout.addRow('on_hand_stock: ', self.on_hand_stock)
-        panel_layout.addRow('available_stock: ', self.available_stock)
+
         panel_layout.addRow(self.save_add_button)
         panel_layout.addRow(self.save_edit_button)
 
@@ -161,14 +190,12 @@ class InventoryManagementWindow(QGroupBox):
     # PANEL A SECTION -------------------------------------------------------- #
     def showRemoveConfirmationDialog(self, row_index, row_data):
         data = row_data
-        item_name = str(data[1])
-        supplier_id = str(data[4])
-        item_id = str(data[5])
-        stock_id = str(data[6])
+        user_name = str(data[0])
+        user_id = str(data[3])
 
-        confirmation = QMessageBox.question(self, "Remove", f"Are you sure you want to stop inventory tracking for '{item_name}'?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirmation = QMessageBox.question(self, "Remove", f"Are you sure you want to remove {user_name}", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if confirmation == QMessageBox.StandardButton.Yes:
-            self.sales_data_manager.removeSelectedStock(stock_id)
+            self.accounts_data_manager.removeSelectedUser(user_id)
             self.data_saved.emit()
         else:
             pass
@@ -179,13 +206,19 @@ class InventoryManagementWindow(QGroupBox):
     def onEditButtonClicked(self, row_index, row_data):
         self.updateEditPanelB(row_index, row_data)
         self.panel_b.show()
+        self.add_button.setDisabled(True)
+
+    def onAddButtonClicked(self):
+        self.updateAddPanelB()
+        self.panel_b.show()
+        self.add_button.setDisabled(True)
 
     def populateTable(self, text):
         self.list_table.clearContents()
         if text == '':
-            data = self.sales_data_manager.listStock('')
+            data = self.accounts_data_manager.listUser('')
         else:
-            data = self.sales_data_manager.listPromo(text)
+            data = self.accounts_data_manager.listUser(text)
 
     
         for row_index, row_data in enumerate(data):
@@ -211,13 +244,17 @@ class InventoryManagementWindow(QGroupBox):
 
         self.filter_bar = CustomLineEdit(reference='filter_bar')
         self.filter_bar.textChanged.connect(lambda text: self.handleTextChanged(text, reference='filter_bar'))
+        self.add_button = CustomPushButton(text='ADD')
+        self.add_button.clicked.connect(self.onAddButtonClicked)
         self.list_table = CustomTableWidget(reference='list_table')
         self.populateTable('')
         self.data_saved.connect(lambda: self.populateTable(''))
+        self.data_saved.connect(self.refreshComboBox)
 
 
         panel_layout.addWidget(self.filter_bar,0,0)
-        panel_layout.addWidget(self.list_table,1,0)
+        panel_layout.addWidget(self.add_button,0,1)
+        panel_layout.addWidget(self.list_table,1,0,1,2)
 
         panel.setLayout(panel_layout)
 
@@ -236,11 +273,11 @@ class InventoryManagementWindow(QGroupBox):
         self.setLayout(self.main_layout)
 
     def prepareDataManagement(self):
-        self.sales_data_manager = SalesDataManager()
-        self.sales_data_manager.createSalesTable() # -- for temporary used while main_admin_window is not yet existing
+        self.accounts_data_manager = AccountsDataManager()
+        self.accounts_data_manager.createAccountsTable() # -- for temporary used while main_admin_window is not yet existing
 
 if __name__ == ('__main__'):
     pos_app = QApplication(sys.argv)
-    window = InventoryManagementWindow()
+    window = UserManagementWindow()
     window.show()
     sys.exit(pos_app.exec())
