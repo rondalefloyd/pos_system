@@ -614,7 +614,7 @@ class SalesDataManager():
     def fillItemComboBox(self):
         self.cursor.execute('''
         SELECT DISTINCT
-            COALESCE(Item.ItemName, 'unk'),
+            COALESCE(Item.ItemName, 'unk') AS ItemName,
             COALESCE(ItemType.Name, 'unk') AS ItemType, 
             COALESCE(Brand.Name, 'unk') AS Brand, 
             COALESCE(Supplier.Name, 'unk') AS Supplier,
@@ -954,9 +954,6 @@ class SalesDataManager():
         reward = self.cursor.fetchall()
         
         return reward
-
-
-
 
 class AccountsDataManager():
     def __init__(self, db_file='ACCOUNTS.db'):
