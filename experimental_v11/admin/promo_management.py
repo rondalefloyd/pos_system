@@ -15,7 +15,6 @@ class CustomLineEdit(QLineEdit):
 
         self.ref = reference
 
-
         if self.ref == 'discount_percent':
             self.setText('0')
             self.textChanged.connect(self.handleTextChanged)
