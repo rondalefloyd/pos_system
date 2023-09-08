@@ -94,7 +94,6 @@ class CustomComboBox(QComboBox):
             self.clear()
             for row in data:
                 self.addItem(row[2])
-                print(row[2])
 
         self.data_saved.emit()
         

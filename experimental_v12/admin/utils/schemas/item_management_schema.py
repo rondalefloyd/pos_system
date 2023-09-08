@@ -226,7 +226,6 @@ class ItemManagementSchema():
         ):
         # edit without promo and no promo name
         if str(promo_id) == '0' and promo_name == 'No promo':
-            print("A")
             self.cursor.execute('''
             UPDATE Item
             SET Barcode = ?, ItemName = ?, ExpireDt = ?
@@ -243,7 +242,6 @@ class ItemManagementSchema():
         
         # edit without promo but has promo name
         elif str(promo_id) == '0' and promo_name != 'No promo':
-            print("B")
             # step a: insert item_type, brand, sales_group, and supplier into their respective tables
             self.cursor.execute('''
             INSERT INTO ItemType (Name)
@@ -367,7 +365,6 @@ class ItemManagementSchema():
 
         # edit with promo and promo name
         elif str(promo_id) != '0' and promo_name != 'No promo':
-            print("C, ", promo_id)
             self.cursor.execute('''
             UPDATE Item
             SET Barcode = ?, ItemName = ?, ExpireDt = ?

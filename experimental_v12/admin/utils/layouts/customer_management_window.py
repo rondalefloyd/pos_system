@@ -145,7 +145,6 @@ class CustomerManagementWindow(QGroupBox):
             self.saveData(reference)
 
     def updatePanelB(self, reference, data=''):
-        print('data: ', data)
         if reference == 'add_button':
             self.panel_b.show()
             self.save_add_button.show()

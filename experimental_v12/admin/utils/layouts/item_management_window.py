@@ -26,6 +26,8 @@ class ItemManagementWindow(QGroupBox):
         # ----
 
         self.sales_table_schema.createSalesTable()
+        
+        self.data_saved.connect(self.updateComboBox) # -- need to call to update the combobox
 
         self.main_layout = QGridLayout()
 
@@ -162,7 +164,6 @@ class ItemManagementWindow(QGroupBox):
         self.current_on_hand_stock = CustomLineEdit(reference='current_on_hand_stock')
 
         # ----
-        self.data_saved.connect(self.updateComboBox)
 
         self.save_add_button = CustomPushButton(text='SAVE NEW')
         self.save_add_button.clicked.connect(lambda: self.onPushButtonClicked(reference='save_add_button'))
@@ -247,10 +248,14 @@ class ItemManagementWindow(QGroupBox):
                 self.list_table.setCellWidget(row_index, 1, remove_button)
 
                 promo_name = row_value[11]
-                print(promo_name)
                 if promo_name != 'N/A':
                     cell_value.setForeground(QColor(255, 0, 255))
                     edit_button.setText('VIEW')
+
+                effective_dt = QDate.fromString(row_value[10], Qt.DateFormat.ISODate)
+                current_dt = QDateTime.currentDateTime().date()
+                if effective_dt <= current_dt:
+                    remove_button.setDisabled(True)
 
     def onPushButtonClicked(self, reference, data=''):
         if reference == 'close_button':
@@ -365,7 +370,6 @@ class ItemManagementWindow(QGroupBox):
 
 
     def updatePanelB(self, reference, data=''):
-        print('data: ', data)
         if reference == 'add_button':
             self.panel_b.show()
             self.save_add_button.show()
@@ -718,8 +722,12 @@ class ItemManagementWindow(QGroupBox):
             self.data_saved.emit()
 
     def updateComboBox(self):
+        print('reached!')
         self.item_name.fillComboBox()
         self.item_type.fillComboBox()
+        self.brand.fillComboBox()
+        self.supplier.fillComboBox()
+        self.promo_name.fillComboBox()
 
 if __name__ == ('__main__'):
     pos_app = QApplication(sys.argv)

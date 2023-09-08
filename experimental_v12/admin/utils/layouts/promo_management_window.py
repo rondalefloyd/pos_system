@@ -5,6 +5,8 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
 
+from utils.layouts.item_management_window import *
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')))
 
 # -- changeable
@@ -23,6 +25,8 @@ class PromoManagementWindow(QGroupBox):
 
         # -- changeable
         self.promo_management_schema = PromoManagementSchema()
+
+        self.item_management_window = ItemManagementWindow()
         # ----
 
         self.sales_table_schema.createSalesTable()
@@ -48,6 +52,7 @@ class PromoManagementWindow(QGroupBox):
         self.list_table = CustomTableWidget(reference='list_table')
 
         self.data_saved.connect(self.populateTable)
+        self.data_saved.connect(self.item_management_window.populateTable)
 
         self.populateTable()
 
@@ -73,7 +78,8 @@ class PromoManagementWindow(QGroupBox):
         self.description = CustomTextEdit(reference='description')
         # ----
         self.data_saved.connect(self.updateComboBox)
-
+        self.data_saved.connect(self.item_management_window.updateComboBox)
+        
         self.save_add_button = CustomPushButton(text='SAVE NEW')
         self.save_add_button.clicked.connect(lambda: self.onPushButtonClicked(reference='save_add_button'))
         self.save_edit_button = CustomPushButton(text='SAVE CHANGE')
@@ -139,7 +145,6 @@ class PromoManagementWindow(QGroupBox):
             self.saveData(reference)
 
     def updatePanelB(self, reference, data=''):
-        print('data: ', data)
         if reference == 'add_button':
             self.panel_b.show()
             self.save_add_button.show()
@@ -195,12 +200,11 @@ class PromoManagementWindow(QGroupBox):
                 description
             )
             # ----
+            
             self.data_saved.emit()
 
         elif reference == 'save_edit_button':
             # -- changeable
-            
-
             self.promo_management_schema.editSelectedPromo(
                 promo_name,
                 promo_type,
@@ -209,6 +213,7 @@ class PromoManagementWindow(QGroupBox):
                 self.promo_id
             )
             # ----
+            
             self.data_saved.emit()
 
     def updateComboBox(self):

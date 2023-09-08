@@ -1,6 +1,7 @@
 import sqlite3
 import sys, os
 import fitz
+from escpos import printer
 
 from docx import *
 from docx2pdf import *
@@ -27,61 +28,8 @@ class TransactWindow(CustomGroupBox):
         self.setTransactWindow()
 
     def printContent(self):
-        # Open the template DOCX file
-        doc = Document(os.path.abspath(os.path.join(os.path.dirname(__file__), '../layout/document.docx')))
-
-        # # Replace placeholders in the document
-        # for paragraph in doc.paragraphs:
-        #     for run in paragraph.runs:
-        #         print('test: ', run.text)
-        #         run.text = run.text.replace("SUPERSTORE", "0.00")
-
-
-        receipt_invoice = doc.tables[0] 
-        receipt_order_table = doc.tables[1] 
-        receipt_order_amount = doc.tables[2] 
-
-        num_rows_to_add = 10
-
-
-        # Iterate to add rows
-        for _ in range(num_rows_to_add):
-            new_row = receipt_order_table.add_row().cells  # Add a new row and get its cells
-
-            # Customize content for columns 1 and 2 in each new row
-            new_row[0].text = "Item name"
-            new_row[1].text = "0.00"
-
-            # Customize font size and family for columns 1 and 2
-            for cell in new_row:
-                for paragraph in cell.paragraphs:
-                    for run in paragraph.runs:
-                        run.font.size = Pt(35)  # Set font size to 12 points
-                        run.font.name = 'Pixel Operator'  # Set font family to Arial
-
-                # Customize text alignment for Column 1 (left) and Column 2 (right)
-                new_row[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
-                new_row[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-
-            
-        # Save the edited document
-        doc.save(os.path.abspath(os.path.join(os.path.dirname(__file__), '../layout/new_document.docx')))
-        convert(os.path.abspath(os.path.join(os.path.dirname(__file__), '../layout/new_document.docx')),
-                os.path.abspath(os.path.join(os.path.dirname(__file__), '../layout/new_document.pdf')))
-
-        pdf_document = fitz.open(os.path.abspath(os.path.join(os.path.dirname(__file__), '../layout/new_document.pdf')))
-        pdf_page = pdf_document.load_page(0)  # Adjust page number as needed
-
-        pdf_pixmap = pdf_page.get_pixmap()
-        self.image = QImage(pdf_pixmap.samples, pdf_pixmap.width, pdf_pixmap.height, pdf_pixmap.stride, QImage.Format.Format_RGB888)
-        print('before: ', self.image)
-        self.image = self.image.scaled(QSize(435,435), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-        print('after: ', self.image)
-
-        self.painter = QPainter(self.printer)
-
-        self.painter.drawImage(QPointF(0,0), self.image)
-        self.painter.end()
+        
+        pass
 
     def onProcessPaymentButtonClicked(self):
 

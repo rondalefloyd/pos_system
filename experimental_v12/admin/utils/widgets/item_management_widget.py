@@ -158,10 +158,12 @@ class CustomComboBox(QComboBox):
         if self.ref == 'promo_name':
             data = self.promo_management_schema.fillPromoComboBox()
             self.clear()
+            # os.system('cls')
             self.addItem('No promo')
             for row in data:
                 self.addItem(row[0])
 
+            print('promo name combobox refreshed!')
         self.data_saved.emit()
         
 class CustomDateEdit(QDateEdit):
