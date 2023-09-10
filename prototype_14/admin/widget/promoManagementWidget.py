@@ -57,6 +57,7 @@ class CustomComboBox(QComboBox):
             self.addItem('Last 30 days')
             self.addItem('This month')
             self.addItem('Last month')
+            self.addItem('All')
 
 class CustomTextEdit(QTextEdit):
     def __init__(self, reference=''):
@@ -70,6 +71,7 @@ class CustomTableWidget(QTableWidget):
             self.setColumnCount(6)
             self.setHorizontalHeaderLabels(['','','promo_name','promo_type','discount_value','description'])
             self.setEditTriggers(QAbstractItemView.EditTrigger(False))
+            self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.Stretch)
 
 class CustomDateEdit(QDateEdit):
     def __init__(self, reference=''):

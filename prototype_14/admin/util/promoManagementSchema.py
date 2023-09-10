@@ -40,7 +40,7 @@ class PromoManagementSchema():
         self.conn.commit()
 
     # -- for removing
-    def removeSelectedPromo(self, promo_id):
+    def deleteSelectedPromo(self, promo_id):
         self.cursor.execute('''
         DELETE FROM Promo
         WHERE PromoId = ?
@@ -48,7 +48,109 @@ class PromoManagementSchema():
         self.conn.commit()
 
     # -- for populating
-    def listPromo(self, text=''):
+    def listPromoA(self, text=''):
+        self.cursor.execute('''
+        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        WHERE
+            (Name LIKE ? OR
+            PromoType LIKE ? OR
+            DiscountPercent LIKE ? OR
+            Description LIKE ?) AND
+            UpdateTs >= CURRENT_DATE
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+        
+        promo = self.cursor.fetchall()
+        
+        return promo
+    
+    def listPromoB(self, text=''):
+        self.cursor.execute('''
+        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        WHERE
+            (Name LIKE ? OR
+            PromoType LIKE ? OR
+            DiscountPercent LIKE ? OR
+            Description LIKE ?) AND
+            UpdateTs BETWEEN DATE(CURRENT_DATE, '-1 day') AND CURRENT_DATE
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+        
+        promo = self.cursor.fetchall()
+        
+        return promo
+    
+    def listPromoC(self, text=''):
+        self.cursor.execute('''
+        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        WHERE
+            (Name LIKE ? OR
+            PromoType LIKE ? OR
+            DiscountPercent LIKE ? OR
+            Description LIKE ?) AND
+            UpdateTs >= DATE(CURRENT_DATE, '-7 day')
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+        
+        promo = self.cursor.fetchall()
+        
+        return promo
+
+    def listPromoD(self, text=''):
+        self.cursor.execute('''
+        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        WHERE
+            (Name LIKE ? OR
+            PromoType LIKE ? OR
+            DiscountPercent LIKE ? OR
+            Description LIKE ?) AND
+            UpdateTs >= DATE(CURRENT_DATE, '-30 day')
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+        
+        promo = self.cursor.fetchall()
+        
+        return promo
+    
+    def listPromoE(self, text=''):
+        self.cursor.execute('''
+        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        WHERE
+            (Name LIKE ? OR
+            PromoType LIKE ? OR
+            DiscountPercent LIKE ? OR
+            Description LIKE ?) AND
+            (UpdateTs BETWEEN DATE(CURRENT_DATE, 'start of month') AND DATE(CURRENT_DATE, 'start of month', '+1 month', '-1 day'))
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+        
+        promo = self.cursor.fetchall()
+        
+        return promo
+
+    def listPromoF(self, text=''):
+        self.cursor.execute('''
+        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        WHERE
+            (Name LIKE ? OR
+            PromoType LIKE ? OR
+            DiscountPercent LIKE ? OR
+            Description LIKE ?) AND
+            (UpdateTs BETWEEN DATE(CURRENT_DATE, 'start of month', '-1 month') AND DATE(CURRENT_DATE, 'start of month', '-1 day'))
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
+        
+        promo = self.cursor.fetchall()
+        
+        return promo
+    
+    def listPromoG(self, text=''):
         self.cursor.execute('''
         SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
         WHERE
@@ -63,7 +165,7 @@ class PromoManagementSchema():
         promo = self.cursor.fetchall()
         
         return promo
-    
+
     # -- for filling combo box
     def fillPromoComboBox(self):
         self.cursor.execute('''
