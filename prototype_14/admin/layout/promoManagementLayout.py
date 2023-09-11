@@ -43,8 +43,10 @@ class PromoManagementLayout(CustomGroupBox):
             with open(csv_file, 'r', encoding='utf-8-sig', newline='') as file:
                 csv_reader = csv.reader(file)
                 for row in csv_reader:
-                    promo_name, promo_type, discount_percent, description = row
-                    if promo_name == '' or promo_type == '' or discount_percent == '':
+                    promo_name, promo_type, discount_percent, description = row[:4]
+                    
+                    print(promo_name)
+                    if '' in (promo_name, promo_type, discount_percent):
                         QMessageBox.critical(self, 'Error', f'Unable to import {csv_file_name} due to missing values.')
                         print('Failed to import')
                         return
@@ -305,7 +307,7 @@ class PromoManagementLayout(CustomGroupBox):
         self.panel_d = CustomGroupBox(reference='panel_d_box')
         form_layout = QFormLayout()
 
-        required_indicator = "<font color='red'>*</font>"
+        required_indicator = "<font color='red'><b>!</b></font>"
 
         self.back_button = CustomPushButton(reference='back_button', text='BACK')
         self.back_button.clicked.connect(lambda: self.onPushButtonClicked(reference='back', bool=False))
@@ -319,9 +321,9 @@ class PromoManagementLayout(CustomGroupBox):
         self.save_edit_button.clicked.connect(lambda: self.onPushButtonClicked(reference='save_edit'))
 
         form_layout.addRow(self.back_button)
-        form_layout.addRow(f'promo_name {required_indicator}', self.promo_name_field)
-        form_layout.addRow(f'promo_type {required_indicator}', self.promo_type_field)
-        form_layout.addRow(f'discount_percent {required_indicator}', self.discount_percent_field)
+        form_layout.addRow(f'{required_indicator} promo_name', self.promo_name_field)
+        form_layout.addRow(f'{required_indicator} promo_type', self.promo_type_field)
+        form_layout.addRow(f'{required_indicator} discount_percent', self.discount_percent_field)
         form_layout.addRow('description', self.description_field)
         form_layout.addRow(self.save_new_button)
         form_layout.addRow(self.save_edit_button)

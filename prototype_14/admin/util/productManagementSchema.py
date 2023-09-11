@@ -22,26 +22,26 @@ class ProductManagementSchema():
     # ITEM MANAGEMENT
     # -- for adding
     def addNewProduct(self,
-            barcode,
-            item_name,
-            expire_dt,
-            item_type,
-            brand,
-            sales_group,
-            supplier,
-            cost,
-            sell_price,
-            new_sell_price,
-            effective_dt,
-            promo_name,
-            promo_type,
-            discount_percent,
-            discount_value,
-            start_dt,
-            end_dt,
-            inventory_status,
-            available_stock,
-            on_hand_stock
+            barcode='', # -- optional
+            item_name='',
+            expire_dt='9999-12-31', # -- optional
+            item_type='', # -- optional
+            brand='',
+            sales_group='',
+            supplier='',
+            cost='0',
+            sell_price='0',
+            promo_name='No promo', # -- optional
+            promo_type='', # -- optional
+            discount_percent='0', # -- optional
+            discount_value='0', # -- optional
+            new_sell_price='0', # -- optional
+            start_dt='', # -- optional
+            end_dt='', # -- optional
+            effective_dt='', # -- optional
+            inventory_status='Disable', # -- optional
+            available_stock='0', # -- optional
+            on_hand_stock='0' # -- optional
         ):
         # step a: insert item_type, brand, sales_group, and supplier into their respective tables
         self.cursor.execute('''
@@ -184,7 +184,7 @@ class ProductManagementSchema():
             self.conn.commit()
         
         # step e: insert stock data depending on the conditions
-        if inventory_status == 'Tracked':
+        if inventory_status == 'Enabled':
             self.inventory_management_schema.addNewStock(item_id, available_stock, on_hand_stock)
         else:
             pass
@@ -392,8 +392,8 @@ class ProductManagementSchema():
             COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
             COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
             COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'N/A' END AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Tracked' ELSE 'Not tracked' END AS InventoryStatus, -- 12,
+            Promo.Name AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
@@ -466,8 +466,8 @@ class ProductManagementSchema():
             COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
             COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
             COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'N/A' END AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Tracked' ELSE 'Not tracked' END AS InventoryStatus, -- 12,
+            Promo.Name AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
@@ -540,8 +540,8 @@ class ProductManagementSchema():
             COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
             COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
             COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'N/A' END AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Tracked' ELSE 'Not tracked' END AS InventoryStatus, -- 12,
+            Promo.Name AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
@@ -614,8 +614,8 @@ class ProductManagementSchema():
             COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
             COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
             COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'N/A' END AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Tracked' ELSE 'Not tracked' END AS InventoryStatus, -- 12,
+            Promo.Name AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
@@ -688,8 +688,8 @@ class ProductManagementSchema():
             COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
             COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
             COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'N/A' END AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Tracked' ELSE 'Not tracked' END AS InventoryStatus, -- 12,
+            Promo.Name AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
@@ -762,8 +762,8 @@ class ProductManagementSchema():
             COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
             COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
             COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'N/A' END AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Tracked' ELSE 'Not tracked' END AS InventoryStatus, -- 12,
+            Promo.Name AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
@@ -836,8 +836,8 @@ class ProductManagementSchema():
             COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
             COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
             COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'N/A' END AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Tracked' ELSE 'Not tracked' END AS InventoryStatus, -- 12,
+            Promo.Name AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,

@@ -42,39 +42,118 @@ class ProductManagementLayout(CustomGroupBox):
             # Open the CSV file with 'utf-8-sig' encoding to remove the BOM
             with open(csv_file, 'r', encoding='utf-8-sig', newline='') as file:
                 csv_reader = csv.reader(file)
+            
+                total_rows = sum(1 for _ in csv_reader)  # Get the total number of rows for progress bar
+                file.seek(0)  # Reset the file pointer
+
+                progress_dialog = QProgressDialog('Importing Data...', 'Cancel', 0, total_rows, self)
+                progress_dialog.setWindowTitle('Import Progress')
+                progress_dialog.setAutoClose(True)
+
+                progress_min_range = 0
+
                 for row in csv_reader:
-                    promo_name, promo_type, discount_percent, description = row
-                    if promo_name == '' or promo_type == '' or discount_percent == '':
+                    barcode, item_name, expire_dt, item_type, brand, sales_group, supplier, cost, sell_price, available_stock = row[:10]
+                    
+                    if '' in (item_name, brand, sales_group, supplier, cost, sell_price):
                         QMessageBox.critical(self, 'Error', f'Unable to import {csv_file_name} due to missing values.')
                         print('Failed to import')
                         return
+                
                     else:
-                        self.product_management_schema.addNewProduct(promo_name, promo_type, discount_percent, description)
+                        self.product_management_schema.addNewProduct(
+                            barcode=barcode,
+                            item_name=item_name,
+                            expire_dt=expire_dt,
+                            item_type=item_type,
+                            brand=brand,
+                            sales_group=sales_group,
+                            supplier=supplier,
+                            cost=cost,
+                            sell_price=sell_price,
+                            available_stock=available_stock,
+                            effective_dt=self.effective_dt_field.date().toString(Qt.DateFormat.ISODate)
+                        )
 
-            self.refreshUI()
+                    progress_min_range += 1
+                    progress_dialog.setValue(progress_min_range)
+                    print(progress_min_range)
 
-            if self.panel_d.isVisible() == True:
-                self.onPushButtonClicked(reference='add')
+            progress_dialog.close()  # Close the progress dialog after import is complete
 
-        QMessageBox.information(self, 'Success', f"All data from '{csv_file_name}' has been imported.")
-        print('Successfully imported.')
+            QMessageBox.information(self, 'Success', f"All data from '{csv_file_name}' has been imported.")
+            print('Successfully imported.')
+
+        self.refreshUI()
+
+        if self.panel_d.isVisible() == True:
+            self.onPushButtonClicked(reference='add')
 
     def saveNewData(self):
-        if self.promo_name_field.currentText() == '' or self.promo_type_field.currentText() == '' or self.discount_percent_field.text() == '':
+        if '' in (
+            self.item_name_field.setCurrentText(),
+            self.brand_field.setCurrentText(),
+            self.sales_group_field.setCurrentText(),
+            self.supplier_field.setCurrentText(),
+            self.cost_field.setText(),
+            self.sell_price_field.setText()
+        ):
             QMessageBox.critical(self, 'Invalid', "All required fields must be filled.")
             return
         else:
-            if self.discount_percent_field.text().isnumeric() == False:
+            if False in (
+                self.cost_field.text().isnumeric(),
+                self.sell_price_field.text().isnumeric(),
+                self.available_stock_field.text().isnumeric(),
+                self.on_hand_stock_field.text().isnumeric(),
+            ):
                 print('not numeric')
                 QMessageBox.critical(self, 'Invalid', "Invalid discount percent input.")
                 return
             
-            promo_name = self.promo_name_field.currentText()
-            promo_type = self.promo_type_field.currentText()
-            discount_percent = self.discount_percent_field.text()
-            description = self.description_field.toPlainText()
+            barcode = self.barcode_field.setText()
+            item_name = self.item_name_field.setCurrentText()
+            expire_dt = self.expire_dt_field.setDate()
+            item_type = self.item_type_field.setCurrentText()
+            brand = self.brand_field.setCurrentText()
+            sales_group = self.sales_group_field.setCurrentText()
+            supplier = self.supplier_field.setCurrentText()
+            cost = self.cost_field.setText()
+            sell_price = self.sell_price_field.setText()
+            promo_name = self.promo_name_field.setCurrentText()
+            promo_type = self.promo_type_field.setText()
+            discount_percent = self.discount_percent_field.setText()
+            discount_value = self.discount_value_field.setText()
+            new_sell_price = self.new_sell_price_field.setText()
+            start_dt = self.start_dt_field.setDate()
+            end_dt = self.end_dt_field.setDate()
+            effective_dt = self.effective_dt_field.setDate()
+            inventory_status = self.inventory_status_field.setCurrentText()
+            available_stock = self.available_stock_field.setText()
+            on_hand_stock = self.on_hand_stock_field.setText()
 
-            self.product_management_schema.addNewProduct(promo_name, promo_type, discount_percent, description)
+            self.product_management_schema.addNewProduct(
+                barcode,
+                item_name,
+                expire_dt,
+                item_type,
+                brand,
+                sales_group,
+                supplier,
+                cost,
+                sell_price,
+                promo_name,
+                promo_type,
+                discount_percent,
+                discount_value,
+                new_sell_price,
+                start_dt,
+                end_dt,
+                effective_dt,
+                inventory_status,
+                available_stock,
+                on_hand_stock
+            )
             
             if self.panel_d.isVisible() == True:
                 self.onPushButtonClicked(reference='add')
@@ -270,15 +349,20 @@ class ProductManagementLayout(CustomGroupBox):
         self.list_table.setRowCount(len(self.list_table_data))
 
         for row_index, row_value in enumerate(self.list_table_data):
-            column_count = row_value[:5]
+            column_count = row_value[:13]
             for col_index, col_value in enumerate(column_count):
 
                 self.edit_button = CustomPushButton(reference='edit_button', text='E')
                 self.delete_button = CustomPushButton(reference='delete_button', text='D')
                 self.cell_value = QTableWidgetItem(f'{col_value}')
-                self.discount_percent_cell = QTableWidgetItem(f'{row_value[2]}%')
 
-                self.discount_percent_cell.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+                self.cost_cell = QTableWidgetItem(f'₱{row_value[7]}')
+                self.sell_price_cell = QTableWidgetItem(f'₱{row_value[8]}')
+                self.discount_value_cell = QTableWidgetItem(f'₱{row_value[9]}')
+
+                self.cost_cell.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+                self.sell_price_cell.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+                self.discount_value_cell.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
                 self.edit_button.clicked.connect(
                     lambda 
@@ -304,7 +388,9 @@ class ProductManagementLayout(CustomGroupBox):
                 self.list_table.setCellWidget(row_index, 0, self.edit_button)
                 self.list_table.setCellWidget(row_index, 1, self.delete_button)
                 self.list_table.setItem(row_index, col_index + 2, self.cell_value)
-                self.list_table.setItem(row_index, 4, self.discount_percent_cell)
+                self.list_table.setItem(row_index, 9, self.cost_cell)
+                self.list_table.setItem(row_index, 10, self.sell_price_cell)
+                self.list_table.setItem(row_index, 11, self.discount_value_cell)
 
 
         print('Table has been populated.')
@@ -315,7 +401,7 @@ class ProductManagementLayout(CustomGroupBox):
         self.panel_d = CustomGroupBox(reference='panel_d_box')
         form_layout = QFormLayout()
 
-        required_indicator = "<font color='red'>*</font>"
+        required_indicator = "<font color='red'><b>!</b></font>"
 
         self.back_button = CustomPushButton(reference='back_button', text='BACK')
         self.back_button.clicked.connect(lambda: self.onPushButtonClicked(reference='back', bool=False))
@@ -342,14 +428,14 @@ class ProductManagementLayout(CustomGroupBox):
         self.on_hand_stock_field = CustomLineEdit(reference='on_hand_stock_field')
 
         self.label_barcode = CustomLabel(reference='label_barcode', text='barcode')
-        self.label_item_name = CustomLabel(reference='label_item_name', text='item_name')
+        self.label_item_name = CustomLabel(reference='label_item_name', text=f'{required_indicator} item_name')
         self.label_expire_dt = CustomLabel(reference='label_expire_dt', text='expire_dt')
-        self.label_item_type = CustomLabel(reference='label_item_type', text='item_type')
-        self.label_brand = CustomLabel(reference='label_brand', text='brand')
-        self.label_sales_group = CustomLabel(reference='label_sales_group', text='sales_group')
-        self.label_supplier = CustomLabel(reference='label_supplier', text='supplier')
-        self.label_cost = CustomLabel(reference='label_cost', text='cost')
-        self.label_sell_price = CustomLabel(reference='label_sell_price', text='sell_price')
+        self.label_item_type = CustomLabel(reference='label_item_type', text=f'{required_indicator} item_type')
+        self.label_brand = CustomLabel(reference='label_brand', text=f'{required_indicator} brand')
+        self.label_sales_group = CustomLabel(reference='label_sales_group', text=f'{required_indicator} sales_group')
+        self.label_supplier = CustomLabel(reference='label_supplier', text=f'{required_indicator} supplier')
+        self.label_cost = CustomLabel(reference='label_cost', text=f'{required_indicator} cost')
+        self.label_sell_price = CustomLabel(reference='label_sell_price', text=f'{required_indicator} sell_price')
         self.label_promo_name = CustomLabel(reference='label_promo_name', text='promo_name')
         self.label_promo_type = CustomLabel(reference='label_promo_type', text='promo_type')
         self.label_discount_percent = CustomLabel(reference='label_discount_percent', text='discount_percent')

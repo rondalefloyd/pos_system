@@ -156,9 +156,9 @@ class CustomTableWidget(QTableWidget):
                 'supplier',
                 'cost',
                 'sell_price',
-                'promo_name',
                 'discount_value',
                 'effective_dt',
+                'promo_name',
                 'inventory_status',
             ])
 
@@ -167,18 +167,20 @@ class CustomTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
 
-            for index in range(2, 7):
+            for index in range(2, 13):
                 self.horizontalHeader().setSectionResizeMode(index, QHeaderView.ResizeMode.Stretch)
                 self.horizontalHeaderItem(index).setTextAlignment(Qt.AlignmentFlag.AlignLeft)
 
-            # self.horizontalHeaderItem(4).setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            self.horizontalHeaderItem(9).setTextAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+            self.horizontalHeaderItem(10).setTextAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+            self.horizontalHeaderItem(11).setTextAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
 
 class CustomDateEdit(QDateEdit):
     def __init__(self, reference=''):
         super().__init__()
 
         self.setCalendarPopup(True)
-        self.setDate(QDate.currentDate())
+        self.setMinimumDate(QDate.currentDate())
 
         if reference in ['start_dt_field','end_dt_field']:
             self.hide()
