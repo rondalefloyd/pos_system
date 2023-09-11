@@ -342,7 +342,7 @@ class PromoManagementLayout(CustomGroupBox):
         self.panel_b = CustomGroupBox()
         grid_layout = QGridLayout()
 
-        self.filter_field = CustomLineEdit(placeholderText='Filter by barcode, product name, item type, brand, sales group, supplier, inventory_status')
+        self.filter_field = CustomLineEdit(placeholderText='Filter by promo name, promo type, discount percent, or description')
         self.filter_field.textChanged.connect(lambda text: self.populateTable(text=text))
         self.filter_by_date_field = CustomComboBox(reference='filter_by_date_field')
         self.filter_by_date_field.currentTextChanged.connect(lambda date_filter: self.populateTable(date_filter=date_filter))
