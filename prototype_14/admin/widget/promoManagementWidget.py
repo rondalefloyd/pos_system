@@ -25,7 +25,7 @@ class CustomLabel(QLabel):
         if reference == 'page_label':
             self.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
-        if reference == 'total_promo_label':
+        if reference in ['total_promo_label','total_promo_shown_label']:
             self.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
 class CustomLineEdit(QLineEdit):
@@ -42,6 +42,10 @@ class CustomPushButton(QPushButton):
         
         if reference in ['add_button','import_button','back_button','refresh_button']:
             self.setFixedWidth(100)
+
+        if reference in ['edit_button','delete_button']:
+            self.setFixedWidth(30)
+
 
 class CustomComboBox(QComboBox):
     def __init__(self, reference=''):
@@ -68,10 +72,22 @@ class CustomTableWidget(QTableWidget):
         super().__init__()
 
         if reference == 'list_table':
-            self.setColumnCount(6)
-            self.setHorizontalHeaderLabels(['','','promo_name','promo_type','discount_value','description'])
+            self.setColumnCount(7)
+            self.setHorizontalHeaderLabels(['','','promo_name','promo_type','discount_value','description','date_modified'])
+
             self.setEditTriggers(QAbstractItemView.EditTrigger(False))
-            self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.Stretch)
+
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+
+            for index in range(2, 7):
+                self.horizontalHeader().setSectionResizeMode(index, QHeaderView.ResizeMode.Stretch)
+                self.horizontalHeaderItem(index).setTextAlignment(Qt.AlignmentFlag.AlignLeft)
+
+            # self.horizontalHeaderItem(4).setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+
+
 
 class CustomDateEdit(QDateEdit):
     def __init__(self, reference=''):

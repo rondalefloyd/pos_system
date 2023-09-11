@@ -50,7 +50,7 @@ class PromoManagementSchema():
     # -- for populating
     def listPromoA(self, text=''):
         self.cursor.execute('''
-        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        SELECT Name, PromoType, DiscountPercent, Description, UpdateTs, PromoId FROM Promo
         WHERE
             (Name LIKE ? OR
             PromoType LIKE ? OR
@@ -67,7 +67,7 @@ class PromoManagementSchema():
     
     def listPromoB(self, text=''):
         self.cursor.execute('''
-        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        SELECT Name, PromoType, DiscountPercent, Description, UpdateTs, PromoId FROM Promo
         WHERE
             (Name LIKE ? OR
             PromoType LIKE ? OR
@@ -84,7 +84,7 @@ class PromoManagementSchema():
     
     def listPromoC(self, text=''):
         self.cursor.execute('''
-        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        SELECT Name, PromoType, DiscountPercent, Description, UpdateTs, PromoId FROM Promo
         WHERE
             (Name LIKE ? OR
             PromoType LIKE ? OR
@@ -101,7 +101,7 @@ class PromoManagementSchema():
 
     def listPromoD(self, text=''):
         self.cursor.execute('''
-        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        SELECT Name, PromoType, DiscountPercent, Description, UpdateTs, PromoId FROM Promo
         WHERE
             (Name LIKE ? OR
             PromoType LIKE ? OR
@@ -118,7 +118,7 @@ class PromoManagementSchema():
     
     def listPromoE(self, text=''):
         self.cursor.execute('''
-        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        SELECT Name, PromoType, DiscountPercent, Description, UpdateTs, PromoId FROM Promo
         WHERE
             (Name LIKE ? OR
             PromoType LIKE ? OR
@@ -135,7 +135,7 @@ class PromoManagementSchema():
 
     def listPromoF(self, text=''):
         self.cursor.execute('''
-        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        SELECT Name, PromoType, DiscountPercent, Description, UpdateTs, PromoId FROM Promo
         WHERE
             (Name LIKE ? OR
             PromoType LIKE ? OR
@@ -152,7 +152,7 @@ class PromoManagementSchema():
     
     def listPromoG(self, text=''):
         self.cursor.execute('''
-        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
+        SELECT Name, PromoType, DiscountPercent, Description, UpdateTs, PromoId FROM Promo
         WHERE
             Name LIKE ? OR
             PromoType LIKE ? OR
@@ -167,9 +167,9 @@ class PromoManagementSchema():
         return promo
 
     # -- for filling combo box
-    def fillPromoComboBox(self):
+    def fillPromoNameComboBox(self):
         self.cursor.execute('''
-        SELECT DISTINCT Name, PromoType FROM Promo
+        SELECT DISTINCT Name FROM Promo
         ORDER BY PromoId DESC, UpdateTs DESC                
         ''')
         
@@ -177,11 +177,95 @@ class PromoManagementSchema():
         
         return promo
 
-    def countTotalPromo(self):
+    def fillPromoTypeComboBox(self):
         self.cursor.execute('''
-        SELECT COUNT(*) FROM Promo           
+        SELECT DISTINCT PromoType FROM Promo
+        ORDER BY PromoId DESC, UpdateTs DESC                
         ''')
         
-        total = self.cursor.fetchone()[0]
+        promo = self.cursor.fetchall()
         
-        return total
+        return promo
+
+    # -- for counting total promo
+    def countPromoA(self, text=''):
+        self.cursor.execute('''
+        SELECT COUNT(*) FROM Promo
+        WHERE UpdateTs >= CURRENT_DATE
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''')
+        
+        promo = self.cursor.fetchone()[0]
+        
+        return promo
+    
+    def countPromoB(self, text=''):
+        self.cursor.execute('''
+        SELECT COUNT(*) FROM Promo
+        WHERE UpdateTs BETWEEN DATE(CURRENT_DATE, '-1 day') AND CURRENT_DATE
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''')
+        
+        promo = self.cursor.fetchone()[0]
+        
+        return promo
+    
+    def countPromoC(self, text=''):
+        self.cursor.execute('''
+        SELECT COUNT(*) FROM Promo
+        WHERE UpdateTs >= DATE(CURRENT_DATE, '-7 day')
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''')
+        
+        promo = self.cursor.fetchone()[0]
+        
+        return promo
+
+    def countPromoD(self, text=''):
+        self.cursor.execute('''
+        SELECT COUNT(*) FROM Promo
+        WHERE UpdateTs >= DATE(CURRENT_DATE, '-30 day')
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''')
+        
+        promo = self.cursor.fetchone()[0]
+        
+        return promo
+    
+    def countPromoE(self, text=''):
+        self.cursor.execute('''
+        SELECT COUNT(*) FROM Promo
+        WHERE UpdateTs BETWEEN DATE(CURRENT_DATE, 'start of month') AND DATE(CURRENT_DATE, 'start of month', '+1 month', '-1 day')
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''')
+        
+        promo = self.cursor.fetchone()[0]
+        
+        return promo
+
+    def countPromoF(self, text=''):
+        self.cursor.execute('''
+        SELECT COUNT(*) FROM Promo
+        WHERE UpdateTs BETWEEN DATE(CURRENT_DATE, 'start of month', '-1 month') AND DATE(CURRENT_DATE, 'start of month', '-1 day')
+        ORDER BY PromoId DESC, UpdateTs DESC
+                            
+        ''')
+        
+        promo = self.cursor.fetchone()[0]
+        
+        return promo
+    
+    def countPromoG(self, text=''):
+        self.cursor.execute('''
+        SELECT COUNT(*) FROM Promo
+        ORDER BY PromoId DESC, UpdateTs DESC               
+        ''')
+        
+        promo = self.cursor.fetchone()[0]
+        
+        return promo

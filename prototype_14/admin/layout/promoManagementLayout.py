@@ -24,14 +24,16 @@ class PromoManagementLayout(CustomGroupBox):
         self.refreshUI()
     
     def refreshUI(self):
-        self.total_label.setText(f'TOTAL: {self.promo_management_schema.countTotalPromo()}')
-        self.data_list = None
+        self.total_label.setText(f'TOTAL: {self.promo_management_schema.countPromoG()}')
+        self.list_table_data = None
         self.current_edit_button = None
+        self.populateComboBox()
         self.populateTable()
 
 
         print('Window has been refreshed.')
 
+# -- data handling
     def importData(self):
         csv_file, _ = QFileDialog.getOpenFileName(self, 'Open CSV', '', 'CSV Files (*.csv)')
         csv_file_name = os.path.basename(csv_file)
@@ -51,33 +53,68 @@ class PromoManagementLayout(CustomGroupBox):
 
             self.refreshUI()
 
+            if self.panel_d.isVisible() == True:
+                self.onPushButtonClicked(reference='add')
+
         QMessageBox.information(self, 'Success', f"All data from '{csv_file_name}' has been imported.")
         print('Successfully imported.')
 
-    def saveData(self, reference):
+    def saveNewData(self):
         if self.promo_name_field.currentText() == '' or self.promo_type_field.currentText() == '' or self.discount_percent_field.text() == '':
             QMessageBox.critical(self, 'Invalid', "All required fields must be filled.")
+            return
         else:
+            if self.discount_percent_field.text().isnumeric() == False:
+                print('not numeric')
+                QMessageBox.critical(self, 'Invalid', "Invalid discount percent input.")
+                return
+            
             promo_name = self.promo_name_field.currentText()
             promo_type = self.promo_type_field.currentText()
             discount_percent = self.discount_percent_field.text()
             description = self.description_field.toPlainText()
 
-            if reference == 'save_new':
-                self.promo_management_schema.addNewPromo(promo_name, promo_type, discount_percent, description)
-            if reference == 'save_edit':
-                promo_id = self.promo_id
-                self.promo_management_schema.editSelectedPromo(promo_name, promo_type, discount_percent, description, promo_id)
+            self.promo_management_schema.addNewPromo(promo_name, promo_type, discount_percent, description)
             
+            if self.panel_d.isVisible() == True:
+                self.onPushButtonClicked(reference='add')
+
             self.refreshUI()
 
             QMessageBox.information(self, 'Success', f"New promo has been added.")
 
         print('New data has been added.')
 
+    def saveEditData(self):
+        if self.promo_name_field.currentText() == '' or self.promo_type_field.currentText() == '' or self.discount_percent_field.text() == '':
+            QMessageBox.critical(self, 'Invalid', "All required fields must be filled.")
+            return
+        else:
+            if self.discount_percent_field.text().isnumeric() == False:
+                print('not numeric')
+                QMessageBox.critical(self, 'Invalid', "Invalid discount percent input.")
+                return
+            
+            promo_name = self.promo_name_field.currentText()
+            promo_type = self.promo_type_field.currentText()
+            discount_percent = self.discount_percent_field.text()
+            description = self.description_field.toPlainText()
+
+            promo_id = self.promo_id
+            self.promo_management_schema.editSelectedPromo(promo_name, promo_type, discount_percent, description, promo_id)
+            
+            if self.panel_d.isVisible() == True:
+                self.onPushButtonClicked(reference='add')
+
+            self.refreshUI()
+
+            QMessageBox.information(self, 'Success', f"Promo has been edited.")
+
+        pass
+
     def deleteData(self, row_value):
         promo_name = f'{row_value[0]}'
-        promo_id = f'{row_value[4]}'
+        promo_id = f'{row_value[5]}'
 
         confirmation = QMessageBox.warning(self, 'Delete', f'Are you sure you want to delete {promo_name}?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
@@ -95,24 +132,18 @@ class PromoManagementLayout(CustomGroupBox):
             self.filter_by_date_field.setCurrentText(self.filter_by_date_field.currentText())
             pass
         
-
+# -- layout handling
     def updatePanelD(
             self,
             reference='',
             row_value=''
     ):
-        if reference == 'add':
-            self.promo_name_field.setCurrentText(row_value)
-            self.promo_type_field.setCurrentText(row_value)
-            self.discount_percent_field.setText(row_value)
-            self.description_field.setPlainText(row_value)
-
-        elif reference == 'edit':
+        if reference == 'edit':
             self.promo_name_field.setCurrentText(f'{row_value[0]}')
             self.promo_type_field.setCurrentText(f'{row_value[1]}')
             self.discount_percent_field.setText(f'{row_value[2]}')
             self.description_field.setPlainText(f'{row_value[3]}')
-            self.promo_id = f'{row_value[4]}'
+            self.promo_id = f'{row_value[5]}'
 
         print('Panel D has been updated.')
 
@@ -140,6 +171,9 @@ class PromoManagementLayout(CustomGroupBox):
             self.current_edit_button = None
             self.add_button.setDisabled(True)
 
+            self.save_new_button.show()
+            self.save_edit_button.hide()
+
             self.updatePanelD(reference, '')
 
         elif reference == 'back':
@@ -165,6 +199,9 @@ class PromoManagementLayout(CustomGroupBox):
             # Set the currently disabled edit button to the clicked button
             self.current_edit_button = row_edit_button
 
+            self.save_edit_button.show()
+            self.save_new_button.hide()
+
             self.updatePanelD(
                 reference,
                 row_value
@@ -174,10 +211,21 @@ class PromoManagementLayout(CustomGroupBox):
             self.deleteData(row_value)
 
         elif reference == 'save_new':
-            self.saveData(reference)
+            self.saveNewData()
 
         elif reference == 'save_edit':
-            self.saveData(reference)
+            self.saveEditData()
+
+    def populateComboBox(self):
+        self.promo_name_data = self.promo_management_schema.fillPromoNameComboBox()
+        self.promo_type_data = self.promo_management_schema.fillPromoTypeComboBox()
+
+        self.promo_name_field.clear()
+        self.promo_type_field.clear()
+
+        # Use list comprehensions to populate the combo boxes
+        self.promo_name_field.addItems([row[0] for row in self.promo_name_data])
+        self.promo_type_field.addItems([row[0] for row in self.promo_type_data])
 
     def populateTable(self, text='', date_filter=''):
         self.list_table.clearContents()
@@ -201,24 +249,26 @@ class PromoManagementLayout(CustomGroupBox):
             data_filter_method = date_filter_mapping[date_filter]
             
             self.updatePanelD(reference='add')
-            self.data_list = getattr(self.promo_management_schema, data_filter_method)(text=text)
+            self.list_table_data = getattr(self.promo_management_schema, data_filter_method)(text=text)
             
             if self.current_edit_button:
                 self.current_edit_button.setDisabled(False)
 
             self.current_edit_button = None
             
-            
-            
-        self.list_table.setRowCount(len(self.data_list))
+                 
+        self.list_table.setRowCount(len(self.list_table_data))
 
-        for row_index, row_value in enumerate(self.data_list):
-            column_count = row_value[:4]
+        for row_index, row_value in enumerate(self.list_table_data):
+            column_count = row_value[:5]
             for col_index, col_value in enumerate(column_count):
 
-                self.cell_value = QTableWidgetItem(str(col_value))
-                self.edit_button = CustomPushButton(text='EDIT')
-                self.delete_button = CustomPushButton(text='DELETE')
+                self.edit_button = CustomPushButton(reference='edit_button', text='E')
+                self.delete_button = CustomPushButton(reference='delete_button', text='D')
+                self.cell_value = QTableWidgetItem(f'{col_value}')
+                self.discount_percent_cell = QTableWidgetItem(f'{row_value[2]}%')
+
+                # self.discount_percent_cell.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
                 self.edit_button.clicked.connect(
                     lambda 
@@ -241,14 +291,16 @@ class PromoManagementLayout(CustomGroupBox):
                     )
                 )
 
-                self.list_table.setItem(row_index, col_index + 2, self.cell_value)
                 self.list_table.setCellWidget(row_index, 0, self.edit_button)
                 self.list_table.setCellWidget(row_index, 1, self.delete_button)
+                self.list_table.setItem(row_index, col_index + 2, self.cell_value)
+                self.list_table.setItem(row_index, 4, self.discount_percent_cell)
 
 
         print('Table has been populated.')
         
 
+# -- layouts
     def showPanelD(self):
         self.panel_d = CustomGroupBox(reference='panel_d_box')
         form_layout = QFormLayout()
@@ -261,15 +313,18 @@ class PromoManagementLayout(CustomGroupBox):
         self.promo_type_field = CustomComboBox(reference='promo_type_field')
         self.discount_percent_field = CustomLineEdit()
         self.description_field = CustomTextEdit()
-        self.save_button = CustomPushButton(reference='save_button', text='SAVE')
-        self.save_button.clicked.connect(lambda: self.onPushButtonClicked(reference='save_new'))
+        self.save_new_button = CustomPushButton(reference='save_new_button', text='SAVE NEW')
+        self.save_new_button.clicked.connect(lambda: self.onPushButtonClicked(reference='save_new'))
+        self.save_edit_button = CustomPushButton(reference='save_edit_button', text='SAVE EDIT')
+        self.save_edit_button.clicked.connect(lambda: self.onPushButtonClicked(reference='save_edit'))
 
         form_layout.addRow(self.back_button)
         form_layout.addRow(f'promo_name {required_indicator}', self.promo_name_field)
         form_layout.addRow(f'promo_type {required_indicator}', self.promo_type_field)
         form_layout.addRow(f'discount_percent {required_indicator}', self.discount_percent_field)
         form_layout.addRow('description', self.description_field)
-        form_layout.addRow(self.save_button)
+        form_layout.addRow(self.save_new_button)
+        form_layout.addRow(self.save_edit_button)
 
         self.panel_d.setLayout(form_layout)
 
@@ -277,7 +332,7 @@ class PromoManagementLayout(CustomGroupBox):
         self.panel_c = CustomGroupBox()
         grid_layout = QGridLayout()
 
-        self.total_label = CustomLabel(reference='total_promo_label', text=f'TOTAL: {self.promo_management_schema.countTotalPromo()}')
+        self.total_label = CustomLabel(reference='total_promo_label', text=f'TOTAL: {self.promo_management_schema.countPromoG()}')
 
         grid_layout.addWidget(self.total_label,0,0)
 
