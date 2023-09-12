@@ -1,14 +1,14 @@
 import os, sys
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# from utils.schemas.inventory_management_schema import *
+from util.inventoryManagementSchema import *
 
 class ProductManagementSchema():
     def __init__(self, db_file='SALES.db'):
         super().__init__()
-        # self.inventory_management_schema = InventoryManagementSchema()
+        self.inventory_management_schema = InventoryManagementSchema()
 
         # Creates folder for the db file
         self.db_folder_path = 'database/sales/'  # Adjust the path
@@ -24,25 +24,28 @@ class ProductManagementSchema():
     def addNewProduct(self,
             barcode='', # -- optional
             item_name='',
-            expire_dt='9999-12-31', # -- optional
+            expire_dt='', # -- optional
             item_type='', # -- optional
             brand='',
             sales_group='',
             supplier='',
-            cost='0',
-            sell_price='0',
+            cost=0,
+            sell_price=0,
             promo_name='No promo', # -- optional
             promo_type='', # -- optional
-            discount_percent='0', # -- optional
-            discount_value='0', # -- optional
-            new_sell_price='0', # -- optional
+            discount_percent=0, # -- optional
+            discount_value=0, # -- optional
+            new_sell_price=0, # -- optional
             start_dt='', # -- optional
             end_dt='', # -- optional
             effective_dt='', # -- optional
             inventory_status='Disable', # -- optional
-            available_stock='0', # -- optional
-            on_hand_stock='0' # -- optional
+            available_stock=0, # -- optional
+            on_hand_stock=0 # -- optional
         ):
+            
+        print('THIS IS PROMO!', promo_name)
+
         # step a: insert item_type, brand, sales_group, and supplier into their respective tables
         self.cursor.execute('''
         INSERT INTO ItemType (Name)
@@ -200,26 +203,26 @@ class ProductManagementSchema():
 
     # -- for editing
     def editSelectedProduct(self,
-            barcode,
-            item_name,
-            expire_dt,
-            item_type,
-            brand,
-            sales_group,
-            supplier,
-            cost,
-            sell_price,
-            new_sell_price,
-            promo_name,
-            promo_type,
-            discount_percent,
-            discount_value,
-            start_dt,
-            end_dt,
-            effective_dt,
-            item_id,
-            item_price_id,
-            promo_id
+            barcode='', # -- optional
+            item_name='',
+            expire_dt='', # -- optional
+            item_type='', # -- optional
+            brand='',
+            sales_group='',
+            supplier='',
+            cost=0,
+            sell_price=0,
+            promo_name='No promo', # -- optional
+            promo_type='', # -- optional
+            discount_percent=0, # -- optional
+            discount_value=0, # -- optional
+            new_sell_price=0, # -- optional
+            start_dt='', # -- optional
+            end_dt='', # -- optional
+            effective_dt='', # -- optional
+            item_id=0,
+            item_price_id=0,
+            promo_id=0
         ):
         # edit without promo and no promo name
         if str(promo_id) == '0' and promo_name == 'No promo':
@@ -381,23 +384,23 @@ class ProductManagementSchema():
     def listProductA(self, text=''):
         self.cursor.execute('''
         SELECT
-            COALESCE(Item.Barcode, 'unk') AS Barcode,
-            COALESCE(Item.ItemName, 'unk') AS ItemName,
-            COALESCE(Item.ExpireDt, 'unk') AS ExpireDt, 
-            COALESCE(ItemType.Name, 'unk') AS ItemType, 
-            COALESCE(Brand.Name, 'unk') AS Brand, 
-            COALESCE(SalesGroup.Name, 'unk') AS SalesGroup, 
-            COALESCE(Supplier.Name, 'unk') AS Supplier, 
-            COALESCE(ItemPrice.Cost, 0.00) AS Cost, 
-            COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
-            COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
-            COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            Promo.Name AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
+            COALESCE(NULLIF(Item.Barcode, ''), 'unassigned') AS Barcode,
+            COALESCE(NULLIF(Item.ItemName, ''), 'unassigned') AS ItemName,
+            COALESCE(NULLIF(Item.ExpireDt, ''), 'unassigned') AS ExpireDt, 
+            COALESCE(NULLIF(ItemType.Name, ''), 'unassigned') AS ItemType, 
+            COALESCE(NULLIF(Brand.Name, ''), 'unassigned') AS Brand, 
+            COALESCE(NULLIF(SalesGroup.Name, ''), 'unassigned') AS SalesGroup, 
+            COALESCE(NULLIF(Supplier.Name, ''), 'unassigned') AS Supplier, 
+            COALESCE(NULLIF(ItemPrice.Cost, ''), 0.00) AS Cost, 
+            COALESCE(NULLIF(ItemPrice.SellPrice, ''), 0.00) AS SellPrice,
+            COALESCE(NULLIF(ItemPrice.DiscountValue, ''), 0.00) AS DiscountValue, 
+            COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), 'unassigned') AS EffectiveDt,
+            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
-            ItemPrice.ItemId, --15
+            ItemPrice.ItemId,
             ItemPrice.ItemPriceId,
             ItemPrice.PromoId
                           
@@ -455,23 +458,23 @@ class ProductManagementSchema():
     def listProductB(self, text=''):
         self.cursor.execute('''
         SELECT
-            COALESCE(Item.Barcode, 'unk') AS Barcode,
-            COALESCE(Item.ItemName, 'unk') AS ItemName,
-            COALESCE(Item.ExpireDt, 'unk') AS ExpireDt, 
-            COALESCE(ItemType.Name, 'unk') AS ItemType, 
-            COALESCE(Brand.Name, 'unk') AS Brand, 
-            COALESCE(SalesGroup.Name, 'unk') AS SalesGroup, 
-            COALESCE(Supplier.Name, 'unk') AS Supplier, 
-            COALESCE(ItemPrice.Cost, 0.00) AS Cost, 
-            COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
-            COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
-            COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            Promo.Name AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
+            COALESCE(NULLIF(Item.Barcode, ''), 'unassigned') AS Barcode,
+            COALESCE(NULLIF(Item.ItemName, ''), 'unassigned') AS ItemName,
+            COALESCE(NULLIF(Item.ExpireDt, ''), 'unassigned') AS ExpireDt, 
+            COALESCE(NULLIF(ItemType.Name, ''), 'unassigned') AS ItemType, 
+            COALESCE(NULLIF(Brand.Name, ''), 'unassigned') AS Brand, 
+            COALESCE(NULLIF(SalesGroup.Name, ''), 'unassigned') AS SalesGroup, 
+            COALESCE(NULLIF(Supplier.Name, ''), 'unassigned') AS Supplier, 
+            COALESCE(NULLIF(ItemPrice.Cost, ''), 0.00) AS Cost, 
+            COALESCE(NULLIF(ItemPrice.SellPrice, ''), 0.00) AS SellPrice,
+            COALESCE(NULLIF(ItemPrice.DiscountValue, ''), 0.00) AS DiscountValue, 
+            COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), 'unassigned') AS EffectiveDt,
+            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
-            ItemPrice.ItemId, --15
+            ItemPrice.ItemId,
             ItemPrice.ItemPriceId,
             ItemPrice.PromoId
                           
@@ -529,23 +532,23 @@ class ProductManagementSchema():
     def listProductC(self, text=''):
         self.cursor.execute('''
         SELECT
-            COALESCE(Item.Barcode, 'unk') AS Barcode,
-            COALESCE(Item.ItemName, 'unk') AS ItemName,
-            COALESCE(Item.ExpireDt, 'unk') AS ExpireDt, 
-            COALESCE(ItemType.Name, 'unk') AS ItemType, 
-            COALESCE(Brand.Name, 'unk') AS Brand, 
-            COALESCE(SalesGroup.Name, 'unk') AS SalesGroup, 
-            COALESCE(Supplier.Name, 'unk') AS Supplier, 
-            COALESCE(ItemPrice.Cost, 0.00) AS Cost, 
-            COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
-            COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
-            COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            Promo.Name AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
+            COALESCE(NULLIF(Item.Barcode, ''), 'unassigned') AS Barcode,
+            COALESCE(NULLIF(Item.ItemName, ''), 'unassigned') AS ItemName,
+            COALESCE(NULLIF(Item.ExpireDt, ''), 'unassigned') AS ExpireDt, 
+            COALESCE(NULLIF(ItemType.Name, ''), 'unassigned') AS ItemType, 
+            COALESCE(NULLIF(Brand.Name, ''), 'unassigned') AS Brand, 
+            COALESCE(NULLIF(SalesGroup.Name, ''), 'unassigned') AS SalesGroup, 
+            COALESCE(NULLIF(Supplier.Name, ''), 'unassigned') AS Supplier, 
+            COALESCE(NULLIF(ItemPrice.Cost, ''), 0.00) AS Cost, 
+            COALESCE(NULLIF(ItemPrice.SellPrice, ''), 0.00) AS SellPrice,
+            COALESCE(NULLIF(ItemPrice.DiscountValue, ''), 0.00) AS DiscountValue, 
+            COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), 'unassigned') AS EffectiveDt,
+            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
-            ItemPrice.ItemId, --15
+            ItemPrice.ItemId,
             ItemPrice.ItemPriceId,
             ItemPrice.PromoId
                           
@@ -603,23 +606,23 @@ class ProductManagementSchema():
     def listProductD(self, text=''):
         self.cursor.execute('''
         SELECT
-            COALESCE(Item.Barcode, 'unk') AS Barcode,
-            COALESCE(Item.ItemName, 'unk') AS ItemName,
-            COALESCE(Item.ExpireDt, 'unk') AS ExpireDt, 
-            COALESCE(ItemType.Name, 'unk') AS ItemType, 
-            COALESCE(Brand.Name, 'unk') AS Brand, 
-            COALESCE(SalesGroup.Name, 'unk') AS SalesGroup, 
-            COALESCE(Supplier.Name, 'unk') AS Supplier, 
-            COALESCE(ItemPrice.Cost, 0.00) AS Cost, 
-            COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
-            COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
-            COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            Promo.Name AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
+            COALESCE(NULLIF(Item.Barcode, ''), 'unassigned') AS Barcode,
+            COALESCE(NULLIF(Item.ItemName, ''), 'unassigned') AS ItemName,
+            COALESCE(NULLIF(Item.ExpireDt, ''), 'unassigned') AS ExpireDt, 
+            COALESCE(NULLIF(ItemType.Name, ''), 'unassigned') AS ItemType, 
+            COALESCE(NULLIF(Brand.Name, ''), 'unassigned') AS Brand, 
+            COALESCE(NULLIF(SalesGroup.Name, ''), 'unassigned') AS SalesGroup, 
+            COALESCE(NULLIF(Supplier.Name, ''), 'unassigned') AS Supplier, 
+            COALESCE(NULLIF(ItemPrice.Cost, ''), 0.00) AS Cost, 
+            COALESCE(NULLIF(ItemPrice.SellPrice, ''), 0.00) AS SellPrice,
+            COALESCE(NULLIF(ItemPrice.DiscountValue, ''), 0.00) AS DiscountValue, 
+            COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), 'unassigned') AS EffectiveDt,
+            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
-            ItemPrice.ItemId, --15
+            ItemPrice.ItemId,
             ItemPrice.ItemPriceId,
             ItemPrice.PromoId
                           
@@ -677,23 +680,23 @@ class ProductManagementSchema():
     def listProductE(self, text=''):
         self.cursor.execute('''
         SELECT
-            COALESCE(Item.Barcode, 'unk') AS Barcode,
-            COALESCE(Item.ItemName, 'unk') AS ItemName,
-            COALESCE(Item.ExpireDt, 'unk') AS ExpireDt, 
-            COALESCE(ItemType.Name, 'unk') AS ItemType, 
-            COALESCE(Brand.Name, 'unk') AS Brand, 
-            COALESCE(SalesGroup.Name, 'unk') AS SalesGroup, 
-            COALESCE(Supplier.Name, 'unk') AS Supplier, 
-            COALESCE(ItemPrice.Cost, 0.00) AS Cost, 
-            COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
-            COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
-            COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            Promo.Name AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
+            COALESCE(NULLIF(Item.Barcode, ''), 'unassigned') AS Barcode,
+            COALESCE(NULLIF(Item.ItemName, ''), 'unassigned') AS ItemName,
+            COALESCE(NULLIF(Item.ExpireDt, ''), 'unassigned') AS ExpireDt, 
+            COALESCE(NULLIF(ItemType.Name, ''), 'unassigned') AS ItemType, 
+            COALESCE(NULLIF(Brand.Name, ''), 'unassigned') AS Brand, 
+            COALESCE(NULLIF(SalesGroup.Name, ''), 'unassigned') AS SalesGroup, 
+            COALESCE(NULLIF(Supplier.Name, ''), 'unassigned') AS Supplier, 
+            COALESCE(NULLIF(ItemPrice.Cost, ''), 0.00) AS Cost, 
+            COALESCE(NULLIF(ItemPrice.SellPrice, ''), 0.00) AS SellPrice,
+            COALESCE(NULLIF(ItemPrice.DiscountValue, ''), 0.00) AS DiscountValue, 
+            COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), 'unassigned') AS EffectiveDt,
+            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
-            ItemPrice.ItemId, --15
+            ItemPrice.ItemId,
             ItemPrice.ItemPriceId,
             ItemPrice.PromoId
                           
@@ -751,23 +754,23 @@ class ProductManagementSchema():
     def listProductF(self, text=''):
         self.cursor.execute('''
         SELECT
-            COALESCE(Item.Barcode, 'unk') AS Barcode,
-            COALESCE(Item.ItemName, 'unk') AS ItemName,
-            COALESCE(Item.ExpireDt, 'unk') AS ExpireDt, 
-            COALESCE(ItemType.Name, 'unk') AS ItemType, 
-            COALESCE(Brand.Name, 'unk') AS Brand, 
-            COALESCE(SalesGroup.Name, 'unk') AS SalesGroup, 
-            COALESCE(Supplier.Name, 'unk') AS Supplier, 
-            COALESCE(ItemPrice.Cost, 0.00) AS Cost, 
-            COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
-            COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
-            COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            Promo.Name AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
+            COALESCE(NULLIF(Item.Barcode, ''), 'unassigned') AS Barcode,
+            COALESCE(NULLIF(Item.ItemName, ''), 'unassigned') AS ItemName,
+            COALESCE(NULLIF(Item.ExpireDt, ''), 'unassigned') AS ExpireDt, 
+            COALESCE(NULLIF(ItemType.Name, ''), 'unassigned') AS ItemType, 
+            COALESCE(NULLIF(Brand.Name, ''), 'unassigned') AS Brand, 
+            COALESCE(NULLIF(SalesGroup.Name, ''), 'unassigned') AS SalesGroup, 
+            COALESCE(NULLIF(Supplier.Name, ''), 'unassigned') AS Supplier, 
+            COALESCE(NULLIF(ItemPrice.Cost, ''), 0.00) AS Cost, 
+            COALESCE(NULLIF(ItemPrice.SellPrice, ''), 0.00) AS SellPrice,
+            COALESCE(NULLIF(ItemPrice.DiscountValue, ''), 0.00) AS DiscountValue, 
+            COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), 'unassigned') AS EffectiveDt,
+            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
-            ItemPrice.ItemId, --15
+            ItemPrice.ItemId,
             ItemPrice.ItemPriceId,
             ItemPrice.PromoId
                           
@@ -825,23 +828,23 @@ class ProductManagementSchema():
     def listProductG(self, text=''):
         self.cursor.execute('''
         SELECT
-            COALESCE(Item.Barcode, 'unk') AS Barcode,
-            COALESCE(Item.ItemName, 'unk') AS ItemName,
-            COALESCE(Item.ExpireDt, 'unk') AS ExpireDt, 
-            COALESCE(ItemType.Name, 'unk') AS ItemType, 
-            COALESCE(Brand.Name, 'unk') AS Brand, 
-            COALESCE(SalesGroup.Name, 'unk') AS SalesGroup, 
-            COALESCE(Supplier.Name, 'unk') AS Supplier, 
-            COALESCE(ItemPrice.Cost, 0.00) AS Cost, 
-            COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
-            COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
-            COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            Promo.Name AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus, -- 12,
+            COALESCE(NULLIF(Item.Barcode, ''), 'unassigned') AS Barcode,
+            COALESCE(NULLIF(Item.ItemName, ''), 'unassigned') AS ItemName,
+            COALESCE(NULLIF(Item.ExpireDt, ''), 'unassigned') AS ExpireDt, 
+            COALESCE(NULLIF(ItemType.Name, ''), 'unassigned') AS ItemType, 
+            COALESCE(NULLIF(Brand.Name, ''), 'unassigned') AS Brand, 
+            COALESCE(NULLIF(SalesGroup.Name, ''), 'unassigned') AS SalesGroup, 
+            COALESCE(NULLIF(Supplier.Name, ''), 'unassigned') AS Supplier, 
+            COALESCE(NULLIF(ItemPrice.Cost, ''), 0.00) AS Cost, 
+            COALESCE(NULLIF(ItemPrice.SellPrice, ''), 0.00) AS SellPrice,
+            COALESCE(NULLIF(ItemPrice.DiscountValue, ''), 0.00) AS DiscountValue, 
+            COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), 'unassigned') AS EffectiveDt,
+            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
+            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryStatus,
             ItemPrice.UpdateTs,
             Promo.PromoType,
             Promo.DiscountPercent,
-            ItemPrice.ItemId, --15
+            ItemPrice.ItemId,
             ItemPrice.ItemPriceId,
             ItemPrice.PromoId
                           

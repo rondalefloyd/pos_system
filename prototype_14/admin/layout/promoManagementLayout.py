@@ -1,6 +1,7 @@
 import sqlite3
 import sys, os
 import csv
+import pandas as pd
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
@@ -30,36 +31,65 @@ class PromoManagementLayout(CustomGroupBox):
         self.populateComboBox()
         self.populateTable()
 
-
         print('Window has been refreshed.')
 
-# -- data handling
+    # import data
     def importData(self):
         csv_file, _ = QFileDialog.getOpenFileName(self, 'Open CSV', '', 'CSV Files (*.csv)')
         csv_file_name = os.path.basename(csv_file)
 
         if csv_file:
-            # Open the CSV file with 'utf-8-sig' encoding to remove the BOM
-            with open(csv_file, 'r', encoding='utf-8-sig', newline='') as file:
-                csv_reader = csv.reader(file)
-                for row in csv_reader:
+            try:
+                # Load the CSV file into a Pandas DataFrame
+                df = pd.read_csv(csv_file, encoding='utf-8-sig', keep_default_na=False, header=None)
+
+                total_rows = len(df)
+                progress_min_range = 0
+
+                progress_dialog = QProgressDialog(f'Importing Data...', 'Cancel', progress_min_range, total_rows, self)
+                progress_dialog.setWindowTitle('Import Progress')
+
+                for index, row in df.iterrows():
                     promo_name, promo_type, discount_percent, description = row[:4]
-                    
-                    print(promo_name)
+
+                    # set default value if empty string
+                    description = 'Unassigned' if description == '' else description
+
                     if '' in (promo_name, promo_type, discount_percent):
                         QMessageBox.critical(self, 'Error', f'Unable to import {csv_file_name} due to missing values.')
                         print('Failed to import')
                         return
+
                     else:
-                        self.promo_management_schema.addNewPromo(promo_name, promo_type, discount_percent, description)
+                        self.promo_management_schema.addNewPromo(
+                            promo_name=promo_name, promo_type=promo_type, discount_percent=discount_percent, description=description
+                        )
 
-            self.refreshUI()
+                    progress_min_range += 1
+                    progress_dialog.setLabelText(f'Importing data from {csv_file_name}: ({progress_min_range} out of {total_rows})')
+                    os.system('cls')
+                    print(f'Imported data: {progress_min_range} out of {total_rows}')
+                    progress_dialog.setValue(progress_min_range)
 
-            if self.panel_d.isVisible() == True:
-                self.onPushButtonClicked(reference='add')
+                    # Process events to keep the UI responsive
+                    QCoreApplication.processEvents()
 
-        QMessageBox.information(self, 'Success', f"All data from '{csv_file_name}' has been imported.")
-        print('Successfully imported.')
+                    # Check if the cancel button was pressed
+                    if progress_dialog.wasCanceled():
+                        QMessageBox.warning(self, 'Canceled', 'Import process was canceled.')
+                        self.refreshUI()
+                        return  # Terminate the import process
+
+                QMessageBox.information(self, 'Success', f"All data from '{csv_file_name}' has been imported.")
+                self.refreshUI()
+                print('Successfully imported.')
+
+            except Exception as error_message:
+                QMessageBox.critical(self, 'Error', f'Error importing data from {csv_file_name}: {str(error_message)}')
+
+        if self.panel_d.isVisible() == True:
+            self.onPushButtonClicked(reference='add')
+
 
     def saveNewData(self):
         if self.promo_name_field.currentText() == '' or self.promo_type_field.currentText() == '' or self.discount_percent_field.text() == '':
@@ -75,6 +105,7 @@ class PromoManagementLayout(CustomGroupBox):
             promo_type = self.promo_type_field.currentText()
             discount_percent = self.discount_percent_field.text()
             description = self.description_field.toPlainText()
+            description = 'Unassigned' if description == '' else description
 
             self.promo_management_schema.addNewPromo(promo_name, promo_type, discount_percent, description)
             

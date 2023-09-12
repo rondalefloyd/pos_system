@@ -1,6 +1,7 @@
 import sqlite3
 import sys, os
 import csv
+import pandas as pd
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
@@ -30,36 +31,40 @@ class ProductManagementLayout(CustomGroupBox):
         self.populateComboBox()
         self.populateTable()
 
-
         print('Window has been refreshed.')
 
-# -- data handling
+    # import data
     def importData(self):
         csv_file, _ = QFileDialog.getOpenFileName(self, 'Open CSV', '', 'CSV Files (*.csv)')
         csv_file_name = os.path.basename(csv_file)
 
         if csv_file:
-            # Open the CSV file with 'utf-8-sig' encoding to remove the BOM
-            with open(csv_file, 'r', encoding='utf-8-sig', newline='') as file:
-                csv_reader = csv.reader(file)
-            
-                total_rows = sum(1 for _ in csv_reader)  # Get the total number of rows for progress bar
-                file.seek(0)  # Reset the file pointer
+            try:
+                # Load the CSV file into a Pandas DataFrame
+                df = pd.read_csv(csv_file, encoding='utf-8-sig', keep_default_na=False, header=None)
 
-                progress_dialog = QProgressDialog('Importing Data...', 'Cancel', 0, total_rows, self)
-                progress_dialog.setWindowTitle('Import Progress')
-                progress_dialog.setAutoClose(True)
-
+                total_rows = len(df)
                 progress_min_range = 0
 
-                for row in csv_reader:
+                progress_dialog = QProgressDialog(f'Importing Data...', 'Cancel', progress_min_range, total_rows, self)
+                progress_dialog.setWindowTitle('Import Progress')
+
+                for index, row in df.iterrows():
                     barcode, item_name, expire_dt, item_type, brand, sales_group, supplier, cost, sell_price, available_stock = row[:10]
-                    
+                    effective_dt = self.effective_dt_field.date().toString(Qt.DateFormat.ISODate)
+                    inventory_status = 'Enabled'
+
+                    # set default value if empty string
+                    barcode = 'Unassigned' if barcode == '' else barcode
+                    expire_dt = '9999-12-31' if expire_dt == '' else expire_dt
+                    item_type = 'Unassigned' if item_type == '' else item_type
+                    inventory_status = 'Disabled' if available_stock == 0 else inventory_status
+
                     if '' in (item_name, brand, sales_group, supplier, cost, sell_price):
                         QMessageBox.critical(self, 'Error', f'Unable to import {csv_file_name} due to missing values.')
                         print('Failed to import')
                         return
-                
+
                     else:
                         self.product_management_schema.addNewProduct(
                             barcode=barcode,
@@ -71,88 +76,120 @@ class ProductManagementLayout(CustomGroupBox):
                             supplier=supplier,
                             cost=cost,
                             sell_price=sell_price,
-                            available_stock=available_stock,
-                            effective_dt=self.effective_dt_field.date().toString(Qt.DateFormat.ISODate)
+                            effective_dt=effective_dt,
+                            inventory_status=inventory_status,
+                            available_stock=available_stock
                         )
 
                     progress_min_range += 1
+                    progress_dialog.setLabelText(f'Importing data from {csv_file_name}: ({progress_min_range} out of {total_rows})')
+                    os.system('cls')
+                    print(f'Imported data: {progress_min_range} out of {total_rows}')
                     progress_dialog.setValue(progress_min_range)
-                    print(progress_min_range)
 
-            progress_dialog.close()  # Close the progress dialog after import is complete
+                    # Process events to keep the UI responsive
+                    QCoreApplication.processEvents()
 
-            QMessageBox.information(self, 'Success', f"All data from '{csv_file_name}' has been imported.")
-            print('Successfully imported.')
+                    # Check if the cancel button was pressed
+                    if progress_dialog.wasCanceled():
+                        QMessageBox.warning(self, 'Canceled', 'Import process was canceled.')
+                        self.refreshUI()
+                        return  # Terminate the import process
 
-        self.refreshUI()
+                QMessageBox.information(self, 'Success', f"All data from '{csv_file_name}' has been imported.")
+                self.refreshUI()
+                print('Successfully imported.')
+
+            except Exception as error_message:
+                QMessageBox.critical(self, 'Error', f'Error importing data from {csv_file_name}: {str(error_message)}')
 
         if self.panel_d.isVisible() == True:
             self.onPushButtonClicked(reference='add')
 
+    # -- save new data
     def saveNewData(self):
         if '' in (
-            self.item_name_field.setCurrentText(),
-            self.brand_field.setCurrentText(),
-            self.sales_group_field.setCurrentText(),
-            self.supplier_field.setCurrentText(),
-            self.cost_field.setText(),
-            self.sell_price_field.setText()
+            self.item_name_field.currentText(),
+            self.brand_field.currentText(),
+            self.sales_group_field.currentText(),
+            self.supplier_field.currentText(),
+            self.cost_field.text(),
+            self.sell_price_field.text()
         ):
             QMessageBox.critical(self, 'Invalid', "All required fields must be filled.")
             return
         else:
             if False in (
                 self.cost_field.text().isnumeric(),
-                self.sell_price_field.text().isnumeric(),
-                self.available_stock_field.text().isnumeric(),
-                self.on_hand_stock_field.text().isnumeric(),
+                self.sell_price_field.text().isnumeric()
             ):
+                print('went here')
                 print('not numeric')
-                QMessageBox.critical(self, 'Invalid', "Invalid discount percent input.")
+                QMessageBox.critical(self, 'Invalid', "Invalid numerical input.")
                 return
             
-            barcode = self.barcode_field.setText()
-            item_name = self.item_name_field.setCurrentText()
-            expire_dt = self.expire_dt_field.setDate()
-            item_type = self.item_type_field.setCurrentText()
-            brand = self.brand_field.setCurrentText()
-            sales_group = self.sales_group_field.setCurrentText()
-            supplier = self.supplier_field.setCurrentText()
-            cost = self.cost_field.setText()
-            sell_price = self.sell_price_field.setText()
-            promo_name = self.promo_name_field.setCurrentText()
-            promo_type = self.promo_type_field.setText()
-            discount_percent = self.discount_percent_field.setText()
-            discount_value = self.discount_value_field.setText()
-            new_sell_price = self.new_sell_price_field.setText()
-            start_dt = self.start_dt_field.setDate()
-            end_dt = self.end_dt_field.setDate()
-            effective_dt = self.effective_dt_field.setDate()
-            inventory_status = self.inventory_status_field.setCurrentText()
-            available_stock = self.available_stock_field.setText()
-            on_hand_stock = self.on_hand_stock_field.setText()
+            barcode = self.barcode_field.text()
+            item_name = self.item_name_field.currentText()
+            expire_dt = self.expire_dt_field.date().toString(Qt.DateFormat.ISODate)
+            item_type = self.item_type_field.currentText()
+            brand = self.brand_field.currentText()
+            sales_group = self.sales_group_field.currentText()
+            supplier = self.supplier_field.currentText()
+            cost = self.cost_field.text()
+            sell_price = self.sell_price_field.text()
+            promo_name = self.promo_name_field.currentText()
+            promo_type = self.promo_type_field.text()
+            discount_percent = self.discount_percent_field.text()
+            discount_value = self.discount_value_field.text()
+            new_sell_price = self.new_sell_price_field.text()
+            start_dt = self.start_dt_field.date().toString(Qt.DateFormat.ISODate)
+            end_dt = self.end_dt_field.date().toString(Qt.DateFormat.ISODate)
+            effective_dt = self.effective_dt_field.date().toString(Qt.DateFormat.ISODate)
+            inventory_status = self.inventory_status_field.currentText()
+            available_stock = self.available_stock_field.text()
+            on_hand_stock = self.on_hand_stock_field.text()
+
+            # assign default values to optional field
+            barcode = 'Unassigned' if barcode == '' else barcode
+            item_type = 'Unassigned' if item_type == '' else item_type
+            promo_type = 'Unassigned' if promo_type == '' else promo_type
+
+            if promo_name != 'No promo':
+                promo_type = self.promo_type_field.text()
+                discount_percent = self.discount_percent_field.text()
+                discount_value = self.discount_value_field.text()
+                new_sell_price = self.new_sell_price_field.text()
+                start_dt = self.start_dt_field.date().toString(Qt.DateFormat.ISODate)
+                end_dt = self.end_dt_field.date().toString(Qt.DateFormat.ISODate)
+            
+
+            if inventory_status == 'Enabled':
+                available_stock = self.available_stock_field.text()
+                on_hand_stock = self.on_hand_stock_field.text()
 
             self.product_management_schema.addNewProduct(
-                barcode,
-                item_name,
-                expire_dt,
-                item_type,
-                brand,
-                sales_group,
-                supplier,
-                cost,
-                sell_price,
-                promo_name,
-                promo_type,
-                discount_percent,
-                discount_value,
-                new_sell_price,
-                start_dt,
-                end_dt,
-                effective_dt,
-                inventory_status,
-                available_stock,
-                on_hand_stock
+                barcode=barcode,
+                item_name=item_name,
+                expire_dt=expire_dt,
+                item_type=item_type,
+                brand=brand,
+                sales_group=sales_group,
+                supplier=supplier,
+                cost=cost,
+                sell_price=sell_price,
+                promo_name=promo_name,
+                # stored if promo name != 'No promo'
+                promo_type=promo_type,
+                discount_percent=discount_percent,
+                discount_value=discount_value,
+                new_sell_price=new_sell_price,
+                start_dt=start_dt,
+                end_dt=end_dt,
+                effective_dt=effective_dt,
+                inventory_status=inventory_status,
+                # stored if inventory status == 'Enbaled'
+                available_stock=available_stock,
+                on_hand_stock=on_hand_stock
             )
             
             if self.panel_d.isVisible() == True:
@@ -165,40 +202,97 @@ class ProductManagementLayout(CustomGroupBox):
         print('New data has been added.')
 
     def saveEditData(self):
-        if self.promo_name_field.currentText() == '' or self.promo_type_field.currentText() == '' or self.discount_percent_field.text() == '':
+        if '' in (
+            self.item_name_field.currentText(),
+            self.cost_field.text(),
+            self.sell_price_field.text()
+        ):
             QMessageBox.critical(self, 'Invalid', "All required fields must be filled.")
             return
         else:
-            if self.discount_percent_field.text().isnumeric() == False:
+            if False in (
+                self.cost_field.text().isnumeric(),
+                self.sell_price_field.text().isnumeric()
+            ):
+                print('went here')
                 print('not numeric')
-                QMessageBox.critical(self, 'Invalid', "Invalid discount percent input.")
+                QMessageBox.critical(self, 'Invalid', "Invalid numerical input.")
                 return
             
-            promo_name = self.promo_name_field.currentText()
-            promo_type = self.promo_type_field.currentText()
-            discount_percent = self.discount_percent_field.text()
-            description = self.description_field.toPlainText()
+            barcode = self.barcode_field.text()
+            item_name = self.item_name_field.currentText()
+            expire_dt = self.expire_dt_field.date().toString(Qt.DateFormat.ISODate)
 
-            promo_id = self.promo_id
-            self.product_management_schema.editSelectedProduct(promo_name, promo_type, discount_percent, description, promo_id)
+            item_type = self.current_item_type_field.text()
+            brand = self.current_brand_field.text()
+            sales_group = self.current_sales_group_field.text()
+            supplier = self.current_supplier_field.text()
+
+            cost = self.cost_field.text()
+            sell_price = self.sell_price_field.text()
+            promo_name = self.promo_name_field.currentText()
+            promo_type = self.promo_type_field.text()
+            discount_percent = self.discount_percent_field.text()
+            discount_value = self.discount_value_field.text()
+            new_sell_price = self.new_sell_price_field.text()
+            start_dt = self.start_dt_field.date().toString(Qt.DateFormat.ISODate)
+            end_dt = self.end_dt_field.date().toString(Qt.DateFormat.ISODate)
+            effective_dt = self.effective_dt_field.date().toString(Qt.DateFormat.ISODate)
+
+            
+
+            if promo_name != 'No promo':
+                promo_type = self.promo_type_field.text()
+                discount_percent = self.discount_percent_field.text()
+                discount_value = self.discount_value_field.text()
+                new_sell_price = self.new_sell_price_field.text()
+                start_dt = self.start_dt_field.date().toString(Qt.DateFormat.ISODate)
+                end_dt = self.end_dt_field.date().toString(Qt.DateFormat.ISODate)
+
+            # assign default values to optional field
+            barcode = 'Unassigned' if barcode == '' else barcode
+            item_type = 'Unassigned' if item_type == '' else item_type
+
+            self.product_management_schema.editSelectedProduct(
+                barcode=barcode,
+                item_name=item_name,
+                expire_dt=expire_dt,
+                item_type=item_type,
+                brand=brand,
+                sales_group=sales_group,
+                supplier=supplier,
+                cost=cost,
+                sell_price=sell_price,
+                promo_name=promo_name,
+                promo_type=promo_type,
+                discount_percent=discount_percent,
+                discount_value=discount_value,
+                new_sell_price=new_sell_price,
+                start_dt=start_dt,
+                end_dt=end_dt,
+                effective_dt=effective_dt,
+                item_id=self.item_id,
+                item_price_id=self.item_price_id,
+                promo_id=self.promo_id
+            )
             
             if self.panel_d.isVisible() == True:
                 self.onPushButtonClicked(reference='add')
 
             self.refreshUI()
 
-            QMessageBox.information(self, 'Success', f"Product has been edited.")
+            QMessageBox.information(self, 'Success', f"New promo has been added.")
 
-        pass
+        print('New data has been added.')
 
     def deleteData(self, row_value):
-        promo_name = f'{row_value[0]}'
-        promo_id = f'{row_value[5]}'
+        item_name = f'{row_value[1]}'
+        item_price_id = f'{row_value[17]}'
 
-        confirmation = QMessageBox.warning(self, 'Delete', f'Are you sure you want to delete {promo_name}?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirmation = QMessageBox.warning(self, 'Delete', f'Are you sure you want to delete {item_name}?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirmation == QMessageBox.StandardButton.Yes:
-            self.product_management_schema.deleteSelectedProduct(promo_id)
+            self.product_management_schema.deleteSelectedProduct(item_price_id)
             # Reset the current_edit_button to None
             
             if self.panel_d.isVisible() == True:
@@ -217,19 +311,183 @@ class ProductManagementLayout(CustomGroupBox):
             reference='',
             row_value=''
     ):
-        if reference == 'edit':
-            self.promo_name_field.setCurrentText(f'{row_value[0]}')
-            self.promo_type_field.setCurrentText(f'{row_value[1]}')
-            self.discount_percent_field.setText(f'{row_value[2]}')
-            self.description_field.setPlainText(f'{row_value[3]}')
-            self.promo_id = f'{row_value[5]}'
+        if reference == 'add':
+            self.label_item_type.show()
+            self.label_brand.show()
+            self.label_sales_group.show()
+            self.label_supplier.show()
 
+            self.item_type_field.show()
+            self.brand_field.show()
+            self.sales_group_field.show()
+            self.supplier_field.show()
+
+            self.label_current_item_type.hide()
+            self.label_current_brand.hide()
+            self.label_current_sales_group.hide()
+            self.label_current_supplier.hide()
+
+            self.current_item_type_field.hide()
+            self.current_brand_field.hide()
+            self.current_sales_group_field.hide()
+            self.current_supplier_field.hide()
+
+        if reference == 'edit':
+            self.label_item_type.hide()
+            self.label_brand.hide()
+            self.label_sales_group.hide()
+            self.label_supplier.hide()
+            self.label_inventory_status.hide()
+            self.item_type_field.hide()
+            self.brand_field.hide()
+            self.sales_group_field.hide()
+            self.supplier_field.hide()
+            self.inventory_status_field.hide()
+
+            self.label_current_item_type.show()
+            self.label_current_brand.show()
+            self.label_current_sales_group.show()
+            self.label_current_supplier.show()
+            self.label_current_inventory_status.show()
+            self.current_item_type_field.show()
+            self.current_brand_field.show()
+            self.current_sales_group_field.show()
+            self.current_supplier_field.show()
+            self.current_inventory_status_field.show()
+
+            # default
+            self.barcode_field.setText(f'{row_value[0]}')
+            self.item_name_field.setCurrentText(f'{row_value[1]}')
+            self.expire_dt_field.setDate(QDate.fromString(row_value[2], Qt.DateFormat.ISODate))
+            self.cost_field.setText(f'{row_value[7]}')
+            self.sell_price_field.setText(f'{row_value[8]}')
+            self.promo_name_field.setCurrentText(f'{row_value[11]}')
+            self.effective_dt_field.setDate(QDate.fromString(row_value[10], Qt.DateFormat.ISODate))
+            self.item_id = row_value[16]
+            self.item_price_id = row_value[17]
+            self.promo_id = row_value[18]
+
+            # current
+            self.current_barcode_field.setText(f'{row_value[0]}')
+            self.current_item_name_field.setText(f'{row_value[1]}')
+            self.current_expire_dt_field.setText(f'{row_value[2]}')
+            self.current_item_type_field.setText(f'{row_value[3]}')
+            self.current_brand_field.setText(f'{row_value[4]}')
+            self.current_sales_group_field.setText(f'{row_value[5]}')
+            self.current_supplier_field.setText(f'{row_value[6]}')
+            self.current_cost_field.setText(f'{row_value[7]}')
+            self.current_sell_price_field.setText(f'{row_value[8]}')
+            self.current_promo_name_field.setText(f'{row_value[11]}')
+            self.current_effective_dt_field.setText(f'{row_value[10]}')
+            self.current_inventory_status_field.setText(f'{row_value[12]}')
+            
+            if self.promo_id == 0:
+                # # hide default
+                self.label_barcode.show()
+                self.label_item_name.show()
+                self.label_expire_dt.show()
+                self.label_cost.show()
+                self.label_sell_price.show()
+                self.label_promo_name.show()
+
+                self.barcode_field.show()
+                self.item_name_field.show()
+                self.expire_dt_field.show()
+                self.cost_field.show()
+                self.sell_price_field.show()
+                self.promo_name_field.show()
+                
+                # current
+                self.label_current_barcode.hide()
+                self.label_current_item_name.hide()
+                self.label_current_expire_dt.hide()
+                self.label_current_cost.hide()
+                self.label_current_sell_price.hide()
+                self.label_current_promo_name.hide()
+                self.label_current_promo_type.hide()
+                self.label_current_discount_percent.hide()
+                self.label_current_discount_value.hide()
+                self.label_current_new_sell_price.hide()
+
+                self.current_barcode_field.hide()
+                self.current_item_name_field.hide()
+                self.current_expire_dt_field.hide()
+                self.current_cost_field.hide()
+                self.current_sell_price_field.hide()
+                self.current_promo_name_field.hide()
+                self.current_promo_type_field.hide()
+                self.current_discount_percent_field.hide()
+                self.current_discount_value_field.hide()
+                self.current_new_sell_price_field.hide()
+
+            else:
+                # # show current
+                self.label_barcode.hide()
+                self.label_item_name.hide()
+                self.label_expire_dt.hide()
+                self.label_item_type.hide()
+                self.label_brand.hide()
+                self.label_sales_group.hide()
+                self.label_supplier.hide()
+                self.label_cost.hide()
+                self.label_sell_price.hide()
+                self.label_promo_name.hide()
+                self.label_promo_type.hide()
+                self.label_discount_percent.hide()
+                self.label_discount_value.hide()
+                self.label_new_sell_price.hide()
+                self.label_start_dt.hide()
+                self.label_end_dt.hide()
+
+                self.barcode_field.hide()
+                self.item_name_field.hide()
+                self.expire_dt_field.hide()
+                self.item_type_field.hide()
+                self.brand_field.hide()
+                self.sales_group_field.hide()
+                self.supplier_field.hide()
+                self.cost_field.hide()
+                self.sell_price_field.hide()
+                self.promo_name_field.hide()
+                self.promo_type_field.hide()
+                self.discount_percent_field.hide()
+                self.discount_value_field.hide()
+                self.new_sell_price_field.hide()
+                self.start_dt_field.hide()
+                self.end_dt_field.hide()
+
+
+                # current
+                self.label_current_barcode.show()
+                self.label_current_item_name.show()
+                self.label_current_expire_dt.show()
+                self.label_current_cost.show()
+                self.label_current_promo_name.show()
+                self.label_current_promo_type.show()
+                self.label_current_discount_percent.show()
+                self.label_current_discount_value.show()
+                self.label_current_new_sell_price.show()
+                self.label_current_effective_dt.show()
+
+                self.current_barcode_field.show()
+                self.current_item_name_field.show()
+                self.current_expire_dt_field.show()
+                self.current_cost_field.show()
+                self.current_promo_name_field.show()
+                self.current_promo_type_field.show()
+                self.current_discount_percent_field.show()
+                self.current_discount_value_field.show()
+                self.current_new_sell_price_field.show()
+                self.current_effective_dt_field.show()
+
+            print('this promo id', self.promo_id)
+                
         print('Panel D has been updated.')
 
     def onPushButtonClicked(
         self,
         reference='',
-        bool=True,
+        show_panel=True,
         row_edit_button='',
         row_value=''
     ):
@@ -241,7 +499,7 @@ class ProductManagementLayout(CustomGroupBox):
             self.importData()
         
         elif reference == 'add':
-            self.panel_d.show() if bool == True else self.panel_d.hide()
+            self.panel_d.show() if show_panel == True else self.panel_d.hide()
             # Re-enable the previously disabled edit button (if any)
             if self.current_edit_button:
                 self.current_edit_button.setDisabled(False)
@@ -256,7 +514,7 @@ class ProductManagementLayout(CustomGroupBox):
             self.updatePanelD(reference, '')
 
         elif reference == 'back':
-            self.panel_d.hide() if bool == False else self.panel_d.show()
+            self.panel_d.hide() if show_panel == False else self.panel_d.show()
             # Re-enable the previously disabled edit button (if any)
             if self.current_edit_button:
                 self.current_edit_button.setDisabled(False)
@@ -266,7 +524,7 @@ class ProductManagementLayout(CustomGroupBox):
             self.add_button.setDisabled(False)
         
         elif reference == 'edit':
-            self.panel_d.show() if bool == True else self.panel_d.hide()
+            self.panel_d.show() if show_panel == True else self.panel_d.hide()
             # Re-enable the previously disabled edit button (if any)
             if self.current_edit_button:
                 self.current_edit_button.setDisabled(False)
@@ -294,6 +552,96 @@ class ProductManagementLayout(CustomGroupBox):
 
         elif reference == 'save_edit':
             self.saveEditData()
+
+    def onLineEditTextChanged(self, reference='', text=''
+    ):
+        if text == '':
+            self.promo_name_field.setDisabled(True)
+
+        else:
+            self.promo_name_field.setDisabled(False)
+
+            promo_data = self.product_management_schema.getPromoTypeAndDiscountPercent(self.promo_name_field.currentText())
+            
+            for row in promo_data:
+                self.promo_type_field.setText(f'{row[0]}')
+                self.discount_percent_field.setText(f'{row[1]}')
+                self.current_promo_type_field.setText(f'{row[0]}')
+                self.current_discount_percent_field.setText(f'{row[1]}')
+
+            try:
+                float(self.sell_price_field.text())
+                float(self.discount_percent_field.text())
+
+                old_sell_price = float(self.sell_price_field.text())
+                discount_amount = old_sell_price * (float(self.discount_percent_field.text()) / 100)
+                
+                new_sell_price = float(self.sell_price_field.text()) - discount_amount
+
+                self.discount_value_field.setText(f'{discount_amount:.2f}')
+                self.new_sell_price_field.setText(f'{new_sell_price:.2f}')
+                self.current_discount_value_field.setText(f'{discount_amount:.2f}')
+                self.current_new_sell_price_field.setText(f'{new_sell_price:.2f}')
+                pass
+
+            except ValueError:
+                pass
+        
+    def onComboBoxCurrentTextChanged(self, reference='', text=''
+    ):
+        if text == 'No promo':
+            self.label_promo_type.hide()
+            self.label_discount_percent.hide()
+            self.label_discount_value.hide()
+            self.label_new_sell_price.hide()
+            self.label_start_dt.hide()
+            self.label_end_dt.hide()
+            self.label_effective_dt.show()
+
+            self.promo_type_field.hide()
+            self.discount_percent_field.hide()
+            self.discount_value_field.hide()
+            self.new_sell_price_field.hide()
+            self.start_dt_field.hide()
+            self.end_dt_field.hide()
+            self.effective_dt_field.show()
+            
+        else:
+            self.label_promo_type.show()
+            self.label_discount_percent.show()
+            self.label_discount_value.show()
+            self.label_new_sell_price.show()
+            self.label_start_dt.show()
+            self.label_end_dt.show()
+            self.label_effective_dt.hide()
+
+            self.promo_type_field.show()
+            self.discount_percent_field.show()
+            self.discount_value_field.show()
+            self.new_sell_price_field.show()
+            self.start_dt_field.show()
+            self.end_dt_field.show()
+            self.effective_dt_field.hide()
+
+            promo_data = self.product_management_schema.getPromoTypeAndDiscountPercent(self.promo_name_field.currentText())
+            for row in promo_data:
+                self.promo_type_field.setText(f'{row[0]}')
+                self.discount_percent_field.setText(f'{row[1]}')
+
+            try:
+                float(self.sell_price_field.text())
+                float(self.discount_percent_field.text())
+
+                old_sell_price = float(self.sell_price_field.text())
+                discount_amount = old_sell_price * (float(self.discount_percent_field.text()) / 100)
+                
+                new_sell_price = float(self.sell_price_field.text()) - discount_amount
+
+                self.discount_value_field.setText(f'{discount_amount:.2f}')
+                self.new_sell_price_field.setText(f'{new_sell_price:.2f}')
+                pass
+            except ValueError:
+                pass
 
     def populateComboBox(self):
         self.item_name_data = self.product_management_schema.fillItemComboBox()
@@ -349,7 +697,7 @@ class ProductManagementLayout(CustomGroupBox):
         self.list_table.setRowCount(len(self.list_table_data))
 
         for row_index, row_value in enumerate(self.list_table_data):
-            column_count = row_value[:13]
+            column_count = row_value[:5]
             for col_index, col_value in enumerate(column_count):
 
                 self.edit_button = CustomPushButton(reference='edit_button', text='E')
@@ -385,13 +733,19 @@ class ProductManagementLayout(CustomGroupBox):
                     )
                 )
 
+                if row_value[11] != 'No promo':
+                    self.cell_value.setForeground(QColor(255,0,255))
+                    self.cost_cell.setForeground(QColor(255,0,255))
+                    self.sell_price_cell.setForeground(QColor(255,0,255))
+                    self.discount_value_cell.setForeground(QColor(255,0,255))
+
                 self.list_table.setCellWidget(row_index, 0, self.edit_button)
                 self.list_table.setCellWidget(row_index, 1, self.delete_button)
                 self.list_table.setItem(row_index, col_index + 2, self.cell_value)
                 self.list_table.setItem(row_index, 9, self.cost_cell)
                 self.list_table.setItem(row_index, 10, self.sell_price_cell)
                 self.list_table.setItem(row_index, 11, self.discount_value_cell)
-
+                
 
         print('Table has been populated.')
         
@@ -404,7 +758,7 @@ class ProductManagementLayout(CustomGroupBox):
         required_indicator = "<font color='red'><b>!</b></font>"
 
         self.back_button = CustomPushButton(reference='back_button', text='BACK')
-        self.back_button.clicked.connect(lambda: self.onPushButtonClicked(reference='back', bool=False))
+        self.back_button.clicked.connect(lambda: self.onPushButtonClicked(reference='back', show_panel=False))
         
         self.barcode_field = CustomLineEdit(reference='barcode_field')
         self.item_name_field = CustomComboBox(reference='item_name_field')
@@ -415,7 +769,9 @@ class ProductManagementLayout(CustomGroupBox):
         self.supplier_field = CustomComboBox(reference='supplier_field')
         self.cost_field = CustomLineEdit(reference='cost_field')
         self.sell_price_field = CustomLineEdit(reference='sell_price_field')
+        self.sell_price_field.textChanged.connect(lambda text: self.onLineEditTextChanged(text=text))
         self.promo_name_field = CustomComboBox(reference='promo_name_field')
+        self.promo_name_field.currentTextChanged.connect(lambda text: self.onComboBoxCurrentTextChanged(text=text))
         self.promo_type_field = CustomLineEdit(reference='promo_type_field')
         self.discount_percent_field = CustomLineEdit(reference='discount_percent_field')
         self.discount_value_field = CustomLineEdit(reference='discount_value_field')
@@ -458,6 +814,7 @@ class ProductManagementLayout(CustomGroupBox):
         self.current_cost_field = CustomLineEdit(reference='current_cost_field')
         self.current_sell_price_field = CustomLineEdit(reference='current_sell_price_field')
         self.current_promo_name_field = CustomLineEdit(reference='current_promo_name_field')
+        self.current_promo_name_field.textChanged.connect(lambda text: self.onLineEditTextChanged(text=text))
         self.current_promo_type_field = CustomLineEdit(reference='current_promo_type_field')
         self.current_discount_percent_field = CustomLineEdit(reference='current_discount_percent_field')
         self.current_discount_value_field = CustomLineEdit(reference='current_discount_value_field')
@@ -586,7 +943,7 @@ class ProductManagementLayout(CustomGroupBox):
         self.import_button = CustomPushButton(reference='import_button', text='IMPORT')
         self.import_button.clicked.connect(lambda: self.onPushButtonClicked(reference='import'))
         self.add_button = CustomPushButton(reference='add_button', text='ADD')
-        self.add_button.clicked.connect(lambda: self.onPushButtonClicked(reference='add', bool=True))
+        self.add_button.clicked.connect(lambda: self.onPushButtonClicked(reference='add', show_panel=True))
 
         hbox_layout.addWidget(self.page_label)
         hbox_layout.addWidget(self.refresh_button)

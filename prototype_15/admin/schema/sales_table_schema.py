@@ -14,7 +14,7 @@ class SalesTableSchema():
         self.cursor = self.conn.cursor()
 
     # for creating all sales table
-    def createSalesTable(self):
+    def setup_sales_table(self):
         # ItemType
         self.cursor.execute('''
         CREATE TABLE IF NOT EXISTS ItemType (
@@ -66,7 +66,7 @@ class SalesTableSchema():
         CREATE TABLE IF NOT EXISTS Item (
             ItemId INTEGER PRIMARY KEY AUTOINCREMENT,
             Barcode TEXT,
-            ItemName TEXT,
+            Name TEXT,
             ItemTypeId INTEGER DEFAULT 0,
             BrandId INTEGER DEFAULT 0,
             SalesGroupId INTEGER DEFAULT 0,
@@ -131,7 +131,7 @@ class SalesTableSchema():
         self.cursor.execute('''
         CREATE TABLE IF NOT EXISTS Customer (
             CustomerId INTEGER PRIMARY KEY AUTOINCREMENT,
-            CustomerName TEXT,
+            Name TEXT,
             Address TEXT,
             Barrio TEXT,
             Town TEXT,
@@ -161,7 +161,7 @@ class SalesTableSchema():
             CustomerId INTEGER,
             RewardId INTEGER,
             Points INTEGER,               
-            CurrencyAmount Float,
+            CurrencyAmount FLOAT,
             UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
         );
         ''')

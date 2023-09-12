@@ -37,7 +37,9 @@ class CustomLabel(QLabel):
             'label_current_promo_type',
             'label_discount_percent',
             'label_current_discount_percent',
+            'label_discount_value',
             'label_current_discount_value',
+            'label_new_sell_price',
             'label_current_new_sell_price',
             'label_start_dt',
             'label_current_start_dt',
@@ -79,7 +81,9 @@ class CustomLineEdit(QLineEdit):
             'current_promo_type_field',
             'discount_percent_field',
             'current_discount_percent_field',
+            'discount_value_field',
             'current_discount_value_field',
+            'new_sell_price_field',
             'current_new_sell_price_field',
             'current_start_dt_field',
             'current_end_dt_field',
@@ -144,7 +148,8 @@ class CustomTableWidget(QTableWidget):
         super().__init__()
 
         if reference == 'list_table':
-            self.setColumnCount(15)
+            self.setShowGrid(False)
+            self.setColumnCount(16)
             self.setHorizontalHeaderLabels([
                 '','',
                 'barcode',
@@ -160,16 +165,13 @@ class CustomTableWidget(QTableWidget):
                 'effective_dt',
                 'promo_name',
                 'inventory_status',
+                'time_stamp'
             ])
 
             self.setEditTriggers(QAbstractItemView.EditTrigger(False))
 
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-
-            for index in range(2, 13):
-                self.horizontalHeader().setSectionResizeMode(index, QHeaderView.ResizeMode.Stretch)
-                self.horizontalHeaderItem(index).setTextAlignment(Qt.AlignmentFlag.AlignLeft)
 
             self.horizontalHeaderItem(9).setTextAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
             self.horizontalHeaderItem(10).setTextAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
