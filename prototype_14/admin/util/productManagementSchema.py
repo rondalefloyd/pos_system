@@ -420,7 +420,7 @@ class ProductManagementSchema():
             LEFT JOIN Stock
                 ON Item.ItemId = Stock.ItemId
         WHERE
-            (Item.Barcode LIKE ? OR
+            Item.Barcode LIKE ? OR
             Item.ItemName LIKE ? OR
             Item.ExpireDt LIKE ? OR 
             ItemType.Name LIKE ? OR 
@@ -432,8 +432,7 @@ class ProductManagementSchema():
             ItemPrice.DiscountValue LIKE ? OR 
             ItemPrice.EffectiveDt LIKE ? OR
             Promo LIKE ? OR
-            InventoryStatus LIKE ?) AND
-            (ItemPrice.UpdateTs >= CURRENT_DATE)
+            InventoryStatus LIKE ?
         ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, Item.UpdateTs DESC
                             
         ''', (
