@@ -24,6 +24,10 @@ class ProductManagementLayout(QWidget):
 
         self.sales_table_schema.setup_sales_table()
         # --
+
+        # default values
+        self.current_page = 1
+
         self.createLayout()
         self.refresh_data()
 
@@ -35,34 +39,60 @@ class ProductManagementLayout(QWidget):
         pass
 # under construction...
     def import_data(self):
+        self.import_button.setDisabled(True)
+
         csv_file, _ = QFileDialog.getOpenFileName(self, 'Open CSV', '', 'CSV Files (*.csv)')
 
         if csv_file:
             data_frame = pd.read_csv(csv_file, encoding='utf-8-sig', keep_default_na=False, header=None)
             total_rows = len(data_frame)
 
-            self.progress_dialog = QProgressDialog(f'Importing Data...', 'Cancel', 0, total_rows, self)
-            self.progress_dialog.setFixedWidth(400)
-            self.progress_dialog.setCancelButton(None)
-            self.progress_bar = QProgressBar()
-            self.progress_bar.setTextVisible(False)
-            self.progress_dialog.setBar(self.progress_bar)
+            self.progress_dialog = CustomProgressDialog(ref='import_progress_dialog', parent=self, min=0, max=total_rows)
 
-            self.import_thread = CustomThread(csv_file, self.progress_dialog, self.progress_bar)
+            self.import_thread = CustomThread(csv_file, self.progress_dialog, self.import_button)
             self.import_thread.progress_signal.connect(self.import_thread.update_progress)
             self.import_thread.finished_signal.connect(self.import_thread.import_finished)
+            
             self.import_thread.error_signal.connect(self.import_thread.import_error)
             self.import_thread.start()
+        else:
+            self.import_button.setDisabled(False)
+
         pass
 # under construction...
 
     def add_data(self):
+        barcode = self.form_field[0][2].text()
+        item_name = self.form_field[2][2].text()
+        expire_dt = self.form_field[4][2].date()
+
+        item_type = self.form_field[6][2].currentText()
+        brand = self.form_field[8][2].currentText()
+        sales_group = self.form_field[10][2].currentText()
+        supplier = self.form_field[12][2].currentText()
+
+        cost = self.form_field[14][2].text()
+        sell_price = self.form_field[16][2].text()
+        effective_dt = self.form_field[18][2].date()
+        promo_name = self.form_field[20][2].currentText()
+        promo_type = self.form_field[22][2].text()
+        discount_percent = self.form_field[24][2].text()
+        discount_value = self.form_field[26][2].text()
+        new_sell_price = self.form_field[28][2].text()
+        start_dt = self.form_field[30][2].date()
+        end_dt = self.form_field[31][2].date()
+
+        inventory_tracking = self.form_field[32][2].currentText()
+        available_stock = self.form_field[34][2].text()
+        on_hand_stock = self.form_field[35][2].text()
+
+        
         pass
 
     def populate_table(self, current_page=1):
         data = self.product_management_schema.list_product(page_number=current_page)
 
-        for index, p_button, page, n_button, row, col in self.tab_content_pagination_button:
+        for _, p_button, _, n_button, _, _ in self.tab_content_pagination_button:
             p_button.setEnabled(self.current_page > 1)
             n_button.setEnabled(len(data) == 30)
             
@@ -187,7 +217,11 @@ class ProductManagementLayout(QWidget):
         pass
 
     def on_push_button_clicked(self, clicked_ref):
+        
         if clicked_ref == 'refresh_button':
+            self.current_page = 1
+            for index, p_button, page, n_button, row, col in self.tab_content_pagination_button:
+                page.setText(f'Page {self.current_page}')
             self.refresh_data()
             pass
         if clicked_ref == 'import_button':
@@ -210,12 +244,19 @@ class ProductManagementLayout(QWidget):
 
     def call_signal(self, signal_ref):
         if signal_ref == 'panel_a_signal':
-            self.manage_data_button[0][1].clicked.connect(lambda: self.on_push_button_clicked('refresh_button'))
-            self.manage_data_button[1][1].clicked.connect(lambda: self.on_push_button_clicked('delete_all_button'))
-            self.manage_data_button[2][1].clicked.connect(lambda: self.on_push_button_clicked('import_button'))
-            self.manage_data_button[3][1].clicked.connect(lambda: self.on_push_button_clicked('add_button'))
+            # manage_data_box buttons
+            self.refresh_button = self.manage_data_button[0][1]
+            self.delete_all_button = self.manage_data_button[1][1]
+            self.import_button = self.manage_data_button[2][1]
+            self.add_button = self.manage_data_button[3][1]
 
-            for index, p_button, page, n_button, row, col in self.tab_content_pagination_button:
+            self.refresh_button.clicked.connect(lambda: self.on_push_button_clicked('refresh_button'))
+            self.delete_all_button.clicked.connect(lambda: self.on_push_button_clicked('delete_all_button'))
+            self.import_button.clicked.connect(lambda: self.on_push_button_clicked('import_button'))
+            self.add_button.clicked.connect(lambda: self.on_push_button_clicked('add_button'))
+
+            # tab_content_pagination buttons
+            for _, p_button, _, n_button, _, _ in self.tab_content_pagination_button:
                 p_button.clicked.connect(lambda: self.on_push_button_clicked('previous_button'))
                 n_button.clicked.connect(lambda: self.on_push_button_clicked('next_button'))
         if signal_ref == 'panel_b_signal':
@@ -232,7 +273,6 @@ class ProductManagementLayout(QWidget):
             (2, CustomLabel(ref='item_name', text='item_name'), (CustomLineEdit(ref='item_name'))),
             (3, CustomLabel(ref='current_item_name', text='current_item_name'), (CustomLineEdit(ref='current_item_name'))), # inactive
             (4, CustomLabel(ref='expire_dt', text='expire_dt'), (CustomDateEdit(ref='expire_dt'))),
-
             (5, CustomLabel(ref='current_expire_dt', text='current_expire_dt'), (CustomLineEdit(ref='current_expire_dt'))), # inactive
             (6, CustomLabel(ref='item_type', text='item_type'), (CustomComboBox(ref='item_type'))),
             (7, CustomLabel(ref='current_item_type', text='current_item_type'), (CustomLineEdit(ref='current_item_type'))), # inactive
@@ -281,6 +321,7 @@ class ProductManagementLayout(QWidget):
 
         self.call_signal(signal_ref='panel_b_signal')
 
+        self.panel_b.setLayout(self.panel_b_layout)
         pass
     def show_panel_a(self):
         self.panel_a = CustomGroupBox(ref='panel_a_box')
@@ -288,15 +329,17 @@ class ProductManagementLayout(QWidget):
 
         self.filter_field = CustomLineEdit()
         self.tab_sort = CustomTabWidget()
+
+        
         # can be changed from here ...
         self.manage_data_box = CustomWidget()
         self.manage_data_box_layout = CustomGridLayout(ref='manage_data_layout')
 
         self.manage_data_button = [
-            (0, CustomPushButton(text='Refresh'),0,0),
-            (1, CustomPushButton(text='Delete All'),0,1),
-            (2, CustomPushButton(text='Import'),0,2),
-            (3, CustomPushButton(text='Add'),0,3)            
+            (0, CustomPushButton(ref='refresh_button'),0,0),
+            (1, CustomPushButton(ref='delete_all_button'),0,1),
+            (2, CustomPushButton(ref='import_button'),0,2),
+            (3, CustomPushButton(ref='add_button'),0,3)            
         ]
         for index, push_button, row, col in self.manage_data_button:
             self.manage_data_box_layout.addWidget(push_button, row, col)
@@ -330,22 +373,22 @@ class ProductManagementLayout(QWidget):
         ]
 
         self.tab_content_pagination_button = [
-            (0, CustomPushButton(ref='overview_previous_button', text='Previous'), CustomLabel(text=f'Page 1'), CustomPushButton(ref='overview_next_button', text='Next'), 0, 0),
-            (1, CustomPushButton(ref='primary_previous_button', text='Previous'), CustomLabel(text=f'Page 1'), CustomPushButton(ref='primary_next_button', text='Next'), 0, 0),
-            (2, CustomPushButton(ref='category_previous_button', text='Previous'), CustomLabel(text=f'Page 1'), CustomPushButton(ref='category_next_button', text='Next'), 0, 0),
-            (3, CustomPushButton(ref='price_previous_button', text='Previous'), CustomLabel(text=f'Page 1'), CustomPushButton(ref='price_next_button', text='Next'), 0, 0),
-            (4, CustomPushButton(ref='inventory_previous_button', text='Previous'), CustomLabel(text=f'Page 1'), CustomPushButton(ref='inventory_next_button', text='Next'), 0, 0)
+            (0, CustomPushButton(ref='overview_previous_button', text='Previous'), CustomLabel(text=f'Page {self.current_page}'), CustomPushButton(ref='overview_next_button', text='Next'), 0, 0),
+            (1, CustomPushButton(ref='primary_previous_button', text='Previous'), CustomLabel(text=f'Page {self.current_page}'), CustomPushButton(ref='primary_next_button', text='Next'), 0, 0),
+            (2, CustomPushButton(ref='category_previous_button', text='Previous'), CustomLabel(text=f'Page {self.current_page}'), CustomPushButton(ref='category_next_button', text='Next'), 0, 0),
+            (3, CustomPushButton(ref='price_previous_button', text='Previous'), CustomLabel(text=f'Page {self.current_page}'), CustomPushButton(ref='price_next_button', text='Next'), 0, 0),
+            (4, CustomPushButton(ref='inventory_previous_button', text='Previous'), CustomLabel(text=f'Page {self.current_page}'), CustomPushButton(ref='inventory_next_button', text='Next'), 0, 0)
         ]
 
-        for index, table, row, col in self.tab_content_table:
-            self.tab_content_layout[index][1].addWidget(table, 0, 0, 1, 3)
-            for index, p_button, page, n_button, row, col in self.tab_content_pagination_button:
-                self.tab_content_layout[index][1].addWidget(p_button, 1, 0)
-                self.tab_content_layout[index][1].addWidget(page, 1, 1, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
-                self.tab_content_layout[index][1].addWidget(n_button, 1, 2)
-                for index, layout in self.tab_content_layout:
-                    self.tab_content_box[index][1].setLayout(layout)
-                    for index, box, name in self.tab_content_box:
+        for index_a, table, _, _ in self.tab_content_table:
+            self.tab_content_layout[index_a][1].addWidget(table, 0, 0, 1, 3)
+            for index_b, p_button, page, n_button, _, _ in self.tab_content_pagination_button:
+                self.tab_content_layout[index_b][1].addWidget(p_button, 1, 0)
+                self.tab_content_layout[index_b][1].addWidget(page, 1, 1, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+                self.tab_content_layout[index_b][1].addWidget(n_button, 1, 2)
+                for index_c, layout in self.tab_content_layout:
+                    self.tab_content_box[index_c][1].setLayout(layout)
+                    for _, box, name in self.tab_content_box:
                         self.tab_sort.addTab(box, name)
 
         self.call_signal(signal_ref='panel_a_signal')

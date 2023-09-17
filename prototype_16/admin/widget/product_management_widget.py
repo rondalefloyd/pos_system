@@ -13,21 +13,35 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from schema.product_management_schema import *
 
 class CustomProgressDialog(QProgressDialog):
-    def __init__(self, ref='', parent=None):
+    def __init__(self, ref='', parent=None, min=0, max=0):
         super().__init__()
 
-        self.progress_bar = CustomProgressBar()
-
         if ref == 'import_progress_dialog':
+            self.progress_bar = CustomProgressBar()
+            self.progress_text = CustomLabel(text='test')
+
             self.setParent(parent)
-            self.setBar(self.progress_bar)
-            self.setFixedWidth(400)
+            self.setMinimum(min)
+            self.setMaximum(max)
+            self.setFixedSize(400, 60)
             self.setCancelButton(None)
+            self.setBar(self.progress_bar)
+            self.setWindowFlag(Qt.WindowType.Dialog)
+            self.setWindowModality(Qt.WindowModality.ApplicationModal)
+
+            self.dialog_layout = CustomGridLayout()
+            self.dialog_layout.addWidget(self.progress_bar)
+            self.dialog_layout.addWidget(self.progress_text)
+
+            self.setLayout(self.dialog_layout)
         pass
 
 class CustomProgressBar(QProgressBar):
     def __init__(self, ref=''):
         super().__init__()
+
+        self.setFixedHeight(15)
+        self.setTextVisible(False)
 
 # under construction ...
 class CustomThread(QThread):
@@ -35,11 +49,11 @@ class CustomThread(QThread):
     finished_signal = pyqtSignal(str)
     error_signal = pyqtSignal(str)
 
-    def __init__(self, csv_file, progress_dialog, progress_bar):
+    def __init__(self, csv_file, progress_dialog, import_button):
         super().__init__()
         self.csv_file = csv_file
         self.progress_dialog = progress_dialog
-        self.progress_bar = progress_bar
+        self.import_button = import_button
 
         self.csv_file_name = os.path.basename(self.csv_file)
 
@@ -69,7 +83,6 @@ class CustomThread(QThread):
 
                 if '' in (self.item_name, brand, sales_group, supplier, cost, sell_price):
                     QMessageBox.critical(self, 'Error', f'Unable to import due to missing values.')
-                    self.import_button.setDisabled(False)
                     return
 
                 else:
@@ -92,10 +105,8 @@ class CustomThread(QThread):
                 progress_min_range += 1
                 self.progress_signal.emit(progress_min_range)
 
-                # Check if the thread was stopped
-                if self.isInterruptionRequested():
-                    print('import was canceled!')
-                    return  # Terminate the import process
+                if self.progress_dialog.wasCanceled():
+                    return
 
             self.finished_signal.emit(f"All data from '{self.csv_file}' has been imported.")
 
@@ -107,22 +118,21 @@ class CustomThread(QThread):
         current_row = progress - 1
         percentage = int((current_row / self.total_rows) * 100) 
 
-        self.progress_dialog.setLabelText(f"<td><font size='2'>{self.item_name}</font></td>")
         self.progress_dialog.setWindowTitle(f"{percentage}% complete")
-        self.progress_bar.setValue(progress)
-        self.progress_bar.setMaximum(self.total_rows)
+        self.progress_dialog.progress_bar.setValue(percentage)
+        self.progress_dialog.progress_text.setText(f"<td><font size='2'>{self.item_name}</font></td>")
 
         # Check if the cancel button was pressed
-        if self.progress_dialog.wasCanceled():
-            self.requestInterruption()
-            self.progress_dialog.close()
-            return
 
     def import_finished(self):
         QMessageBox.information(None, 'Success', f'All product has been imported.')
+        self.import_button.setDisabled(False)
+        self.progress_dialog.close()
 
     def import_error(self):
         QMessageBox.critical(None, 'Error', 'An error has occurred during the process.')
+        self.import_button.setDisabled(False)
+        self.progress_dialog.close()
 
 # under construction ...
 
@@ -196,9 +206,9 @@ class CustomTableWidget(QTableWidget):
         self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.verticalHeader().setDefaultSectionSize(50)
         self.setStyleSheet('''
-            QTableWidget { border: 0px; }
+            QTableWidget { border: 0px; font-size: 10px; }
             QHeaderView::section { border: 0px; padding: 0px 40px; }
-            QTableWidget::item { border: 0px; border-bottom: 1px solid #ccc; padding: 0px 10px }
+            QTableWidget::item { border: 0px; border-bottom: 1px solid #ccc; padding: 0px 10px; }
         ''')
         
         if ref == 'overview_table':
@@ -237,6 +247,18 @@ class CustomPushButton(QPushButton):
         super().__init__()
 
         self.setText(text)
+
+        if ref == 'refresh_button':
+            self.setIcon(CustomIcon(ref='refresh_icon'))
+            
+        if ref == 'delete_all_button':
+            self.setIcon(CustomIcon(ref='delete_all_icon'))
+
+        if ref == 'import_button':
+            self.setIcon(CustomIcon(ref='import_icon'))
+
+        if ref == 'add_button':
+            self.setIcon(CustomIcon(ref='add_icon'))
         pass
 
 class CustomLineEdit(QLineEdit):
@@ -290,3 +312,20 @@ class CustomDateEdit(QDateEdit):
     def __init__(self, ref=''):
         super().__init__()
         pass
+
+class CustomIcon(QIcon):
+    def __init__(self, ref=''):
+        super().__init__()
+        pass
+
+        if ref == 'refresh_icon':
+            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/refresh.png')))
+
+        if ref == 'delete_all_icon':
+            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/delete-all.png')))
+
+        if ref == 'import_icon':
+            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/import.png')))
+
+        if ref == 'add_icon':
+            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/add.png')))
