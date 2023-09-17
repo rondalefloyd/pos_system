@@ -20,29 +20,6 @@ class ProductManagementSchema():
         self.conn = sqlite3.connect(database=self.db_file_path)
         self.cursor = self.conn.cursor()
 
-    # ITEM MANAGEMENT
-    def delete_all_data(self):
-        # Execute a DELETE statement without specifying conditions to remove all data
-        self.cursor.execute("DELETE FROM ItemType")
-        self.cursor.execute("DELETE FROM Brand")
-        self.cursor.execute("DELETE FROM SalesGroup")
-        self.cursor.execute("DELETE FROM Supplier")
-        self.cursor.execute("DELETE FROM Item")
-        self.cursor.execute("DELETE FROM ItemPrice")
-        self.cursor.execute("DELETE FROM Stock")
-
-        # Commit the changes to save the deletion
-        self.conn.commit()
-        
-    def count_total_product(self):
-        self.cursor.execute('''
-        SELECT COUNT(*) FROM Item
-        ''')
-   
-        count = self.cursor.fetchone()[0]
-
-        return count      
-    
     # -- for adding
     def add_new_product(
             self,
@@ -209,6 +186,28 @@ class ProductManagementSchema():
 
         # self.conn.rollback()
 
+    def delete_all_data(self):
+        # Execute a DELETE statement without specifying conditions to remove all data
+        self.cursor.execute("DELETE FROM ItemType")
+        self.cursor.execute("DELETE FROM Brand")
+        self.cursor.execute("DELETE FROM SalesGroup")
+        self.cursor.execute("DELETE FROM Supplier")
+        self.cursor.execute("DELETE FROM Item")
+        self.cursor.execute("DELETE FROM ItemPrice")
+        self.cursor.execute("DELETE FROM Stock")
+
+        # Commit the changes to save the deletion
+        self.conn.commit()
+        
+    def count_total_product(self):
+        self.cursor.execute('''
+        SELECT COUNT(*) FROM Item
+        ''')
+   
+        count = self.cursor.fetchone()[0]
+
+        return count      
+    
     # -- for populating
     def list_product(self, text='', page_number=1, page_size=30):
         # Calculate the offset to skip rows based on page number and page size

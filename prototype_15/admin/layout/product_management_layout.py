@@ -27,9 +27,6 @@ class ProductManagementLayout(QWidget):
         self.createLayout()
         self.refresh_data()
 
-
-
-
 # under construction...
     def import_data(self):
         self.import_button.setDisabled(True)
@@ -448,110 +445,115 @@ class ProductManagementLayout(QWidget):
         pass
 
     def populate_table_widget(self, current_page=1):
-        # can be changed from here..
-
         data = self.product_management_schema.list_product(page_number=current_page)
-        self.overview_data_previous_button.setEnabled(self.current_page > 1)
-        self.overview_data_next_button.setEnabled(len(data) == 50)
+        tables = [
+            self.overview_data_list,
+            self.item_data_list,
+            self.category_data_list,
+            self.item_price_data_list,
+            self.inventory_data_list,
+        ]
+        buttons = [
+            self.overview_data_previous_button,
+            self.overview_data_next_button,
+            self.item_data_previous_button,
+            self.item_data_next_button,
+            self.category_data_previous_button,
+            self.category_data_next_button,
+            self.item_price_data_previous_button,
+            self.item_price_data_next_button,
+            self.inventory_data_previous_button,
+            self.inventory_data_next_button,
+        ]
 
-        self.overview_data_list.setRowCount(len(data))
-        self.item_data_list.setRowCount(len(data))
-        self.category_data_list.setRowCount(len(data))
-        self.item_price_data_list.setRowCount(len(data))
-        self.inventory_data_list.setRowCount(len(data))
-        # until here..
+        for table in tables:
+            table.setRowCount(len(data))
 
         for row_index, row_value in enumerate(data):
-            # can be changed from here..
-            for column_index, column_value in enumerate(row_value):
-                self.modify_box = CustomWidget(ref='modify_box')
-                self.modify_box_layout = CustomGridLayout(ref='modify_box_layout')
-                self.view_button = CustomPushButton(text='View')
-                self.edit_button = CustomPushButton(text='Edit')
-                self.delete_button = CustomPushButton(text='Delete')
-                self.modify_box_layout.addWidget(self.view_button,0,0)
-                self.modify_box_layout.addWidget(self.edit_button,0,1)
-                self.modify_box_layout.addWidget(self.delete_button,0,2)
-                self.modify_box.setLayout(self.modify_box_layout)
+            for table in tables:
+                modify_box = CustomWidget(ref='modify_box')
+                modify_box_layout = CustomGridLayout(ref='modify_box_layout')
+                view_button = CustomPushButton(text='View')
+                edit_button = CustomPushButton(text='Edit')
+                delete_button = CustomPushButton(text='Delete')
+                modify_box_layout.addWidget(view_button, 0, 0)
+                modify_box_layout.addWidget(edit_button, 0, 1)
+                modify_box_layout.addWidget(delete_button, 0, 2)
+                modify_box.setLayout(modify_box_layout)
 
-                item_name = QTableWidgetItem(f'{row_value[1]}')
-                brand = QTableWidgetItem(f'{row_value[4]}')
-                sales_group = QTableWidgetItem(f'{row_value[5]}')
-                sell_price = QTableWidgetItem(f'{row_value[8]}')
-                promo_name = QTableWidgetItem(f'{row_value[10]}')
-                inventory_tracking = QTableWidgetItem(f'{row_value[12]}')
-                update_ts = QTableWidgetItem(f'{row_value[15]}')
-                self.overview_data_list.setCellWidget(row_index, 0, self.modify_box)
-                self.overview_data_list.setItem(row_index, 1, item_name)
-                self.overview_data_list.setItem(row_index, 2, brand)
-                self.overview_data_list.setItem(row_index, 3, sales_group)
-                self.overview_data_list.setItem(row_index, 4, sell_price)
-                self.overview_data_list.setItem(row_index, 5, promo_name)
-                self.overview_data_list.setItem(row_index, 6, inventory_tracking)
-                self.overview_data_list.setItem(row_index, 7, update_ts)
-                pass
-            for column_index, column_value in enumerate(row_value):
-                barcode = QTableWidgetItem(f'{row_value[0]}')
-                item_data = QTableWidgetItem(f'{row_value[1]}')
-                expire_dt = QTableWidgetItem(f'{row_value[2]}')
-                promo_name = QTableWidgetItem(f'{row_value[10]}')
-                update_ts = QTableWidgetItem(f'{row_value[15]}')
-                # self.item_data_list.setCellWidget(row_index, 0, self.modify_box)
-                self.item_data_list.setItem(row_index, 1, barcode)
-                self.item_data_list.setItem(row_index, 2, item_data)
-                self.item_data_list.setItem(row_index, 3, expire_dt)
-                self.item_data_list.setItem(row_index, 4, promo_name)
-                self.item_data_list.setItem(row_index, 5, update_ts)
-                pass
-            for column_index, column_value in enumerate(row_value):
-                item_name = QTableWidgetItem(f'{row_value[1]}')
-                item_type = QTableWidgetItem(f'{row_value[3]}')
-                brand = QTableWidgetItem(f'{row_value[4]}')
-                sales_group = QTableWidgetItem(f'{row_value[5]}')
-                supplier = QTableWidgetItem(f'{row_value[6]}')
-                promo_name = QTableWidgetItem(f'{row_value[10]}')
-                update_ts = QTableWidgetItem(f'{row_value[15]}')
-                # self.category_data_list.setCellWidget(row_index, 0, self.modify_box)
-                self.category_data_list.setItem(row_index, 1, item_name)
-                self.category_data_list.setItem(row_index, 2, item_type)
-                self.category_data_list.setItem(row_index, 3, brand)
-                self.category_data_list.setItem(row_index, 4, sales_group)
-                self.category_data_list.setItem(row_index, 5, supplier)
-                self.category_data_list.setItem(row_index, 6, promo_name)
-                self.category_data_list.setItem(row_index, 7, update_ts)
-                pass
-            for column_index, column_value in enumerate(row_value):
-                item_name = QTableWidgetItem(f'{row_value[1]}')
-                cost = QTableWidgetItem(f'₱{row_value[7]}')
-                sell_price = QTableWidgetItem(f'₱{row_value[8]}')
-                discount_value = QTableWidgetItem(f'₱{row_value[11]}')
-                promo_name = QTableWidgetItem(f'{row_value[10]}')
-                update_ts = QTableWidgetItem(f'{row_value[15]}')
-                # self.item_price_data_list.setCellWidget(row_index, 0, self.modify_box)
-                self.item_price_data_list.setItem(row_index, 1, item_name)
-                self.item_price_data_list.setItem(row_index, 2, cost)
-                self.item_price_data_list.setItem(row_index, 3, sell_price)
-                self.item_price_data_list.setItem(row_index, 4, discount_value)
-                self.item_price_data_list.setItem(row_index, 5, promo_name)
-                self.item_price_data_list.setItem(row_index, 6, update_ts)
-                pass
-            for column_index, column_value in enumerate(row_value):
-                item_name = QTableWidgetItem(f'{row_value[1]}')
-                inventory_tracking = QTableWidgetItem(f'{row_value[12]}')
-                available = QTableWidgetItem(f'{row_value[13]}')
-                on_hand = QTableWidgetItem(f'{row_value[14]}')
-                promo_name = QTableWidgetItem(f'{row_value[10]}')
-                update_ts = QTableWidgetItem(f'{row_value[15]}')
-                # self.inventory_data_list.setCellWidget(row_index, 0, self.modify_box)
-                self.inventory_data_list.setItem(row_index, 1, item_name)
-                self.inventory_data_list.setItem(row_index, 2, inventory_tracking)
-                self.inventory_data_list.setItem(row_index, 3, available)
-                self.inventory_data_list.setItem(row_index, 4, on_hand)
-                self.inventory_data_list.setItem(row_index, 5, promo_name)
-                self.inventory_data_list.setItem(row_index, 6, update_ts)
-                pass
-            # until here..
-        pass
+                if table is self.overview_data_list:
+                    item_name = QTableWidgetItem(f'{row_value[1]}')
+                    brand = QTableWidgetItem(f'{row_value[4]}')
+                    sales_group = QTableWidgetItem(f'{row_value[5]}')
+                    sell_price = QTableWidgetItem(f'{row_value[8]}')
+                    promo_name = QTableWidgetItem(f'{row_value[10]}')
+                    inventory_tracking = QTableWidgetItem(f'{row_value[12]}')
+                    update_ts = QTableWidgetItem(f'{row_value[15]}')
+                    table.setCellWidget(row_index, 0, modify_box)
+                    table.setItem(row_index, 1, item_name)
+                    table.setItem(row_index, 2, brand)
+                    table.setItem(row_index, 3, sales_group)
+                    table.setItem(row_index, 4, sell_price)
+                    table.setItem(row_index, 5, promo_name)
+                    table.setItem(row_index, 6, inventory_tracking)
+                    table.setItem(row_index, 7, update_ts)
+                elif table is self.item_data_list:
+                    barcode = QTableWidgetItem(f'{row_value[0]}')
+                    item_data = QTableWidgetItem(f'{row_value[1]}')
+                    expire_dt = QTableWidgetItem(f'{row_value[2]}')
+                    promo_name = QTableWidgetItem(f'{row_value[10]}')
+                    update_ts = QTableWidgetItem(f'{row_value[15]}')
+                    table.setCellWidget(row_index, 0, modify_box)
+                    table.setItem(row_index, 1, barcode)
+                    table.setItem(row_index, 2, item_data)
+                    table.setItem(row_index, 3, expire_dt)
+                    table.setItem(row_index, 4, promo_name)
+                    table.setItem(row_index, 5, update_ts)
+                elif table is self.category_data_list:
+                    item_name = QTableWidgetItem(f'{row_value[1]}')
+                    item_type = QTableWidgetItem(f'{row_value[3]}')
+                    brand = QTableWidgetItem(f'{row_value[4]}')
+                    sales_group = QTableWidgetItem(f'{row_value[5]}')
+                    supplier = QTableWidgetItem(f'{row_value[6]}')
+                    promo_name = QTableWidgetItem(f'{row_value[10]}')
+                    update_ts = QTableWidgetItem(f'{row_value[15]}')
+                    table.setCellWidget(row_index, 0, modify_box)
+                    table.setItem(row_index, 1, item_name)
+                    table.setItem(row_index, 2, item_type)
+                    table.setItem(row_index, 3, brand)
+                    table.setItem(row_index, 4, sales_group)
+                    table.setItem(row_index, 5, supplier)
+                    table.setItem(row_index, 6, promo_name)
+                    table.setItem(row_index, 7, update_ts)
+                elif table is self.item_price_data_list:
+                    item_name = QTableWidgetItem(f'{row_value[1]}')
+                    cost = QTableWidgetItem(f'₱{row_value[7]}')
+                    sell_price = QTableWidgetItem(f'₱{row_value[8]}')
+                    discount_value = QTableWidgetItem(f'₱{row_value[11]}')
+                    promo_name = QTableWidgetItem(f'{row_value[10]}')
+                    update_ts = QTableWidgetItem(f'{row_value[15]}')
+                    table.setCellWidget(row_index, 0, modify_box)
+                    table.setItem(row_index, 1, item_name)
+                    table.setItem(row_index, 2, cost)
+                    table.setItem(row_index, 3, sell_price)
+                    table.setItem(row_index, 4, discount_value)
+                    table.setItem(row_index, 5, promo_name)
+                    table.setItem(row_index, 6, update_ts)
+                elif table is self.inventory_data_list:
+                    item_name = QTableWidgetItem(f'{row_value[1]}')
+                    inventory_tracking = QTableWidgetItem(f'{row_value[12]}')
+                    available = QTableWidgetItem(f'{row_value[13]}')
+                    on_hand = QTableWidgetItem(f'{row_value[14]}')
+                    promo_name = QTableWidgetItem(f'{row_value[10]}')
+                    update_ts = QTableWidgetItem(f'{row_value[15]}')
+                    table.setCellWidget(row_index, 0, modify_box)
+                    table.setItem(row_index, 1, item_name)
+                    table.setItem(row_index, 2, inventory_tracking)
+                    table.setItem(row_index, 3, available)
+                    table.setItem(row_index, 4, on_hand)
+                    table.setItem(row_index, 5, promo_name)
+                    table.setItem(row_index, 6, update_ts)
+
 
     def show_panel_b(self):
         self.panel_b = CustomGroupBox(ref='panel_b')
