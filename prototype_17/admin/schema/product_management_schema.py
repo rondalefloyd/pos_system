@@ -209,7 +209,7 @@ class ProductManagementSchema():
         return count      
     
     # -- for populating
-    def list_product(self, text='', page_number=1, page_size=30):
+    def list_product(self, text_filter='', page_number=1, page_size=30):
         # Calculate the offset to skip rows based on page number and page size
         offset = (page_number - 1) * page_size
 
@@ -253,36 +253,24 @@ class ProductManagementSchema():
             WHERE 
                 (Item.Barcode LIKE ? OR
                 Item.Name LIKE ? OR
-                Item.ExpireDt LIKE ? OR 
                 ItemType.Name LIKE ? OR 
                 Brand.Name LIKE ? OR 
                 SalesGroup.Name LIKE ? OR 
-                Supplier.Name LIKE ? OR 
-                ItemPrice.Cost LIKE ? OR 
-                ItemPrice.SellPrice LIKE ? OR
-                ItemPrice.EffectiveDt LIKE ? OR
-                Promo LIKE ? OR
-                ItemPrice.DiscountValue LIKE ? OR 
+                Supplier.Name LIKE ? OR
                 InventoryTracking LIKE ?) AND
                 (ItemPrice.UpdateTs >= CURRENT_DATE)
             ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, Item.UpdateTs DESC
             LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
-        ''', (
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            page_size,  # Limit
-            offset,     # Offset
+            ''', (
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                page_size,  # Limit
+                offset     # Offset
         ))
 
         product = self.cursor.fetchall()

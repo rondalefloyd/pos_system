@@ -43,19 +43,24 @@ class CustomProgressBar(QProgressBar):
         self.setFixedHeight(15)
         self.setTextVisible(False)
 
-# under construction ...
 class CustomThread(QThread):
     progress_signal = pyqtSignal(int)
     finished_signal = pyqtSignal(str)
     error_signal = pyqtSignal(str)
 
-    def __init__(self, csv_file, progress_dialog, import_button):
+    def __init__(self, csv_file, import_button):
         super().__init__()
         self.csv_file = csv_file
-        self.progress_dialog = progress_dialog
+        self.progress_dialog = CustomProgressDialog(ref='import_progress_dialog')
+        self.progress_dialog.canceled.connect(self.confirm)
         self.import_button = import_button
 
         self.csv_file_name = os.path.basename(self.csv_file)
+
+    def confirm(self):
+        confirm = QMessageBox.warning(None, 'Confirm', 'Are you sure you want to cancel importing?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+        pass
 
     def run(self):
         try:
@@ -72,9 +77,9 @@ class CustomThread(QThread):
                 inventory_tracking = 'Disabled'
 
                 # set default value if empty string
-                barcode = '<unknown>' if barcode == '' else barcode
+                barcode = '<no data>' if barcode == '' else barcode
                 expire_dt = '9999-12-31' if expire_dt == '' else expire_dt
-                item_type = '<unknown>' if item_type == '' else item_type
+                item_type = '<no data>' if item_type == '' else item_type
 
                 if available_stock == '0' or available_stock == '' or available_stock == None:
                     inventory_tracking = 'Disabled'
@@ -102,11 +107,14 @@ class CustomThread(QThread):
                         available_stock=available_stock
                     )
 
+                if self.progress_dialog.wasCanceled():
+                    self.import_button.setDisabled(False)
+                    return
+                else:
+                    pass
+
                 progress_min_range += 1
                 self.progress_signal.emit(progress_min_range)
-
-                if self.progress_dialog.wasCanceled():
-                    return
 
             self.finished_signal.emit(f"All data from '{self.csv_file}' has been imported.")
 
@@ -115,14 +123,15 @@ class CustomThread(QThread):
             print(error_message)
 
     def update_progress(self, progress):
-        current_row = progress - 1
-        percentage = int((current_row / self.total_rows) * 100) 
+        self.current_row = progress - 1
+        percentage = int((self.current_row / self.total_rows) * 100) 
 
-        self.progress_dialog.setWindowTitle(f"{percentage}% complete")
+        print(self.current_row)
+
+
+        self.progress_dialog.setWindowTitle(f"{percentage}% complete ({self.current_row} out of {self.total_rows})")
         self.progress_dialog.progress_bar.setValue(percentage)
         self.progress_dialog.progress_text.setText(f"<td><font size='2'>{self.item_name}</font></td>")
-
-        # Check if the cancel button was pressed
 
     def import_finished(self):
         QMessageBox.information(None, 'Success', f'All product has been imported.')
@@ -134,7 +143,12 @@ class CustomThread(QThread):
         self.import_button.setDisabled(False)
         self.progress_dialog.close()
 
-# under construction ...
+class CustomHBoxLayout(QHBoxLayout):
+    def __init__(self, ref=''):
+        super().__init__()
+
+        self.setSpacing(0)
+        self.setContentsMargins(0,0,0,0)
 
 class CustomGridLayout(QGridLayout):
     def __init__(self, ref=''):
@@ -161,7 +175,8 @@ class CustomGroupBox(QGroupBox):
         super().__init__()
 
         if ref == 'panel_b_box':
-            self.setFixedWidth(300)
+            self.hide()
+            self.setFixedWidth(400)
         pass
 
 class CustomTabWidget(QTabWidget):
@@ -174,22 +189,42 @@ class CustomLabel(QLabel):
         super().__init__()
 
         if ref in [
-            'current_barcode',
-            'current_item_name',
-            'current_expire_dt',
-            'current_item_type',
-            'current_brand',
-            'current_sales_group',
-            'current_supplier',
-            'current_cost',
-            'current_sell_price',
-            'current_effective_dt',
-            'current_promo_name',
-            'current_promo_type',
-            'current_discount_percent',
-            'current_discount_value',
-            'current_new_sell_price',
-            'current_inventory_tracking'
+            'barcode_label',
+            'item_name_label',
+            'expire_dt_label',
+            'item_type_label',
+            'brand_label',
+            'sales_group_label',
+            'supplier_label',
+            'cost_label',
+            'sell_price_label',
+            'effective_dt_label',
+            'promo_name_label',
+            'promo_type_label',
+            'discount_percent_label',
+            'discount_value_label',
+            'new_sell_price_label',
+            'start_dt_label',
+            'end_dt_label',
+            'inventory_tracking_label',
+            'available_stock_label',
+            'on_hand_stock_label',
+            'inactive_label'
+        ]:
+            self.setFixedWidth(150)
+
+        if ref == 'inactive_label':
+            self.hide()
+
+        if ref in [
+            'promo_type_label',
+            'discount_percent_label',
+            'discount_value_label',
+            'new_sell_price_label',
+            'start_dt_label',
+            'end_dt_label',
+            'available_stock_label',
+            'on_hand_stock_label'
         ]:
             self.hide()
 
@@ -207,7 +242,7 @@ class CustomTableWidget(QTableWidget):
         self.verticalHeader().setDefaultSectionSize(50)
         self.setStyleSheet('''
             QTableWidget { border: 0px; font-size: 10px; }
-            QHeaderView::section { border: 0px; padding: 0px 40px; }
+            QHeaderView::section { border: 0px; }
             QTableWidget::item { border: 0px; border-bottom: 1px solid #ccc; padding: 0px 10px; }
         ''')
         
@@ -215,19 +250,15 @@ class CustomTableWidget(QTableWidget):
             self.setColumnCount(8)
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
             self.setHorizontalHeaderLabels(['action','item_name','brand','sales_group','sell_price','promo','inventory_tracking','time_stamp'])
-
         elif ref == 'primary_table':
             self.setColumnCount(5)
             self.setHorizontalHeaderLabels(['bardcode','item_name','expire_dt','promo','time_stamp'])
-
         elif ref == 'category_table':
             self.setColumnCount(7)
             self.setHorizontalHeaderLabels(['item_name','item_type','brand','sales_group','supplier','promo','time_stamp'])
-
         elif ref == 'price_table':
             self.setColumnCount(7)
             self.setHorizontalHeaderLabels(['item_name','cost','sell_price','discount_value','effective_dt','promo','time_stamp'])
-
         elif ref == 'inventory_table':
             self.setColumnCount(6)
             self.setHorizontalHeaderLabels(['item_name','inventory_tracking','available_stock','on_hand_stock','promo','time_stamp'])
@@ -248,6 +279,10 @@ class CustomPushButton(QPushButton):
 
         self.setText(text)
 
+        if ref in ['prev_button', 'next_button']:
+            self.setFixedWidth(100)
+
+
         if ref == 'refresh_button':
             self.setIcon(CustomIcon(ref='refresh_icon'))
             
@@ -265,45 +300,41 @@ class CustomLineEdit(QLineEdit):
     def __init__(self, ref='', placeholderText=''):
         super().__init__()
 
+
+        if ref == 'filter_field':
+            self.setPlaceholderText('Search product (i.e. by barcode, item name, item type, brand, sales group, supplier, or inventory tracking)')
+
+        if ref == 'inactive_field':
+            self.hide()
+        
         if ref in [
-            'current_barcode',
-            'current_item_name',
-            'current_expire_dt',
-            'current_item_type',
-            'current_brand',
-            'current_sales_group',
-            'current_supplier',
-            'current_cost',
-            'current_sell_price',
-            'current_effective_dt',
-            'current_promo_name',
-            'current_promo_type',
-            'current_discount_percent',
-            'current_discount_value',
-            'current_new_sell_price',
-            'current_inventory_tracking'
+            'promo_type_field',
+            'discount_percent_field',
+            'discount_value_field',
+            'new_sell_price_field',
+            'available_stock_field',
+            'on_hand_stock_field'
         ]:
             self.hide()
-
         pass
 
 class CustomComboBox(QComboBox):
     def __init__(self, ref='', editable=False, disabled=False):
         super().__init__()
 
-        if ref in ['item_type', 'brand', 'supplier']:
+        if ref in ['item_type_field', 'brand_field', 'supplier_field']:
             self.setEditable(True)
 
-        elif ref == 'sales_group':
+        elif ref == 'sales_group_field':
             self.addItem('Retail')
             self.addItem('Wholesale')
             pass
-        elif ref == 'promo_name':
+        elif ref == 'promo_name_field':
             self.addItem('No promo')
             pass
-        elif ref == 'inventory_tracking':
-            self.addItem('Enabled')
+        elif ref == 'inventory_tracking_field':
             self.addItem('Disabled')
+            self.addItem('Enabled')
             pass
 
         pass
@@ -311,6 +342,12 @@ class CustomComboBox(QComboBox):
 class CustomDateEdit(QDateEdit):
     def __init__(self, ref=''):
         super().__init__()
+
+        self.setCalendarPopup(True)
+        self.setMinimumDate(QDate.currentDate())
+
+        if ref in ['start_dt_field', 'end_dt_field']:
+            self.hide()
         pass
 
 class CustomIcon(QIcon):

@@ -269,41 +269,25 @@ class ProductManagementLayout(QWidget):
  
         self.form_field = [
             (0, CustomLabel(ref='barcode', text='barcode'), (CustomLineEdit(ref='barcode'))),
-            (1, CustomLabel(ref='current_barcode', text='current_barcode'), (CustomLineEdit(ref='current_barcode'))), # inactive
             (2, CustomLabel(ref='item_name', text='item_name'), (CustomLineEdit(ref='item_name'))),
-            (3, CustomLabel(ref='current_item_name', text='current_item_name'), (CustomLineEdit(ref='current_item_name'))), # inactive
             (4, CustomLabel(ref='expire_dt', text='expire_dt'), (CustomDateEdit(ref='expire_dt'))),
-            (5, CustomLabel(ref='current_expire_dt', text='current_expire_dt'), (CustomLineEdit(ref='current_expire_dt'))), # inactive
             (6, CustomLabel(ref='item_type', text='item_type'), (CustomComboBox(ref='item_type'))),
-            (7, CustomLabel(ref='current_item_type', text='current_item_type'), (CustomLineEdit(ref='current_item_type'))), # inactive
             (8, CustomLabel(ref='brand', text='brand'), (CustomComboBox(ref='brand'))),
-            (9, CustomLabel(ref='current_brand', text='current_brand'), (CustomLineEdit(ref='current_brand'))), # inactive
             (10, CustomLabel(ref='sales_group', text='sales_group'), (CustomComboBox(ref='sales_group'))),
-            (11, CustomLabel(ref='current_sales_group', text='current_sales_group'), (CustomLineEdit(ref='current_sales_group'))), # inactive
             (12, CustomLabel(ref='supplier', text='supplier'), (CustomComboBox(ref='supplier'))),
-            (13, CustomLabel(ref='current_supplier', text='current_supplier'), (CustomLineEdit(ref='current_supplier'))), # inactive
 
             (14, CustomLabel(ref='cost', text='cost'), (CustomLineEdit(ref='cost'))),
-            (15, CustomLabel(ref='current_cost', text='current_cost'), (CustomLineEdit(ref='current_cost'))), # inactive
             (16, CustomLabel(ref='sell_price', text='sell_price'), (CustomLineEdit(ref='sell_price'))),
-            (17, CustomLabel(ref='current_sell_price', text='current_sell_price'), (CustomLineEdit(ref='current_sell_price'))), # inactive
             (18, CustomLabel(ref='effective_dt', text='effective_dt'), (CustomDateEdit(ref='effective_dt'))),
-            (19, CustomLabel(ref='current_effective_dt', text='current_effective_dt'), (CustomLineEdit(ref='current_effective_dt'))), # inactive
             (20, CustomLabel(ref='promo_name', text='promo_name'), (CustomComboBox(ref='promo_name'))),
-            (21, CustomLabel(ref='current_promo_name', text='current_promo_name'), (CustomLineEdit(ref='current_promo_name'))), # inactive
             (22, CustomLabel(ref='promo_type', text='promo_type'), (CustomLineEdit(ref='promo_type'))),
-            (23, CustomLabel(ref='current_promo_type', text='current_promo_type'), (CustomLineEdit(ref='current_promo_type'))), # inactive
             (24, CustomLabel(ref='discount_percent', text='discount_percent'), (CustomLineEdit(ref='discount_percent'))),
-            (25, CustomLabel(ref='current_discount_percent', text='current_discount_percent'), (CustomLineEdit(ref='current_discount_percent'))), # inactive
             (26, CustomLabel(ref='discount_value', text='discount_value'), (CustomLineEdit(ref='discount_value'))),
-            (27, CustomLabel(ref='current_discount_value', text='current_discount_value'), (CustomLineEdit(ref='current_discount_value'))), # inactive
             (28, CustomLabel(ref='new_sell_price', text='new_sell_price'), (CustomLineEdit(ref='new_sell_price'))),
-            (29, CustomLabel(ref='current_new_sell_price', text='current_new_sell_price'), (CustomLineEdit(ref='current_new_sell_price'))), # inactive
             (30, CustomLabel(ref='start_dt', text='start_dt'), (CustomDateEdit(ref='start_dt'))),
             (31, CustomLabel(ref='end_dt', text='end_dt'), (CustomDateEdit(ref='end_dt'))),
 
             (32, CustomLabel(ref='inventory_tracking', text='inventory_tracking'), (CustomComboBox(ref='inventory_tracking'))),
-            (33, CustomLabel(ref='current_inventory_tracking', text='current_inventory_tracking'), (CustomLineEdit(ref='current_inventory_tracking'))), # inactive
             (34, CustomLabel(ref='available_stock', text='available_stock'), (CustomLineEdit(ref='available_stock'))),
             (35, CustomLabel(ref='on_hand_stock', text='on_hand_stock'), (CustomLineEdit(ref='on_hand_stock')))
         ]
