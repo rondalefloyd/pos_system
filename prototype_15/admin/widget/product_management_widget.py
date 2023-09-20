@@ -159,7 +159,7 @@ class CustomWidget(QWidget):
     def __init__(self, ref=''):
         super().__init__()
 
-        if ref == 'manage_box':
+        if ref == 'manage_data_box':
             self.setFixedWidth(70)
 
         pass
@@ -168,7 +168,10 @@ class CustomTabWidget(QTabWidget):
     def __init__(self, ref=''):
         super().__init__()
 
-        self.setStyleSheet("QTabBar::tab { height: 30px; }")
+        self.setStyleSheet("""
+            QTabBar::tab { height: 30px; }
+            QTabWidget::corner-widget { height: 300px; }
+        """)
 
         pass
 

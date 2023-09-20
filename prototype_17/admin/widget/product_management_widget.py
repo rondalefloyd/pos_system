@@ -12,6 +12,71 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from schema.product_management_schema import *
 
+class CustomDialog(QDialog):
+    def __init__(self, ref='', parent=None, row_value=''):
+        super().__init__()
+
+        self.setFixedWidth(400)
+        self.setStyleSheet("QDialog { background-color: #fff; } ")
+        self.setParent(parent)
+        self.setWindowFlag(Qt.WindowType.Dialog)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+
+        if ref == 'view_data_dialog':
+            self.setWindowTitle(row_value[1])
+
+            self.dialog_layout = CustomFormLayout()
+            self.dialog_layout.setContentsMargins(20,20,20,20)
+
+            print('sample: ', row_value[0])
+            # region: display data
+            self.barcode_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[0]}</font>")
+            self.item_name_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[1]}</font>")
+            self.expire_dt_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[2]}</font>")
+
+            self.item_type_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[3]}</font>")
+            self.brand_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[4]}</font>")
+            self.sales_group_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[5]}</font>")
+            self.supplier_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[6]}</font>")
+
+            self.cost_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[7]}</font>")
+            self.sell_price_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[8]}</font>")
+            self.effective_dt_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[9]}</font>")
+            self.promo_name_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[10]}</font>")
+            self.discount_value_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[11]}</font>")
+
+            self.inventory_tracking_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[12]}</font>")
+            self.available_stock_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[13]}</font>")
+            self.on_hand_stock_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[14]}</font>")
+            self.date_added_data = CustomLabel(ref='', text=f"<font size='2'>{row_value[15]}</font>")
+            # endregion: display data
+            # region: add display data as rows
+            self.dialog_layout.addRow("<font size='2'>Barcode: </font>", self.barcode_data)
+            self.dialog_layout.addRow("<font size='2'>Item name: </font>", self.item_name_data)
+            self.dialog_layout.addRow("<font size='2'>Expire date: </font>", self.expire_dt_data)
+            self.dialog_layout.addRow(CustomLabel(text='<hr>'))
+            self.dialog_layout.addRow("<font size='2'>Item type: </font>", self.item_type_data)
+            self.dialog_layout.addRow("<font size='2'>Brand: </font>", self.brand_data)
+            self.dialog_layout.addRow("<font size='2'>Sales group: </font>", self.sales_group_data)
+            self.dialog_layout.addRow("<font size='2'>Supplier: </font>", self.supplier_data)
+            self.dialog_layout.addRow(CustomLabel(text='<hr>'))
+            self.dialog_layout.addRow("<font size='2'>Cost: </font>", self.cost_data)
+            self.dialog_layout.addRow("<font size='2'>Sell price: </font>", self.sell_price_data)
+            self.dialog_layout.addRow("<font size='2'>Effective date: </font>", self.effective_dt_data)
+            self.dialog_layout.addRow("<font size='2'>Promo name: </font>", self.promo_name_data)
+            self.dialog_layout.addRow("<font size='2'>Discount value: </font>", self.discount_value_data)
+            self.dialog_layout.addRow(CustomLabel(text='<hr>'))
+            self.dialog_layout.addRow("<font size='2'>Inventory tracking: </font>", self.inventory_tracking_data)
+            self.dialog_layout.addRow("<font size='2'>Available stock: </font>", self.available_stock_data)
+            self.dialog_layout.addRow("<font size='2'>On hand stock: </font>", self.on_hand_stock_data)
+            self.dialog_layout.addRow(CustomLabel(text='<hr>'))
+            self.dialog_layout.addRow("<font size='2'>Date added: </font>", self.date_added_data)
+            # endregion: add display data as rows
+
+            self.setLayout(self.dialog_layout)
+
+        self.exec()
+
 class CustomProgressDialog(QProgressDialog):
     def __init__(self, ref='', parent=None, min=0, max=0):
         super().__init__()
@@ -28,6 +93,7 @@ class CustomProgressDialog(QProgressDialog):
             self.setBar(self.progress_bar)
             self.setWindowFlag(Qt.WindowType.Dialog)
             self.setWindowModality(Qt.WindowModality.ApplicationModal)
+            self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
 
             self.dialog_layout = CustomGridLayout()
             self.dialog_layout.addWidget(self.progress_bar)
@@ -52,7 +118,6 @@ class CustomThread(QThread):
         super().__init__()
         self.csv_file = csv_file
         self.progress_dialog = CustomProgressDialog(ref='import_progress_dialog')
-        self.progress_dialog.canceled.connect(self.confirm)
         self.import_button = import_button
 
         self.csv_file_name = os.path.basename(self.csv_file)
@@ -77,9 +142,9 @@ class CustomThread(QThread):
                 inventory_tracking = 'Disabled'
 
                 # set default value if empty string
-                barcode = '<no data>' if barcode == '' else barcode
+                barcode = '[no data]' if barcode == '' else barcode
                 expire_dt = '9999-12-31' if expire_dt == '' else expire_dt
-                item_type = '<no data>' if item_type == '' else item_type
+                item_type = '[no data]' if item_type == '' else item_type
 
                 if available_stock == '0' or available_stock == '' or available_stock == None:
                     inventory_tracking = 'Disabled'
@@ -149,6 +214,7 @@ class CustomHBoxLayout(QHBoxLayout):
 
         self.setSpacing(0)
         self.setContentsMargins(0,0,0,0)
+        self.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
 class CustomGridLayout(QGridLayout):
     def __init__(self, ref=''):
@@ -165,9 +231,18 @@ class CustomFormLayout(QFormLayout):
 class CustomWidget(QWidget):
     def __init__(self, ref=''):
         super().__init__()
-        
+
+        if ref in [
+            'overview_pagination',
+            'primary_pagination',
+            'category_pagination',
+            'price_pagination',
+            'inventory_pagination'
+        ]:
+            self.setFixedWidth(300)
+            
         if ref == 'action_box':
-            self.setFixedWidth(100)
+            # self.setFixedWidth(150) # checkpoint
             pass
 
 class CustomGroupBox(QGroupBox):
@@ -182,6 +257,12 @@ class CustomGroupBox(QGroupBox):
 class CustomTabWidget(QTabWidget):
     def __init__(self, ref=''):
         super().__init__()
+
+        if ref == 'tab_sort':
+            self.setStyleSheet("""
+                QTabBar::tab { height: 30px; width: 100px; }
+            """)
+        
         pass
 
 class CustomLabel(QLabel):
@@ -236,6 +317,8 @@ class CustomTableWidget(QTableWidget):
         super().__init__()
 
         self.verticalHeader().setVisible(False)
+        self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
         self.setShowGrid(False)
         self.setWordWrap(False)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
@@ -248,20 +331,20 @@ class CustomTableWidget(QTableWidget):
         
         if ref == 'overview_table':
             self.setColumnCount(8)
-            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-            self.setHorizontalHeaderLabels(['action','item_name','brand','sales_group','sell_price','promo','inventory_tracking','time_stamp'])
+            # checkpoint
+            self.setHorizontalHeaderLabels(['Action','Item name','Brand','Sales group','Sell price','Promo','Inventory tracking','Date created'])
         elif ref == 'primary_table':
             self.setColumnCount(5)
-            self.setHorizontalHeaderLabels(['bardcode','item_name','expire_dt','promo','time_stamp'])
+            self.setHorizontalHeaderLabels(['Bardcode','Item name','Expire date','Promo','Date created'])
         elif ref == 'category_table':
             self.setColumnCount(7)
-            self.setHorizontalHeaderLabels(['item_name','item_type','brand','sales_group','supplier','promo','time_stamp'])
+            self.setHorizontalHeaderLabels(['Item name','Item type','Brand','Sales group','Supplier','Promo','Date created'])
         elif ref == 'price_table':
             self.setColumnCount(7)
-            self.setHorizontalHeaderLabels(['item_name','cost','sell_price','discount_value','effective_dt','promo','time_stamp'])
+            self.setHorizontalHeaderLabels(['Item name','Cost','Sell price','Discount value','Effective date','Promo','Date created'])
         elif ref == 'inventory_table':
-            self.setColumnCount(6)
-            self.setHorizontalHeaderLabels(['item_name','inventory_tracking','available_stock','on_hand_stock','promo','time_stamp'])
+            self.setColumnCount(5)
+            self.setHorizontalHeaderLabels(['Action','Item name','Available stock','On hand stock','Date created'])
 
 class CustomTableWidgetItem(QTableWidgetItem):
     def __init__(self, ref='', text=''):
@@ -278,22 +361,48 @@ class CustomPushButton(QPushButton):
         super().__init__()
 
         self.setText(text)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        if ref in ['prev_button', 'next_button']:
-            self.setFixedWidth(100)
+        if ref in ['previous_button', 'next_button']:
+            self.setFixedSize(30,30)
 
+        if ref in ['edit_button', 'view_button', 'delete_button']:
+            pass
+
+        if ref == 'previous_button':
+            self.setIcon(CustomIcon(ref='previous_icon'))
+        if ref == 'next_button':
+            self.setIcon(CustomIcon(ref='next_icon'))
+
+        if ref == 'edit_button':
+            self.setFixedSize(30,30)
+            self.setIcon(CustomIcon(ref='edit_icon'))
+            pass
+        if ref == 'view_button':
+            self.setFixedSize(30,30)
+            self.setIcon(CustomIcon(ref='view_icon'))
+            pass
+        if ref == 'delete_button':
+            self.setFixedSize(30,30)
+            self.setIcon(CustomIcon(ref='delete_icon'))
+            pass
 
         if ref == 'refresh_button':
+            self.setFixedSize(30,30)
             self.setIcon(CustomIcon(ref='refresh_icon'))
-            
-        if ref == 'delete_all_button':
+            pass
+        if ref == 'mass_delete_button':
+            self.setFixedSize(30,30)
             self.setIcon(CustomIcon(ref='delete_all_icon'))
-
+            pass
         if ref == 'import_button':
+            self.setFixedSize(30,30)
             self.setIcon(CustomIcon(ref='import_icon'))
-
+            pass
         if ref == 'add_button':
+            self.setFixedSize(30,30)
             self.setIcon(CustomIcon(ref='add_icon'))
+            pass
         pass
 
 class CustomLineEdit(QLineEdit):
@@ -303,8 +412,10 @@ class CustomLineEdit(QLineEdit):
 
         if ref == 'filter_field':
             self.setPlaceholderText('Search product (i.e. by barcode, item name, item type, brand, sales group, supplier, or inventory tracking)')
+            self.setStyleSheet('QLineEdit { padding: 5px 5px }')
 
         if ref == 'inactive_field':
+            self.setDisabled(True)
             self.hide()
         
         if ref in [
@@ -355,14 +466,25 @@ class CustomIcon(QIcon):
         super().__init__()
         pass
 
+        if ref == 'previous_icon':
+            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/previous.png')))
+        if ref == 'next_icon':
+            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/next.png')))
+            
+
+        if ref == 'edit_icon':
+            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/edit.png')))
+        if ref == 'view_icon':
+            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/view.png')))
+        if ref == 'delete_icon':
+            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/delete.png')))
+
+
         if ref == 'refresh_icon':
             self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/refresh.png')))
-
         if ref == 'delete_all_icon':
-            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/delete-all.png')))
-
+            self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/delete_all.png')))
         if ref == 'import_icon':
             self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/import.png')))
-
         if ref == 'add_icon':
             self.addFile(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../icons/add.png')))

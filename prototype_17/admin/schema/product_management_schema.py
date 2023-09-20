@@ -20,21 +20,20 @@ class ProductManagementSchema():
         self.conn = sqlite3.connect(database=self.db_file_path)
         self.cursor = self.conn.cursor()
 
-    # -- for adding
     def add_new_product(
             self,
-            barcode='<no data>',
-            item_name='<no data>',
+            barcode='[no data]',
+            item_name='[no data]',
             expire_dt='9999-12-31',
-            item_type='<no data>',
-            brand='<no data>',
-            sales_group='<no data>',
-            supplier='<no data>',
+            item_type='[no data]',
+            brand='[no data]',
+            sales_group='[no data]',
+            supplier='[no data]',
             cost=0,
             sell_price=0,
             effective_dt=date.today(),
             promo_name='No promo',
-            promo_type='<no data>',
+            promo_type='[no data]',
             discount_percent=0,
             discount_value=0,
             new_sell_price=0,
@@ -208,29 +207,28 @@ class ProductManagementSchema():
 
         return count      
     
-    # -- for populating
     def list_product(self, text_filter='', page_number=1, page_size=30):
         # Calculate the offset to skip rows based on page number and page size
         offset = (page_number - 1) * page_size
 
         self.cursor.execute('''
             SELECT
-                COALESCE(NULLIF(Item.Barcode, ''), '<no data>') AS Barcode,
-                COALESCE(NULLIF(Item.Name, ''), '<no data>') AS Item,
-                COALESCE(NULLIF(Item.ExpireDt, ''), '<no data>') AS ExpireDt,
-                COALESCE(NULLIF(ItemType.Name, ''), '<no data>') AS ItemType, 
-                COALESCE(NULLIF(Brand.Name, ''), '<no data>') AS Brand, 
-                COALESCE(NULLIF(SalesGroup.Name, ''), '<no data>') AS SalesGroup, 
-                COALESCE(NULLIF(Supplier.Name, ''), '<no data>') AS Supplier,
-                COALESCE(NULLIF(ItemPrice.Cost, ''), '<no data>') AS Cost,
-                COALESCE(NULLIF(ItemPrice.SellPrice, ''), '<no data>') AS SellPrice,
-                COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), '<no data>') AS EffectiveDt,
+                COALESCE(NULLIF(Item.Barcode, ''), '[no data]') AS Barcode,
+                COALESCE(NULLIF(Item.Name, ''), '[no data]') AS Item,
+                COALESCE(NULLIF(Item.ExpireDt, ''), '[no data]') AS ExpireDt,
+                COALESCE(NULLIF(ItemType.Name, ''), '[no data]') AS ItemType, 
+                COALESCE(NULLIF(Brand.Name, ''), '[no data]') AS Brand, 
+                COALESCE(NULLIF(SalesGroup.Name, ''), '[no data]') AS SalesGroup, 
+                COALESCE(NULLIF(Supplier.Name, ''), '[no data]') AS Supplier,
+                COALESCE(NULLIF(ItemPrice.Cost, ''), '[no data]') AS Cost,
+                COALESCE(NULLIF(ItemPrice.SellPrice, ''), '[no data]') AS SellPrice,
+                COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), '[no data]') AS EffectiveDt,
                 CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
-                COALESCE(NULLIF(ItemPrice.DiscountValue, ''), '<no data>') AS DiscountValue,
+                COALESCE(NULLIF(ItemPrice.DiscountValue, ''), '[no data]') AS DiscountValue,
                 CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryTracking,
-                COALESCE(NULLIF(Stock.Available, ''), '<no data>') AS Available,
-                COALESCE(NULLIF(Stock.OnHand, ''), '<no data>') AS OnHand,
-                ItemPrice.UpdateTs,
+                COALESCE(NULLIF(Stock.Available, ''), '[no data]') AS Available,
+                COALESCE(NULLIF(Stock.OnHand, ''), '[no data]') AS OnHand,
+                ItemPrice.UpdateTs, -- 15
                                 
                 ItemPrice.ItemId,
                 ItemPrice.ItemPriceId,
@@ -271,14 +269,53 @@ class ProductManagementSchema():
                 '%' + str(text_filter) + '%',
                 page_size,  # Limit
                 offset     # Offset
-        ))
+            ))
 
         product = self.cursor.fetchall()
 
         return product
 
+    def list_item_type(self):
+        self.cursor.execute('''
+        SELECT DISTINCT Name FROM ItemType
+        ORDER BY UpdateTs DESC
+        ''')
+            
+        data = self.cursor.fetchall()
 
-    def getPromoTypeAndDiscountPercent(self, promo_name):
+        return data
+        pass
+    def list_brand(self):
+        self.cursor.execute('''
+        SELECT DISTINCT Name FROM Brand
+        ORDER BY UpdateTs DESC
+        ''')
+            
+        data = self.cursor.fetchall()
+
+        return data 
+        pass
+    def list_supplier(self):
+        self.cursor.execute('''
+        SELECT DISTINCT Name FROM Supplier
+        ORDER BY UpdateTs DESC
+        ''')
+            
+        data = self.cursor.fetchall()
+
+        return data 
+        pass
+    def list_promo(self):
+        self.cursor.execute('''
+        SELECT DISTINCT Name FROM Promo
+        ORDER BY UpdateTs DESC
+        ''')
+            
+        data = self.cursor.fetchall()
+
+        return data 
+        pass
+    def list_promotype_and_discount_percent(self, promo_name):
         self.cursor.execute('''
         SELECT DISTINCT PromoType, DiscountPercent FROM Promo
         WHERE Name = ?
@@ -286,42 +323,77 @@ class ProductManagementSchema():
         data = self.cursor.fetchall()
         
         return data
-    
-    # def getNewSellPrice(self):
-    #     pass
+    def list_inventory(self, text_filter='', page_number=1, page_size=30):
+        # Calculate the offset to skip rows based on page number and page size
+        offset = (page_number - 1) * page_size
 
-    # -- for editing
-    def editSelectedItem(
+        self.cursor.execute('''
+            SELECT
+                COALESCE(NULLIF(Item.Name, ''), '[no data]') AS Item,
+                COALESCE(NULLIF(Stock.Available, ''), '[no data]') AS Available,
+                COALESCE(NULLIF(Stock.OnHand, ''), '[no data]') AS OnHand,
+                Stock.ItemId,
+                StockId,
+                Stock.UpdateTs
+            FROM Stock
+                LEFT JOIN Item ON Stock.ItemId = Item.ItemId
+            WHERE
+                Item LIKE ? OR
+                Available LIKE ? OR
+                OnHand LIKE ?
+            ORDER BY Item, Item.UpdateTs DESC
+            LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
+                                
+            ''', (
+                '%' + text_filter + '%', 
+                '%' + text_filter + '%', 
+                '%' + text_filter + '%',
+                page_size,  # Limit
+                offset     # Offset
+            ))
+        
+        stock = self.cursor.fetchall()
+        
+        return stock
+        pass
+    def edit_selected_item(
             self,
-            barcode,
-            item_name,
-            expire_dt,
-            item_type,
-            brand,
-            sales_group,
-            supplier,
-            cost,
-            sell_price,
-            new_sell_price,
-            promo_name,
-            promo_type,
-            discount_percent,
-            discount_value,
-            start_dt,
-            end_dt,
-            effective_dt,
-            item_id,
-            item_price_id,
-            promo_id
+            barcode='[no data]',
+            item_name='[no data]',
+            expire_dt='9999-12-31',
+            item_type='[no data]',
+            brand='[no data]',
+            sales_group='[no data]',
+            supplier='[no data]',
+            cost=0,
+            sell_price=0,
+            effective_dt=date.today(),
+            promo_name='No promo',
+            promo_type='[no data]',
+            discount_percent=0,
+            discount_value=0,
+            new_sell_price=0,
+            start_dt=date.today(),
+            end_dt=date.today(),
+            # check point -- to do (inventory tracking)
+            item_id=0,
+            item_price_id=0,
+            promo_id=0
     ):
         # edit without promo and no promo name
-        if str(promo_id) == '0' and promo_name == 'No promo':
+        if promo_id == 0 and promo_name == 'No promo':
             self.cursor.execute('''
             UPDATE Item
             SET Barcode = ?, Name = ?, ExpireDt = ?
             WHERE ItemId = ?
             ''', (barcode, item_name, expire_dt, item_id))
             self.conn.commit()
+
+            print('cost: ', cost)
+            print('sell_price: ', sell_price)
+            
+            print('item_id: ', item_id)
+            print('item_price_id: ', item_price_id)
 
             self.cursor.execute('''
             UPDATE ItemPrice
@@ -331,7 +403,7 @@ class ProductManagementSchema():
             self.conn.commit()
         
         # edit without promo but has promo name
-        elif str(promo_id) == '0' and promo_name != 'No promo':
+        elif promo_id == 0 and promo_name != 'No promo':
             # step a: insert item_type, brand, sales_group, and supplier into their respective tables
             self.cursor.execute('''
             INSERT INTO ItemType (Name)
@@ -454,7 +526,7 @@ class ProductManagementSchema():
             self.conn.commit()
 
         # edit with promo and promo name
-        elif str(promo_id) != '0' and promo_name != 'No promo':
+        elif promo_id != 0 and promo_name != 'No promo':
             self.cursor.execute('''
             UPDATE Item
             SET Barcode = ?, Name = ?, ExpireDt = ?
@@ -462,115 +534,10 @@ class ProductManagementSchema():
             ''', (barcode, item_name, expire_dt, item_id))
             self.conn.commit()
 
-    # -- for removing
-    def removeSelectedItem(self, item_price_id):
+    def delete_selected_product(self, item_price_id):
         self.cursor.execute('''
         DELETE FROM ItemPrice
         WHERE ItemPriceId = ? AND EffectiveDt > CURRENT_DATE
         ''', (item_price_id,))
+
         self.conn.commit()
-        
-    # -- for populating
-    def listItem(self, text):
-        self.cursor.execute('''
-        SELECT
-            COALESCE(Item.Barcode, 'unk') AS Barcode,
-            COALESCE(Item.Name, 'unk') AS Name,
-            COALESCE(Item.ExpireDt, 'unk') AS ExpireDt, 
-            COALESCE(ItemType.Name, 'unk') AS ItemType, 
-            COALESCE(Brand.Name, 'unk') AS Brand, 
-            COALESCE(SalesGroup.Name, 'unk') AS SalesGroup, 
-            COALESCE(Supplier.Name, 'unk') AS Supplier, 
-            COALESCE(ItemPrice.Cost, 0.00) AS Cost, 
-            COALESCE(ItemPrice.SellPrice, 0.00) AS SellPrice,
-            COALESCE(ItemPrice.DiscountValue, 0.00) AS DiscountValue, 
-            COALESCE(ItemPrice.EffectiveDt, 'unk') AS EffectiveDt,
-            CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'N/A' END AS Promo,
-            CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryTracking, -- 12
-            Promo.PromoType,
-            Promo.DiscountPercent,
-            ItemPrice.ItemId, --15
-            ItemPrice.ItemPriceId,
-            ItemPrice.PromoId
-                            
-        FROM ItemPrice
-            LEFT JOIN Item
-                ON ItemPrice.ItemId = Item.ItemId
-            LEFT JOIN ItemType
-                ON Item.ItemTypeId = ItemType.ItemTypeId
-            LEFT JOIN Brand
-                ON Item.BrandId = Brand.BrandId
-            LEFT JOIN Supplier
-                ON Item.SupplierId = Supplier.SupplierId
-            LEFT JOIN SalesGroup
-                ON Item.SalesGroupId = SalesGroup.SalesGroupId
-            LEFT JOIN Promo
-                ON ItemPrice.PromoId = Promo.PromoId
-            LEFT JOIN Stock
-                ON Item.ItemId = Stock.ItemId
-        WHERE
-            Item.Barcode LIKE ? OR
-            Item.Name LIKE ? OR
-            Item.ExpireDt LIKE ? OR 
-            ItemType.Name LIKE ? OR 
-            Brand.Name LIKE ? OR 
-            SalesGroup.Name LIKE ? OR 
-            Supplier.Name LIKE ? OR 
-            ItemPrice.Cost LIKE ? OR 
-            ItemPrice.SellPrice LIKE ? OR
-            ItemPrice.DiscountValue LIKE ? OR 
-            ItemPrice.EffectiveDt LIKE ? OR
-            Promo LIKE ? OR
-            InventoryTracking LIKE ?
-                            
-        ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, Item.UpdateTs DESC
-                            
-        ''', (
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',
-            '%' + text + '%',))
-   
-        item = self.cursor.fetchall()
-
-        return item       
-
-    # -- for filling combo box
-    def fillItemComboBox(self):
-        self.cursor.execute('''
-        SELECT DISTINCT
-            COALESCE(Item.Name, 'unk') AS Name,
-            COALESCE(ItemType.Name, 'unk') AS ItemType, 
-            COALESCE(Brand.Name, 'unk') AS Brand, 
-            COALESCE(Supplier.Name, 'unk') AS Supplier
-                            
-        FROM ItemPrice
-            LEFT JOIN Item
-                ON ItemPrice.ItemId = Item.ItemId
-            LEFT JOIN ItemType
-                ON Item.ItemTypeId = ItemType.ItemTypeId
-            LEFT JOIN Brand
-                ON Item.BrandId = Brand.BrandId
-            LEFT JOIN Supplier
-                ON Item.SupplierId = Supplier.SupplierId
-            LEFT JOIN SalesGroup
-                ON Item.SalesGroupId = SalesGroup.SalesGroupId
-            LEFT JOIN Promo
-                ON ItemPrice.PromoId = Promo.PromoId
-    
-        ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, Item.UpdateTs DESC
-        ''')
-            
-        item = self.cursor.fetchall()
-
-        return item   
-    

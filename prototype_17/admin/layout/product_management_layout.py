@@ -30,13 +30,97 @@ class ProductManagementLayout(QWidget):
         self.current_page = 1
         self.tab_table_page = 1
         self.required_marker = "<font color='red'><b>!</font>"
+        self.selected_item_name = '[no product selected]'
           
-    # region: data processing functions
+    def edit_data(self, row_value):
+        # region: hide active fields
+        self.item_type_label.hide()
+        self.brand_label.hide()
+        self.sales_group_label.hide()
+        self.supplier_label.hide()
+        self.inventory_tracking_label.hide()
+        self.available_stock_label.hide()
+        self.on_hand_stock_label.hide()
+
+        self.item_type_field.hide()
+        self.brand_field.hide()
+        self.sales_group_field.hide()
+        self.supplier_field.hide()
+        self.inventory_tracking_field.hide()
+        # endregion: hide active fields
+        # region: hide inactive fields
+        self.current_item_type_label.show()
+        self.current_brand_label.show()
+        self.current_sales_group_label.show()
+        self.current_supplier_label.show()
+        self.current_inventory_tracking_label.show()
+
+        self.current_item_type_field.show()
+        self.current_brand_field.show()
+        self.current_sales_group_field.show()
+        self.current_supplier_field.show()
+        self.current_inventory_tracking_field.show()
+        # endregion: hide inactive fields
+
+        self.barcode_field.setText(str(row_value[0]))
+        self.item_name_field.setText(str(row_value[1]))
+        self.expire_dt_field.setDate(QDate.fromString(row_value[2], Qt.DateFormat.ISODate))
+
+        self.current_item_type_field.setText(str(row_value[3]))
+        self.current_brand_field.setText(str(row_value[4]))
+        self.current_sales_group_field.setText(str(row_value[5]))
+        self.current_supplier_field.setText(str(row_value[6]))
+        
+        self.cost_field.setText(str(row_value[7]))
+        self.sell_price_field.setText(str(row_value[8]))
+        self.effective_dt_field.setDate(QDate.fromString(row_value[9], Qt.DateFormat.ISODate))
+        self.promo_name_field.setCurrentText(str(row_value[10]))
+
+        self.current_inventory_tracking_field.setText(str(row_value[12]))
+        
+        self.selected_item_id = row_value[16]
+        self.selected_item_price_id = row_value[17]
+        self.selected_promo_id = row_value[18]
+        pass
+    def view_data(self, row_value):
+        self.view_data_dialog = CustomDialog(ref='view_data_dialog', parent=self, row_value=row_value)
+
+        pass
+    def delete_data(self, row_value):
+        item_id = row_value[16]
+        item_price_id = row_value[17]
+        stock_id = row_value[18]
+
+        confirmation = QMessageBox.warning(self, 'Confirm', 'Are you sure you want to delete this product?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        
+        if confirmation == QMessageBox.StandardButton.Yes:
+            self.product_management_schema.delete_selected_product(item_price_id)
+        pass
+
     def refresh_data(self):
+        self.populate_combo_box()
         self.populate_table()
         print('refreshed!')
         pass
     def mass_delete_data(self):
+        confirmation_a = QMessageBox.warning(self, 'Confirm', 'Are you sure you want to delete all product?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if confirmation_a == QMessageBox.StandardButton.Yes:
+            confirmation_b = QMessageBox.warning(self, 'Confirm', 'This will delete all product in the database. Proceed?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            if confirmation_b == QMessageBox.StandardButton.Yes:
+                while True:
+                    confirmation_c, yes = QInputDialog.getText(self, 'Confirm', "Type <b>'delete all'</b> to confirm")
+
+                    if yes:
+                        if confirmation_c == 'delete all':
+                            self.product_management_schema.delete_all_data()
+                            break
+                        else:
+                            QMessageBox.critical(self, 'Error', 'Invalid input. Please try again.')
+                    
+                    else:
+                        break
+
+        self.mass_delete_button.setDisabled(False)
         pass
     def import_data(self):
         self.import_button.setDisabled(True)
@@ -56,12 +140,52 @@ class ProductManagementLayout(QWidget):
             pass
         else:
             self.import_button.setDisabled(False)
-        print('Import data!')
         pass
     def add_data(self):
+        # region: hide active fields
+        self.item_type_label.show()
+        self.brand_label.show()
+        self.sales_group_label.show()
+        self.supplier_label.show()
+        self.inventory_tracking_label.show()
+
+        self.item_type_field.show()
+        self.brand_field.show()
+        self.sales_group_field.show()
+        self.supplier_field.show()
+        self.inventory_tracking_field.show()
+        # endregion: hide active fields
+        # region: hide inactive fields
+        self.current_item_type_label.hide()
+        self.current_brand_label.hide()
+        self.current_sales_group_label.hide()
+        self.current_supplier_label.hide()
+        self.current_inventory_tracking_label.hide()
+
+        self.current_item_type_field.hide()
+        self.current_brand_field.hide()
+        self.current_sales_group_field.hide()
+        self.current_supplier_field.hide()
+        self.current_inventory_tracking_field.hide()
+        # endregion: hide inactive fields
+        # region: set default input on form fields (for adding)
+        self.barcode_field.setText('')
+        self.item_name_field.setText('')
+        self.expire_dt_field.setDate(QDate.currentDate())
+
+        self.item_type_field.setCurrentText('') if self.item_type_field.currentText() == '[no data]' else self.item_type_field
+
+        self.cost_field.setText('0')
+        self.sell_price_field.setText('0')
+        self.effective_dt_field.setDate(QDate.currentDate())
+        self.promo_name_field.setCurrentText('No promo')
+
+        self.inventory_tracking_field.setCurrentText('Disabled')
+        self.available_stock_field.setText('0')
+        self.on_hand_stock_field.setText('0')
+        # endregion: set default input on form fields (for adding)
         pass
-    # endregion: data processing functions
-    
+
     def save_new_data(self):
         # region: get fields' input
         barcode = self.barcode_field.text()
@@ -84,8 +208,16 @@ class ProductManagementLayout(QWidget):
         inventory_tracking = self.inventory_tracking_field.currentText()
         available_stock = self.available_stock_field.text()
         on_hand_stock = self.on_hand_stock_field.text()
+        # endregion: get fields' input
+
+        # region: assign values if data is an empty string
+        barcode = '[no data]' if barcode == '' else barcode
+        expire_dt = '9999-12-31' if expire_dt == '' else expire_dt
+        item_type = '[no data]' if item_type == '' else item_type
+        # endregion: assign values if data is an empty string
 
         self.product_management_schema.add_new_product(
+                # region: params
                 barcode=barcode,
                 item_name=item_name,
                 expire_dt=expire_dt,
@@ -106,14 +238,84 @@ class ProductManagementLayout(QWidget):
                 inventory_tracking=inventory_tracking,
                 available_stock=available_stock,
                 on_hand_stock=on_hand_stock
+                # endregion: params
         )
-        # endregion: get fields' input
         pass
     def save_edit_data(self):
+        # region: assign input values to variables
+        barcode = self.barcode_field.text()
+        item_name = self.item_name_field.text()
+        expire_dt = self.expire_dt_field.date().toString(Qt.DateFormat.ISODate)
+        item_type = self.item_type_field.currentText()
+        brand = self.brand_field.currentText()
+        sales_group = self.sales_group_field.currentText()
+        supplier = self.supplier_field.currentText()
+        cost = self.cost_field.text()
+        sell_price = self.sell_price_field.text()
+        effective_dt = self.effective_dt_field.date().toString(Qt.DateFormat.ISODate)
+        promo_name = self.promo_name_field.currentText()
+        promo_type = self.promo_type_field.text()
+        discount_percent = self.discount_percent_field.text()
+        discount_value = self.discount_value_field.text()
+        new_sell_price = self.new_sell_price_field.text()
+        start_dt = self.start_dt_field.date().toString(Qt.DateFormat.ISODate)
+        end_dt = self.end_dt_field.date().toString(Qt.DateFormat.ISODate)
+
+        # selected data identifier
+        item_id = self.selected_item_id
+        item_price_id = self.selected_item_price_id
+        promo_id = self.selected_promo_id
+        # endregion: assign input values to variables
+
+        self.product_management_schema.edit_selected_item(
+            barcode=barcode,
+            item_name=item_name,
+            expire_dt=expire_dt,
+            item_type=item_type,
+            brand=brand,
+            sales_group=sales_group,
+            supplier=supplier,
+            cost=cost,
+            sell_price=sell_price,
+            new_sell_price=new_sell_price,
+            promo_name=promo_name,
+            promo_type=promo_type,
+            discount_percent=discount_percent,
+            discount_value=discount_value,
+            start_dt=start_dt,
+            end_dt=end_dt,
+            effective_dt=effective_dt,
+
+            item_id=item_id,
+            item_price_id=item_price_id,
+            promo_id=promo_id
+        )
+
+        self.selected_product.setText(f'Selected product: {item_name}')
+
+        QMessageBox.information(self, 'Success', 'Product has been edited!')
         pass
-   
-    # region: fields and buttons event
-    def on_push_button_clicked(self, clicked_ref):
+
+    def on_push_button_clicked(self, row_value='', clicked_ref=''):
+        if clicked_ref == 'edit_button':
+            self.panel_b_box.show()
+            self.add_button.setDisabled(False)
+            self.selected_data_box.show()
+            self.save_new_button.hide()
+            self.save_edit_button.show()
+
+            self.selected_item_name = f'{row_value[1]}'
+            self.selected_product.setText(f'Selected product: {self.selected_item_name}')
+
+            self.edit_data(row_value)
+            pass
+        if clicked_ref == 'view_button':
+            self.view_data(row_value)
+            pass
+        if clicked_ref == 'delete_button':
+            self.delete_data(row_value)
+            pass
+
         if clicked_ref == 'previous_button':
             if self.current_page > 1:
                 self.current_page -= 1
@@ -126,7 +328,7 @@ class ProductManagementLayout(QWidget):
                 self.inventory_pagination_page_label.setText(f'Page {self.current_page}')
                 # endregion: pagination page label
 
-            self.populate_table(text_filter=self.filter_field.text(), current_page=self.current_page)
+            self.populate_table(current_page=self.current_page)
             pass
         if clicked_ref == 'next_button':
             self.current_page += 1
@@ -139,12 +341,14 @@ class ProductManagementLayout(QWidget):
             self.inventory_pagination_page_label.setText(f'Page {self.current_page}')
             # endregion: pagination page label
             
-            self.populate_table(text_filter=self.filter_field.text(), current_page=self.current_page)
+            self.populate_table(current_page=self.current_page)
 
         if clicked_ref == 'refresh_button':
             self.refresh_data()
             pass
         if clicked_ref == 'mass_delete_button':
+            self.mass_delete_button.setDisabled(True)
+            self.mass_delete_data()
             pass
         if clicked_ref == 'import_button':
             self.import_data()
@@ -152,6 +356,13 @@ class ProductManagementLayout(QWidget):
         if clicked_ref == 'add_button':
             self.panel_b_box.show()
             self.add_button.setDisabled(True)
+            self.selected_data_box.hide()
+            self.save_new_button.show()
+            self.save_edit_button.hide()
+
+            self.selected_item_name = '[no product selected]'
+            self.selected_product.setText(f'Selected product: {self.selected_item_name}')
+            
             self.add_data()
 
         if clicked_ref == 'back_button':
@@ -161,6 +372,7 @@ class ProductManagementLayout(QWidget):
             self.save_new_data()
             pass
         if clicked_ref == 'save_edit_button':
+            self.save_edit_data()
             pass
         pass
     def on_line_edit_text_changed(self, text_changed_ref):
@@ -179,7 +391,7 @@ class ProductManagementLayout(QWidget):
         pass
     def on_combo_box_current_text_changed(self, current_text, current_text_changed_ref):
         if current_text_changed_ref == 'promo_name_field':
-            if current_text == 'No promo':
+            if current_text in ['No promo','']:
                 self.effective_dt_label.show()
                 self.promo_type_label.hide()
                 self.discount_percent_label.hide()
@@ -237,7 +449,7 @@ class ProductManagementLayout(QWidget):
                 # endregion: calculate discount amount and new sell price
                 pass
         if current_text_changed_ref == 'inventory_tracking_field':
-            if current_text == 'Disabled':
+            if current_text in ['Disabled','']:
                 self.available_stock_label.hide()
                 self.on_hand_stock_label.hide()
 
@@ -251,57 +463,125 @@ class ProductManagementLayout(QWidget):
                 self.available_stock_field.show()
                 self.on_hand_stock_field.show()
                 pass
-    # endregion: fields and buttons event
 
-    def update_panel_b(self):
-        pass
+    def call_signal(
+            # region: params
+            self,
+            edit_button=None,
+            view_button=None,
+            delete_button=None,
+            row_value='',
+            signal_ref=''
+            # endregion: params
+    ):
+        if signal_ref == 'panel_a_signal':
+            self.filter_field.textChanged.connect(lambda: self.on_line_edit_text_changed(text_changed_ref='filter_field'))
 
-    def populate_combo_box(self, combo_box_ref):
-        if combo_box_ref == 'item_type':
+            # region: pagination
+            self.overview_pagination_previous_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='previous_button'))
+            self.primary_pagination_previous_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='previous_button'))
+            self.category_pagination_previous_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='previous_button'))
+            self.price_pagination_previous_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='previous_button'))
+            self.inventory_pagination_previous_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='previous_button'))
+
+            self.overview_pagination_next_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='next_button'))
+            self.primary_pagination_next_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='next_button'))
+            self.category_pagination_next_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='next_button'))
+            self.price_pagination_next_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='next_button'))
+            self.inventory_pagination_next_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='next_button'))
+            # endregion: pagination
+            # region: manage data buttons
+            self.refresh_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='refresh_button'))
+            self.mass_delete_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='mass_delete_button'))
+            self.add_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='add_button'))
+            self.import_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='import_button'))
+            # endregion: manage data buttons
             pass
-        if combo_box_ref == 'brand':
+        if signal_ref == 'populate_table_signal':
+            edit_button.clicked.connect(lambda: self.on_push_button_clicked(row_value=row_value, clicked_ref='edit_button'))
+            view_button.clicked.connect(lambda: self.on_push_button_clicked(row_value=row_value, clicked_ref='view_button'))
+            delete_button.clicked.connect(lambda: self.on_push_button_clicked(row_value=row_value, clicked_ref='delete_button'))
             pass
-        if combo_box_ref == 'supplier':
+
+        if signal_ref == 'panel_b_signal':
+            self.promo_name_field.currentTextChanged.connect(
+                lambda current_text: self.on_combo_box_current_text_changed(
+                    current_text=current_text, 
+                    current_text_changed_ref='promo_name_field'
+                )
+            )
+
+            self.inventory_tracking_field.currentTextChanged.connect(
+                lambda current_text: self.on_combo_box_current_text_changed(
+                    current_text=current_text,
+                    current_text_changed_ref='inventory_tracking_field'
+                )
+            )
+
+            self.back_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='back_button'))
+            self.save_new_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='save_new_button'))
+            self.save_edit_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='save_edit_button'))
             pass
-        if combo_box_ref == 'promo_name':
-            pass
+
+    def populate_combo_box(self):
+        item_type = self.product_management_schema.list_item_type()
+        brand = self.product_management_schema.list_brand()
+        supplier = self.product_management_schema.list_supplier()
+        promo_name = self.product_management_schema.list_promo()
+
+        self.item_type_field.addItems(data[0] for data in item_type)
+        self.brand_field.addItems(data[0] for data in brand)
+        self.supplier_field.addItems(data[0] for data in supplier)
+        self.promo_name_field.addItems(data[0] for data in promo_name)
         pass
     def populate_table(self, current_page=1):
-        data = self.product_management_schema.list_product(text_filter=self.filter_field.text(), page_number=current_page)
+        product_data = self.product_management_schema.list_product(text_filter=self.filter_field.text(), page_number=current_page)
+        inventory_data = self.product_management_schema.list_inventory(text_filter=self.filter_field.text(), page_number=current_page)
 
-        # region: pagination button
+        # region: table pagination button
         self.overview_pagination_previous_button.setEnabled(self.current_page > 1)
         self.primary_pagination_previous_button.setEnabled(self.current_page > 1)
         self.category_pagination_previous_button.setEnabled(self.current_page > 1)
         self.price_pagination_previous_button.setEnabled(self.current_page > 1)
         self.inventory_pagination_previous_button.setEnabled(self.current_page > 1)
 
-        self.overview_pagination_next_button.setEnabled(len(data) == 30)
-        self.primary_pagination_next_button.setEnabled(len(data) == 30)
-        self.category_pagination_next_button.setEnabled(len(data) == 30)
-        self.price_pagination_next_button.setEnabled(len(data) == 30)
-        self.inventory_pagination_next_button.setEnabled(len(data) == 30)
+        self.overview_pagination_next_button.setEnabled(len(product_data) == 30)
+        self.primary_pagination_next_button.setEnabled(len(product_data) == 30)
+        self.category_pagination_next_button.setEnabled(len(product_data) == 30)
+        self.price_pagination_next_button.setEnabled(len(product_data) == 30)
+        self.inventory_pagination_next_button.setEnabled(len(product_data) == 30)
         # endregion: pagination button
+        # region: table row count
+        self.overview_table.setRowCount(len(product_data))
+        self.primary_table.setRowCount(len(product_data))
+        self.category_table.setRowCount(len(product_data))
+        self.price_table.setRowCount(len(product_data))
 
-        self.overview_table.setRowCount(len(data))
-        self.primary_table.setRowCount(len(data))
-        self.category_table.setRowCount(len(data))
-        self.price_table.setRowCount(len(data))
-        self.inventory_table.setRowCount(len(data))
+        self.inventory_table.setRowCount(len(inventory_data))
+        # endregion: set tables' row count
 
-        for row_index, row_value in enumerate(data):
+        for row_index, row_value in enumerate(product_data):
             # region: action button
             action_box = CustomWidget(ref='action_box')
             action_layout = CustomHBoxLayout(ref='action_layout')
-            self.edit_button = CustomPushButton(text='Edit')
-            self.view_button = CustomPushButton(text='View')
-            self.delete = CustomPushButton(text='Delete')
+            self.edit_button = CustomPushButton(ref='edit_button')
+            self.view_button = CustomPushButton(ref='view_button')
+            self.delete_button = CustomPushButton(ref='delete_button')
             action_layout.addWidget(self.edit_button)
             action_layout.addWidget(self.view_button)
-            action_layout.addWidget(self.delete)
+            action_layout.addWidget(self.delete_button)
             action_box.setLayout(action_layout)
+
+            self.call_signal(
+                edit_button=self.edit_button,
+                view_button=self.view_button,
+                delete_button=self.delete_button,
+                row_value=row_value, 
+                signal_ref='populate_table_signal'
+            )
+            pass
             # endregion: action button
-                   # region: assign values
+            # region: assign values
             item_name = [
                 (CustomTableWidgetItem(text=f'{row_value[1]}')),
                 (CustomTableWidgetItem(text=f'{row_value[1]}')),
@@ -397,63 +677,26 @@ class ProductManagementLayout(QWidget):
             self.price_table.setItem(row_index, 5, promo_name[3])
             self.price_table.setItem(row_index, 6, update_ts[3])
             # endregion: price list
+
+        for row_index, row_value in enumerate(inventory_data):
+            # for action buttons -- to do
+
+            item_name = CustomTableWidgetItem(text=f'{row_value[0]}')
+            available_stock = CustomTableWidgetItem(text=f'{row_value[1]}')
+            on_hand_stock = CustomTableWidgetItem(text=f'{row_value[2]}')
+            update_ts = CustomTableWidgetItem(text=f'{row_value[5]}')
             # region: inventory list
-            self.inventory_table.setItem(row_index, 0, item_name[4])
-            self.inventory_table.setItem(row_index, 1, inventory_tracking[4])
-            self.inventory_table.setItem(row_index, 2, available)
-            self.inventory_table.setItem(row_index, 3, on_hand)
-            self.inventory_table.setItem(row_index, 4, promo_name[4])
-            self.inventory_table.setItem(row_index, 5, update_ts[4])
+            self.inventory_table.setItem(row_index, 1, item_name)
+            self.inventory_table.setItem(row_index, 2, available_stock)
+            self.inventory_table.setItem(row_index, 3, on_hand_stock)
+            self.inventory_table.setItem(row_index, 4, update_ts)
             # endregion: inventory list
-
-    def call_signal(self, signal_ref=''):
-        if signal_ref == 'panel_a_signal':
-            self.filter_field.textChanged.connect(lambda: self.on_line_edit_text_changed(text_changed_ref='filter_field'))
-
-            # region: pagination
-            self.overview_pagination_previous_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='previous_button'))
-            self.primary_pagination_previous_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='previous_button'))
-            self.category_pagination_previous_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='previous_button'))
-            self.price_pagination_previous_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='previous_button'))
-            self.inventory_pagination_previous_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='previous_button'))
-
-            self.overview_pagination_next_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='next_button'))
-            self.primary_pagination_next_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='next_button'))
-            self.category_pagination_next_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='next_button'))
-            self.price_pagination_next_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='next_button'))
-            self.inventory_pagination_next_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='next_button'))
-            # endregion: pagination
-
-            # region: manage data buttons
-            self.refresh_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='refresh_button'))
-            self.mass_delete_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='mass_delete_button'))
-            self.add_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='add_button'))
-            self.import_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='import_button'))
-            # endregion: manage data buttons
-            pass
-        if signal_ref == 'panel_b_signal':
-            self.promo_name_field.currentTextChanged.connect(
-                lambda current_text: self.on_combo_box_current_text_changed(
-                    current_text=current_text, 
-                    current_text_changed_ref='promo_name_field'
-                )
-            )
-
-            self.inventory_tracking_field.currentTextChanged.connect(
-                lambda current_text: self.on_combo_box_current_text_changed(
-                    current_text=current_text,
-                    current_text_changed_ref='inventory_tracking_field'
-                )
-            )
-
-            self.back_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='back_button'))
-            self.save_new_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='save_new_button'))
-            pass
 
     def show_panel_b(self):
         self.panel_b_box = CustomGroupBox(ref='panel_b_box')
         self.panel_b_box_layout = CustomFormLayout()
-
+        
+        # region: form fields
         # region: primary fields
         self.primary_box = CustomGroupBox(ref='primary_box')
         self.primary_box_layout = CustomFormLayout()
@@ -602,8 +845,8 @@ class ProductManagementLayout(QWidget):
         self.inventory_box_label = CustomLabel(text='Inventory')
 
         self.inventory_tracking_label = CustomLabel(ref='inventory_tracking_label', text='inventory_tracking')
-        self.available_stock_label = CustomLabel(ref='available_stock_label', text='available_stock')
-        self.on_hand_stock_label = CustomLabel(ref='on_hand_stock_label', text='on_hand_stock')
+        self.available_stock_label = CustomLabel(ref='available_stock_label', text=f'{self.required_marker} available_stock')
+        self.on_hand_stock_label = CustomLabel(ref='on_hand_stock_label', text=f'{self.required_marker} on_hand_stock')
 
         self.inventory_tracking_field = CustomComboBox(ref='inventory_tracking_field')
         self.available_stock_field = CustomLineEdit(ref='available_stock_field')
@@ -622,139 +865,143 @@ class ProductManagementLayout(QWidget):
 
         self.inventory_box.setLayout(self.inventory_box_layout)
         # endregion: inventory fields
-
-        self.panel_b_box_layout.insertRow(1, self.primary_box)
-        self.panel_b_box_layout.insertRow(2, self.category_box)
-        self.panel_b_box_layout.insertRow(3, self.price_box)
-        self.panel_b_box_layout.insertRow(4, self.inventory_box)
-
+        # endregion: form fields
         # region: form buttons
+        self.selected_data_box = CustomGroupBox()
+        self.selected_data_layout = CustomFormLayout()
+        self.selected_product = CustomLabel(text=f'Selected product: {self.selected_item_name}')
+        self.selected_data_layout.addRow(self.selected_product)
+        self.selected_data_box.setLayout(self.selected_data_layout)
+
         self.back_button = CustomPushButton(text='Back')
         self.save_new_button = CustomPushButton(text='Save Add')
         self.save_edit_button = CustomPushButton(text='Save Edit')
+        # endregion: form buttons
 
         self.panel_b_box_layout.insertRow(0, self.back_button)
-        self.panel_b_box_layout.insertRow(5, self.save_new_button)
-        self.panel_b_box_layout.insertRow(6, self.save_edit_button)
-        # endregion: form buttons
+        self.panel_b_box_layout.insertRow(1, self.selected_data_box)
+        self.panel_b_box_layout.insertRow(2, self.primary_box)
+        self.panel_b_box_layout.insertRow(3, self.category_box)
+        self.panel_b_box_layout.insertRow(4, self.price_box)
+        self.panel_b_box_layout.insertRow(5, self.inventory_box)
+        self.panel_b_box_layout.insertRow(6, self.save_new_button)
+        self.panel_b_box_layout.insertRow(7, self.save_edit_button)
 
         self.panel_b_box.setLayout(self.panel_b_box_layout)
 
         self.call_signal(signal_ref='panel_b_signal')
-
+        pass
     def show_panel_a(self):
         self.panel_a_box = CustomGroupBox()
         self.panel_a_box_layout = CustomGridLayout()
 
         self.filter_field = CustomLineEdit(ref='filter_field')
-        self.tab_sort = CustomTabWidget()
-
+        self.tab_sort = CustomTabWidget(ref='tab_sort')
         # region: overview pagination table
         self.overview_table = CustomTableWidget(ref='overview_table')
-        self.overview_pagination = CustomGroupBox()
-        self.overview_pagination_layout = CustomGridLayout()
-        self.overview_pagination_previous_button = CustomPushButton(text='Prev')
+        self.overview_pagination = CustomWidget(ref='overview_pagination')
+        self.overview_pagination_layout = CustomGridLayout(ref='overview_pagination_layout')
+        self.overview_pagination_previous_button = CustomPushButton(ref='previous_button')
         self.overview_pagination_page_label = CustomLabel(text=f'Page {self.tab_table_page}')
-        self.overview_pagination_next_button = CustomPushButton(text='Next')
+        self.overview_pagination_next_button = CustomPushButton(ref='next_button')
         self.overview_pagination_layout.addWidget(self.overview_pagination_previous_button,0,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.overview_pagination_layout.addWidget(self.overview_pagination_page_label,0,1,Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         self.overview_pagination_layout.addWidget(self.overview_pagination_next_button,0,2,Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.overview_pagination.setLayout(self.overview_pagination_layout)
         self.overview_tab_layout = CustomGridLayout() 
-        self.overview_tab_layout.addWidget(self.overview_table)
-        self.overview_tab_layout.addWidget(self.overview_pagination)
+        self.overview_tab_layout.addWidget(self.overview_table,0,0)
+        self.overview_tab_layout.addWidget(self.overview_pagination,1,0,Qt.AlignmentFlag.AlignCenter)
         self.overview_tab = CustomWidget() 
         self.overview_tab.setLayout(self.overview_tab_layout) 
         # endregion: overview pagination table
         # region: primary pagination table
         self.primary_table = CustomTableWidget(ref='primary_table')
-        self.primary_pagination = CustomGroupBox()
-        self.primary_pagination_layout = CustomGridLayout()
-        self.primary_pagination_previous_button = CustomPushButton(text='Prev')
+        self.primary_pagination = CustomWidget(ref='primary_pagination')
+        self.primary_pagination_layout = CustomGridLayout(ref='primary_pagination_layout')
+        self.primary_pagination_previous_button = CustomPushButton(ref='previous_button')
         self.primary_pagination_page_label = CustomLabel(text=f'Page {self.tab_table_page}')
-        self.primary_pagination_next_button = CustomPushButton(text='Next')
+        self.primary_pagination_next_button = CustomPushButton(ref='next_button')
         self.primary_pagination_layout.addWidget(self.primary_pagination_previous_button,0,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.primary_pagination_layout.addWidget(self.primary_pagination_page_label,0,1,Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         self.primary_pagination_layout.addWidget(self.primary_pagination_next_button,0,2,Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.primary_pagination.setLayout(self.primary_pagination_layout)
         self.primary_tab_layout = CustomGridLayout()
-        self.primary_tab_layout.addWidget(self.primary_table)
-        self.primary_tab_layout.addWidget(self.primary_pagination)
+        self.primary_tab_layout.addWidget(self.primary_table,0,0)
+        self.primary_tab_layout.addWidget(self.primary_pagination,1,0,Qt.AlignmentFlag.AlignCenter)
         self.primary_tab = CustomWidget() 
         self.primary_tab.setLayout(self.primary_tab_layout) 
         # endregion: primary pagination table
         # region: category pagination table
         self.category_table = CustomTableWidget(ref='category_table')
-        self.category_pagination = CustomGroupBox()
-        self.category_pagination_layout = CustomGridLayout()
-        self.category_pagination_previous_button = CustomPushButton(text='Prev')
+        self.category_pagination = CustomWidget(ref='category_pagination')
+        self.category_pagination_layout = CustomGridLayout(ref='category_pagination_layout')
+        self.category_pagination_previous_button = CustomPushButton(ref='previous_button')
         self.category_pagination_page_label = CustomLabel(text=f'Page {self.tab_table_page}')
-        self.category_pagination_next_button = CustomPushButton(text='Next')
+        self.category_pagination_next_button = CustomPushButton(ref='next_button')
         self.category_pagination_layout.addWidget(self.category_pagination_previous_button,0,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.category_pagination_layout.addWidget(self.category_pagination_page_label,0,1,Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         self.category_pagination_layout.addWidget(self.category_pagination_next_button,0,2,Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.category_pagination.setLayout(self.category_pagination_layout)
         self.category_tab_layout = CustomGridLayout()
-        self.category_tab_layout.addWidget(self.category_table)
-        self.category_tab_layout.addWidget(self.category_pagination)
+        self.category_tab_layout.addWidget(self.category_table,0,0)
+        self.category_tab_layout.addWidget(self.category_pagination,1,0,Qt.AlignmentFlag.AlignCenter)
         self.category_tab = CustomWidget() 
         self.category_tab.setLayout(self.category_tab_layout) 
         # endregion: category pagination table
         # region: price pagination table
         self.price_table = CustomTableWidget(ref='price_table')
-        self.price_pagination = CustomGroupBox()
-        self.price_pagination_layout = CustomGridLayout()
-        self.price_pagination_previous_button = CustomPushButton(text='Prev')
+        self.price_pagination = CustomWidget(ref='price_pagination')
+        self.price_pagination_layout = CustomGridLayout(ref='price_pagination_layout')
+        self.price_pagination_previous_button = CustomPushButton(ref='previous_button')
         self.price_pagination_page_label = CustomLabel(text=f'Page {self.tab_table_page}')
-        self.price_pagination_next_button = CustomPushButton(text='Next')
+        self.price_pagination_next_button = CustomPushButton(ref='next_button')
         self.price_pagination_layout.addWidget(self.price_pagination_previous_button,0,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.price_pagination_layout.addWidget(self.price_pagination_page_label,0,1,Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         self.price_pagination_layout.addWidget(self.price_pagination_next_button,0,2,Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.price_pagination.setLayout(self.price_pagination_layout)
         self.price_tab_layout = CustomGridLayout()
-        self.price_tab_layout.addWidget(self.price_table)
-        self.price_tab_layout.addWidget(self.price_pagination)
+        self.price_tab_layout.addWidget(self.price_table,0,0)
+        self.price_tab_layout.addWidget(self.price_pagination,1,0,Qt.AlignmentFlag.AlignCenter)
         self.price_tab = CustomWidget() 
         self.price_tab.setLayout(self.price_tab_layout) 
         # endregion: price pagination table
         # region: inventory pagination table
         self.inventory_table = CustomTableWidget(ref='inventory_table')
-        self.inventory_pagination = CustomGroupBox()
-        self.inventory_pagination_layout = CustomGridLayout()
-        self.inventory_pagination_previous_button = CustomPushButton(text='Prev')
+        self.inventory_pagination = CustomWidget(ref='inventory_pagination')
+        self.inventory_pagination_layout = CustomGridLayout(ref='inventory_pagination_layout')
+        self.inventory_pagination_previous_button = CustomPushButton(ref='previous_button')
         self.inventory_pagination_page_label = CustomLabel(text=f'Page {self.tab_table_page}')
-        self.inventory_pagination_next_button = CustomPushButton(text='Next')
+        self.inventory_pagination_next_button = CustomPushButton(ref='next_button')
         self.inventory_pagination_layout.addWidget(self.inventory_pagination_previous_button,0,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.inventory_pagination_layout.addWidget(self.inventory_pagination_page_label,0,1,Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         self.inventory_pagination_layout.addWidget(self.inventory_pagination_next_button,0,2,Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.inventory_pagination.setLayout(self.inventory_pagination_layout)
         self.inventory_tab_layout = CustomGridLayout()
-        self.inventory_tab_layout.addWidget(self.inventory_table)
-        self.inventory_tab_layout.addWidget(self.inventory_pagination)
+        self.inventory_tab_layout.addWidget(self.inventory_table,0,0)
+        self.inventory_tab_layout.addWidget(self.inventory_pagination,1,0,Qt.AlignmentFlag.AlignCenter)
         self.inventory_tab = CustomWidget() 
         self.inventory_tab.setLayout(self.inventory_tab_layout) 
         # endregion: inventory pagination table
         # region: manage data buttons
-        self.manage_data_box = CustomGroupBox()
+        self.manage_data_box = CustomWidget(ref='manage_data_box')
         self.manage_data_box_layout = CustomHBoxLayout()
-        self.refresh_button = CustomPushButton(text='Refresh')
-        self.mass_delete_button = CustomPushButton(text='Mass Delete')
-        self.import_button = CustomPushButton(text='Import')
-        self.add_button = CustomPushButton(text='Add')
+        self.refresh_button = CustomPushButton(ref='refresh_button')
+        self.mass_delete_button = CustomPushButton(ref='mass_delete_button')
+        self.import_button = CustomPushButton(ref='import_button')
+        self.add_button = CustomPushButton(ref='add_button')
         self.manage_data_box_layout.addWidget(self.refresh_button)
         self.manage_data_box_layout.addWidget(self.mass_delete_button)
         self.manage_data_box_layout.addWidget(self.import_button)
         self.manage_data_box_layout.addWidget(self.add_button)
         self.manage_data_box.setLayout(self.manage_data_box_layout)
         # endregion: manage data buttons
-
         # region: tab setup
         self.tab_sort.addTab(self.overview_tab, 'Overview')
         self.tab_sort.addTab(self.primary_tab, 'Primary')
         self.tab_sort.addTab(self.category_tab, 'Category')
         self.tab_sort.addTab(self.price_tab, 'Price')
         self.tab_sort.addTab(self.inventory_tab, 'Inventory')
-        self.tab_sort.setCornerWidget(self.manage_data_box)
+        self.tab_sort.setCornerWidget(self.manage_data_box, Qt.Corner.BottomRightCorner)
         # endregion: setup tab
 
         self.panel_a_box_layout.addWidget(self.filter_field,0,0)
