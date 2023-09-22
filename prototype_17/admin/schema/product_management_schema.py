@@ -396,13 +396,23 @@ class ProductManagementSchema():
             promo_id=0,
             stock_id=0
     ):
+        print('promo_id: ', promo_id)
+        print('promo_name: ', promo_name)
         # edit without promo and no promo name
         if promo_id == 0 and promo_name == 'No promo':
+            print(item_name)
             self.cursor.execute('''
             UPDATE Item
-            SET Barcode = ?, Name = ?, ExpireDt = ?
-            WHERE ItemId = ?
-            ''', (barcode, item_name, expire_dt, item_id))
+            SET Barcode = ?,
+                Name = ?,
+                ExpireDt = ?
+            WHERE ItemId = ? 
+            AND EXISTS (
+                SELECT 1
+                FROM ItemPrice
+                WHERE Item.ItemId = ItemPrice.ItemId
+                AND ItemPrice.EffectiveDt > CURRENT_DATE
+            )''', (barcode, item_name, expire_dt, item_id))
             self.conn.commit()
 
             self.cursor.execute('''

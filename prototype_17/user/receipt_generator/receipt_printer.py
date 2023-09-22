@@ -94,7 +94,7 @@ class ReceiptGenerator():
 
         # Define placeholders and values
         table_d_placeholders = {
-            '{cashier}': 'Mary Jane',
+            '{cashier}': 'Angie',
             '{phone}': '+1234567890',
         }
 

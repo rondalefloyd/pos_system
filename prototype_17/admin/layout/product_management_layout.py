@@ -278,14 +278,14 @@ class ProductManagementLayout(QWidget):
             supplier=supplier,
             cost=cost,
             sell_price=sell_price,
-            new_sell_price=new_sell_price,
+            effective_dt=effective_dt,
             promo_name=promo_name,
             promo_type=promo_type,
             discount_percent=discount_percent,
             discount_value=discount_value,
+            new_sell_price=new_sell_price,
             start_dt=start_dt,
-            end_dt=end_dt, 
-            effective_dt=effective_dt,
+            end_dt=end_dt,
             inventory_tracking=inventory_tracking,
             available_stock=available_stock,
             on_hand_stock=on_hand_stock,
@@ -689,6 +689,9 @@ class ProductManagementLayout(QWidget):
                 for promo_name_data in promo_name: promo_name_data.setForeground(QColor(255,0,0))
                 for inventory_tracking_data in inventory_tracking: inventory_tracking_data.setForeground(QColor(255,0,0))
                 for update_ts_data in update_ts: update_ts_data.setForeground(QColor(255,0,0))
+
+                self.edit_button.hide()
+
             # endregion: assign values
 
             # region: overview list

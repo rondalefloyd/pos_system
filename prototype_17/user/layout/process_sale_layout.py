@@ -117,9 +117,19 @@ class ProcessSaleLayout(QWidget):
 
         # endregion -- underconstruction
         pass
-
     def process_payment(self):
         self.receipt_generator = ReceiptGenerator()
+        self.after_payment()
+        pass
+    def after_payment(self):
+        self.pay_order_window.close()
+        self.after_payment_window = CustomWidget(ref='after_payment_window')
+        self.after_payment_window_layout = CustomFormLayout()
+
+        self.process_another_sale_button = CustomLabel(text='DONE!')
+
+        self.after_payment_window_layout.addWidget(self.process_another_sale_button)
+        self.after_payment_window.setLayout(self.after_payment_window_layout)
         pass
 
     def refresh_data(self):

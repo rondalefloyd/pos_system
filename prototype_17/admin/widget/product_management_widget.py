@@ -151,26 +151,26 @@ class CustomThread(QThread):
                 else: 
                     inventory_tracking = 'Enabled' 
 
-                if '' in (self.item_name, brand, sales_group, supplier, cost, sell_price):
-                    QMessageBox.critical(self, 'Error', f'Unable to import due to missing values.')
-                    return
+                # if '' in (self.item_name, brand, sales_group, supplier, cost, sell_price):
+                #     QMessageBox.critical(self, 'Error', f'Unable to import due to missing values.')
+                #     return
 
-                else:
-                    # print('Inventory tracking: ', inventory_tracking)
-                    self.product_management_schema.add_new_product(
-                        barcode=barcode,
-                        item_name=self.item_name,
-                        expire_dt=expire_dt,
-                        item_type=item_type,
-                        brand=brand,
-                        sales_group=sales_group,
-                        supplier=supplier,
-                        cost=cost,
-                        sell_price=sell_price,
-                        effective_dt=effective_dt,
-                        inventory_tracking=inventory_tracking,
-                        available_stock=available_stock
-                    )
+                # else:
+                # print('Inventory tracking: ', inventory_tracking)
+                self.product_management_schema.add_new_product(
+                    barcode=barcode,
+                    item_name=self.item_name,
+                    expire_dt=expire_dt,
+                    item_type=item_type,
+                    brand=brand,
+                    sales_group=sales_group,
+                    supplier=supplier,
+                    cost=cost,
+                    sell_price=sell_price,
+                    effective_dt=effective_dt,
+                    inventory_tracking=inventory_tracking,
+                    available_stock=available_stock
+                )
 
                 if self.progress_dialog.wasCanceled():
                     self.import_button.setDisabled(False)

@@ -251,6 +251,11 @@ class CustomWidget(QWidget):
             self.setWindowFlag(Qt.WindowType.Dialog)
             self.show()
 
+        if ref == 'after_payment_window':
+            self.setWindowModality(Qt.WindowModality.ApplicationModal)
+            self.setWindowFlag(Qt.WindowType.Dialog)
+            self.show()
+
 class CustomGroupBox(QGroupBox):
     def __init__(self, ref=''):
         super().__init__()
