@@ -15,7 +15,7 @@ class PromoManagementSchema():
 
     # PROMO MANAGEMENT
     # -- for adding
-    def add_new_promo(self, promo_name, promo_type, discount_percent, description):
+    def addNewPromo(self, promo_name, promo_type, discount_percent, description):
         self.cursor.execute('''
         INSERT INTO Promo (Name, PromoType, DiscountPercent, Description)
         SELECT ?, ?, ?, ?
@@ -31,7 +31,7 @@ class PromoManagementSchema():
         self.conn.commit()
 
     # -- for editing
-    def edit_selected_promo(self, promo_name, promo_type, discount_percent, description, promo_id):
+    def editSelectedPromo(self, promo_name, promo_type, discount_percent, description, promo_id):
         self.cursor.execute('''
         UPDATE Promo
         SET Name = ?, PromoType = ?, DiscountPercent = ?, Description = ?
@@ -40,50 +40,34 @@ class PromoManagementSchema():
         self.conn.commit()
 
     # -- for removing
-    def delete_selected_promo(self, promo_id):
+    def removeSelectedPromo(self, promo_id):
         self.cursor.execute('''
         DELETE FROM Promo
         WHERE PromoId = ?
         ''', (promo_id,))
         self.conn.commit()
 
-    # -- for removing
-    def delete_all_promo(self):
-        self.cursor.execute('''
-        DELETE FROM Promo
-        ''')
-        self.conn.commit()
-
     # -- for populating
-    def list_promo(self, text_filter='', page_number=1, page_size=30):
-        offset = (page_number - 1) * page_size
-
+    def listPromo(self, text=''):
         self.cursor.execute('''
-        SELECT Name, PromoType, DiscountPercent, Description, UpdateTs, PromoId FROM Promo
+        SELECT Name, PromoType, DiscountPercent, Description, PromoId FROM Promo
         WHERE
             Name LIKE ? OR
             PromoType LIKE ? OR
             DiscountPercent LIKE ? OR
             Description LIKE ?
         ORDER BY PromoId DESC, UpdateTs DESC
-        LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
-        ''', (
-            '%' + str(text_filter) + '%',
-            '%' + str(text_filter) + '%',
-            '%' + str(text_filter) + '%',
-            '%' + str(text_filter) + '%',
-            page_size,  # Limit
-            offset     # Offset
-        ))
+                            
+        ''', ('%' + text + '%', '%' + text + '%', '%' + text + '%', '%' + text + '%'))
         
         promo = self.cursor.fetchall()
         
         return promo
     
     # -- for filling combo box
-    def list_promo_type(self):
+    def fillPromoComboBox(self):
         self.cursor.execute('''
-        SELECT DISTINCT PromoType FROM Promo
+        SELECT DISTINCT Name, PromoType FROM Promo
         ORDER BY PromoId DESC, UpdateTs DESC                
         ''')
         

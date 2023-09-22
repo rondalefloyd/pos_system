@@ -75,6 +75,7 @@ class CustomDialog(QDialog):
 
             self.setLayout(self.dialog_layout)
 
+
         self.exec()
 
 class CustomProgressDialog(QProgressDialog):
@@ -245,12 +246,16 @@ class CustomWidget(QWidget):
             # self.setFixedWidth(100) # checkpoint
             pass
 
+        if ref == 'pay_order_window':
+            self.setWindowModality(Qt.WindowModality.ApplicationModal)
+            self.setWindowFlag(Qt.WindowType.Dialog)
+            self.show()
+
 class CustomGroupBox(QGroupBox):
     def __init__(self, ref=''):
         super().__init__()
 
         if ref == 'panel_b_box':
-            self.hide()
             self.setFixedWidth(400)
         pass
 
@@ -279,26 +284,18 @@ class CustomTableWidget(QTableWidget):
         self.setStyleSheet('''
             QTableWidget { border: 0px; font-size: 10px; }
             QHeaderView::section { border: 0px; }
-            QTableWidget::item { border: 0px; border-bottom: 1px solid #ccc; padding: 0px 30px; }
+            QTableWidget::item { border: 0px; border-bottom: 1px solid #ccc; padding: 0px 10px; }
         ''')
         
         if ref == 'overview_table':
-            self.setColumnCount(8)
+            self.setColumnCount(7)
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
             self.horizontalHeader().resizeSection(0, 150)
-            self.setHorizontalHeaderLabels(['Action','Item name','Brand','Sales group','Sell price','Promo','Inventory tracking','Date created'])
-        elif ref == 'primary_table':
-            self.setColumnCount(5)
-            self.setHorizontalHeaderLabels(['Bardcode','Item name','Expire date','Promo','Date created'])
-        elif ref == 'category_table':
-            self.setColumnCount(7)
-            self.setHorizontalHeaderLabels(['Item name','Item type','Brand','Sales group','Supplier','Promo','Date created'])
-        elif ref == 'price_table':
-            self.setColumnCount(7)
-            self.setHorizontalHeaderLabels(['Item name','Cost','Sell price','Discount value','Effective date','Promo','Date created'])
-        elif ref == 'inventory_table':
+            self.setHorizontalHeaderLabels(['Action','Bardcode','Item name','Brand','Sell price','Discount value','Promo'])
+
+        if ref == 'order_table':
             self.setColumnCount(4)
-            self.setHorizontalHeaderLabels(['Item name','Available stock','On hand stock','Date created'])
+            self.setHorizontalHeaderLabels(['Action','Item name','Qty','Price'])
 
 class CustomTableWidgetItem(QTableWidgetItem):
     def __init__(self, ref='', text=''):
@@ -356,6 +353,15 @@ class CustomLabel(QLabel):
         ]:
             self.hide()
 
+
+        if ref in [
+            'subtotal_value',
+            'discount_value',
+            'tax_value',
+            'total_value'
+        ]:
+            self.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            
         self.setText(text)
         pass
 
@@ -377,36 +383,15 @@ class CustomPushButton(QPushButton):
         if ref == 'next_button':
             self.setIcon(CustomIcon(ref='next_icon'))
 
-        if ref == 'edit_button':
-            self.setFixedSize(30,30)
-            self.setIcon(CustomIcon(ref='edit_icon'))
-            pass
         if ref == 'view_button':
             self.setFixedSize(30,30)
             self.setIcon(CustomIcon(ref='view_icon'))
             pass
-        if ref == 'delete_button':
-            self.setFixedSize(30,30)
-            self.setIcon(CustomIcon(ref='delete_icon'))
-            pass
 
-        if ref == 'refresh_button':
+        if ref in ['scanner_mode_button','refresh_button']:
             self.setFixedSize(30,30)
             self.setIcon(CustomIcon(ref='refresh_icon'))
             pass
-        if ref == 'delete_all_button':
-            self.setFixedSize(30,30)
-            self.setIcon(CustomIcon(ref='delete_all_icon'))
-            pass
-        if ref == 'import_button':
-            self.setFixedSize(30,30)
-            self.setIcon(CustomIcon(ref='import_icon'))
-            pass
-        if ref == 'add_button':
-            self.setFixedSize(30,30)
-            self.setIcon(CustomIcon(ref='add_icon'))
-            pass
-        pass
 
 class CustomLineEdit(QLineEdit):
     def __init__(self, ref='', placeholderText=''):
@@ -415,6 +400,12 @@ class CustomLineEdit(QLineEdit):
 
         if ref == 'filter_field':
             self.setPlaceholderText('Search product (i.e. by barcode, item name, item type, brand, sales group, supplier, or inventory tracking)')
+
+        if ref == 'barocde_scanner_field':
+            self.setFixedWidth(300)
+            self.setDisabled(True)
+
+        if ref in ['filter_field','barocde_scanner_field']:
             self.setStyleSheet('QLineEdit { padding: 5px 5px }')
 
         if ref == 'inactive_field':
@@ -431,15 +422,6 @@ class CustomLineEdit(QLineEdit):
         ]:
             self.hide()
         pass
-
-        if ref in [
-            'promo_type_field',
-            'discount_percent_field',
-            'discount_value_field',
-            'new_sell_price_field'
-        ]:
-            self.setDisabled(True)
-
 
 class CustomComboBox(QComboBox):
     def __init__(self, ref='', editable=False, disabled=False):

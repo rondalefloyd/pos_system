@@ -359,7 +359,7 @@ class ProductManagementSchema():
 
         return data 
         pass
-    def list_promo_type_and_discount_percent(self, promo_name):
+    def list_promotype_and_discount_percent(self, promo_name):
         self.cursor.execute('''
         SELECT DISTINCT PromoType, DiscountPercent FROM Promo
         WHERE Name = ?

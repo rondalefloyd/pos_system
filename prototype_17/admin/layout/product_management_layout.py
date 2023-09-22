@@ -38,28 +38,22 @@ class ProductManagementLayout(QWidget):
         self.brand_label.hide()
         self.sales_group_label.hide()
         self.supplier_label.hide()
-        self.inventory_tracking_label.hide()
-        self.available_stock_label.hide()
-        self.on_hand_stock_label.hide()
 
         self.item_type_field.hide()
         self.brand_field.hide()
         self.sales_group_field.hide()
         self.supplier_field.hide()
-        self.inventory_tracking_field.hide()
         # endregion: hide active fields
         # region: hide inactive fields
         self.current_item_type_label.show()
         self.current_brand_label.show()
         self.current_sales_group_label.show()
         self.current_supplier_label.show()
-        self.current_inventory_tracking_label.show()
 
         self.current_item_type_field.show()
         self.current_brand_field.show()
         self.current_sales_group_field.show()
         self.current_supplier_field.show()
-        self.current_inventory_tracking_field.show()
         # endregion: hide inactive fields
 
         self.barcode_field.setText(str(row_value[0]))
@@ -76,11 +70,14 @@ class ProductManagementLayout(QWidget):
         self.effective_dt_field.setDate(QDate.fromString(row_value[9], Qt.DateFormat.ISODate))
         self.promo_name_field.setCurrentText(str(row_value[10]))
 
-        self.current_inventory_tracking_field.setText(str(row_value[12]))
+        self.inventory_tracking_field.setCurrentText(str(row_value[12]))
+        self.available_stock_field.setText(str(row_value[13]))
+        self.on_hand_stock_field.setText(str(row_value[14]))
         
         self.selected_item_id = row_value[16]
         self.selected_item_price_id = row_value[17]
         self.selected_promo_id = row_value[18]
+        self.selected_stock_id = row_value[19]
         pass
     def view_data(self, row_value):
         self.view_data_dialog = CustomDialog(ref='view_data_dialog', parent=self, row_value=row_value)
@@ -102,7 +99,7 @@ class ProductManagementLayout(QWidget):
         self.populate_table()
         print('refreshed!')
         pass
-    def mass_delete_data(self):
+    def delete_all_data(self):
         confirmation_a = QMessageBox.warning(self, 'Confirm', 'Are you sure you want to delete all product?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if confirmation_a == QMessageBox.StandardButton.Yes:
             confirmation_b = QMessageBox.warning(self, 'Confirm', 'This will delete all product in the database. Proceed?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
@@ -120,7 +117,7 @@ class ProductManagementLayout(QWidget):
                     else:
                         break
 
-        self.mass_delete_button.setDisabled(False)
+        self.delete_all_button.setDisabled(False)
         pass
     def import_data(self):
         self.import_button.setDisabled(True)
@@ -260,11 +257,15 @@ class ProductManagementLayout(QWidget):
         new_sell_price = self.new_sell_price_field.text()
         start_dt = self.start_dt_field.date().toString(Qt.DateFormat.ISODate)
         end_dt = self.end_dt_field.date().toString(Qt.DateFormat.ISODate)
+        inventory_tracking = self.inventory_tracking_field.currentText()
+        available_stock = self.available_stock_field.text()
+        on_hand_stock = self.on_hand_stock_field.text()
 
         # selected data identifier
         item_id = self.selected_item_id
         item_price_id = self.selected_item_price_id
         promo_id = self.selected_promo_id
+        stock_id = self.selected_stock_id
         # endregion: assign input values to variables
 
         self.product_management_schema.edit_selected_item(
@@ -283,12 +284,16 @@ class ProductManagementLayout(QWidget):
             discount_percent=discount_percent,
             discount_value=discount_value,
             start_dt=start_dt,
-            end_dt=end_dt,
+            end_dt=end_dt, 
             effective_dt=effective_dt,
+            inventory_tracking=inventory_tracking,
+            available_stock=available_stock,
+            on_hand_stock=on_hand_stock,
 
             item_id=item_id,
             item_price_id=item_price_id,
-            promo_id=promo_id
+            promo_id=promo_id,
+            stock_id=stock_id
         )
 
         self.selected_product.setText(f'Selected product: {item_name}')
@@ -346,9 +351,9 @@ class ProductManagementLayout(QWidget):
         if clicked_ref == 'refresh_button':
             self.refresh_data()
             pass
-        if clicked_ref == 'mass_delete_button':
-            self.mass_delete_button.setDisabled(True)
-            self.mass_delete_data()
+        if clicked_ref == 'delete_all_button':
+            self.delete_all_button.setDisabled(True)
+            self.delete_all_data()
             pass
         if clicked_ref == 'import_button':
             self.import_data()
@@ -388,6 +393,31 @@ class ProductManagementLayout(QWidget):
             # endregion: pagination page label
 
             self.populate_table(current_page=self.current_page)
+        
+        if text_changed_ref == 'sell_price_field':
+            # region: calculate discount amount and new sell price
+            promo_name = self.promo_name_field.currentText()
+
+            data = self.product_management_schema.list_promo_type_and_discount_percent(promo_name)
+            for row in data:
+                self.promo_type_field.setText(str(row[0]))
+                self.discount_percent_field.setText(str(row[1]))
+
+            try:
+                sell_price = float(self.sell_price_field.text())
+                discount_percent = float(self.discount_percent_field.text())
+
+                old_sell_price = sell_price
+                discount_amount = old_sell_price * (discount_percent / 100)
+                
+                new_sell_price = sell_price - discount_amount
+
+                self.discount_value_field.setText(f'{discount_amount:.2f}')
+                self.new_sell_price_field.setText(f'{new_sell_price:.2f}')
+                pass
+            except ValueError:
+                pass
+            # endregion: calculate discount amount and new sell price
         pass
     def on_combo_box_current_text_changed(self, current_text, current_text_changed_ref):
         if current_text_changed_ref == 'promo_name_field':
@@ -425,12 +455,12 @@ class ProductManagementLayout(QWidget):
                 self.end_dt_field.show()
 
                 # region: calculate discount amount and new sell price
-                # promo_name = self.promo_name_field.currentText()
+                promo_name = self.promo_name_field.currentText()
 
-                # data = self.item_management_schema.get_promo_type_and_discount_percent(promo_name)
-                # for row in data:
-                #     self.promo_type_field.setText(str(row[0]))
-                #     self.discount_percent_field.setText(str(row[1]))
+                data = self.product_management_schema.list_promo_type_and_discount_percent(promo_name)
+                for row in data:
+                    self.promo_type_field.setText(str(row[0]))
+                    self.discount_percent_field.setText(str(row[1]))
 
                 try:
                     sell_price = float(self.sell_price_field.text())
@@ -492,7 +522,7 @@ class ProductManagementLayout(QWidget):
             # endregion: pagination
             # region: manage data buttons
             self.refresh_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='refresh_button'))
-            self.mass_delete_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='mass_delete_button'))
+            self.delete_all_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='delete_all_button'))
             self.add_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='add_button'))
             self.import_button.clicked.connect(lambda: self.on_push_button_clicked(clicked_ref='import_button'))
             # endregion: manage data buttons
@@ -504,6 +534,8 @@ class ProductManagementLayout(QWidget):
             pass
 
         if signal_ref == 'panel_b_signal':
+            self.sell_price_field.textChanged.connect(lambda: self.on_line_edit_text_changed(text_changed_ref='sell_price_field'))
+
             self.promo_name_field.currentTextChanged.connect(
                 lambda current_text: self.on_combo_box_current_text_changed(
                     current_text=current_text, 
@@ -562,15 +594,15 @@ class ProductManagementLayout(QWidget):
 
         for row_index, row_value in enumerate(product_data):
             # region: action button
-            action_box = CustomWidget(ref='action_box')
-            action_layout = CustomHBoxLayout(ref='action_layout')
+            table_action_menu = CustomWidget(ref='table_action_menu')
+            table_action_menu_layout = CustomHBoxLayout(ref='table_action_menu_layout')
             self.edit_button = CustomPushButton(ref='edit_button')
             self.view_button = CustomPushButton(ref='view_button')
             self.delete_button = CustomPushButton(ref='delete_button')
-            action_layout.addWidget(self.edit_button)
-            action_layout.addWidget(self.view_button)
-            action_layout.addWidget(self.delete_button)
-            action_box.setLayout(action_layout)
+            table_action_menu_layout.addWidget(self.edit_button)
+            table_action_menu_layout.addWidget(self.view_button)
+            table_action_menu_layout.addWidget(self.delete_button)
+            table_action_menu.setLayout(table_action_menu_layout)
 
             self.call_signal(
                 edit_button=self.edit_button,
@@ -600,50 +632,67 @@ class ProductManagementLayout(QWidget):
                 (CustomTableWidgetItem(text=f'{row_value[4]}'))
             ]
             sales_group = [
-                CustomTableWidgetItem(text=f'{row_value[5]}'),
-                CustomTableWidgetItem(text=f'{row_value[5]}'),
-                CustomTableWidgetItem(text=f'{row_value[5]}'),
-                CustomTableWidgetItem(text=f'{row_value[5]}'),
-                CustomTableWidgetItem(text=f'{row_value[5]}')
+                CustomTableWidgetItem(ref='sales_group', text=f'{row_value[5]}'),
+                CustomTableWidgetItem(ref='sales_group', text=f'{row_value[5]}'),
+                CustomTableWidgetItem(ref='sales_group', text=f'{row_value[5]}'),
+                CustomTableWidgetItem(ref='sales_group', text=f'{row_value[5]}'),
+                CustomTableWidgetItem(ref='sales_group', text=f'{row_value[5]}')
             ]
-            supplier = CustomTableWidgetItem(text=f'{row_value[6]}')
-            cost = CustomTableWidgetItem(text=f'₱{row_value[7]}')
+            supplier = CustomTableWidgetItem(ref='supplier', text=f'{row_value[6]}')
+            cost = CustomTableWidgetItem(ref='cost', text=f'₱{row_value[7]}')
             sell_price = [
-                CustomTableWidgetItem(text=f'₱{row_value[8]}'),
-                CustomTableWidgetItem(text=f'₱{row_value[8]}'),
-                CustomTableWidgetItem(text=f'₱{row_value[8]}'),
-                CustomTableWidgetItem(text=f'₱{row_value[8]}'),
-                CustomTableWidgetItem(text=f'₱{row_value[8]}')
+                CustomTableWidgetItem(ref='sell_price', text=f'₱{row_value[8]}'),
+                CustomTableWidgetItem(ref='sell_price', text=f'₱{row_value[8]}'),
+                CustomTableWidgetItem(ref='sell_price', text=f'₱{row_value[8]}'),
+                CustomTableWidgetItem(ref='sell_price', text=f'₱{row_value[8]}'),
+                CustomTableWidgetItem(ref='sell_price', text=f'₱{row_value[8]}')
             ]
-            discount_value = CustomTableWidgetItem(text=f'₱{row_value[11]}')
+            discount_value = CustomTableWidgetItem(ref='discount_value', text=f'₱{row_value[11]}')
             effective_dt = CustomTableWidgetItem(text=f'{row_value[9]}')
             promo_name = [
-                CustomTableWidgetItem(text=f'{row_value[10]}'),
-                CustomTableWidgetItem(text=f'{row_value[10]}'),
-                CustomTableWidgetItem(text=f'{row_value[10]}'),
-                CustomTableWidgetItem(text=f'{row_value[10]}'),
-                CustomTableWidgetItem(text=f'{row_value[10]}')
+                CustomTableWidgetItem(ref='promo_name', text=f'{row_value[10]}'),
+                CustomTableWidgetItem(ref='promo_name', text=f'{row_value[10]}'),
+                CustomTableWidgetItem(ref='promo_name', text=f'{row_value[10]}'),
+                CustomTableWidgetItem(ref='promo_name', text=f'{row_value[10]}'),
+                CustomTableWidgetItem(ref='promo_name', text=f'{row_value[10]}')
             ]
             inventory_tracking = [
-                CustomTableWidgetItem(text=f'{row_value[12]}'),
-                CustomTableWidgetItem(text=f'{row_value[12]}'),
-                CustomTableWidgetItem(text=f'{row_value[12]}'),
-                CustomTableWidgetItem(text=f'{row_value[12]}'),
-                CustomTableWidgetItem(text=f'{row_value[12]}')
+                CustomTableWidgetItem(ref='inventory_tracking', text=f'{row_value[12]}'),
+                CustomTableWidgetItem(ref='inventory_tracking', text=f'{row_value[12]}'),
+                CustomTableWidgetItem(ref='inventory_tracking', text=f'{row_value[12]}'),
+                CustomTableWidgetItem(ref='inventory_tracking', text=f'{row_value[12]}'),
+                CustomTableWidgetItem(ref='inventory_tracking', text=f'{row_value[12]}')
             ]
-            available = CustomTableWidgetItem(text=f'{row_value[13]}')
-            on_hand = CustomTableWidgetItem(text=f'{row_value[14]}')
             update_ts = [
-                CustomTableWidgetItem(text=f'{row_value[15]}'),
-                CustomTableWidgetItem(text=f'{row_value[15]}'),
-                CustomTableWidgetItem(text=f'{row_value[15]}'),
-                CustomTableWidgetItem(text=f'{row_value[15]}'),
-                CustomTableWidgetItem(text=f'{row_value[15]}')
+                CustomTableWidgetItem(ref='update_ts', text=f'{row_value[15]}'),
+                CustomTableWidgetItem(ref='update_ts', text=f'{row_value[15]}'),
+                CustomTableWidgetItem(ref='update_ts', text=f'{row_value[15]}'),
+                CustomTableWidgetItem(ref='update_ts', text=f'{row_value[15]}'),
+                CustomTableWidgetItem(ref='update_ts', text=f'{row_value[15]}')
             ]
+            
+            promo_id = row_value[18]
+
+            if promo_id != 0:
+                barcode.setForeground(QColor(255,0,0))
+                expire_dt.setForeground(QColor(255,0,0))
+                item_type.setForeground(QColor(255,0,0))
+                supplier.setForeground(QColor(255,0,0))
+                cost.setForeground(QColor(255,0,0))
+                discount_value.setForeground(QColor(255,0,0))
+                effective_dt.setForeground(QColor(255,0,0))
+
+                for item_name_data in item_name: item_name_data.setForeground(QColor(255,0,0))
+                for brand_data in brand: brand_data.setForeground(QColor(255,0,0))
+                for sales_group_data in sales_group: sales_group_data.setForeground(QColor(255,0,0))
+                for sell_price_data in sell_price: sell_price_data.setForeground(QColor(255,0,0))
+                for promo_name_data in promo_name: promo_name_data.setForeground(QColor(255,0,0))
+                for inventory_tracking_data in inventory_tracking: inventory_tracking_data.setForeground(QColor(255,0,0))
+                for update_ts_data in update_ts: update_ts_data.setForeground(QColor(255,0,0))
             # endregion: assign values
 
             # region: overview list
-            self.overview_table.setCellWidget(row_index, 0, action_box)
+            self.overview_table.setCellWidget(row_index, 0, table_action_menu)
             self.overview_table.setItem(row_index, 1, item_name[0])
             self.overview_table.setItem(row_index, 2, brand[0])
             self.overview_table.setItem(row_index, 3, sales_group[0])
@@ -679,17 +728,15 @@ class ProductManagementLayout(QWidget):
             # endregion: price list
 
         for row_index, row_value in enumerate(inventory_data):
-            # for action buttons -- to do
-
             item_name = CustomTableWidgetItem(text=f'{row_value[0]}')
-            available_stock = CustomTableWidgetItem(text=f'{row_value[1]}')
-            on_hand_stock = CustomTableWidgetItem(text=f'{row_value[2]}')
-            update_ts = CustomTableWidgetItem(text=f'{row_value[5]}')
+            available_stock = CustomTableWidgetItem(ref='available_stock', text=f'{row_value[1]}')
+            on_hand_stock = CustomTableWidgetItem(ref='on_hand_stock', text=f'{row_value[2]}')
+            update_ts = CustomTableWidgetItem(ref='update_ts', text=f'{row_value[5]}')
             # region: inventory list
-            self.inventory_table.setItem(row_index, 1, item_name)
-            self.inventory_table.setItem(row_index, 2, available_stock)
-            self.inventory_table.setItem(row_index, 3, on_hand_stock)
-            self.inventory_table.setItem(row_index, 4, update_ts)
+            self.inventory_table.setItem(row_index, 0, item_name)
+            self.inventory_table.setItem(row_index, 1, available_stock)
+            self.inventory_table.setItem(row_index, 2, on_hand_stock)
+            self.inventory_table.setItem(row_index, 3, update_ts)
             # endregion: inventory list
 
     def show_panel_b(self):
@@ -873,19 +920,23 @@ class ProductManagementLayout(QWidget):
         self.selected_data_layout.addRow(self.selected_product)
         self.selected_data_box.setLayout(self.selected_data_layout)
 
+        self.panel_b_action_menu = CustomGroupBox()
+        self.panel_b_action_menu_layout = CustomGridLayout()
         self.back_button = CustomPushButton(text='Back')
         self.save_new_button = CustomPushButton(text='Save Add')
         self.save_edit_button = CustomPushButton(text='Save Edit')
+        self.panel_b_action_menu_layout.addWidget(self.back_button,0,0)
+        self.panel_b_action_menu_layout.addWidget(self.save_new_button,0,1)
+        self.panel_b_action_menu_layout.addWidget(self.save_edit_button,0,1)
+        self.panel_b_action_menu.setLayout(self.panel_b_action_menu_layout)
         # endregion: form buttons
 
-        self.panel_b_box_layout.insertRow(0, self.back_button)
-        self.panel_b_box_layout.insertRow(1, self.selected_data_box)
-        self.panel_b_box_layout.insertRow(2, self.primary_box)
-        self.panel_b_box_layout.insertRow(3, self.category_box)
-        self.panel_b_box_layout.insertRow(4, self.price_box)
-        self.panel_b_box_layout.insertRow(5, self.inventory_box)
-        self.panel_b_box_layout.insertRow(6, self.save_new_button)
-        self.panel_b_box_layout.insertRow(7, self.save_edit_button)
+        self.panel_b_box_layout.insertRow(0, self.selected_data_box)
+        self.panel_b_box_layout.insertRow(1, self.primary_box)
+        self.panel_b_box_layout.insertRow(2, self.category_box)
+        self.panel_b_box_layout.insertRow(3, self.price_box)
+        self.panel_b_box_layout.insertRow(4, self.inventory_box)
+        self.panel_b_box_layout.insertRow(5, self.panel_b_action_menu)
 
         self.panel_b_box.setLayout(self.panel_b_box_layout)
 
@@ -896,7 +947,6 @@ class ProductManagementLayout(QWidget):
         self.panel_a_box_layout = CustomGridLayout()
 
         self.filter_field = CustomLineEdit(ref='filter_field')
-        self.tab_sort = CustomTabWidget(ref='tab_sort')
         # region: overview pagination table
         self.overview_table = CustomTableWidget(ref='overview_table')
         self.overview_pagination = CustomWidget(ref='overview_pagination')
@@ -983,26 +1033,27 @@ class ProductManagementLayout(QWidget):
         self.inventory_tab.setLayout(self.inventory_tab_layout) 
         # endregion: inventory pagination table
         # region: manage data buttons
-        self.manage_data_box = CustomWidget(ref='manage_data_box')
-        self.manage_data_box_layout = CustomHBoxLayout()
+        self.tab_sort_action_menu = CustomWidget(ref='tab_sort_action_menu')
+        self.tab_sort_action_menu_layout = CustomHBoxLayout()
         self.refresh_button = CustomPushButton(ref='refresh_button')
-        self.mass_delete_button = CustomPushButton(ref='mass_delete_button')
+        self.delete_all_button = CustomPushButton(ref='delete_all_button')
         self.import_button = CustomPushButton(ref='import_button')
         self.add_button = CustomPushButton(ref='add_button')
-        self.manage_data_box_layout.addWidget(self.refresh_button)
-        self.manage_data_box_layout.addWidget(self.mass_delete_button)
-        self.manage_data_box_layout.addWidget(self.import_button)
-        self.manage_data_box_layout.addWidget(self.add_button)
-        self.manage_data_box.setLayout(self.manage_data_box_layout)
+        self.tab_sort_action_menu_layout.addWidget(self.refresh_button)
+        self.tab_sort_action_menu_layout.addWidget(self.delete_all_button)
+        self.tab_sort_action_menu_layout.addWidget(self.import_button)
+        self.tab_sort_action_menu_layout.addWidget(self.add_button)
+        self.tab_sort_action_menu.setLayout(self.tab_sort_action_menu_layout)
         # endregion: manage data buttons
-        # region: tab setup
+        # region: tab layout setup
+        self.tab_sort = CustomTabWidget(ref='tab_sort')
         self.tab_sort.addTab(self.overview_tab, 'Overview')
         self.tab_sort.addTab(self.primary_tab, 'Primary')
         self.tab_sort.addTab(self.category_tab, 'Category')
         self.tab_sort.addTab(self.price_tab, 'Price')
         self.tab_sort.addTab(self.inventory_tab, 'Inventory')
-        self.tab_sort.setCornerWidget(self.manage_data_box, Qt.Corner.BottomRightCorner)
-        # endregion: setup tab
+        self.tab_sort.setCornerWidget(self.tab_sort_action_menu, Qt.Corner.BottomRightCorner)
+        # endregion: tab layout setup
 
         self.panel_a_box_layout.addWidget(self.filter_field,0,0)
         self.panel_a_box_layout.addWidget(self.tab_sort,1,0)
