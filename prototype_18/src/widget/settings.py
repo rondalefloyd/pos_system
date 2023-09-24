@@ -11,11 +11,9 @@ class MyScrollArea(QScrollArea):
     def __init__(self, scroll_area_ref=''):
         super().__init__()
 
-        if scroll_area_ref == 'scrolling_manage_data_panel':
+        if scroll_area_ref == 'scrolling_content_panel':
             self.setWidgetResizable(True)
-            self.setFixedWidth(500)
-            self.setStyleSheet('QScrollArea { border: 0px; border-left: 1px solid #aaa }')
-            self.hide()
+            self.setStyleSheet('QScrollArea { border: 0px; border-left: 1px solid #aaa; }')
 
 class MyTabWidget(QTabWidget):
     def __init__(self, widget_ref=''):
@@ -92,19 +90,9 @@ class MyHBoxLayout(QHBoxLayout):
     def __init__(self, hbox_layout_ref=''):
         super().__init__()
 
-        if hbox_layout_ref == 'manage_data_layout':
-            self.setContentsMargins(0,0,0,0)
-            self.setSpacing(0)
+        if hbox_layout_ref == 'settings_nav_layout':
             self.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-            
-        if hbox_layout_ref == 'action_nav_layout':
-            self.setContentsMargins(0,0,0,0)
-            self.setSpacing(0)
-            self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        if hbox_layout_ref == 'operation_status_layout':
-            self.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-            self.setSpacing(50)
+    pass
 class MyGridLayout(QGridLayout):
     def __init__(self, grid_layout_ref=''):
         super().__init__()
@@ -118,8 +106,11 @@ class MyGridLayout(QGridLayout):
             self.setSpacing(0)
 
 class MyFormLayout(QFormLayout):
-    def __init__(self):
+    def __init__(self, form_layout_ref=''):
         super().__init__()
+
+        if form_layout_ref == 'content_panel_layout':
+            pass
 
 
 class MyLabel(QLabel):
@@ -170,5 +161,7 @@ class MyComboBox(QComboBox):
     def __init__(self, combo_box_ref=''):
         super().__init__()
 
-        if combo_box_ref == 'promo_type_field':
-            self.setEditable(True)
+        if combo_box_ref == 'auto_csv_import_option':
+            self.setFixedWidth(100)
+            self.addItem('Disabled')
+            self.addItem('Enabled')
