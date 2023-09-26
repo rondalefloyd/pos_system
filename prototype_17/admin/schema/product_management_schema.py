@@ -194,6 +194,7 @@ class ProductManagementSchema():
             pass
 
         # self.conn.rollback()
+    
     def delete_all_data(self):
         # Execute a DELETE statement without specifying conditions to remove all data
         self.cursor.execute("DELETE FROM ItemType")
@@ -359,6 +360,7 @@ class ProductManagementSchema():
 
         return data 
         pass
+    
     def list_promo_type_and_discount_percent(self, promo_name):
         self.cursor.execute('''
         SELECT DISTINCT PromoType, DiscountPercent FROM Promo

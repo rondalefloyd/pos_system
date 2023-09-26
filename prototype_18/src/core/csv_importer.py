@@ -10,17 +10,19 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from database.product import *
 from database.promo import *
 from widget.promo import*
 
-class CSVImporter(QThread):
+class PromoCSVImporter(QThread):
     progress_signal = pyqtSignal(int)
     finished_signal = pyqtSignal(str)
     error_signal = pyqtSignal(str)
 
-    def __init__(self, csv_file='', import_data_button=None):
+    def __init__(self, csv_file='', refresh_data_button=None, import_data_button=None):
         super().__init__()
         self.csv_file = csv_file
+        self.refresh_data_button = refresh_data_button
         self.import_data_button = import_data_button
 
         self.csv_file_name = os.path.basename(self.csv_file)
@@ -31,6 +33,7 @@ class CSVImporter(QThread):
         pass
 
     def run(self):
+        self.refresh_data_button.setDisabled(True)
         try:
             self.promo_schema = PromoSchema()
             # Load the CSV file into a Pandas DataFrame
@@ -43,17 +46,26 @@ class CSVImporter(QThread):
             count_row_data = 0
 
             for row in data_frame.itertuples(index=False):
-                self.promo_name, promo_type, discount_percent, description = row[:4]
+                (self.promo_name,
+                self.promo_type,
+                self.discount_percent,
+                self.description) = row[:4]
 
-                description = '[no data]' if description == '' else description
-
-                if '' in (self.promo_name, promo_type, discount_percent):
-                    QMessageBox.critical(self, 'Error', f'Unable to import due to missing values.')
-                    return
-
+                if '' in [
+                    self.promo_name,
+                    self.promo_type,
+                    self.discount_percent
+                ]:
+                    QMessageBox.critical(self, 'Error', 'Must fill all required fields.')
+                    pass
                 else:
+                    promo_name = str(self.promo_name)
+                    promo_type = str(self.promo_type)
+                    discount_percent = float(self.discount_percent)
+                    description = str(self.description)
+
                     self.promo_schema.add_new_promo(
-                        promo_name=self.promo_name,
+                        promo_name=promo_name,
                         promo_type=promo_type,
                         discount_percent=discount_percent,
                         description=description
@@ -77,13 +89,14 @@ class CSVImporter(QThread):
         percentage = int((self.current_row / self.total_rows) * 100) 
 
         print(self.current_row)
-
     def import_finished(self):
         QMessageBox.information(None, 'Success', f'All product has been imported.')
-        if self.import_data_button:
+        if self.refresh_data_button and self.import_data_button:
+            self.refresh_data_button.setDisabled(False)
             self.import_data_button.setDisabled(False)
-
+            
     def import_error(self):
         QMessageBox.critical(None, 'Error', 'An error has occurred during the process.')
-        if self.import_data_button:
+        if self.refresh_data_button and self.import_data_button:
+            self.refresh_data_button.setDisabled(False)
             self.import_data_button.setDisabled(False)

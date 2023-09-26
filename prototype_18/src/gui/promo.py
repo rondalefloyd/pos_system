@@ -17,27 +17,42 @@ class PromoWindow(MyWidget):
     def __init__(self):
         super().__init__(widget_ref='promo_window')
 
+        self.promo_schema = PromoSchema()
+
         self.show_main_panel()
         self.default_values()
         self.on_refresh_data_button_clicked()
 
 
     def default_values(self):
-        self.promo_schema = PromoSchema()
-
         self.current_page = 1
 
         self.clicked_edit_button = None
         self.clicked_view_button = None
         self.clicked_delete_button = None
 
-        # checkpoint!!!
-        
+        self.promo_name_field.setStyleSheet('QLineEdit { border: 1px solid orange }')
+        self.promo_type_field.setStyleSheet('QComboBox { border: 1px solid orange }')
+        self.discount_percent_field.setStyleSheet('QLineEdit { border: 1px solid orange }')
         pass
+    def refresh_ui(self):
+        self.current_page = 1
+
+        self.clicked_edit_button = None
+        self.clicked_view_button = None
+        self.clicked_delete_button = None
+
+        self.total_promo_count.setText(f'Total promo: {self.promo_schema.count_promo()}')
+        self.overview_pagination_page.setText(f'Page {self.current_page}')
+
+        self.on_add_data_button_clicked() if self.manage_data_panel.isVisible() == True else None
+        self.populate_table()
+        self.populate_combo_box()
+        
 
     # region -- on_push_button_clicked functions
     def on_edit_button_clicked(self, row_value, edit_button):
-        self.scrolling_manage_data_panel.show()
+        self.manage_data_panel.show()
         self.add_data_button.setDisabled(False)
         self.save_edit_button.show()
         self.save_new_button.hide()
@@ -92,6 +107,7 @@ class PromoWindow(MyWidget):
         if confirmation_a == QMessageBox.StandardButton.Yes:
             selected_promo_id = str(row_value[5])
             self.promo_schema.delete_selected_promo(selected_promo_id)
+            self.refresh_ui()
         # endregion -- confirmation_a = QMessageBox.warning()
 
         self.clicked_delete_button.setDisabled(False) if self.clicked_delete_button else None
@@ -101,47 +117,75 @@ class PromoWindow(MyWidget):
 
     def on_discard_button_clicked(self):
         self.add_data_button.setDisabled(False)
-        self.scrolling_manage_data_panel.hide()
+        self.manage_data_panel.hide()
 
         self.clicked_edit_button.setDisabled(False) if self.clicked_edit_button else None
 
         self.clicked_edit_button = None
         pass
     def on_save_new_button_clicked(self):
-        promo_name = str(self.promo_name_field.text())
-        promo_type = str(self.promo_type_field.currentText())
-        discount_percent = float(self.discount_percent_field.text())
-        description = str(self.description_field.toPlainText())
+        try:
+            if '' in [
+                self.promo_name_field.text(),
+                self.promo_type_field.currentText(),
+                self.discount_percent_field.text()
+            ]:
+                QMessageBox.critical(self, 'Error', 'Must fill all required fields.')
+                pass
+            else:
+                promo_name = str(self.promo_name_field.text())
+                promo_type = str(self.promo_type_field.currentText())
+                discount_percent = float(self.discount_percent_field.text())
+                description = str(self.description_field.toPlainText())
 
-        self.promo_schema.add_new_promo(
-            promo_name=promo_name,
-            promo_type=promo_type,
-            discount_percent=discount_percent,
-            description=description
-        )
+                self.promo_schema.add_new_promo(
+                    promo_name=promo_name,
+                    promo_type=promo_type,
+                    discount_percent=discount_percent,
+                    description=description
+                )
 
-        QMessageBox.information(self, 'Success', 'New promo added.')
+                QMessageBox.information(self, 'Success', 'New promo added.')
+            pass
+        except Exception as error:
+            QMessageBox.critical(self, 'Error', f'{error}')
+            pass
+        self.refresh_ui()
         pass
     def on_save_edit_button_clicked(self):
-        promo_name = str(self.promo_name_field.text())
-        promo_type = str(self.promo_type_field.currentText())
-        discount_percent = float(self.discount_percent_field.text())
-        description = str(self.description_field.toPlainText())
-        promo_id = self.selected_promo_id
+        try:
+            if '' in [
+                self.promo_name_field.text(),
+                self.promo_type_field.currentText(),
+                self.discount_percent_field.text()
+            ]:
+                QMessageBox.critical(self, 'Error', 'Must fill all required fields.')
+                pass
+            else:
+                promo_name = str(self.promo_name_field.text())
+                promo_type = str(self.promo_type_field.currentText())
+                discount_percent = float(self.discount_percent_field.text())
+                description = str(self.description_field.toPlainText())
+                promo_id = int(self.selected_promo_id)
 
-        self.promo_schema.edit_selected_promo(
-            promo_name=promo_name,
-            promo_type=promo_type,
-            discount_percent=discount_percent,
-            description=description,
-            promo_id=promo_id
-        )
+                self.promo_schema.edit_selected_promo(
+                    promo_name=promo_name,
+                    promo_type=promo_type,
+                    discount_percent=discount_percent,
+                    description=description,
+                    promo_id=promo_id
+                )
 
-        QMessageBox.information(self, 'Success', 'New promo added.')
+                QMessageBox.information(self, 'Success', 'New promo added.')
+            pass
+        except Exception as error:
+            QMessageBox.critical(self, 'Error', f'{error}')
+            pass
+        self.refresh_ui()
         pass
 
     def on_overview_pagination_prev_button_clicked(self):
-        self.on_add_data_button_clicked() if self.scrolling_manage_data_panel.isVisible() == True else None
+        self.on_add_data_button_clicked() if self.manage_data_panel.isVisible() == True else None
         self.clicked_edit_button.setDisabled(False) if self.clicked_edit_button else None
         
         # region -- if self.current_page > 1:
@@ -155,7 +199,7 @@ class PromoWindow(MyWidget):
         self.clicked_edit_button = None
         pass
     def on_overview_pagination_next_button_clicked(self):
-        self.on_add_data_button_clicked() if self.scrolling_manage_data_panel.isVisible() == True else None
+        self.on_add_data_button_clicked() if self.manage_data_panel.isVisible() == True else None
         self.clicked_edit_button.setDisabled(False) if self.clicked_edit_button else None
         
         # region -- self.current_page += 1
@@ -169,22 +213,9 @@ class PromoWindow(MyWidget):
         pass
 
     def on_refresh_data_button_clicked(self):
-        self.current_page = 1
-        self.clicked_edit_button = None
-        self.clicked_view_button = None
-        self.clicked_delete_button = None
-
-        self.populate_table()
-        self.populate_combo_box()
-
-        self.on_add_data_button_clicked() if self.scrolling_manage_data_panel.isVisible() == True else None
-
-        self.total_promo_count.setText(f'Total promo: {self.promo_schema.count_promo()}')
-        self.overview_pagination_page.setText(f'Page {self.current_page}')
+        self.refresh_ui()
 
             
-        pass
-    def on_delete_all_data_button_clicked(self):
         pass
     def on_import_data_button_clicked(self):
         self.import_data_button.setDisabled(True)
@@ -196,14 +227,17 @@ class PromoWindow(MyWidget):
             data_frame = pd.read_csv(csv_file, encoding='utf-8-sig', keep_default_na=False, header=None)
             total_rows = len(data_frame)
             
-            self.import_thread = CSVImporter(
+            self.import_thread = PromoCSVImporter(
                 csv_file=csv_file,
+                refresh_data_button=self.refresh_data_button,
                 import_data_button=self.import_data_button
             )
             self.import_thread.progress_signal.connect(self.import_thread.update_progress)
             self.import_thread.finished_signal.connect(self.import_thread.import_finished)
+            self.import_thread.finished_signal.connect(self.refresh_ui)
             self.import_thread.error_signal.connect(self.import_thread.import_error)
             self.import_thread.start()
+
             # print(data_frame)
             pass
         else:
@@ -211,7 +245,7 @@ class PromoWindow(MyWidget):
         pass
     def on_add_data_button_clicked(self):
         self.add_data_button.setDisabled(True)
-        self.scrolling_manage_data_panel.show()
+        self.manage_data_panel.show()
         self.save_edit_button.hide()
         self.save_new_button.show()
 
@@ -226,12 +260,27 @@ class PromoWindow(MyWidget):
         pass
     # endregion -- on_push_button_clicked functions
 
+    def on_promo_name_field_text_changed(self):
+        self.promo_name_field.setStyleSheet('QLineEdit { border: 1px solid orange }' if self.promo_name_field.text() == '' else 'QLineEdit { border: 1px solid green }') # add this if this field is required
+        pass 
+    def on_promo_type_field_current_text_changed(self):
+        self.promo_type_field.setStyleSheet('QComboBox { border: 1px solid orange }' if self.promo_type_field.currentText() == '' else 'QComboBox { border: 1px solid green }') # add this if this field is required
+        pass 
+    def on_discount_percent_field_text_changed(self):
+        self.discount_percent_field.setStyleSheet('QLineEdit { border: 1px solid orange }' if self.discount_percent_field.text() == '' else 'QLineEdit { border: 1px solid green }') # add this if this field is required
+        pass
+
+    def on_filter_field_text_changed(self):
+        self.populate_table(text_filter=self.filter_field.text())
+
     def populate_combo_box(self):
+        self.promo_type_field.clear()
         promo_type_data = self.promo_schema.list_promo_type()
         for promo_type in promo_type_data: self.promo_type_field.addItem(promo_type[0])
         pass
-    def populate_table(self, current_page=1):
-        promo_data = self.promo_schema.list_promo(page_number=current_page)
+    def populate_table(self, text_filter='', current_page=1):
+        self.overview_table.clearContents()
+        promo_data = self.promo_schema.list_promo(text_filter=text_filter, page_number=current_page)
         
         # region -- pagination_button.setEnabled()
         self.overview_pagination_prev_button.setEnabled(self.current_page > 1)
@@ -284,25 +333,50 @@ class PromoWindow(MyWidget):
         self.operation_status_panel.setLayout(self.operation_status_layout)
         pass
     def show_manage_data_panel(self):
+        self.manage_data_panel = MyGroupBox(group_box_ref='manage_data_panel')
+        self.manage_data_panel_layout = MyVBoxLayout(vbox_layout_ref='manage_data_panel_layout')
+        
+        # region -- self.scrolling_manage_data_panel = MyScrollArea()
         self.scrolling_manage_data_panel = MyScrollArea(scroll_area_ref='scrolling_manage_data_panel')
-        self.manage_data_panel = MyWidget(widget_ref='manage_data_panel')
-        self.manage_data_panel_layout = MyFormLayout()
+        self.form_container = MyWidget()
+        self.form_container_layout = MyFormLayout(form_layout_ref='form_container_layout')
         
         # region -- self.primary_form = MyGroupBox()
-        self.primary_form = MyGroupBox()
+        self.primary_form = MyGroupBox(group_box_ref='primary_form')
         self.primary_form_layout = MyFormLayout()
+
+        self.promo_name_label = MyLabel(label_ref='promo_name_label', text='Promo name:')
+        self.promo_type_label = MyLabel(label_ref='promo_type_label', text='Promo type:')
+        self.discount_percent_label = MyLabel(label_ref='discount_percent_label', text='Discount percent:')
+        self.description_label = MyLabel(label_ref='description_label', text='Description:')
+
         self.promo_name_field = MyLineEdit(line_edit_ref='promo_name_field')
         self.promo_type_field = MyComboBox(combo_box_ref='promo_type_field')
         self.discount_percent_field = MyLineEdit(line_edit_ref='discount_percent_field')
         self.description_field = MyTextEdit(textedit_ref='description_field')
-        self.primary_form_layout.addRow('Promo name:', self.promo_name_field)
-        self.primary_form_layout.addRow('Promo type:', self.promo_type_field)
-        self.primary_form_layout.addRow('Discount percent:', self.discount_percent_field)
-        self.primary_form_layout.addRow('Description:', self.description_field)
+
+        # region -- set required field indicator
+        self.promo_name_field.textChanged.connect(self.on_promo_name_field_text_changed)
+        self.promo_type_field.currentTextChanged.connect(self.on_promo_type_field_current_text_changed)
+        self.discount_percent_field.textChanged.connect(self.on_discount_percent_field_text_changed)
+        # endregion -- set required field indicator
+
+        self.primary_form_layout.addRow(MyLabel(text='<b>Primary Information</b>'))
+        self.primary_form_layout.addRow(MyLabel(text='<hr>'))
+        self.primary_form_layout.addRow(self.promo_name_label, self.promo_name_field)
+        self.primary_form_layout.addRow(self.promo_type_label, self.promo_type_field)
+        self.primary_form_layout.addRow(self.discount_percent_label, self.discount_percent_field)
+        self.primary_form_layout.addRow(self.description_label, self.description_field)
         self.primary_form.setLayout(self.primary_form_layout)
         # endregion -- self.primary_form = MyGroupBox()
+        
+        self.form_container_layout.addRow(self.primary_form)
+        self.form_container.setLayout(self.form_container_layout)
+        self.scrolling_manage_data_panel.setWidget(self.form_container)
+        # endregion -- self.scrolling_manage_data_panel = MyScrollArea()
+
         # region -- self.form_nav = MyGroupBox()
-        self.form_nav = MyGroupBox()
+        self.form_nav = MyGroupBox(group_box_ref='form_nav')
         self.form_nav_layout = MyGridLayout()
         self.discard_button = MyPushButton(text='Discard')
         self.discard_button.clicked.connect(self.on_discard_button_clicked)
@@ -316,30 +390,27 @@ class PromoWindow(MyWidget):
         self.form_nav.setLayout(self.form_nav_layout)
         # endregion -- self.form_nav = MyGroupBox()
 
-        self.manage_data_panel_layout.addRow(self.primary_form)
-        self.manage_data_panel_layout.addRow(self.form_nav)
+        self.manage_data_panel_layout.addWidget(self.scrolling_manage_data_panel)
+        self.manage_data_panel_layout.addWidget(self.form_nav)
         self.manage_data_panel.setLayout(self.manage_data_panel_layout)
-        self.scrolling_manage_data_panel.setWidget(self.manage_data_panel)
         pass
     def show_content_panel(self):
         self.content_panel = MyWidget()
         self.content_panel_layout = MyGridLayout(grid_layout_ref='content_panel_layout')
 
         self.filter_field = MyLineEdit(line_edit_ref='filter_field')
+        self.filter_field.textChanged.connect(self.on_filter_field_text_changed)
 
         # region -- self.manage_data_nav = MyGroupBox()
         self.manage_data_nav = MyWidget(widget_ref='manage_data_nav')
         self.manage_data_layout = MyHBoxLayout(hbox_layout_ref='manage_data_layout')
         self.refresh_data_button = MyPushButton(push_button_ref='refresh_data_button', text='Refresh')
         self.refresh_data_button.clicked.connect(self.on_refresh_data_button_clicked)
-        self.delete_all_data_button = MyPushButton(push_button_ref='delete_all_data_button', text='Delete All')
-        self.delete_all_data_button.clicked.connect(self.on_delete_all_data_button_clicked)
         self.import_data_button = MyPushButton(push_button_ref='import_data_button', text='Import')
         self.import_data_button.clicked.connect(self.on_import_data_button_clicked)
         self.add_data_button = MyPushButton(push_button_ref='add_data_button', text='Add')
         self.add_data_button.clicked.connect(self.on_add_data_button_clicked)
         self.manage_data_layout.addWidget(self.refresh_data_button)
-        self.manage_data_layout.addWidget(self.delete_all_data_button)
         self.manage_data_layout.addWidget(self.import_data_button)
         self.manage_data_layout.addWidget(self.add_data_button)
         self.manage_data_nav.setLayout(self.manage_data_layout)
@@ -351,7 +422,7 @@ class PromoWindow(MyWidget):
         self.overview_pagination = MyWidget(widget_ref='overview_pagination')
         self.overview_pagination_layout = MyGridLayout(grid_layout_ref='overview_pagination_layout')
         self.overview_table = MyTableWidget(table_widget_ref='overview_table')
-        self.overview_pagination_nav = MyWidget(widget_ref='overview_pagination_nav')
+        self.overview_pagination_nav = MyGroupBox(group_box_ref='overview_pagination_nav')
         self.overview_pagination_nav_layout = MyGridLayout()
         self.overview_pagination_prev_button = MyPushButton(text='Prev')
         self.overview_pagination_prev_button.clicked.connect(self.on_overview_pagination_prev_button_clicked)
@@ -384,7 +455,7 @@ class PromoWindow(MyWidget):
         self.show_operation_panel()
 
         self.main_panel_layout.addWidget(self.content_panel,0,0)
-        self.main_panel_layout.addWidget(self.scrolling_manage_data_panel,0,1,2,1)
+        self.main_panel_layout.addWidget(self.manage_data_panel,0,1,2,1)
         self.main_panel_layout.addWidget(self.operation_status_panel,1,0)
         self.setLayout(self.main_panel_layout)
 

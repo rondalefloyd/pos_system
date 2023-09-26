@@ -27,11 +27,12 @@ class PromoSchema():
         self.conn.commit()
 
     def add_new_promo(self, promo_name, promo_type, discount_percent, description):
-        if '' in [promo_name, promo_type, discount_percent, description]:
-            promo_name = '[no data]'
-            promo_type = '[no data]'
-            discount_percent = 0
-            description = '[no data]'
+        # region -- assign values if empty string
+        promo_name = '[no data]' if promo_name == '' else promo_name
+        promo_type = '[no data]' if promo_type == '' else promo_type
+        discount_percent = 0 if discount_percent == '' else discount_percent
+        description = '[no data]' if description == '' else description
+        # endregion -- assign values if empty string
 
         self.create_promo_table()
 
@@ -50,11 +51,12 @@ class PromoSchema():
         self.conn.commit()
 
     def edit_selected_promo(self, promo_name, promo_type, discount_percent, description, promo_id):
-        if '' in [promo_name, promo_type, discount_percent, description]:
-            promo_name = '[no data]'
-            promo_type = '[no data]'
-            discount_percent = 0
-            description = '[no data]'
+        # region -- assign values if empty string
+        promo_name = '[no data]' if promo_name == '' else promo_name
+        promo_type = '[no data]' if promo_type == '' else promo_type
+        discount_percent = 0 if discount_percent == '' else discount_percent
+        description = '[no data]' if description == '' else description
+        # endregion -- assign values if empty string
             
         self.cursor.execute('''
         UPDATE Promo
@@ -117,7 +119,7 @@ class PromoSchema():
         self.create_promo_table()
 
         self.cursor.execute('''
-        SELECT COUNT(*) FROM PROMO
+        SELECT COUNT(*) FROM Promo
         ''')
         count = self.cursor.fetchone()[0]
         

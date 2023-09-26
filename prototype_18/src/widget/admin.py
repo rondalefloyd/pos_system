@@ -7,12 +7,17 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
 
+class MyStackedWidget(QStackedWidget):
+    def __init__(self, stacked_widget_ref=''):
+        super().__init__()
+
+        if stacked_widget_ref == 'stacked_content_panel':
+            self.setCurrentIndex(0)
+
 class MyScrollArea(QScrollArea):
     def __init__(self, scroll_area_ref=''):
         super().__init__()
 
-        self.setWidgetResizable(True)
-        self.setStyleSheet('QScrollArea { border: 0px } ')
 
 class MyTabWidget(QTabWidget):
     def __init__(self, widget_ref=''):
@@ -22,23 +27,7 @@ class MyTabWidget(QTabWidget):
 class MyTableWidget(QTableWidget):
     def __init__(self, table_widget_ref=''):
         super().__init__()
-        
-        self.setWordWrap(False)
-        self.setShowGrid(False)
-        self.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
-        self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        self.setStyleSheet('''
-            QTableWidget { border: 0px; }
-            QHeaderView::section { border: 0px; }
-            QTableWidget::item { border: 0px; border-bottom: 1px solid #ccc; padding: 0px 20px }
-        ''')
-
-        if table_widget_ref == 'overview_table':
-            self.setColumnCount(5)
-            self.setHorizontalHeaderLabels(['Action','Promo name','Promo type','Discount percent','Description'])
-            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-            self.verticalHeader().setVisible(False)
-
+    
         pass
 class MyTableWidgetItem(QTableWidgetItem):
     def __init__(self, table_widget_item_ref='', text=''):
@@ -53,34 +42,17 @@ class MyWidget(QWidget):
     def __init__(self, widget_ref='', parent=None):
         super().__init__()
 
-        if widget_ref == 'promo_window':
-            self.setWindowTitle('Promo')
-            self.setWindowState(Qt.WindowState.WindowMaximized)
 
         pass
 class MyGroupBox(QGroupBox):
     def __init__(self, group_box_ref=''):
         super().__init__()
 
-        if group_box_ref == 'overview_pagination_nav':
-            self.setStyleSheet('QGroupBox { border: 0px }')
-            self.setFixedWidth(500)
+        if group_box_ref == 'side_nav_panel':
+            self.setStyleSheet('QGroupBox { border: 0px; border-right: 1px solid #aaa } ')
+            self.setFixedWidth(170)
 
-        if group_box_ref == 'operation_status_panel':
-            self.setStyleSheet('QGroupBox { background-color: #fff; border: 0px; border-top: 1px solid #aaa }')
-
-        if group_box_ref == 'manage_data_panel':
-            self.setFixedWidth(500)
-            self.setStyleSheet('QGroupBox { border: 0px; border-left: 1px solid #aaa } ')
-            self.hide()
-
-        if group_box_ref == 'primary_form':
-            self.setStyleSheet('QGroupBox { background-color: #fff; border: 1px solid #aaa } ')
-
-        if group_box_ref == 'form_nav':
-            self.setStyleSheet('QGroupBox { border: 0px; border-top: 1px solid #aaa } ')
-
-
+        pass
 class MyDialog(QDialog):
     def __init__(self, dialog_ref='', parent=None):
         super().__init__()
@@ -95,12 +67,8 @@ class MyDialog(QDialog):
 
 
 class MyVBoxLayout(QVBoxLayout):
-    def __init__(self, vbox_layout_ref=''):
+    def __init__(self):
         super().__init__()
-
-        if vbox_layout_ref == 'manage_data_panel_layout':
-            self.setSpacing(0)
-            self.setContentsMargins(0,0,0,0)
 
 class MyHBoxLayout(QHBoxLayout):
     def __init__(self, hbox_layout_ref=''):
@@ -135,8 +103,10 @@ class MyFormLayout(QFormLayout):
     def __init__(self, form_layout_ref=''):
         super().__init__()
 
-        if form_layout_ref == 'form_container_layout':
-            self.setContentsMargins(10,10,10,10)
+        if form_layout_ref == 'side_nav_panel_layout':
+            self.setSpacing(0)
+            self.setContentsMargins(0,0,0,0)
+
 
 class MyLabel(QLabel):
     def __init__(self, label_ref='', text=''):
@@ -151,7 +121,7 @@ class MyLabel(QLabel):
             'discount_percent_label',
             'description_label'
         ]:
-            self.setFixedWidth(150)
+            self.setFixedWidth(100)
 
 class MyPushButton(QPushButton):
     def __init__(self, push_button_ref='', text=''):
@@ -160,10 +130,11 @@ class MyPushButton(QPushButton):
         self.setText(text)
 
         if push_button_ref in [
-            'refresh_data_button',
-            'delete_all_data_button',
-            'import_data_button',
-            'add_data_button'
+            'product_content_button',
+            'promo_content_button',
+            'customer_content_button',
+            'user_content_button',
+            'settings_content_button'
         ]:
             pass
 
@@ -180,7 +151,6 @@ class MyLineEdit(QLineEdit):
         super().__init__()
 
         if line_edit_ref == 'filter_field':
-            self.setPlaceholderText('Filter promo by name, type, discount percent, or description')
             self.setFixedWidth(500)
 
 class MyTextEdit(QTextEdit):

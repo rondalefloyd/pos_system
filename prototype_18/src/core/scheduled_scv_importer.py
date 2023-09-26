@@ -15,14 +15,29 @@ from core.csv_importer import *
 class ScheduledCSVImporter(QThread):
     import_data_signal = pyqtSignal(str)  # Signal for passing messages to the GUI
 
-    def __init__(self, auto_csv_import_status=None):
+    def __init__(
+        # region -- params
+        self, 
+        product_import=None,
+        promo_import=None,
+        customer_import=None,
+        user_import=None
+        # endregion -- params
+    ):
         super().__init__()
-        self.auto_csv_import_status = auto_csv_import_status
+        self.product_import = product_import
+        self.promo_import = promo_import
+        self.customer_import = customer_import
+        self.user_import = user_import
+        
         self.running = True  # Flag to control the thread's execution
         self.update_date = date.today()
 
     def run(self):
-        sc.every(1).seconds.do(self.import_csv)
+        sc.every(1).seconds.do(self.import_product_csv)
+        sc.every(1).seconds.do(self.import_promo_csv)
+        sc.every(1).seconds.do(self.import_customer_csv)
+        sc.every(1).seconds.do(self.import_user_csv)
 
         while self.running:  # Check the running flag in the loop
             sc.run_pending()
@@ -30,9 +45,17 @@ class ScheduledCSVImporter(QThread):
 
     def stop(self):
         self.running = False  # Set the flag to stop the thread
-        self.auto_csv_import_status.setText("<font color='red'>None</font>")
 
-    def import_csv(self):
+        self.product_import.setText("<font color='red'>None</font>")
+        self.promo_import.setText("<font color='red'>None</font>")
+        self.customer_import.setText("<font color='red'>None</font>")
+        self.user_import.setText("<font color='red'>None</font>")
+
+    def import_product_csv(self):
+        print('Importing product csv...')
+        # checkpoint !!!
+        pass
+    def import_promo_csv(self):
         # Modify the path to your CSV file
         csv_file = os.path.abspath('G:' + f'\My Drive\data\promo-{date.today()}.csv')
 
@@ -44,28 +67,33 @@ class ScheduledCSVImporter(QThread):
 
             self.update_date = date.today()
 
-            self.import_data_signal.emit(f"<font color='green'>Today</font>")  # Emit a message to the GUI
+            self.import_data_signal.emit(f"<font color='green'>Importing</font>")  # Emit a message to the GUI
 
-            self.import_thread = CSVImporter(csv_file=csv_file)
+            self.import_thread = PromoCSVImporter(csv_file=csv_file)
             self.import_thread.start()
         else:
-            last_update_date = self.update_date
-            current_date = date.today()
-            time_difference = current_date - last_update_date
-
-            if time_difference.days == 0:
-                message = "Missing CSV" # checkpoint!!!
-            elif time_difference.days <= 1:
-                message = "Yesterday"
-            elif time_difference.days <= 7:
-                message = f"{time_difference.days} days ago"
-            else:
-                message = "More than a week ago"
-
-            self.import_data_signal.emit(f"<font color='orange'>{message}</font>") 
-
-    def update_status_label(self, message):
-        self.auto_csv_import_status.setText(f"{message}")
+            self.import_data_signal.emit(f"<font color='orange'>Idle</font>") 
+    def import_customer_csv(self):
+        print('Importing customer csv...')
+        # checkpoint !!!
+        pass
+    def import_user_csv(self):
+        print('Importing user csv...')
+        # checkpoint !!!
+        pass
+    
+    def update_product_import_status_label(self, message):
+        self.product_import.setText(f"{message}")
+        pass
+    def update_promo_import_status_label(self, message):
+        self.promo_import.setText(f"{message}")
+        pass
+    def update_customer_import_status_label(self, message):
+        self.customer_import.setText(f"{message}")
+        pass
+    def update_user_import_status_label(self, message):
+        self.user_import.setText(f"{message}")
+        pass
 
 # class YourMainWindow(QWidget):
 #     def __init__(self):
@@ -95,7 +123,7 @@ class ScheduledCSVImporter(QThread):
 #         if self.auto_import_thread is None or not self.auto_import_thread.isRunning():
 #             # Only create and start a new thread if it doesn't exist or is not running
 #             self.auto_import_thread = ScheduledCSVImporter()
-#             self.auto_import_thread.import_data_signal.connect(self.update_status_label)
+#             self.auto_import_thread.import_data_signal.connect(self.update_promo_import_status_label)
 #             self.auto_import_thread.start()
 #         else:
 #             self.status_label.setText("Status: Auto Import is already running.")
@@ -108,7 +136,7 @@ class ScheduledCSVImporter(QThread):
 #         else:
 #             self.status_label.setText("Status: Auto Import is not running.")
 
-#     def update_status_label(self, message):
+#     def update_promo_import_status_label(self, message):
 #         self.status_label.setText(f"Status: {message}")
 
 # if __name__ == '__main__':
@@ -116,3 +144,9 @@ class ScheduledCSVImporter(QThread):
 #     window = YourMainWindow()
 #     window.show()
 #     sys.exit(app.exec())
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = ScheduledCSVImporter()
+    window.start()
+    sys.exit(app.exec())

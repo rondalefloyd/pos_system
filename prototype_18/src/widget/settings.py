@@ -66,6 +66,9 @@ class MyGroupBox(QGroupBox):
     def __init__(self, group_box_ref=''):
         super().__init__()
 
+        if group_box_ref == 'settings_a':
+            self.setFixedWidth(400)
+
         if group_box_ref == 'operation_status_panel':
             self.setStyleSheet('QGroupBox { border: 0px; border-top: 1px solid #aaa }')
 
@@ -114,11 +117,20 @@ class MyFormLayout(QFormLayout):
 
 
 class MyLabel(QLabel):
-    def __init__(self, text=''):
+    def __init__(self, label_ref='', text=''):
         super().__init__()
 
         self.setText(text)
         self.setToolTip(text)
+
+        if label_ref in [
+            'product_import_status_label',
+            'promo_import_status_label',
+            'customer_import_status_label',
+            'user_import_status_label'
+        ]:
+            self.setFixedWidth(200)
+            
 
 class MyPushButton(QPushButton):
     def __init__(self, push_button_ref='', text=''):
@@ -142,6 +154,13 @@ class MyPushButton(QPushButton):
             self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             pass
 
+        if push_button_ref in [
+            'use_default_button',
+            'save_changes_button'
+        ]:
+            self.setFixedWidth(100)
+            pass
+
 class MyLineEdit(QLineEdit):
     def __init__(self, line_edit_ref=''):
         super().__init__()
@@ -162,6 +181,5 @@ class MyComboBox(QComboBox):
         super().__init__()
 
         if combo_box_ref == 'auto_csv_import_option':
-            self.setFixedWidth(100)
             self.addItem('Disabled')
             self.addItem('Enabled')
