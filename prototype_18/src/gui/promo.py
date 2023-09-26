@@ -23,7 +23,7 @@ class PromoWindow(MyWidget):
         self.default_values()
         self.on_refresh_data_button_clicked()
 
-
+    # region -- passive functions
     def default_values(self):
         self.current_page = 1
 
@@ -31,9 +31,11 @@ class PromoWindow(MyWidget):
         self.clicked_view_button = None
         self.clicked_delete_button = None
 
+        # region -- [editable] -- setStyleSheet for required fields
         self.promo_name_field.setStyleSheet('QLineEdit { border: 1px solid orange }')
         self.promo_type_field.setStyleSheet('QComboBox { border: 1px solid orange }')
         self.discount_percent_field.setStyleSheet('QLineEdit { border: 1px solid orange }')
+        # endregion -- [editable] -- setStyleSheet for required fields
         pass
     def refresh_ui(self):
         self.current_page = 1
@@ -45,11 +47,11 @@ class PromoWindow(MyWidget):
         self.total_promo_count.setText(f'Total promo: {self.promo_schema.count_promo()}')
         self.overview_pagination_page.setText(f'Page {self.current_page}')
 
-        self.on_add_data_button_clicked() if self.manage_data_panel.isVisible() == True else None
         self.populate_table()
         self.populate_combo_box()
+        self.on_add_data_button_clicked() if self.manage_data_panel.isVisible() == True else None
+    # endregion -- passive functions
         
-
     # region -- on_push_button_clicked functions
     def on_edit_button_clicked(self, row_value, edit_button):
         self.manage_data_panel.show()
@@ -259,7 +261,7 @@ class PromoWindow(MyWidget):
         self.clicked_edit_button = None
         pass
     # endregion -- on_push_button_clicked functions
-
+    # region -- [editable] -- form fields functions
     def on_promo_name_field_text_changed(self):
         self.promo_name_field.setStyleSheet('QLineEdit { border: 1px solid orange }' if self.promo_name_field.text() == '' else 'QLineEdit { border: 1px solid green }') # add this if this field is required
         pass 
@@ -269,14 +271,19 @@ class PromoWindow(MyWidget):
     def on_discount_percent_field_text_changed(self):
         self.discount_percent_field.setStyleSheet('QLineEdit { border: 1px solid orange }' if self.discount_percent_field.text() == '' else 'QLineEdit { border: 1px solid green }') # add this if this field is required
         pass
-
+    # endregion -- [editable] -- form fields functions
+    # region -- filter field function
     def on_filter_field_text_changed(self):
         self.populate_table(text_filter=self.filter_field.text())
-
+    # endregion -- filter field function
+    
+    # region -- populator functions
     def populate_combo_box(self):
+        # region -- [editable]
         self.promo_type_field.clear()
         promo_type_data = self.promo_schema.list_promo_type()
         for promo_type in promo_type_data: self.promo_type_field.addItem(promo_type[0])
+        # endregion -- [editable]
         pass
     def populate_table(self, text_filter='', current_page=1):
         self.overview_table.clearContents()
@@ -296,6 +303,7 @@ class PromoWindow(MyWidget):
 
         for row_index, row_value in enumerate(promo_data):
             # region -- assign values
+
             # region -- action_nav = MyGroupBox()
             action_nav = MyWidget()
             action_nav_layout = MyHBoxLayout(hbox_layout_ref='action_nav_layout')
@@ -310,20 +318,33 @@ class PromoWindow(MyWidget):
             action_nav_layout.addWidget(self.delete_button)
             action_nav.setLayout(action_nav_layout)
             # endregion -- action_nav = MyGroupBox()
-            
+
+            # region -- [editable] -- MyTableWidgetItem
             promo_name = MyTableWidgetItem(table_widget_item_ref='promo_name', text=str(row_value[0]))
             promo_type = MyTableWidgetItem(table_widget_item_ref='promo_type', text=str(row_value[1]))
             discount_percent = MyTableWidgetItem(table_widget_item_ref='discount_percent', text=str(f'₱{row_value[2]}'))
             description = MyTableWidgetItem(table_widget_item_ref='description', text=str(row_value[3]))
+            # endregion -- [editable] -- MyTableWidgetItem
+           
             # endregion -- assign values
+            
+            # region -- setItem/setCellWidget
 
             self.overview_table.setCellWidget(row_index, 0, action_nav)
+
+            # region -- [editable] -- cell items
             self.overview_table.setItem(row_index, 1, promo_name)
             self.overview_table.setItem(row_index, 2, promo_type)
             self.overview_table.setItem(row_index, 3, discount_percent)
             self.overview_table.setItem(row_index, 4, description)
-        pass
+            # endregion -- [editable] -- cell items
 
+            # endregion -- setItem/setCellWidget
+
+        pass
+    # endregion -- populator functions
+
+    # region -- panel_functions
     def show_operation_panel(self):
         self.operation_status_panel = MyGroupBox(group_box_ref='operation_status_panel')
         self.operation_status_layout = MyHBoxLayout(hbox_layout_ref='operation_status_layout')
@@ -345,21 +366,23 @@ class PromoWindow(MyWidget):
         self.primary_form = MyGroupBox(group_box_ref='primary_form')
         self.primary_form_layout = MyFormLayout()
 
+        # region -- [editable] -- form label
         self.promo_name_label = MyLabel(label_ref='promo_name_label', text='Promo name:')
         self.promo_type_label = MyLabel(label_ref='promo_type_label', text='Promo type:')
         self.discount_percent_label = MyLabel(label_ref='discount_percent_label', text='Discount percent:')
         self.description_label = MyLabel(label_ref='description_label', text='Description:')
-
+        # endregion -- [editable] -- form label
+        # region -- [editable] -- form field
         self.promo_name_field = MyLineEdit(line_edit_ref='promo_name_field')
         self.promo_type_field = MyComboBox(combo_box_ref='promo_type_field')
         self.discount_percent_field = MyLineEdit(line_edit_ref='discount_percent_field')
         self.description_field = MyTextEdit(textedit_ref='description_field')
-
-        # region -- set required field indicator
+        # endregion -- [editable] -- form field
+        # region -- [editable] -- required field indicator
         self.promo_name_field.textChanged.connect(self.on_promo_name_field_text_changed)
         self.promo_type_field.currentTextChanged.connect(self.on_promo_type_field_current_text_changed)
         self.discount_percent_field.textChanged.connect(self.on_discount_percent_field_text_changed)
-        # endregion -- set required field indicator
+        # endregion -- [editable] -- required field indicator
 
         self.primary_form_layout.addRow(MyLabel(text='<b>Primary Information</b>'))
         self.primary_form_layout.addRow(MyLabel(text='<hr>'))
@@ -458,7 +481,8 @@ class PromoWindow(MyWidget):
         self.main_panel_layout.addWidget(self.manage_data_panel,0,1,2,1)
         self.main_panel_layout.addWidget(self.operation_status_panel,1,0)
         self.setLayout(self.main_panel_layout)
-
+    # endregion -- panel_functions
+    
 if __name__ == ('__main__'):
     pos_app = QApplication(sys.argv)
     window = PromoWindow()
