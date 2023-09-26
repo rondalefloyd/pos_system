@@ -22,10 +22,10 @@ class MyTabWidget(QTabWidget):
             QTabBar::tab { height: 30px; width: 100px; }
         """)
 
-
 class MyTabBar(QTabBar):
     def __init__(self, tab_bar_ref=''):
         super().__init__()
+
 
         pass
 class MyTableWidget(QTableWidget):
@@ -43,10 +43,37 @@ class MyTableWidget(QTableWidget):
         ''')
 
         if table_widget_ref == 'overview_table':
-            self.setColumnCount(6)
-            self.setHorizontalHeaderLabels(['Action','Promo name','Promo type','Discount percent','Description','Date and time created'])
+            self.setColumnCount(7)
+            self.setHorizontalHeaderLabels(['Action','Product name','Brand','Sell price','Promo','Inventory tracking','Date and time created'])
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.verticalHeader().setVisible(False)
+            pass
+        if table_widget_ref == 'primary_table':
+            self.setColumnCount(4)
+            self.setHorizontalHeaderLabels(['Barcode','Product name','Expire date','Date and time created'])
+            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.verticalHeader().setVisible(False)
+            pass
+        if table_widget_ref == 'category_table':
+            self.setColumnCount(6)
+            self.setHorizontalHeaderLabels(['Product name','Item type','Brand','Sales group','Supplier','Date and time created'])
+            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.verticalHeader().setVisible(False)
+            pass
+        if table_widget_ref == 'price_table':
+            self.setColumnCount(6)
+            self.setHorizontalHeaderLabels(['Product name','Cost','Sell price','Discount value','Promo','Date and time created'])
+            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.verticalHeader().setVisible(False)
+            pass
+        if table_widget_ref == 'inventory_table':
+            self.setColumnCount(4)
+            self.setHorizontalHeaderLabels(['Product name','Available stock','On hand stock','Date and time created'])
+            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.verticalHeader().setVisible(False)
+            pass
+
+
         pass
 class MyTableWidgetItem(QTableWidgetItem):
     def __init__(self, table_widget_item_ref='', text=''):
@@ -64,8 +91,8 @@ class MyWidget(QWidget):
     def __init__(self, widget_ref='', parent=None):
         super().__init__()
 
-        if widget_ref == 'promo_window':
-            self.setWindowTitle('Promo')
+        if widget_ref == 'product_window':
+            self.setWindowTitle('Product')
             self.setWindowState(Qt.WindowState.WindowMaximized)
 
         pass
@@ -76,7 +103,13 @@ class MyGroupBox(QGroupBox):
         if group_box_ref == 'content_panel':
             self.setStyleSheet('QGroupBox { border: 0px }')
             pass
-        if group_box_ref == 'overview_pagination_container':
+        if group_box_ref in [
+            'overview_pagination_container',
+            'primary_pagination_container',
+            'category_pagination_container',
+            'price_pagination_container',
+            'inventory_pagination_container'
+        ]:
             self.setStyleSheet('QGroupBox { border-top: 1px solid #ddd }')
             pass
         if group_box_ref == 'overview_pagination_nav':
@@ -91,7 +124,12 @@ class MyGroupBox(QGroupBox):
             self.setStyleSheet('QGroupBox { border: 0px; border-left: 1px solid #ddd } ')
             self.hide()
 
-        if group_box_ref == 'primary_form':
+        if group_box_ref in [
+            'primary_form',
+            'category_form',
+            'price_form',
+            'inventory_form'
+        ]:
             self.setStyleSheet('QGroupBox { background-color: #fff; border: 1px solid #ddd } ')
 
         if group_box_ref == 'form_nav':
@@ -148,7 +186,13 @@ class MyGridLayout(QGridLayout):
             self.setContentsMargins(0,0,0,0)
             self.setSpacing(0)
             pass
-        if grid_layout_ref == 'overview_pagination_layout':
+        if grid_layout_ref in [
+            'overview_pagination_layout',
+            'primary_pagination_layout',
+            'category_pagination_layout',
+            'price_pagination_layout',
+            'inventory_pagination_layout'
+        ]:
             self.setContentsMargins(0,0,0,0)
             self.setSpacing(0)
 
@@ -167,13 +211,41 @@ class MyLabel(QLabel):
         self.setToolTip(text)
 
         if label_ref in [
+            'barcode_label',
+            'item_name_label',
+            'expire_dt_label',
+            'item_type_label',
+            'brand_label',
+            'sales_group_label',
+            'supplier_label',
+            'cost_label',
+            'sell_price_label',
+            'effective_dt_label',
             'promo_name_label',
             'promo_type_label',
             'discount_percent_label',
-            'description_label'
+            'discount_value_label',
+            'new_sell_price_label',
+            'start_dt_label',
+            'end_dt_label',
+            'inventory_tracking_label',
+            'available_stock_label',
+            'on_hand_stock_label'
         ]:
             self.setFixedWidth(125)
 
+        if label_ref in [
+            'promo_type_label',
+            'discount_percent_label',
+            'discount_value_label',
+            'new_sell_price_label',
+            'start_dt_label',
+            'end_dt_label',
+            'available_stock_label',
+            'on_hand_stock_label'
+        ]:
+            self.hide()
+        pass
 class MyPushButton(QPushButton):
     def __init__(self, push_button_ref='', text=''):
         super().__init__()
@@ -208,21 +280,65 @@ class MyLineEdit(QLineEdit):
         super().__init__()
 
         if line_edit_ref == 'filter_field':
-            self.setPlaceholderText('Filter promo by name, type, discount percent, or description')
+            self.setPlaceholderText('Filter product by barcode, name, type, brand, sales group, supplier, cost, sell price, discount value, promo, or inventory tracking')
             self.setMinimumWidth(100)
-            self.setMaximumWidth(500)
+            self.setMaximumWidth(800)
+
+        if line_edit_ref in [
+            'promo_type_field',
+            'discount_percent_field',
+            'discount_value_field',
+            'new_sell_price_field'
+        ]:
+            self.setDisabled(True)
+            self.hide()
+
+        if line_edit_ref in [
+            'discount_percent_field',
+            'discount_value_field',
+            'new_sell_price_field'
+        ]:
+            self.setText('0')
+            pass
+        if line_edit_ref in [
+            'available_stock_field',
+            'on_hand_stock_field'
+        ]:
+            self.setText('0')
+            self.hide()
 
 class MyTextEdit(QTextEdit):
     def __init__(self, textedit_ref=''):
         super().__init__()
 
 class MyDateEdit(QDateEdit):
-    def __init__(self):
+    def __init__(self, date_edit_ref):
         super().__init__()
+
+        if date_edit_ref in [
+            'start_dt_field',
+            'end_dt_field'
+        ]:
+            self.hide()
 
 class MyComboBox(QComboBox):
     def __init__(self, combo_box_ref=''):
         super().__init__()
-
-        if combo_box_ref == 'promo_type_field':
+        
+        if combo_box_ref in [
+            'item_type_field',
+            'brand_field',
+            'supplier_field'
+        ]:
             self.setEditable(True)
+        if combo_box_ref == 'sales_group_field':
+            self.addItem('Retail')
+            self.addItem('Wholesale')
+
+        if combo_box_ref == 'promo_name_field':
+            self.setCurrentIndex(0)
+            self.insertItem(0, 'No promo')
+
+        if combo_box_ref == 'inventory_tracking_field':
+            self.addItem('Disabled')
+            self.addItem('Enabled')

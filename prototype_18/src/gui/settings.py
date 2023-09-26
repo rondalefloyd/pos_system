@@ -51,6 +51,7 @@ class SettingsWindow(MyWidget):
                     user_import=self.user_import_status
                 )
                 
+                self.scheduled_csv_importer.import_data_signal.connect(self.scheduled_csv_importer.update_product_import_status_label)
                 self.scheduled_csv_importer.import_data_signal.connect(self.scheduled_csv_importer.update_promo_import_status_label)
                 self.scheduled_csv_importer.start()
 

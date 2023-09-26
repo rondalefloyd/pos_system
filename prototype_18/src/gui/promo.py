@@ -137,7 +137,7 @@ class PromoWindow(MyWidget):
             else:
                 promo_name = str(self.promo_name_field.text())
                 promo_type = str(self.promo_type_field.currentText())
-                discount_percent = float(self.discount_percent_field.text())
+                discount_percent = str(self.discount_percent_field.text())
                 description = str(self.description_field.toPlainText())
 
                 self.promo_schema.add_new_promo(
@@ -148,11 +148,11 @@ class PromoWindow(MyWidget):
                 )
 
                 QMessageBox.information(self, 'Success', 'New promo added.')
+                self.refresh_ui()
             pass
         except Exception as error:
             QMessageBox.critical(self, 'Error', f'{error}')
             pass
-        self.refresh_ui()
         pass
     def on_save_edit_button_clicked(self):
         try:
@@ -166,7 +166,7 @@ class PromoWindow(MyWidget):
             else:
                 promo_name = str(self.promo_name_field.text())
                 promo_type = str(self.promo_type_field.currentText())
-                discount_percent = float(self.discount_percent_field.text())
+                discount_percent = str(self.discount_percent_field.text())
                 description = str(self.description_field.toPlainText())
                 promo_id = int(self.selected_promo_id)
 
@@ -232,6 +232,7 @@ class PromoWindow(MyWidget):
             self.import_thread = PromoCSVImporter(
                 csv_file=csv_file,
                 refresh_data_button=self.refresh_data_button,
+                # !!!!!!!!!!!!!!!!!!!!! CHECK POINT!!!!!!!!!!!!!!!!!!!!!!!
                 import_data_button=self.import_data_button
             )
             self.import_thread.progress_signal.connect(self.import_thread.update_progress)
@@ -324,6 +325,7 @@ class PromoWindow(MyWidget):
             promo_type = MyTableWidgetItem(table_widget_item_ref='promo_type', text=str(row_value[1]))
             discount_percent = MyTableWidgetItem(table_widget_item_ref='discount_percent', text=str(f'₱{row_value[2]}'))
             description = MyTableWidgetItem(table_widget_item_ref='description', text=str(row_value[3]))
+            update_ts = MyTableWidgetItem(table_widget_item_ref='update_ts', text=str(row_value[4]))
             # endregion -- [editable] -- MyTableWidgetItem
            
             # endregion -- assign values
@@ -337,6 +339,7 @@ class PromoWindow(MyWidget):
             self.overview_table.setItem(row_index, 2, promo_type)
             self.overview_table.setItem(row_index, 3, discount_percent)
             self.overview_table.setItem(row_index, 4, description)
+            self.overview_table.setItem(row_index, 5, update_ts)
             # endregion -- [editable] -- cell items
 
             # endregion -- setItem/setCellWidget
@@ -403,9 +406,9 @@ class PromoWindow(MyWidget):
         self.form_nav_layout = MyGridLayout()
         self.discard_button = MyPushButton(text='Discard')
         self.discard_button.clicked.connect(self.on_discard_button_clicked)
-        self.save_new_button = MyPushButton(text='Save New')
+        self.save_new_button = MyPushButton(push_button_ref='save_new_button', text='SAVE')
         self.save_new_button.clicked.connect(self.on_save_new_button_clicked)
-        self.save_edit_button = MyPushButton(text='Save Edit')
+        self.save_edit_button = MyPushButton(push_button_ref='save_edit_button', text='SAVE')
         self.save_edit_button.clicked.connect(self.on_save_edit_button_clicked)
         self.form_nav_layout.addWidget(self.discard_button,0,0)
         self.form_nav_layout.addWidget(self.save_new_button,0,1)
@@ -418,7 +421,7 @@ class PromoWindow(MyWidget):
         self.manage_data_panel.setLayout(self.manage_data_panel_layout)
         pass
     def show_content_panel(self):
-        self.content_panel = MyWidget()
+        self.content_panel = MyGroupBox(group_box_ref='content_panel')
         self.content_panel_layout = MyGridLayout(grid_layout_ref='content_panel_layout')
 
         self.filter_field = MyLineEdit(line_edit_ref='filter_field')
@@ -439,12 +442,16 @@ class PromoWindow(MyWidget):
         self.manage_data_nav.setLayout(self.manage_data_layout)
         # endregion -- self.manage_data_nav = MyGroupBox()
 
-        self.table_sorter = MyTabWidget()
+        self.table_sorter = MyTabWidget(tab_widget_ref='table_sorter')
 
         # region -- self.overview_pagination
-        self.overview_pagination = MyWidget(widget_ref='overview_pagination')
+        self.overview_pagination = MyGroupBox(group_box_ref='overview_pagination')
         self.overview_pagination_layout = MyGridLayout(grid_layout_ref='overview_pagination_layout')
+
         self.overview_table = MyTableWidget(table_widget_ref='overview_table')
+        
+        self.overview_pagination_container = MyGroupBox(group_box_ref='overview_pagination_container')
+        self.overview_pagination_container_layout = MyGridLayout(grid_layout_ref='overview_pagination_container_layout')
         self.overview_pagination_nav = MyGroupBox(group_box_ref='overview_pagination_nav')
         self.overview_pagination_nav_layout = MyGridLayout()
         self.overview_pagination_prev_button = MyPushButton(text='Prev')
@@ -456,8 +463,12 @@ class PromoWindow(MyWidget):
         self.overview_pagination_nav_layout.addWidget(self.overview_pagination_page,0,1,Qt.AlignmentFlag.AlignCenter)
         self.overview_pagination_nav_layout.addWidget(self.overview_pagination_next_button,0,2,Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.overview_pagination_nav.setLayout(self.overview_pagination_nav_layout)
+        self.overview_pagination_container_layout.addWidget(self.overview_pagination_nav)
+        self.overview_pagination_container.setLayout(self.overview_pagination_container_layout)
+
         self.overview_pagination_layout.addWidget(self.overview_table,0,0)
-        self.overview_pagination_layout.addWidget(self.overview_pagination_nav,1,0,Qt.AlignmentFlag.AlignCenter)
+        self.overview_pagination_layout.addWidget(self.overview_pagination_container,1,0)
+
         self.overview_pagination.setLayout(self.overview_pagination_layout)
         # endregion -- self.overview_pagination
         

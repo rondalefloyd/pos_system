@@ -34,14 +34,14 @@ class ScheduledCSVImporter(QThread):
         self.update_date = date.today()
 
     def run(self):
-        sc.every(1).seconds.do(self.import_product_csv)
-        sc.every(1).seconds.do(self.import_promo_csv)
-        sc.every(1).seconds.do(self.import_customer_csv)
-        sc.every(1).seconds.do(self.import_user_csv)
+        sc.every(5).seconds.do(self.import_product_csv)
+        sc.every(5).seconds.do(self.import_promo_csv)
+        sc.every(5).seconds.do(self.import_customer_csv)
+        sc.every(5).seconds.do(self.import_user_csv)
 
         while self.running:  # Check the running flag in the loop
             sc.run_pending()
-            tm.sleep(1)  # 1800 secs = 30 mins
+            tm.sleep(5)  # 1800 secs = 30 mins
 
     def stop(self):
         self.running = False  # Set the flag to stop the thread
@@ -52,11 +52,8 @@ class ScheduledCSVImporter(QThread):
         self.user_import.setText("<font color='red'>None</font>")
 
     def import_product_csv(self):
-        print('Importing product csv...')
-        # checkpoint !!!
         pass
     def import_promo_csv(self):
-        # Modify the path to your CSV file
         csv_file = os.path.abspath('G:' + f'\My Drive\data\promo-{date.today()}.csv')
 
         self.csv_file_name = os.path.basename(csv_file)
@@ -73,6 +70,7 @@ class ScheduledCSVImporter(QThread):
             self.import_thread.start()
         else:
             self.import_data_signal.emit(f"<font color='orange'>Idle</font>") 
+        pass
     def import_customer_csv(self):
         print('Importing customer csv...')
         # checkpoint !!!

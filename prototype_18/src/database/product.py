@@ -114,76 +114,53 @@ class ProductSchema():
 
     def add_new_product(
         # region -- params
-        self,
-        barcode,
-        item_name,
-        expire_dt,
-        item_type,
-        brand,
-        sales_group,
-        supplier,
-        cost,
-        sell_price,
-        effective_dt,
-        promo_name,
-        promo_type,
-        discount_percent,
-        discount_value,
-        new_sell_price,
-        start_dt,
-        end_dt,
-        inventory_tracking,
-        available_stock,
-        on_hand_stock
+        self='',
+        barcode='',
+        item_name='',
+        expire_dt='',
+        item_type='',
+        brand='',
+        sales_group='',
+        supplier='',
+        cost='',
+        sell_price='',
+        effective_dt='',
+        promo_name='',
+        promo_type='',
+        discount_percent='',
+        discount_value='',
+        new_sell_price='',
+        start_dt='',
+        end_dt='',
+        inventory_tracking='',
+        available_stock='',
+        on_hand_stock=''
         # endregion -- params
     ):
         # WILL BE REVIEWED !!!!
-        # if '' in [
-        #     # region -- conditions
-        #     barcode,
-        #     item_name,
-        #     expire_dt,
-        #     item_type,
-        #     brand,
-        #     sales_group,
-        #     supplier,
-        #     cost,
-        #     sell_price,
-        #     effective_dt,
-        #     promo_name,
-        #     promo_type,
-        #     discount_percent,
-        #     discount_value,
-        #     new_sell_price,
-        #     start_dt,
-        #     end_dt,
-        #     inventory_tracking,
-        #     available_stock,
-        #     on_hand_stock
-        #     # endregion -- conditions
-        # ]:
-        #     # region -- assign default values
-        #     barcode = '[no data]'
-        #     item_name = '[no data]'
-        #     expire_dt = '9999-12-31'
-        #     item_type = '[no data]'
-        #     brand = '[no data]'
-        #     sales_group = '[no data]'
-        #     supplier = '[no data]'
-        #     cost = 0
-        #     sell_price = 0
-        #     effective_dt = date.today()
-        #     promo_name = 'No promo'
-        #     promo_type = '[no data]'
-        #     discount_percent = 0
-        #     discount_value = 0
-        #     new_sell_price = 0
-        #     start_dt = date.today()
-        #     end_dt = date.today()
-        #     inventory_tracking = 'Disabled'
-        #     available_stock = 0
-        #     on_hand_stock = 0
-        #     # endregion -- assign default values
+        barcode = '[no data]' if barcode == '' else barcode
+        item_name = '[no data]' if item_name == '' else item_name
+        expire_dt = '[no data]' if expire_dt == '' else expire_dt
+
+        item_type = '[no data]' if item_type == '' else item_type
+        brand = '[no data]' if brand == '' else brand
+        sales_group = '[no data]' if sales_group == '' else sales_group
+        supplier = '[no data]' if supplier == '' else supplier
+
+        cost = 0 if cost == '' else cost
+        sell_price = 0 if sell_price == '' else sell_price
+        effective_dt = '[no data]' if effective_dt == '' else effective_dt
+        promo_name = '[no data]' if promo_name == '' else promo_name
+        promo_type = '[no data]' if promo_type == '' else promo_type
+        discount_percent = 0 if discount_percent == '' else discount_percent
+        discount_value = 0 if discount_value == '' else discount_value
+        new_sell_price = 0 if new_sell_price == '' else new_sell_price
+        start_dt = '[no data]' if start_dt == '' else start_dt
+        end_dt = '[no data]' if end_dt == '' else end_dt
+
+        inventory_tracking = '[no data]' if inventory_tracking == '' else inventory_tracking
+        available_stock = 0 if available_stock == '' else available_stock
+        on_hand_stock = 0 if on_hand_stock == '' else on_hand_stock
 
         self.create_product_table()
 

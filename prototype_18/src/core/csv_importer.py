@@ -14,6 +14,9 @@ from database.product import *
 from database.promo import *
 from widget.promo import*
 
+class ProductCSVImporter(QThread):
+    pass
+
 class PromoCSVImporter(QThread):
     progress_signal = pyqtSignal(int)
     finished_signal = pyqtSignal(str)
@@ -27,13 +30,9 @@ class PromoCSVImporter(QThread):
 
         self.csv_file_name = os.path.basename(self.csv_file)
 
-    def confirm(self):
-        confirm = QMessageBox.warning(None, 'Confirm', 'Are you sure you want to cancel importing?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-
-        pass
-
     def run(self):
-        self.refresh_data_button.setDisabled(True)
+        self.refresh_data_button.setDisabled(True) if self.refresh_data_button else None
+
         try:
             self.promo_schema = PromoSchema()
             # Load the CSV file into a Pandas DataFrame
@@ -91,12 +90,14 @@ class PromoCSVImporter(QThread):
         print(self.current_row)
     def import_finished(self):
         QMessageBox.information(None, 'Success', f'All product has been imported.')
-        if self.refresh_data_button and self.import_data_button:
+        if self.refresh_data_button or self.import_data_button:
             self.refresh_data_button.setDisabled(False)
             self.import_data_button.setDisabled(False)
+        pass
             
     def import_error(self):
         QMessageBox.critical(None, 'Error', 'An error has occurred during the process.')
-        if self.refresh_data_button and self.import_data_button:
+        if self.refresh_data_button or self.import_data_button:
             self.refresh_data_button.setDisabled(False)
             self.import_data_button.setDisabled(False)
+        pass
