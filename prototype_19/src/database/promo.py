@@ -1,13 +1,14 @@
-import os
+import os, sys
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 class PromoSchema():
-    def __init__(self, db_file='sales.db'):
+    def __init__(self):
         super().__init__()
         # Creates folder for the db file
-        self.db_folder_path = 'data/'  # Adjust the path
-        self.db_file_path = os.path.join(self.db_folder_path, db_file)
-        os.makedirs(self.db_folder_path, exist_ok=True)
+        self.db_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sales.db'))
+        os.makedirs(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/')), exist_ok=True)
 
         # Connects to SQL database named 'SALES.db'w
         self.conn = sqlite3.connect(database=self.db_file_path)
@@ -27,11 +28,12 @@ class PromoSchema():
         self.conn.commit()
 
     def add_new_promo(self, promo_name, promo_type, discount_percent, description):
-        if '' in [promo_name, promo_type, discount_percent, description]:
-            promo_name = '[no data]'
-            promo_type = '[no data]'
-            discount_percent = 0
-            description = '[no data]'
+        # region -- assign values if empty string
+        promo_name = '[no data]' if promo_name == '' else promo_name
+        promo_type = '[no data]' if promo_type == '' else promo_type
+        discount_percent = 0 if discount_percent == '' else discount_percent
+        description = '[no data]' if description == '' else description
+        # endregion -- assign values if empty string
 
         self.create_promo_table()
 
@@ -50,11 +52,12 @@ class PromoSchema():
         self.conn.commit()
 
     def edit_selected_promo(self, promo_name, promo_type, discount_percent, description, promo_id):
-        if '' in [promo_name, promo_type, discount_percent, description]:
-            promo_name = '[no data]'
-            promo_type = '[no data]'
-            discount_percent = 0
-            description = '[no data]'
+        # region -- assign values if empty string
+        promo_name = '[no data]' if promo_name == '' else promo_name
+        promo_type = '[no data]' if promo_type == '' else promo_type
+        discount_percent = 0 if discount_percent == '' else discount_percent
+        description = '[no data]' if description == '' else description
+        # endregion -- assign values if empty string
             
         self.cursor.execute('''
         UPDATE Promo
@@ -87,10 +90,12 @@ class PromoSchema():
             Name LIKE ? OR
             PromoType LIKE ? OR
             DiscountPercent LIKE ? OR
-            Description LIKE ?
+            Description LIKE ? OR
+            UpdateTs LIKE ?
         ORDER BY PromoId DESC, UpdateTs DESC
         LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
         ''', (
+            '%' + str(text_filter) + '%',
             '%' + str(text_filter) + '%',
             '%' + str(text_filter) + '%',
             '%' + str(text_filter) + '%',
@@ -117,7 +122,7 @@ class PromoSchema():
         self.create_promo_table()
 
         self.cursor.execute('''
-        SELECT COUNT(*) FROM PROMO
+        SELECT COUNT(*) FROM Promo
         ''')
         count = self.cursor.fetchone()[0]
         

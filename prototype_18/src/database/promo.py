@@ -1,13 +1,14 @@
-import os
+import os, sys
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 class PromoSchema():
-    def __init__(self, db_file='sales.db'):
+    def __init__(self):
         super().__init__()
         # Creates folder for the db file
-        self.db_folder_path = 'data/'  # Adjust the path
-        self.db_file_path = os.path.join(self.db_folder_path, db_file)
-        os.makedirs(self.db_folder_path, exist_ok=True)
+        self.db_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sales.db'))
+        os.makedirs(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/')), exist_ok=True)
 
         # Connects to SQL database named 'SALES.db'w
         self.conn = sqlite3.connect(database=self.db_file_path)
@@ -89,10 +90,12 @@ class PromoSchema():
             Name LIKE ? OR
             PromoType LIKE ? OR
             DiscountPercent LIKE ? OR
-            Description LIKE ?
+            Description LIKE ? OR
+            UpdateTs LIKE ?
         ORDER BY PromoId DESC, UpdateTs DESC
         LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
         ''', (
+            '%' + str(text_filter) + '%',
             '%' + str(text_filter) + '%',
             '%' + str(text_filter) + '%',
             '%' + str(text_filter) + '%',

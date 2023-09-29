@@ -9,7 +9,7 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from core.csv_importer import *
+from core.manual_csv_importer import *
 from database.product import *
 from widget.product import *
 
@@ -375,7 +375,7 @@ class ProductWindow(MyWidget):
             data_frame = pd.read_csv(csv_file, encoding='utf-8-sig', keep_default_na=False, header=None)
             total_rows = len(data_frame)
             
-            self.import_thread = PromoCSVImporter(
+            self.import_thread = ManualPromoImport(
                 csv_file=csv_file,
                 import_data_button=self.import_data_button
             )

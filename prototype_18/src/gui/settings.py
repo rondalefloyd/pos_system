@@ -11,10 +11,11 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from core.csv_importer import *
+from core.manual_csv_importer import *
 from core.manage_settings import *
-from core.scheduled_scv_importer import *
+from core.automatic_csv_importer import *
 from database.promo import *
+from gui.promo import *
 from widget.settings import *
 
 class SettingsWindow(MyWidget):
@@ -45,14 +46,13 @@ class SettingsWindow(MyWidget):
         elif self.auto_csv_import_option.currentText() == 'Enabled':
             if self.scheduled_csv_importer is None or not self.scheduled_csv_importer.isRunning():
                 self.scheduled_csv_importer = ScheduledCSVImporter(
-                    product_import=self.product_import_status,
-                    promo_import=self.promo_import_status,
-                    customer_import=self.customer_import_status,
-                    user_import=self.user_import_status
+                    promo_import=self.promo_import_status
                 )
-                
-                self.scheduled_csv_importer.import_data_signal.connect(self.scheduled_csv_importer.update_product_import_status_label)
-                self.scheduled_csv_importer.import_data_signal.connect(self.scheduled_csv_importer.update_promo_import_status_label)
+                self.promo_gui = PromoWindow()
+
+                self.scheduled_csv_importer.status_signal.connect(self.scheduled_csv_importer.update_promo_import_status_label)
+                self.scheduled_csv_importer.progress_signal.connect(self.scheduled_csv_importer.update_progress)
+                self.scheduled_csv_importer.finished_signal.connect(self.scheduled_csv_importer.import_finished)
                 self.scheduled_csv_importer.start()
 
                 pass

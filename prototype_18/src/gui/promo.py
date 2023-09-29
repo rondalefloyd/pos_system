@@ -9,7 +9,8 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from core.csv_importer import *
+from core.automatic_csv_importer import *
+from core.manual_csv_importer import *
 from database.promo import *
 from widget.promo import *
 
@@ -21,7 +22,7 @@ class PromoWindow(MyWidget):
 
         self.show_main_panel()
         self.default_values()
-        self.on_refresh_data_button_clicked()
+        self.refresh_ui()
 
     # region -- passive functions
     def default_values(self):
@@ -45,7 +46,7 @@ class PromoWindow(MyWidget):
         self.clicked_delete_button = None
 
         self.total_promo_count.setText(f'Total promo: {self.promo_schema.count_promo()}')
-        self.overview_pagination_page.setText(f'Page {self.current_page}')
+        self.pagination_page.setText(f'Page {self.current_page}')
 
         self.populate_table()
         self.populate_combo_box()
@@ -186,27 +187,27 @@ class PromoWindow(MyWidget):
         self.refresh_ui()
         pass
 
-    def on_overview_pagination_prev_button_clicked(self):
+    def on_pagination_prev_button_clicked(self):
         self.on_add_data_button_clicked() if self.manage_data_panel.isVisible() == True else None
         self.clicked_edit_button.setDisabled(False) if self.clicked_edit_button else None
         
         # region -- if self.current_page > 1:
         if self.current_page > 1:
             self.current_page -= 1
-            self.overview_pagination_page.setText(f'Page {self.current_page}')
+            self.pagination_page.setText(f'Page {self.current_page}')
 
         self.populate_table(current_page=self.current_page)
         # endregion -- if self.current_page > 1:
 
         self.clicked_edit_button = None
         pass
-    def on_overview_pagination_next_button_clicked(self):
+    def on_pagination_next_button_clicked(self):
         self.on_add_data_button_clicked() if self.manage_data_panel.isVisible() == True else None
         self.clicked_edit_button.setDisabled(False) if self.clicked_edit_button else None
         
         # region -- self.current_page += 1
         self.current_page += 1
-        self.overview_pagination_page.setText(f'Page {self.current_page}')
+        self.pagination_page.setText(f'Page {self.current_page}')
         
         self.populate_table(current_page=self.current_page)
         # endregion -- self.current_page += 1
@@ -220,32 +221,20 @@ class PromoWindow(MyWidget):
             
         pass
     def on_import_data_button_clicked(self):
-        self.import_data_button.setDisabled(True)
-
-        csv_file, _ = QFileDialog.getOpenFileName(self, 'Open CSV', '', 'CSV Files (*.csv)')
-
-        print(csv_file)
-        if csv_file:
-            data_frame = pd.read_csv(csv_file, encoding='utf-8-sig', keep_default_na=False, header=None)
-            total_rows = len(data_frame)
+        self.csv_file, _ = QFileDialog.getOpenFileName(None, 'Open CSV', '', 'CSV Files (*.csv)')
+        
+        if self.csv_file:
+            self.manual_import = ManualPromoImport(csv_file=self.csv_file)
             
-            self.import_thread = PromoCSVImporter(
-                csv_file=csv_file,
-                refresh_data_button=self.refresh_data_button,
-                # !!!!!!!!!!!!!!!!!!!!! CHECK POINT!!!!!!!!!!!!!!!!!!!!!!!
-                import_data_button=self.import_data_button
-            )
-            self.import_thread.progress_signal.connect(self.import_thread.update_progress)
-            self.import_thread.finished_signal.connect(self.import_thread.import_finished)
-            self.import_thread.finished_signal.connect(self.refresh_ui)
-            self.import_thread.error_signal.connect(self.import_thread.import_error)
-            self.import_thread.start()
-
-            # print(data_frame)
-            pass
+            self.manual_import.progress_signal.connect(self.manual_import.update_progress)
+            self.manual_import.finished_signal.connect(self.manual_import.import_finished)
+            self.manual_import.finished_signal.connect(self.refresh_ui)
+            self.manual_import.error_signal.connect(self.manual_import.import_error)
+            self.manual_import.start()
         else:
-            self.import_data_button.setDisabled(False)
-        pass
+            pass
+
+
     def on_add_data_button_clicked(self):
         self.add_data_button.setDisabled(True)
         self.manage_data_panel.show()
@@ -275,7 +264,9 @@ class PromoWindow(MyWidget):
     # endregion -- [editable] -- form fields functions
     # region -- filter field function
     def on_filter_field_text_changed(self):
-        self.populate_table(text_filter=self.filter_field.text())
+        self.current_page = 1
+        self.pagination_page.setText(f'Page {self.current_page}')
+        self.populate_table(text_filter=self.filter_field.text(), current_page=self.current_page)
     # endregion -- filter field function
     
     # region -- populator functions
@@ -287,12 +278,12 @@ class PromoWindow(MyWidget):
         # endregion -- [editable]
         pass
     def populate_table(self, text_filter='', current_page=1):
-        self.overview_table.clearContents()
+        self.table.clearContents()
         promo_data = self.promo_schema.list_promo(text_filter=text_filter, page_number=current_page)
         
         # region -- pagination_button.setEnabled()
-        self.overview_pagination_prev_button.setEnabled(self.current_page > 1)
-        self.overview_pagination_next_button.setEnabled(len(promo_data) == 30)
+        self.pagination_prev_button.setEnabled(self.current_page > 1)
+        self.pagination_next_button.setEnabled(len(promo_data) == 30)
         # endregion -- pagination_button.setEnabled()
 
         # region -- self.clicked_edit_button.setDisabled()
@@ -300,7 +291,7 @@ class PromoWindow(MyWidget):
         self.clicked_edit_button = None
         # endregion -- self.clicked_edit_button.setDisabled()
         
-        self.overview_table.setRowCount(len(promo_data))
+        self.table.setRowCount(len(promo_data))
 
         for row_index, row_value in enumerate(promo_data):
             # region -- assign values
@@ -332,14 +323,14 @@ class PromoWindow(MyWidget):
             
             # region -- setItem/setCellWidget
 
-            self.overview_table.setCellWidget(row_index, 0, action_nav)
+            self.table.setCellWidget(row_index, 0, action_nav)
 
             # region -- [editable] -- cell items
-            self.overview_table.setItem(row_index, 1, promo_name)
-            self.overview_table.setItem(row_index, 2, promo_type)
-            self.overview_table.setItem(row_index, 3, discount_percent)
-            self.overview_table.setItem(row_index, 4, description)
-            self.overview_table.setItem(row_index, 5, update_ts)
+            self.table.setItem(row_index, 1, promo_name)
+            self.table.setItem(row_index, 2, promo_type)
+            self.table.setItem(row_index, 3, discount_percent)
+            self.table.setItem(row_index, 4, description)
+            self.table.setItem(row_index, 5, update_ts)
             # endregion -- [editable] -- cell items
 
             # endregion -- setItem/setCellWidget
@@ -362,7 +353,7 @@ class PromoWindow(MyWidget):
         
         # region -- self.scrolling_manage_data_panel = MyScrollArea()
         self.scrolling_manage_data_panel = MyScrollArea(scroll_area_ref='scrolling_manage_data_panel')
-        self.form_container = MyWidget()
+        self.form_container = MyGroupBox(group_box_ref='form_container')
         self.form_container_layout = MyFormLayout(form_layout_ref='form_container_layout')
         
         # region -- self.primary_form = MyGroupBox()
@@ -430,12 +421,14 @@ class PromoWindow(MyWidget):
         # region -- self.manage_data_nav = MyGroupBox()
         self.manage_data_nav = MyWidget(widget_ref='manage_data_nav')
         self.manage_data_layout = MyHBoxLayout(hbox_layout_ref='manage_data_layout')
+
         self.refresh_data_button = MyPushButton(push_button_ref='refresh_data_button', text='Refresh')
         self.refresh_data_button.clicked.connect(self.on_refresh_data_button_clicked)
         self.import_data_button = MyPushButton(push_button_ref='import_data_button', text='Import')
         self.import_data_button.clicked.connect(self.on_import_data_button_clicked)
         self.add_data_button = MyPushButton(push_button_ref='add_data_button', text='Add')
         self.add_data_button.clicked.connect(self.on_add_data_button_clicked)
+        
         self.manage_data_layout.addWidget(self.refresh_data_button)
         self.manage_data_layout.addWidget(self.import_data_button)
         self.manage_data_layout.addWidget(self.add_data_button)
@@ -444,36 +437,36 @@ class PromoWindow(MyWidget):
 
         self.table_sorter = MyTabWidget(tab_widget_ref='table_sorter')
 
-        # region -- self.overview_pagination
-        self.overview_pagination = MyGroupBox(group_box_ref='overview_pagination')
-        self.overview_pagination_layout = MyGridLayout(grid_layout_ref='overview_pagination_layout')
+        # region -- self.pagination
+        self.pagination = MyGroupBox(group_box_ref='pagination')
+        self.pagination_layout = MyGridLayout(grid_layout_ref='pagination_layout')
 
-        self.overview_table = MyTableWidget(table_widget_ref='overview_table')
+        self.table = MyTableWidget(table_widget_ref='table')
         
-        self.overview_pagination_container = MyGroupBox(group_box_ref='overview_pagination_container')
-        self.overview_pagination_container_layout = MyGridLayout(grid_layout_ref='overview_pagination_container_layout')
-        self.overview_pagination_nav = MyGroupBox(group_box_ref='overview_pagination_nav')
-        self.overview_pagination_nav_layout = MyGridLayout()
-        self.overview_pagination_prev_button = MyPushButton(text='Prev')
-        self.overview_pagination_prev_button.clicked.connect(self.on_overview_pagination_prev_button_clicked)
-        self.overview_pagination_page = MyLabel('Page 1')
-        self.overview_pagination_next_button = MyPushButton(text='Next')
-        self.overview_pagination_next_button.clicked.connect(self.on_overview_pagination_next_button_clicked)
-        self.overview_pagination_nav_layout.addWidget(self.overview_pagination_prev_button,0,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        self.overview_pagination_nav_layout.addWidget(self.overview_pagination_page,0,1,Qt.AlignmentFlag.AlignCenter)
-        self.overview_pagination_nav_layout.addWidget(self.overview_pagination_next_button,0,2,Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-        self.overview_pagination_nav.setLayout(self.overview_pagination_nav_layout)
-        self.overview_pagination_container_layout.addWidget(self.overview_pagination_nav)
-        self.overview_pagination_container.setLayout(self.overview_pagination_container_layout)
+        self.pagination_container = MyGroupBox(group_box_ref='pagination_container')
+        self.pagination_container_layout = MyGridLayout(grid_layout_ref='pagination_container_layout')
+        self.pagination_nav = MyGroupBox(group_box_ref='pagination_nav')
+        self.pagination_nav_layout = MyGridLayout()
+        self.pagination_prev_button = MyPushButton(push_button_ref='pagination_prev_button', text='Prev')
+        self.pagination_prev_button.clicked.connect(self.on_pagination_prev_button_clicked)
+        self.pagination_page = MyLabel('Page 1')
+        self.pagination_next_button = MyPushButton(push_button_ref='pagination_next_button', text='Next')
+        self.pagination_next_button.clicked.connect(self.on_pagination_next_button_clicked)
+        self.pagination_nav_layout.addWidget(self.pagination_prev_button,0,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.pagination_nav_layout.addWidget(self.pagination_page,0,1,Qt.AlignmentFlag.AlignCenter)
+        self.pagination_nav_layout.addWidget(self.pagination_next_button,0,2,Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        self.pagination_nav.setLayout(self.pagination_nav_layout)
+        self.pagination_container_layout.addWidget(self.pagination_nav)
+        self.pagination_container.setLayout(self.pagination_container_layout)
 
-        self.overview_pagination_layout.addWidget(self.overview_table,0,0)
-        self.overview_pagination_layout.addWidget(self.overview_pagination_container,1,0)
+        self.pagination_layout.addWidget(self.table,0,0)
+        self.pagination_layout.addWidget(self.pagination_container,1,0)
 
-        self.overview_pagination.setLayout(self.overview_pagination_layout)
-        # endregion -- self.overview_pagination
+        self.pagination.setLayout(self.pagination_layout)
+        # endregion -- self.pagination
         
         # region -- self.table_sorter.addTab
-        self.table_sorter.addTab(self.overview_pagination, 'Overview')
+        self.table_sorter.addTab(self.pagination, 'Overview')
         # endregion -- self.table_sorter.addTab
 
         self.content_panel_layout.addWidget(self.filter_field,0,0)
