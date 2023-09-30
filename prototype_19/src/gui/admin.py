@@ -9,6 +9,7 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from gui.product import *
 from gui.promo import *
 from widget.admin import *
 
@@ -40,28 +41,34 @@ class AdminWindow(MyWidget):
         for index, button in enumerate(side_nav_button):
             button.setStyleSheet(self.my_push_button.active_side_nav_button_ss) if index == current_index else button.setStyleSheet(self.my_push_button.inactive_side_nav_button_ss)
 
-
     def on_product_window_button_clicked(self):
         self.style_side_nav_button(0)
+        self.stacked_panel.setCurrentIndex(0)
         pass
     def on_promo_window_button_clicked(self):
         self.style_side_nav_button(1)
+        self.stacked_panel.setCurrentIndex(1)
         pass
     def on_customer_window_button_clicked(self):
         self.style_side_nav_button(2)
+        self.stacked_panel.setCurrentIndex(2)
         pass
     def on_user_window_button_clicked(self):
         self.style_side_nav_button(3)
+        self.stacked_panel.setCurrentIndex(3)
         pass
     def on_settings_window_button_clicked(self):
         self.style_side_nav_button(4)
+        self.stacked_panel.setCurrentIndex(4)
         pass
 
     def show_stacked_panel(self):
         self.stacked_panel = MyStackedWidget()
 
+        self.product_window = ProductWindow()
         self.promo_window = PromoWindow()
 
+        self.stacked_panel.addWidget(self.product_window)
         self.stacked_panel.addWidget(self.promo_window)
 
         pass
@@ -81,7 +88,7 @@ class AdminWindow(MyWidget):
         self.user_window_button.clicked.connect(self.on_user_window_button_clicked)
         self.settings_window_button.clicked.connect(self.on_settings_window_button_clicked)
 
-        self.style_side_nav_button(1)
+        self.style_side_nav_button(0)
 
         self.side_nav_panel_layout.addRow(self.product_window_button)
         self.side_nav_panel_layout.addRow(self.promo_window_button)

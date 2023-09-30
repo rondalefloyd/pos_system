@@ -38,18 +38,93 @@ class MyTableWidget(QTableWidget):
         self.setShowGrid(False)
         self.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
         self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+
         self.setStyleSheet('''
-            QTableWidget#data_list_table { border: 0px; border-bottom: 1px solid #ddd }
+            QTableWidget#data_list_table,
+            QTableWidget#primary_data_list_table,
+            QTableWidget#category_data_list_table,
+            QTableWidget#price_data_list_table,
+            QTableWidget#inventory_data_list_table { border: 0px; border-bottom: 1px solid #ddd }
+                           
             QHeaderView::section { background-color: rgba(255,255,255,255); border: 0px; border-bottom: 1px solid #ddd; }
             QTableWidget::item { border: 0px; border-bottom: 1px solid #ccc; font-size: 10px; padding: 0px 20px }
         ''')
-
         if object_name == 'data_list_table':
-            self.setColumnCount(6)
-            self.setHorizontalHeaderLabels(['Action','Promo name','Promo type','Discount percent','Description','Date and time created'])
+            self.setColumnCount(10)
+            self.setHorizontalHeaderLabels([
+                'Action',
+                'Item name',
+                'Brand',
+                'Sales group',
+                'Sell price',
+                'Discount value',
+                'Effective date',
+                'Promo name',
+                'Inventory tracking',
+                'Date and time created' 
+            ])
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.verticalHeader().setVisible(False)
             self.verticalHeader().setDefaultSectionSize(50)
+            pass
+        if object_name == 'primary_data_list_table':
+            self.setColumnCount(5)
+            self.setHorizontalHeaderLabels([
+                'Action',
+                'Barcode',
+                'Item name',
+                'Expire date',
+                'Date and time created' 
+            ])
+            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.verticalHeader().setVisible(False)
+            self.verticalHeader().setDefaultSectionSize(50)
+            pass
+        if object_name == 'category_data_list_table':
+            self.setColumnCount(7)
+            self.setHorizontalHeaderLabels([
+                'Action',
+                'Item name',
+                'Item type',
+                'Brand',
+                'Sales group',
+                'Supplier',
+                'Date and time created' 
+            ])
+            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.verticalHeader().setVisible(False)
+            self.verticalHeader().setDefaultSectionSize(50)
+            pass
+        if object_name == 'price_data_list_table':
+            self.setColumnCount(8)
+            self.setHorizontalHeaderLabels([
+                'Action',
+                'Item name',
+                'Cost',
+                'Sell price',
+                'Effective date',
+                'Promo name',
+                'Discount value',
+                'Date and time created' 
+            ])
+            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.verticalHeader().setVisible(False)
+            self.verticalHeader().setDefaultSectionSize(50)
+            pass
+        if object_name == 'inventory_data_list_table':
+            self.setColumnCount(5)
+            self.setHorizontalHeaderLabels([
+                'Action',
+                'Item name',
+                'Available stock',
+                'On hand stock',
+                'Date and time created' 
+            ])
+            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.verticalHeader().setVisible(False)
+            self.verticalHeader().setDefaultSectionSize(50)
+            pass
+        
         pass
 class MyWidget(QWidget):
     def __init__(self, object_name='', parent=None):
@@ -69,6 +144,10 @@ class MyGroupBox(QGroupBox):
             QGroupBox#{object_name} {{ border-top: 1px solid #ddd }}
             QLineEdit#text_filter_field {{ padding: 5px }}
             """)
+
+        if object_name == 'data_list_action_panel':
+            self.setMinimumWidth(100)
+            pass
 
         if object_name == 'form_panel':
             self.setFixedWidth(300)
@@ -137,7 +216,7 @@ class MyDialog(QDialog):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
         if object_name == 'data_list_view_dialog':
-            self.setMinimumWidth(300)
+            self.setMinimumWidth(400)
             pass
         pass
 class MyProgressDialog(QProgressDialog):
@@ -152,8 +231,13 @@ class MyVBoxLayout(QVBoxLayout):
         super().__init__()
         
         self.setObjectName(object_name)
-
-        if object_name == 'data_list_pgn_panel_layout':
+        if object_name in [
+            'data_list_pgn_panel_layout',
+            'primary_data_list_pgn_panel_layout',
+            'category_data_list_pgn_panel_layout',
+            'price_data_list_pgn_panel_layout',
+            'inventory_data_list_pgn_panel_layout'
+        ]:
             self.setContentsMargins(0,0,0,0)
             self.setSpacing(0)
 
@@ -340,10 +424,22 @@ class MyPushButton(QPushButton):
             self.setIcon(QIcon(add_icon_path))
             self.setIconSize(QSize(15,20))
 
-        if object_name == 'data_list_pgn_prev_button':
+        if object_name in [
+            'data_list_pgn_prev_button',
+            'primary_data_list_pgn_prev_button',
+            'category_data_list_pgn_prev_button',
+            'price_data_list_pgn_prev_button',
+            'inventory_data_list_pgn_prev_button'
+        ]:
             self.setIcon(QIcon(prev_icon_path))
             self.setIconSize(QSize(15,20))
-        if object_name == 'data_list_pgn_next_button':
+        if object_name in [
+            'data_list_pgn_next_button',
+            'primary_data_list_pgn_next_button',
+            'category_data_list_pgn_next_button',
+            'price_data_list_pgn_next_button',
+            'inventory_data_list_pgn_next_button'
+        ]:
             self.setIcon(QIcon(next_icon_path))
             self.setIconSize(QSize(15,20))
         pass

@@ -27,6 +27,11 @@ class ProductWindow(MyWidget):
         self.my_push_button = MyPushButton()
 
         self.data_list_curr_page = 1
+        self.primary_data_list_curr_page = 1
+        self.category_data_list_curr_page = 1
+        self.price_data_list_curr_page = 1
+        self.inventory_data_list_curr_page = 1
+
         self.clicked_data_list_edit_button = None
         self.clicked_data_list_view_button = None
         self.clicked_data_list_delete_button = None
@@ -110,16 +115,41 @@ class ProductWindow(MyWidget):
         self.data_list_view_dialog = MyDialog(object_name='data_list_view_dialog', parent=self)
         self.data_list_view_dialog_layout = MyFormLayout()
 
-        product_name_info = MyLabel(text=str(row_value[0]))
-        product_type_info = MyLabel(text=str(row_value[1]))
-        discount_percent_info = MyLabel(text=str(row_value[2]))
-        description_info = MyLabel(text=str(row_value[3]))
-        date_created_info = MyLabel(text=str(row_value[4]))
+        barcode_info = MyLabel(object_name='barcode_info', text=str(row_value[0]))
+        item_name_info = MyLabel(object_name='item_name_info', text=str(row_value[1]))
+        expire_dt_info = MyLabel(object_name='expire_dt_info', text=str(row_value[2]))
 
-        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Product name:'), product_name_info)
-        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Product type:'), product_type_info)
-        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Discount percent:'), discount_percent_info)
-        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Description:'), description_info)
+        item_type_info = MyLabel(object_name='item_type_info', text=str(row_value[3]))
+        brand_info = MyLabel(object_name='brand_info', text=str(row_value[4]))
+        sales_group_info = MyLabel(object_name='sales_group_info', text=str(row_value[5]))
+        supplier_info = MyLabel(object_name='supplier_info', text=str(row_value[6]))
+
+        cost_info = MyLabel(object_name='cost_info', text=f'₱{row_value[7]}')
+        sell_price_info = MyLabel(object_name='sell_price_info', text=f'₱{row_value[8]}')
+        effective_dt_info = MyLabel(object_name='effective_dt_info', text=str(row_value[9]))
+        promo_name_info = MyLabel(object_name='promo_name_info', text=str(row_value[10]))
+        discount_value_info = MyLabel(object_name='discount_value_info', text=f'₱{row_value[11]}')
+
+        inventory_tracking_info = MyLabel(object_name='inventory_tracking_info', text=str(row_value[12]))
+
+        date_created_info = MyLabel(object_name='date_created_info', text=str(row_value[15]))
+
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Barcode:'), barcode_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Item name:'), item_name_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Expire date:'), expire_dt_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(text='<hr>'))
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Item type:'), item_type_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Brand:'), brand_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Sales_group:'), sales_group_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Supplier:'), supplier_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(text='<hr>'))
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Cost:'), cost_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Sell price:'), sell_price_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Effective date:'), effective_dt_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Promo name:'), promo_name_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Discount value:'), discount_value_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(text='<hr>'))
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Inventory tracking:'), inventory_tracking_info)
         self.data_list_view_dialog_layout.addRow(MyLabel(text='<hr>'))
         self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Date and time created:'), date_created_info)
         self.data_list_view_dialog.setLayout(self.data_list_view_dialog_layout)
@@ -453,15 +483,29 @@ class ProductWindow(MyWidget):
     def populate_table(self, text_filter='', current_page=1):
         # region > data_list_clear_contents
         self.data_list_table.clearContents()
+        self.primary_data_list_table.clearContents()
+        self.category_data_list_table.clearContents()
+        self.price_data_list_table.clearContents()
+        self.inventory_data_list_table.clearContents()
         # endregion
 
         # region > data_list
         product_data = self.product_schema.list_product(text_filter=text_filter, page_number=current_page)
+        inventory_data = self.product_schema.list_inventory(text_filter=text_filter, page_number=current_page)
         # endregion
 
         # region > data_list_pgn_button_set_enabled
         self.data_list_pgn_prev_button.setEnabled(self.data_list_curr_page > 1)
+        self.primary_data_list_pgn_prev_button.setEnabled(self.primary_data_list_curr_page > 1)
+        self.category_data_list_pgn_prev_button.setEnabled(self.category_data_list_curr_page > 1)
+        self.price_data_list_pgn_prev_button.setEnabled(self.price_data_list_curr_page > 1)
+        self.inventory_data_list_pgn_prev_button.setEnabled(self.inventory_data_list_curr_page > 1)
+
         self.data_list_pgn_next_button.setEnabled(len(product_data) == 30)
+        self.primary_data_list_pgn_next_button.setEnabled(len(product_data) == 30)
+        self.category_data_list_pgn_next_button.setEnabled(len(product_data) == 30)
+        self.price_data_list_pgn_next_button.setEnabled(len(product_data) == 30)
+        self.inventory_data_list_pgn_next_button.setEnabled(len(inventory_data) == 30)
         # endregion
 
         # region > clicked_data_list_set_disabled
@@ -471,16 +515,20 @@ class ProductWindow(MyWidget):
         
         # region > data_list_table_set_row_count
         self.data_list_table.setRowCount(len(product_data))
+        self.primary_data_list_table.setRowCount(len(product_data))
+        self.category_data_list_table.setRowCount(len(product_data))
+        self.price_data_list_table.setRowCount(len(product_data))
+        self.inventory_data_list_table.setRowCount(len(inventory_data))
         # endregion
 
         for row_index, row_value in enumerate(product_data):
             # region > data_list_action
-            self.data_list_action_panel = MyGroupBox() # head.a
+            self.data_list_action_panel = MyGroupBox(object_name='data_list_action_panel') # head.a
             self.data_list_action_panel_layout = MyHBoxLayout(object_name='data_list_action_panel_layout')
             
             # region > set_data_list_action_buttons
-            self.data_list_edit_button = MyPushButton(object_name='data_list_edit_button', text='Edit')
-            self.data_list_view_button = MyPushButton(object_name='data_list_view_button', text='View')
+            self.data_list_edit_button = MyPushButton(object_name='data_list_edit_button')
+            self.data_list_view_button = MyPushButton(object_name='data_list_view_button')
             self.data_list_delete_button = MyPushButton(object_name='data_list_delete_button')
             # endregion
 
@@ -501,26 +549,122 @@ class ProductWindow(MyWidget):
             # endregion
 
             # region > set_table_item_values
-            product_name = QTableWidgetItem(str(row_value[0]))
-            product_type = QTableWidgetItem(str(row_value[1]))
-            discount_percent = QTableWidgetItem(str(f'{row_value[2]}%'))
-            description = QTableWidgetItem(str(row_value[3]))
-            update_ts = QTableWidgetItem(str(row_value[4]))
+            barcode = QTableWidgetItem(str(row_value[0]))
+            item_name = [
+                QTableWidgetItem(str(row_value[1])),
+                QTableWidgetItem(str(row_value[1])),
+                QTableWidgetItem(str(row_value[1])),
+                QTableWidgetItem(str(row_value[1]))
+            ]
+            expire_dt = QTableWidgetItem(str(row_value[2]))
+
+            item_type = QTableWidgetItem(str(row_value[3]))
+            brand = [
+                QTableWidgetItem(str(row_value[4])),
+                QTableWidgetItem(str(row_value[4]))
+            ]
+            sales_group = [
+                QTableWidgetItem(str(row_value[5])),
+                QTableWidgetItem(str(row_value[5]))
+            ]
+            supplier = QTableWidgetItem(str(row_value[6]))
+
+            cost = QTableWidgetItem(f'₱{row_value[7]}')
+            sell_price = [
+                QTableWidgetItem(f'₱{row_value[8]}'),
+                QTableWidgetItem(f'₱{row_value[8]}')
+            ]
+            effective_dt = [
+                QTableWidgetItem(str(row_value[9])),
+                QTableWidgetItem(str(row_value[9]))
+            ]
+            promo_name = [
+                QTableWidgetItem(str(row_value[10])),
+                QTableWidgetItem(str(row_value[10]))
+            ]
+            discount_value = [
+                QTableWidgetItem(f'₱{row_value[11]}'),
+                QTableWidgetItem(f'₱{row_value[11]}')
+            ]
+
+            inventory_tracking = [
+                QTableWidgetItem(str(row_value[12])),
+                QTableWidgetItem(str(row_value[12])),
+                QTableWidgetItem(str(row_value[12])),
+                QTableWidgetItem(str(row_value[12])),
+                QTableWidgetItem(str(row_value[12]))
+            ]
+
+            update_ts = [
+                QTableWidgetItem(str(row_value[15])),
+                QTableWidgetItem(str(row_value[15])),
+                QTableWidgetItem(str(row_value[15])),
+                QTableWidgetItem(str(row_value[15])),
+                QTableWidgetItem(str(row_value[15]))
+            ]
+            
             # endregion
 
             # region > set_table_item_alignment
-            discount_percent.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-            update_ts.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            cost.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            for sell_price_text in sell_price: sell_price_text.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            for discount_value_text in discount_value: discount_value_text.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            for inventory_tracking_text in inventory_tracking: inventory_tracking_text.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            for update_ts_text in update_ts: update_ts_text.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             # endregion
         
             # region > set_data_list_table_cells
             self.data_list_table.setCellWidget(row_index, 0, self.data_list_action_panel)
-            self.data_list_table.setItem(row_index, 1, product_name)
-            self.data_list_table.setItem(row_index, 2, product_type)
-            self.data_list_table.setItem(row_index, 3, discount_percent)
-            self.data_list_table.setItem(row_index, 4, description)
-            self.data_list_table.setItem(row_index, 5, update_ts)
+            self.data_list_table.setItem(row_index, 1, item_name[0])
+            self.data_list_table.setItem(row_index, 2, brand[0])
+            self.data_list_table.setItem(row_index, 3, sales_group[0])
+            self.data_list_table.setItem(row_index, 4, sell_price[0])
+            self.data_list_table.setItem(row_index, 5, discount_value[0])
+            self.data_list_table.setItem(row_index, 6, effective_dt[0])
+            self.data_list_table.setItem(row_index, 7, promo_name[0])
+            self.data_list_table.setItem(row_index, 8, inventory_tracking[0])
+            self.data_list_table.setItem(row_index, 9, update_ts[0])
             # endregion
+            # region > set_primary_data_list_table_cells
+            # self.primary_data_list_table.setCellWidget(row_index, 0, self.primary_data_list_action_panel)
+            self.primary_data_list_table.setItem(row_index, 1, barcode)
+            self.primary_data_list_table.setItem(row_index, 2, item_name[1])
+            self.primary_data_list_table.setItem(row_index, 3, expire_dt)
+
+            self.primary_data_list_table.setItem(row_index, 4, update_ts[1])
+            # endregion
+            # region > set_category_data_list_table_cells
+            # self.category_data_list_table.setCellWidget(row_index, 0, self.category_data_list_action_panel)
+            self.category_data_list_table.setItem(row_index, 1, item_name[2])
+            self.category_data_list_table.setItem(row_index, 2, item_type)
+            self.category_data_list_table.setItem(row_index, 3, brand[1])
+            self.category_data_list_table.setItem(row_index, 4, sales_group[1])
+            self.category_data_list_table.setItem(row_index, 5, supplier)
+            self.category_data_list_table.setItem(row_index, 6, update_ts[2])
+            # endregion
+            # region > set_price_data_list_table_cells
+            # self.price_data_list_table.setCellWidget(row_index, 0, self.price_data_list_action_panel)
+            self.price_data_list_table.setItem(row_index, 1, item_name[3])
+            self.price_data_list_table.setItem(row_index, 2, cost)
+            self.price_data_list_table.setItem(row_index, 3, sell_price[1])
+            self.price_data_list_table.setItem(row_index, 4, discount_value[1])
+            self.price_data_list_table.setItem(row_index, 5, effective_dt[1])
+            self.price_data_list_table.setItem(row_index, 6, promo_name[1])
+            self.price_data_list_table.setItem(row_index, 7, update_ts[3])
+            # endregion
+            # region > set_inventory_data_list_table_cells
+            # self.inventory_data_list_table.setCellWidget(row_index, 0, self.inventory_data_list_action_panel)
+            # self.inventory_data_list_table.setItem(row_index, 1, item_name)
+            # self.inventory_data_list_table.setItem(row_index, 2, brand)
+            # self.inventory_data_list_table.setItem(row_index, 3, sales_group)
+            # self.inventory_data_list_table.setItem(row_index, 4, sell_price)
+            # self.inventory_data_list_table.setItem(row_index, 5, discount_value)
+            # self.inventory_data_list_table.setItem(row_index, 6, effective_dt)
+            # self.inventory_data_list_table.setItem(row_index, 7, promo_name)
+            # self.inventory_data_list_table.setItem(row_index, 8, inventory_tracking)
+            # self.inventory_data_list_table.setItem(row_index, 9, update_ts)
+            # endregion
+            !!! CHECK POINT !!!
 
         pass
 
@@ -556,7 +700,7 @@ class ProductWindow(MyWidget):
 
         # region > form_labels
         self.barcode_label = MyLabel(object_name='barcode_label', text=f'Barcode')
-        self.item_name_label = MyLabel(object_name='item_name_label', text=f'Item_name {self.required_field_indicator}')
+        self.item_name_label = MyLabel(object_name='item_name_label', text=f'Item name {self.required_field_indicator}')
         self.expire_dt_label = MyLabel(object_name='expire_dt_label', text=f'Expire date')
 
         self.item_type_label = MyLabel(object_name='item_type_label', text=f'Item type')
@@ -739,6 +883,8 @@ class ProductWindow(MyWidget):
         # endregion
         # region > data_list_sorter
         self.data_list_sorter_tab = MyTabWidget(object_name='data_list_sorter_tab') # head.c
+
+        # region > overview_data_list_panel
         self.data_list_pgn_panel = MyGroupBox(object_name='data_list_pgn_panel') # head.c.a
         self.data_list_pgn_panel_layout = MyVBoxLayout(object_name='data_list_pgn_panel_layout')
         self.data_list_table = MyTableWidget(object_name='data_list_table')
@@ -754,7 +900,82 @@ class ProductWindow(MyWidget):
         self.data_list_pgn_panel_layout.addWidget(self.data_list_table)
         self.data_list_pgn_panel_layout.addWidget(self.data_list_pgn_action_panel)
         self.data_list_pgn_panel.setLayout(self.data_list_pgn_panel_layout)
+        # endregion
+        # region > primary_data_list_panel
+        self.primary_data_list_pgn_panel = MyGroupBox(object_name='primary_data_list_pgn_panel') # head.c.a
+        self.primary_data_list_pgn_panel_layout = MyVBoxLayout(object_name='primary_data_list_pgn_panel_layout')
+        self.primary_data_list_table = MyTableWidget(object_name='primary_data_list_table')
+        self.primary_data_list_pgn_action_panel = MyGroupBox(object_name='primary_data_list_pgn_action_panel')
+        self.primary_data_list_pgn_action_panel_layout = MyGridLayout(object_name='primary_data_list_pgn_action_panel_layout')
+        self.primary_data_list_pgn_prev_button = MyPushButton(object_name='primary_data_list_pgn_prev_button')
+        self.primary_data_list_pgn_page = MyLabel(object_name='primary_data_list_pgn_page', text='Page 1')
+        self.primary_data_list_pgn_next_button = MyPushButton(object_name='primary_data_list_pgn_next_button')
+        self.primary_data_list_pgn_action_panel_layout.addWidget(self.primary_data_list_pgn_prev_button,0,0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.primary_data_list_pgn_action_panel_layout.addWidget(self.primary_data_list_pgn_page,0,1, Qt.AlignmentFlag.AlignCenter)
+        self.primary_data_list_pgn_action_panel_layout.addWidget(self.primary_data_list_pgn_next_button,0,2, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        self.primary_data_list_pgn_action_panel.setLayout(self.primary_data_list_pgn_action_panel_layout)
+        self.primary_data_list_pgn_panel_layout.addWidget(self.primary_data_list_table)
+        self.primary_data_list_pgn_panel_layout.addWidget(self.primary_data_list_pgn_action_panel)
+        self.primary_data_list_pgn_panel.setLayout(self.primary_data_list_pgn_panel_layout)
+        # endregion
+        # region > category_data_list_panel
+        self.category_data_list_pgn_panel = MyGroupBox(object_name='category_data_list_pgn_panel') # head.c.a
+        self.category_data_list_pgn_panel_layout = MyVBoxLayout(object_name='category_data_list_pgn_panel_layout')
+        self.category_data_list_table = MyTableWidget(object_name='category_data_list_table')
+        self.category_data_list_pgn_action_panel = MyGroupBox(object_name='category_data_list_pgn_action_panel')
+        self.category_data_list_pgn_action_panel_layout = MyGridLayout(object_name='category_data_list_pgn_action_panel_layout')
+        self.category_data_list_pgn_prev_button = MyPushButton(object_name='category_data_list_pgn_prev_button')
+        self.category_data_list_pgn_page = MyLabel(object_name='category_data_list_pgn_page', text='Page 1')
+        self.category_data_list_pgn_next_button = MyPushButton(object_name='category_data_list_pgn_next_button')
+        self.category_data_list_pgn_action_panel_layout.addWidget(self.category_data_list_pgn_prev_button,0,0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.category_data_list_pgn_action_panel_layout.addWidget(self.category_data_list_pgn_page,0,1, Qt.AlignmentFlag.AlignCenter)
+        self.category_data_list_pgn_action_panel_layout.addWidget(self.category_data_list_pgn_next_button,0,2, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        self.category_data_list_pgn_action_panel.setLayout(self.category_data_list_pgn_action_panel_layout)
+        self.category_data_list_pgn_panel_layout.addWidget(self.category_data_list_table)
+        self.category_data_list_pgn_panel_layout.addWidget(self.category_data_list_pgn_action_panel)
+        self.category_data_list_pgn_panel.setLayout(self.category_data_list_pgn_panel_layout)
+        # endregion
+        # region > price_data_list_panel
+        self.price_data_list_pgn_panel = MyGroupBox(object_name='price_data_list_pgn_panel') # head.c.a
+        self.price_data_list_pgn_panel_layout = MyVBoxLayout(object_name='price_data_list_pgn_panel_layout')
+        self.price_data_list_table = MyTableWidget(object_name='price_data_list_table')
+        self.price_data_list_pgn_action_panel = MyGroupBox(object_name='price_data_list_pgn_action_panel')
+        self.price_data_list_pgn_action_panel_layout = MyGridLayout(object_name='price_data_list_pgn_action_panel_layout')
+        self.price_data_list_pgn_prev_button = MyPushButton(object_name='price_data_list_pgn_prev_button')
+        self.price_data_list_pgn_page = MyLabel(object_name='price_data_list_pgn_page', text='Page 1')
+        self.price_data_list_pgn_next_button = MyPushButton(object_name='price_data_list_pgn_next_button')
+        self.price_data_list_pgn_action_panel_layout.addWidget(self.price_data_list_pgn_prev_button,0,0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.price_data_list_pgn_action_panel_layout.addWidget(self.price_data_list_pgn_page,0,1, Qt.AlignmentFlag.AlignCenter)
+        self.price_data_list_pgn_action_panel_layout.addWidget(self.price_data_list_pgn_next_button,0,2, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        self.price_data_list_pgn_action_panel.setLayout(self.price_data_list_pgn_action_panel_layout)
+        self.price_data_list_pgn_panel_layout.addWidget(self.price_data_list_table)
+        self.price_data_list_pgn_panel_layout.addWidget(self.price_data_list_pgn_action_panel)
+        self.price_data_list_pgn_panel.setLayout(self.price_data_list_pgn_panel_layout)
+        # endregion
+        # region > inventory_data_list_panel
+        self.inventory_data_list_pgn_panel = MyGroupBox(object_name='inventory_data_list_pgn_panel') # head.c.a
+        self.inventory_data_list_pgn_panel_layout = MyVBoxLayout(object_name='inventory_data_list_pgn_panel_layout')
+        self.inventory_data_list_table = MyTableWidget(object_name='inventory_data_list_table')
+        self.inventory_data_list_pgn_action_panel = MyGroupBox(object_name='inventory_data_list_pgn_action_panel')
+        self.inventory_data_list_pgn_action_panel_layout = MyGridLayout(object_name='inventory_data_list_pgn_action_panel_layout')
+        self.inventory_data_list_pgn_prev_button = MyPushButton(object_name='inventory_data_list_pgn_prev_button')
+        self.inventory_data_list_pgn_page = MyLabel(object_name='inventory_data_list_pgn_page', text='Page 1')
+        self.inventory_data_list_pgn_next_button = MyPushButton(object_name='inventory_data_list_pgn_next_button')
+        self.inventory_data_list_pgn_action_panel_layout.addWidget(self.inventory_data_list_pgn_prev_button,0,0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.inventory_data_list_pgn_action_panel_layout.addWidget(self.inventory_data_list_pgn_page,0,1, Qt.AlignmentFlag.AlignCenter)
+        self.inventory_data_list_pgn_action_panel_layout.addWidget(self.inventory_data_list_pgn_next_button,0,2, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        self.inventory_data_list_pgn_action_panel.setLayout(self.inventory_data_list_pgn_action_panel_layout)
+        self.inventory_data_list_pgn_panel_layout.addWidget(self.inventory_data_list_table)
+        self.inventory_data_list_pgn_panel_layout.addWidget(self.inventory_data_list_pgn_action_panel)
+        self.inventory_data_list_pgn_panel.setLayout(self.inventory_data_list_pgn_panel_layout)
+        # endregion
+
+        # !!!CHECK POINT!!!
         self.data_list_sorter_tab.addTab(self.data_list_pgn_panel, 'Overview')
+        self.data_list_sorter_tab.addTab(self.primary_data_list_pgn_panel, 'Primary')
+        self.data_list_sorter_tab.addTab(self.category_data_list_pgn_panel, 'Category')
+        self.data_list_sorter_tab.addTab(self.price_data_list_pgn_panel, 'Price')
+        self.data_list_sorter_tab.addTab(self.inventory_data_list_pgn_panel, 'Inventory')
         # endregion
 
         # region > content_button_connections

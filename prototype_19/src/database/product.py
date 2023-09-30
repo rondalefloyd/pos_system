@@ -717,6 +717,40 @@ class ProductSchema():
         
         return data
 
+    def list_inventory(self, text_filter='', page_number=1, page_size=30):
+        # Calculate the offset to skip rows based on page number and page size
+        offset = (page_number - 1) * page_size
+
+        self.cursor.execute('''
+            SELECT
+                COALESCE(NULLIF(Item.Name, ''), '[no data]') AS Item,
+                COALESCE(NULLIF(Stock.Available, ''), '[no data]') AS Available,
+                COALESCE(NULLIF(Stock.OnHand, ''), '[no data]') AS OnHand,
+                Stock.ItemId,
+                StockId,
+                Stock.UpdateTs
+            FROM Stock
+                LEFT JOIN Item ON Stock.ItemId = Item.ItemId
+            WHERE
+                Item LIKE ? OR
+                Available LIKE ? OR
+                OnHand LIKE ?
+            ORDER BY Item, Item.UpdateTs DESC
+            LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
+                                
+            ''', (
+                '%' + text_filter + '%', 
+                '%' + text_filter + '%', 
+                '%' + text_filter + '%',
+                page_size,  # Limit
+                offset     # Offset
+            ))
+        
+        stock = self.cursor.fetchall()
+        
+        return stock
+        pass
+    
 # CHECKPOINT!!!
 
 

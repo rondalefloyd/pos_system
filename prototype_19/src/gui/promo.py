@@ -287,7 +287,7 @@ class PromoWindow(MyWidget):
 
         for row_index, row_value in enumerate(promo_data):
             # region > data_list_action
-            self.data_list_action_panel = MyGroupBox() # head.a
+            self.data_list_action_panel = MyGroupBox(object_name='data_list_action_panel') # head.a
             self.data_list_action_panel_layout = MyHBoxLayout(object_name='data_list_action_panel_layout')
             
             # region > set_data_list_action_buttons

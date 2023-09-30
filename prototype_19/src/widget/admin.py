@@ -39,7 +39,7 @@ class MyStackedWidget(QStackedWidget):
         
         self.setObjectName(object_name)
         
-        self.setCurrentIndex(1)
+        self.setCurrentIndex(0)
         pass
 
 class MyVBoxLayout(QVBoxLayout):

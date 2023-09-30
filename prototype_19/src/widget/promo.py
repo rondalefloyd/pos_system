@@ -70,6 +70,10 @@ class MyGroupBox(QGroupBox):
             QLineEdit#text_filter_field {{ padding: 5px }}
             """)
 
+        if object_name == 'data_list_action_panel':
+            self.setMinimumWidth(140)
+            pass
+
         if object_name == 'form_panel':
             self.setFixedWidth(300)
 
