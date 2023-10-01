@@ -42,6 +42,13 @@ class MyStackedWidget(QStackedWidget):
         self.setCurrentIndex(0)
         pass
 
+class MyProgressDialog(QProgressDialog):
+    def __init__(self, object_name='', parent=None):
+        super().__init__()
+        
+        self.setObjectName(object_name)
+        pass
+
 class MyVBoxLayout(QVBoxLayout):
     def __init__(self, object_name=''):
         super().__init__()
@@ -93,11 +100,11 @@ class MyPushButton(QPushButton):
             QPushButton:hover { background-color: rgba(225, 225, 225, 25); border-right: 3px solid #EE4E34 }
         """
 
-        product_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/side_nav_panel/product.png'))
-        promo_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/side_nav_panel/promo.png'))
-        customer_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/side_nav_panel/customer.png'))
-        user_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/side_nav_panel/user.png'))
-        settings_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/side_nav_panel/settings.png'))
+        product_icon_path = os.path.abspath('src/icons/side_nav_panel/product.png')
+        promo_icon_path = os.path.abspath('src/icons/side_nav_panel/promo.png')
+        customer_icon_path = os.path.abspath('src/icons/side_nav_panel/customer.png')
+        user_icon_path = os.path.abspath('src/icons/side_nav_panel/user.png')
+        settings_icon_path = os.path.abspath('src/icons/side_nav_panel/settings.png')
 
         if object_name == 'product_window_button':
             self.setIcon(QIcon(product_icon_path))

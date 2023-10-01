@@ -40,16 +40,60 @@ class MyTableWidget(QTableWidget):
         self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.setStyleSheet('''
             QTableWidget#data_list_table { border: 0px; border-bottom: 1px solid #ddd }
+            QTableWidget#primary_data_list_table { border: 0px; border-bottom: 1px solid #ddd }
+            QTableWidget#category_data_list_table { border: 0px; border-bottom: 1px solid #ddd }
+            QTableWidget#price_data_list_table { border: 0px; border-bottom: 1px solid #ddd }
+            QTableWidget#inventory_data_list_table { border: 0px; border-bottom: 1px solid #ddd }
+                           
             QHeaderView::section { background-color: rgba(255,255,255,255); border: 0px; border-bottom: 1px solid #ddd; }
             QTableWidget::item { border: 0px; border-bottom: 1px solid #ccc; font-size: 10px; padding: 0px 20px }
         ''')
 
-        if object_name == 'data_list_table':
-            self.setColumnCount(6)
-            self.setHorizontalHeaderLabels(['Action','Promo name','Promo type','Discount percent','Description','Date and time created'])
+        if object_name in [
+            'data_list_table',
+            'primary_data_list_table',
+            'category_data_list_table',
+            'price_data_list_table',
+            'inventory_data_list_table'
+        ]:
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.horizontalHeader().setMinimumSectionSize(160)
             self.verticalHeader().setVisible(False)
             self.verticalHeader().setDefaultSectionSize(50)
+            pass
+
+        if object_name == 'data_list_table':
+            self.setColumnCount(10)
+            self.setHorizontalHeaderLabels([
+                'Action',
+                'Item name',
+                'Brand',
+                'Sales group',
+                'Sell price',
+                'Discount value',
+                'Effective date',
+                'Promo name',
+                'Inventory tracking',
+                'Date and time created'
+            ])
+            pass
+        if object_name == 'primary_data_list_table':
+            self.setColumnCount(5)
+            self.setHorizontalHeaderLabels(['Action', 'Barcode', 'Item name', 'Expire date', 'Date and time created'])
+            pass
+        if object_name == 'category_data_list_table':
+            self.setColumnCount(7)
+            self.setHorizontalHeaderLabels(['Action', 'Item name', 'Item type', 'Brand', 'Sales group', 'Supplier', 'Date and time created'])
+            pass
+        if object_name == 'price_data_list_table':
+            self.setColumnCount(8)
+            self.setHorizontalHeaderLabels(['Action', 'Item name', 'Cost', 'Sell price', 'Discount value', 'Effective date', 'Promo name', 'Date and time created'])
+            pass
+        if object_name == 'inventory_data_list_table':
+            self.setColumnCount(5)
+            self.setHorizontalHeaderLabels(['Action', 'Item name', 'Available stock', 'On hand stock', 'Date and time created'])
+            pass
+    
         pass
 class MyWidget(QWidget):
     def __init__(self, object_name='', parent=None):
@@ -71,7 +115,6 @@ class MyGroupBox(QGroupBox):
             """)
 
         if object_name == 'data_list_action_panel':
-            self.setMinimumWidth(140)
             pass
 
         if object_name == 'form_panel':
@@ -81,17 +124,41 @@ class MyGroupBox(QGroupBox):
                 QGroupBox {{ background-color: #fff; border: 0px }}
                 QGroupBox#{object_name} {{ border-top: 1px solid #ddd; border-left: 1px solid #ddd }}
                 QScrollArea#form_scroll_area {{ border: 0px }}
-                QGroupBox#primary_info_page {{ background-color: #fff; border: 0px; border-top: 3px solid #EE4E34 }}
-                QLabel {{ color: #222 }}
-                QLineEdit#promo_name_field {{ padding: 5px; margin-bottom: 10px }}
-                QComboBox#promo_type_field {{ padding: 5px; margin-bottom: 10px }}
-                QLineEdit#discount_percent_field {{ padding: 5px; margin-bottom: 10px }}
-                QPlainTextEdit#description_field {{ background-color: #fff; padding: 5px; }}
             """)
 
-        if object_name == 'primary_info_page':
+        if object_name in [
+            'primary_info_page',
+            'category_info_page',
+            'price_info_page',
+            'inventory_info_page'
+        ]:
             self.setStyleSheet(f"""
-                QGroupBox#{object_name} {{background-color: #FCEDDA}};
+                QGroupBox#{object_name} {{background-color: #eee; border: 0px; border-top: 3px solid #EE4E34}}
+                QLabel {{ color: #222 }}
+
+                QLineEdit#barcode_field {{ padding: 5px; margin-bottom: 10px }}
+                QLineEdit#item_name_field {{ padding: 5px; margin-bottom: 10px }}
+                QDateEdit#expire_dt_field {{ padding: 5px; }}
+
+                QComboBox#item_type_field {{ padding: 5px; margin-bottom: 10px }}
+                QComboBox#brand_field {{ padding: 5px; margin-bottom: 10px }}
+                QComboBox#sales_group_field {{ padding: 5px; margin-bottom: 10px }}
+                QComboBox#supplier_field {{ padding: 5px; }}
+
+                QLineEdit#cost_field {{ padding: 5px; margin-bottom: 10px }}
+                QLineEdit#sell_price_field {{ padding: 5px; margin-bottom: 10px }}
+                QDateEdit#effective_dt_field {{ padding: 5px; margin-bottom: 10px }}
+                QComboBox#promo_name_field {{ padding: 5px; margin-bottom: 10px }}
+                QLineEdit#promo_type_field {{ padding: 5px; margin-bottom: 10px }}
+                QLineEdit#discount_percent_field {{ padding: 5px; margin-bottom: 10px }}
+                QLineEdit#discount_value_field {{ padding: 5px; margin-bottom: 10px }}
+                QLineEdit#new_sell_price_field {{ padding: 5px; margin-bottom: 10px }}
+                QDateEdit#start_dt_field {{ padding: 5px; margin-bottom: 10px }}
+                QDateEdit#end_dt_field {{ padding: 5px; }}
+
+                QComboBox#inventory_tracking_field {{ padding: 5px; margin-bottom: 10px }}
+                QLineEdit#available_stock_field {{ padding: 5px; margin-bottom: 10px }}
+                QLineEdit#on_hand_stock_field {{ padding: 5px; }}
             """)
             pass
 
@@ -128,7 +195,13 @@ class MyVBoxLayout(QVBoxLayout):
         
         self.setObjectName(object_name)
 
-        if object_name == 'data_list_pgn_panel_layout':
+        if object_name in [
+            'data_list_pgn_panel_layout',
+            'primary_data_list_pgn_panel_layout',
+            'category_data_list_pgn_panel_layout',
+            'price_data_list_pgn_panel_layout',
+            'inventory_data_list_pgn_panel_layout'
+        ]:
             self.setContentsMargins(0,0,0,0)
             self.setSpacing(0)
 
@@ -176,7 +249,12 @@ class MyFormLayout(QFormLayout):
             self.setContentsMargins(10,10,10,10)
         pass
 
-        if object_name == 'primary_info_page_layout':
+        if object_name in [
+            'primary_info_page_layout',
+            'category_info_page_layout',
+            'price_info_page_layout',
+            'inventory_info_page_layout'
+        ]:
             self.setContentsMargins(20,20,20,20)
 
 class MyLabel(QLabel):
@@ -191,10 +269,26 @@ class MyLabel(QLabel):
             self.setStyleSheet(f"QLabel#{object_name} {{ color: #fff; font-size: 10px }} ")
 
         if object_name in [
+            'barcode_label',
+            'item_name_label',
+            'expire_dt_label',
+            'item_type_label',
+            'brand_label',
+            'sales_group_label',
+            'supplier_label',
+            'cost_label',
+            'sell_price_label',
+            'effective_dt_label',
             'promo_name_label',
             'promo_type_label',
             'discount_percent_label',
-            'description_label'
+            'discount_value_label',
+            'new_sell_price_label',
+            'start_dt_label',
+            'end_dt_label',
+            'inventory_tracking_label',
+            'available_stock_label',
+            'on_hand_stock_label'
         ]:
             self.setStyleSheet(f"""
                 QLabel#{object_name} {{ font-size: 10px }}
@@ -220,7 +314,7 @@ class MyPushButton(QPushButton):
             QPushButton#data_list_delete_button {{ background-color: #DC143C; border: 0px; border-radius: 3px; color: #222; padding: 3px }}
 
             QPushButton#data_list_edit_button:hover, 
-            QPushButton#data_list_view_button:hover {{ background-color: rgba(0,0,0,60) }}
+            QPushButton#data_list_view_button:hover {{ background-color: rgba(0,0,0,45) }}
             QPushButton#data_list_delete_button:hover {{ background-color: rgba(190,0,30,225) }}
         """
 
@@ -253,16 +347,16 @@ class MyPushButton(QPushButton):
             QPushButton#data_list_pgn_prev_button:hover, QPushButton#data_list_pgn_next_button:hover {{ background-color: rgba(0, 0, 0, 50) }}
         """
 
-        edit_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/content_panel/edit.png'))
-        view_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/content_panel/view.png'))
-        delete_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/content_panel/delete.png'))
+        edit_icon_path = os.path.abspath('src/icons/content_panel/edit.png')
+        view_icon_path = os.path.abspath('src/icons/content_panel/view.png')
+        delete_icon_path = os.path.abspath('src/icons/content_panel/delete.png')
 
-        sync_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/content_panel/sync.png'))
-        import_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/content_panel/import.png'))
-        add_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/content_panel/add.png'))
+        sync_icon_path = os.path.abspath('src/icons/content_panel/sync.png')
+        import_icon_path = os.path.abspath('src/icons/content_panel/import.png')
+        add_icon_path = os.path.abspath('src/icons/content_panel/add.png')
 
-        prev_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/content_panel/prev.png'))
-        next_icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../icons/content_panel/next.png'))
+        prev_icon_path = os.path.abspath('src/icons/content_panel/prev.png')
+        next_icon_path = os.path.abspath('src/icons/content_panel/next.png')
 
         if object_name == 'data_list_edit_button':
             self.setIcon(QIcon(edit_icon_path))
@@ -306,7 +400,12 @@ class MyComboBox(QComboBox):
         
         self.setObjectName(object_name)
 
-        self.setEditable(True)
+        if object_name in [
+            'item_type_field',
+            'brand_field',
+            'supplier_field'
+        ]:
+            self.setEditable(True)
         pass
 class MyLineEdit(QLineEdit):
     def __init__(self, object_name=''):
@@ -316,7 +415,7 @@ class MyLineEdit(QLineEdit):
 
         if object_name == 'text_filter_field':
             self.setMaximumWidth(600)
-            self.setPlaceholderText('Filter item by name, type, discount percent, description, and date created')
+            self.setPlaceholderText('Filter product')
         pass
 class MyTextEdit(QTextEdit):
     def __init__(self, object_name=''):
@@ -335,4 +434,7 @@ class MyDateEdit(QDateEdit):
         super().__init__()
     
         self.setObjectName(object_name)
+
+        self.setCalendarPopup(True)
+        self.setMinimumDate(QDate().currentDate())
         pass

@@ -7,12 +7,13 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(''))
+print('sys path: ', os.path.abspath(''))
 
-from core.manual_csv_importer import *
-from core.please_wait_sleeper import *
-from database.promo import *
-from widget.promo import *
+from src.core.manual_csv_importer import *
+from src.core.please_wait_sleeper import *
+from src.database.admin.promo import *
+from src.widget.admin.promo import *
 
 class PromoWindow(MyWidget):
     def __init__(self):
@@ -59,7 +60,7 @@ class PromoWindow(MyWidget):
         self.form_close_button.setStyleSheet(self.my_push_button.form_close_button_ss)
         self.form_save_new_button.setStyleSheet(self.my_push_button.form_save_new_button_ss)
         self.form_save_edit_button.setStyleSheet(self.my_push_button.form_save_edit_button_ss)
-    def style_data_mgt__action_button(self):
+    def style_data_mgt_action_button(self):
         self.data_mgt_sync_button.setStyleSheet(self.my_push_button.data_mgt_button_ss)
         self.data_mgt_import_button.setStyleSheet(self.my_push_button.data_mgt_button_ss)
         self.data_mgt_add_button.setStyleSheet(self.my_push_button.data_mgt_button_ss)
@@ -121,33 +122,39 @@ class PromoWindow(MyWidget):
         self.data_mgt_add_button.setDisabled(False)
         pass
     def on_form_save_new_button_clicked(self):
+        # region > convert field input into str
         promo_name = str(self.promo_name_field.text())
         promo_type = str(self.promo_type_field.currentText())
         discount_percent = str(self.discount_percent_field.text())
         description = str(self.description_field.toPlainText())
+        # endregion
 
+        # region > input_restrictions
+        if discount_percent.isdigit() == False:
+            QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
+            return
         if '' in [
             promo_name,
             promo_type,
             discount_percent
         ]:
             QMessageBox.critical(self, 'Error', 'Must fill required field.')
-            pass
+            return
+        # endregion
+        
+        self.promo_schema.add_new_promo(
+            promo_name=promo_name,
+            promo_type=promo_type,
+            discount_percent=discount_percent,
+            description=description
+        )
+        
+        self.total_row_count = self.promo_schema.count_promo()
+        self.populate_table()
+        self.populate_combo_box()
+        self.total_data.setText(f'Total promo: {self.promo_schema.count_promo()}')
 
-        else:
-            self.promo_schema.add_new_promo(
-                promo_name=promo_name,
-                promo_type=promo_type,
-                discount_percent=discount_percent,
-                description=description
-            )
-            
-            self.total_row_count = self.promo_schema.count_promo()
-            self.populate_table()
-            self.populate_combo_box()
-            self.total_data.setText(f'Total promo: {self.promo_schema.count_promo()}')
-
-            QMessageBox.information(self, 'Success', 'New promo has been added!')
+        QMessageBox.information(self, 'Success', 'New promo has been added!')
         pass
     def on_form_save_edit_button_clicked(self):
         promo_name = str(self.promo_name_field.text())
@@ -156,14 +163,16 @@ class PromoWindow(MyWidget):
         description = str(self.description_field.toPlainText())
         promo_id = str(self.selected_promo_id)
 
+        if self.discount_percent_field.isVisible() == True and discount_percent.isdigit() == False:
+            QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
+            return
         if '' in [
             promo_name,
             promo_type,
             discount_percent
         ]:
             QMessageBox.critical(self, 'Error', 'Must fill required field.')
-            pass
-
+            return
         else:
             self.promo_schema.edit_selected_promo(
                 promo_name=promo_name,
@@ -172,12 +181,6 @@ class PromoWindow(MyWidget):
                 description=description,
                 promo_id=promo_id
             )
-            
-            print('promo_name: ', promo_name)
-            print('promo_type: ', promo_type)
-            print('discount_percent: ', discount_percent)
-            print('description: ', description)
-            print('promo_id: ', promo_id)
 
             self.total_row_count = self.promo_schema.count_promo()
             self.populate_table()
@@ -239,6 +242,12 @@ class PromoWindow(MyWidget):
         
         self.clicked_data_list_edit_button = None
         pass
+        pass
+
+    def on_text_filter_field_text_changed(self):
+        self.data_list_curr_page = 1
+        self.data_list_pgn_page.setText(f'Page {self.data_list_curr_page}')
+        self.populate_table(text_filter=str(self.text_filter_field.text()), current_page=self.data_list_curr_page)
         pass
 
     def on_promo_name_field_text_changed(self):
@@ -368,7 +377,7 @@ class PromoWindow(MyWidget):
         self.promo_name_field.textChanged.connect(self.on_promo_name_field_text_changed)
         self.promo_type_field.currentTextChanged.connect(self.on_promo_type_field_current_text_changed)
         self.discount_percent_field.textChanged.connect(self.on_discount_percent_field_text_changed)
-        self.primary_info_page_layout.insertRow(0, QLabel('Primary Information'))
+        self.primary_info_page_layout.insertRow(0, QLabel("<font color='#EE4E34'><b>Primary Information</b></font>"))
         self.primary_info_page_layout.insertRow(1, QLabel('<hr>'))
         self.primary_info_page_layout.insertRow(2, self.promo_name_label)
         self.primary_info_page_layout.insertRow(4, self.promo_type_label)
@@ -455,8 +464,12 @@ class PromoWindow(MyWidget):
         self.data_list_pgn_next_button.clicked.connect(self.on_data_list_pgn_next_button_clicked)
         # endregion
 
+        # region > content_text_filter_connection
+        self.text_filter_field.textChanged.connect(self.on_text_filter_field_text_changed)
+        # endregion
+
         # region > style_content_buttons
-        self.style_data_mgt__action_button()
+        self.style_data_mgt_action_button()
         self.style_data_list_pgn_action_button()
         # endregion
 

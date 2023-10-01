@@ -7,12 +7,13 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(''))
+print('sys path: ', os.path.abspath(''))
 
-from core.manual_csv_importer import *
-from core.please_wait_sleeper import *
-from database.product import *
-from widget.product import *
+from src.core.manual_csv_importer import *
+from src.core.please_wait_sleeper import *
+from src.database.admin.product import *
+from src.widget.admin.product import *
 
 class ProductWindow(MyWidget):
     def __init__(self):
@@ -27,19 +28,10 @@ class ProductWindow(MyWidget):
         self.my_push_button = MyPushButton()
 
         self.data_list_curr_page = 1
-        self.primary_data_list_curr_page = 1
-        self.category_data_list_curr_page = 1
-        self.price_data_list_curr_page = 1
-        self.inventory_data_list_curr_page = 1
-
         self.clicked_data_list_edit_button = None
         self.clicked_data_list_view_button = None
         self.clicked_data_list_delete_button = None
-
-        self.selected_item_id = None
-        self.selected_item_price_id = None
-        self.selected_promo_id = None
-        self.selected_stock_id = None
+        self.selected_product_id = None
 
         self.required_field_indicator = "<font color='red'>-- required</font>"
 
@@ -49,26 +41,80 @@ class ProductWindow(MyWidget):
         self.populate_combo_box()
         self.populate_table()
 
-        self.total_data.setText(f'Total product: {self.product_schema.count_product()}')
+        self.total_data.setText(f'Total product: {self.product_schema.count_product()}') !!! CHECKPOINT !!!
+
+        self.primary_info_page.show()
+        self.category_info_page.show()
+        self.price_info_page.show()
+        self.inventory_info_page.show()
 
         self.data_mgt_add_button.setDisabled(False)
         self.form_panel.hide()
+
+        self.promo_type_label.hide()
+        self.discount_percent_label.hide()
+        self.discount_value_label.hide()
+        self.new_sell_price_label.hide()
+        self.start_dt_label.hide()
+        self.end_dt_label.hide()
+        self.available_stock_label.hide()
+        self.on_hand_stock_label.hide()
+
+        self.promo_type_field.hide()
+        self.discount_percent_field.hide()
+        self.discount_value_field.hide()
+        self.new_sell_price_field.hide()
+        self.start_dt_field.hide()
+        self.end_dt_field.hide()
+        self.available_stock_field.hide()
+        self.on_hand_stock_field.hide()
+
+        self.promo_type_field.setDisabled(True)
+        self.discount_percent_field.setDisabled(True)
+        self.discount_value_field.setDisabled(True)
+        self.new_sell_price_field.setDisabled(True)
         pass
 
     def style_data_list_action_button(self):
         self.data_list_edit_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.primary_data_list_edit_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.category_data_list_edit_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.price_data_list_edit_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+
         self.data_list_view_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.primary_data_list_view_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.category_data_list_view_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.price_data_list_view_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+
         self.data_list_delete_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.primary_data_list_delete_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.category_data_list_delete_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.price_data_list_delete_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+    def style_inventory_data_list_action_button(self):
+        self.inventory_data_list_edit_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.inventory_data_list_view_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+        self.inventory_data_list_delete_button.setStyleSheet(self.my_push_button.data_list_action_button_ss)
+
         pass
+    
     def style_data_list_pgn_action_button(self):
         self.data_list_pgn_prev_button.setStyleSheet(self.my_push_button.data_list_pgn_button_ss)
+        self.primary_data_list_pgn_prev_button.setStyleSheet(self.my_push_button.data_list_pgn_button_ss)
+        self.category_data_list_pgn_prev_button.setStyleSheet(self.my_push_button.data_list_pgn_button_ss)
+        self.price_data_list_pgn_prev_button.setStyleSheet(self.my_push_button.data_list_pgn_button_ss)
+        self.inventory_data_list_pgn_prev_button.setStyleSheet(self.my_push_button.data_list_pgn_button_ss)
+        
         self.data_list_pgn_next_button.setStyleSheet(self.my_push_button.data_list_pgn_button_ss)
+        self.primary_data_list_pgn_next_button.setStyleSheet(self.my_push_button.data_list_pgn_button_ss)
+        self.category_data_list_pgn_next_button.setStyleSheet(self.my_push_button.data_list_pgn_button_ss)
+        self.price_data_list_pgn_next_button.setStyleSheet(self.my_push_button.data_list_pgn_button_ss)
+        self.inventory_data_list_pgn_next_button.setStyleSheet(self.my_push_button.data_list_pgn_button_ss)
         pass
     def style_form_action_button(self):
         self.form_close_button.setStyleSheet(self.my_push_button.form_close_button_ss)
         self.form_save_new_button.setStyleSheet(self.my_push_button.form_save_new_button_ss)
         self.form_save_edit_button.setStyleSheet(self.my_push_button.form_save_edit_button_ss)
-    def style_data_mgt__action_button(self):
+    def style_data_mgt_action_button(self):
         self.data_mgt_sync_button.setStyleSheet(self.my_push_button.data_mgt_button_ss)
         self.data_mgt_import_button.setStyleSheet(self.my_push_button.data_mgt_button_ss)
         self.data_mgt_add_button.setStyleSheet(self.my_push_button.data_mgt_button_ss)
@@ -79,15 +125,31 @@ class ProductWindow(MyWidget):
         edit_button.setDisabled(True)
         self.data_mgt_add_button.setDisabled(False)
 
+        self.primary_info_page.show()
+        self.category_info_page.hide()
+        self.price_info_page.show()
+        if row_value[12] == 'Enabled': self.inventory_info_page.hide() 
+        else: self.inventory_info_page.show()
+
+        self.inventory_tracking_label.show()
+        self.inventory_tracking_field.show()
+
+        self.available_stock_label.hide()
+        self.on_hand_stock_label.hide()
+
+        self.available_stock_field.hide()
+        self.on_hand_stock_field.hide()
+
         self.form_save_new_button.hide()
         self.form_save_edit_button.show()
         self.form_panel.show()
         
+        # region > set_form_field_input
         self.barcode_field.setText(str(row_value[0]))
         self.item_name_field.setText(str(row_value[1]))
         self.expire_dt_field.setDate(QDate.fromString(row_value[2], Qt.DateFormat.ISODate))
-
         self.item_type_field.setCurrentText(str(row_value[3]))
+
         self.brand_field.setCurrentText(str(row_value[4]))
         self.sales_group_field.setCurrentText(str(row_value[5]))
         self.supplier_field.setCurrentText(str(row_value[6]))
@@ -100,16 +162,15 @@ class ProductWindow(MyWidget):
         self.inventory_tracking_field.setCurrentText(str(row_value[12]))
         self.available_stock_field.setText(str(row_value[13]))
         self.on_hand_stock_field.setText(str(row_value[14]))
-
+        # endregion
+        # region > get_selected_ids
         self.selected_item_id = str(row_value[16])
         self.selected_item_price_id = str(row_value[17])
         self.selected_promo_id = str(row_value[18])
         self.selected_stock_id = str(row_value[19])
-
-        # CHECKPOINT!!!!!!!!!!!!!!! ^^^^
+        # endregion
 
         self.clicked_data_list_edit_button = edit_button
-
         pass
     def on_data_list_view_button_clicked(self, row_value, view_button):
         self.data_list_view_dialog = MyDialog(object_name='data_list_view_dialog', parent=self)
@@ -140,7 +201,7 @@ class ProductWindow(MyWidget):
         self.data_list_view_dialog_layout.addRow(MyLabel(text='<hr>'))
         self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Item type:'), item_type_info)
         self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Brand:'), brand_info)
-        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Sales_group:'), sales_group_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Sales group:'), sales_group_info)
         self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Supplier:'), supplier_info)
         self.data_list_view_dialog_layout.addRow(MyLabel(text='<hr>'))
         self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Cost:'), cost_info)
@@ -157,16 +218,82 @@ class ProductWindow(MyWidget):
         self.data_list_view_dialog.exec()
         pass
     def on_data_list_delete_button_clicked(self, row_value, delete_button):
-        confirmation_a = QMessageBox.warning(self, 'Confirm', f'Are you sure you want to delete {row_value[0]}?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirmation_a = QMessageBox.warning(self, 'Confirm', f'Are you sure you want to delete {row_value[1]}?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if confirmation_a == QMessageBox.StandardButton.Yes:
-            self.selected_product_id = str(row_value[5])
-            self.product_schema.delete_selected_product(self.selected_product_id)
+            self.selected_item_price_id = str(row_value[17])
+            self.selected_stock_id = str(row_value[19])
+
+            self.product_schema.delete_selected_product(self.selected_item_price_id, self.selected_stock_id)
+            # self.product_schema.delete_selected_inventory(self.selected_stock_id)
 
             self.populate_table()
             self.populate_combo_box()
             self.total_data.setText(f'Total product: {self.product_schema.count_product()}')
 
-            QMessageBox.information(self, 'Success', 'Product has been deleted!')
+            QMessageBox.information(self, 'Success', 'Promo has been deleted!')
+            print('item price id', row_value[17])
+            print('item price id', self.selected_item_price_id)
+
+        pass
+
+    def on_inventory_data_list_edit_button_clicked(self, row_value, edit_button):
+        self.clicked_data_list_edit_button.setDisabled(False) if self.clicked_data_list_edit_button else None
+        edit_button.setDisabled(True)
+        self.data_mgt_add_button.setDisabled(False)
+
+        self.primary_info_page.hide()
+        self.category_info_page.hide()
+        self.price_info_page.hide()
+        self.inventory_info_page.show()
+
+        self.inventory_tracking_label.hide()
+        self.inventory_tracking_field.hide()
+        self.available_stock_field.show()
+        self.on_hand_stock_field.show()
+
+        self.form_save_new_button.hide()
+        self.form_save_edit_button.show()
+        self.form_panel.show()
+        
+        # region > set_form_field_input
+        self.available_stock_field.setText(str(row_value[1]))
+        self.on_hand_stock_field.setText(str(row_value[2]))
+        # endregion
+        # region > get_selected_ids
+        self.selected_stock_id = str(row_value[5])
+        # endregion
+
+        self.clicked_data_list_edit_button = edit_button
+        pass
+    def on_inventory_data_list_view_button_clicked(self, row_value, view_button):
+        self.data_list_view_dialog = MyDialog(object_name='data_list_view_dialog', parent=self)
+        self.data_list_view_dialog_layout = MyFormLayout()
+
+        item_name_info = MyLabel(object_name='item_name_info', text=str(row_value[0]))
+        available_stock_info = MyLabel(object_name='available_stock_info', text=str(row_value[1]))
+        on_hand_stock_info = MyLabel(object_name='on_hand_stock_info', text=str(row_value[2]))
+        date_created_info = MyLabel(object_name='date_created_info', text=str(row_value[3]))
+
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Item_name:'), item_name_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Available stock:'), available_stock_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='On hand stock:'), on_hand_stock_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(text='<hr>'))
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Date and time created:'), date_created_info)
+        self.data_list_view_dialog.setLayout(self.data_list_view_dialog_layout)
+
+        self.data_list_view_dialog.exec()
+        pass
+    def on_inventory_data_list_delete_button_clicked(self, row_value, delete_button):
+        confirmation_a = QMessageBox.warning(self, 'Confirm', f"Are you sure you want to delete {row_value[0]}'s inventory?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if confirmation_a == QMessageBox.StandardButton.Yes:
+            self.selected_stock_id = str(row_value[5])
+
+            self.product_schema.delete_selected_inventory(self.selected_stock_id)
+
+            self.populate_table()
+            self.populate_combo_box()
+
+            QMessageBox.information(self, 'Success', 'Inventory has been deleted!')
         pass
 
     def on_form_close_button_clicked(self):
@@ -174,6 +301,7 @@ class ProductWindow(MyWidget):
         self.data_mgt_add_button.setDisabled(False)
         pass
     def on_form_save_new_button_clicked(self):
+        # region > convert field input into str
         barcode = str(self.barcode_field.text())
         item_name = str(self.item_name_field.text())
         expire_dt = self.expire_dt_field.date().toString(Qt.DateFormat.ISODate)
@@ -197,57 +325,67 @@ class ProductWindow(MyWidget):
         inventory_tracking = str(self.inventory_tracking_field.currentText())
         available_stock = str(self.available_stock_field.text())
         on_hand_stock = str(self.on_hand_stock_field.text())
+        # endregion
 
-
+        # region > input_restrictions
+        if False in [cost.isdecimal(), sell_price.isdecimal()]:
+            QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
+            return
+        
         if '' in [
             item_name,
             brand,
-            sales_group,
             supplier,
             cost,
             sell_price
+            # !!! CHECKPOINT !!!
         ]:
             QMessageBox.critical(self, 'Error', 'Must fill required field.')
-            pass
+            return
 
-        else:
-            self.product_schema.add_new_product(
-                barcode=barcode,
-                item_name=item_name,
-                expire_dt=expire_dt,
+        if inventory_tracking == 'Enabled' and False in [available_stock.isdigit(), on_hand_stock.isdigit()]:
+            QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
+            return
+        # endregion
+        
+        self.product_schema.add_new_product(
+            barcode=barcode,
+            item_name=item_name,
+            expire_dt=expire_dt,
 
-                item_type=item_type,
-                brand=brand,
-                sales_group=sales_group,
-                supplier=supplier,
+            item_type=item_type,
+            brand=brand,
+            sales_group=sales_group,
+            supplier=supplier,
 
-                cost=cost,
-                sell_price=sell_price,
-                effective_dt=effective_dt,
-                promo_name=promo_name,
-                promo_type=promo_type,
-                discount_percent=discount_percent,
-                discount_value=discount_value,
-                new_sell_price=new_sell_price,
-                start_dt=start_dt,
-                end_dt=end_dt,
-
-                inventory_tracking=inventory_tracking,
-                available_stock=available_stock,
-                on_hand_stock=on_hand_stock
-            )
+            cost=cost,
+            sell_price=sell_price,
+            effective_dt=effective_dt,
+            promo_name=promo_name,
+            promo_type=promo_type,
+            discount_percent=discount_percent,
+            discount_value=discount_value,
+            new_sell_price=new_sell_price,
+            start_dt=start_dt,
+            end_dt=end_dt,
             
-            self.total_row_count = self.product_schema.count_product()
-            self.populate_table()
-            self.populate_combo_box()
-            self.total_data.setText(f'Total product: {self.product_schema.count_product()}')
+            inventory_tracking=inventory_tracking,
+            available_stock=available_stock,
+            on_hand_stock=on_hand_stock
+        )
+        
+        self.total_row_count = self.product_schema.count_product()
+        self.populate_table()
+        self.populate_combo_box()
+        self.total_data.setText(f'Total product: {self.product_schema.count_product()}')
 
-            QMessageBox.information(self, 'Success', 'New product has been added!')
+        QMessageBox.information(self, 'Success', 'New product has been added!')
         pass
     def on_form_save_edit_button_clicked(self):
+        # region > convert field input into str
         barcode = str(self.barcode_field.text())
         item_name = str(self.item_name_field.text())
-        expire_dt = self.expire_dt_field.date().toString(Qt.DateFormat.ISODate)
+        expire_dt = str(self.expire_dt_field.date().toString(Qt.DateFormat.ISODate))
 
         item_type = str(self.item_type_field.currentText())
         brand = str(self.brand_field.currentText())
@@ -256,14 +394,14 @@ class ProductWindow(MyWidget):
 
         cost = str(self.cost_field.text())
         sell_price = str(self.sell_price_field.text())
-        effective_dt = self.effective_dt_field.date().toString(Qt.DateFormat.ISODate)
+        effective_dt = str(self.effective_dt_field.date().toString(Qt.DateFormat.ISODate))
         promo_name = str(self.promo_name_field.currentText())
         promo_type = str(self.promo_type_field.text())
         discount_percent = str(self.discount_percent_field.text())
         discount_value = str(self.discount_value_field.text())
         new_sell_price = str(self.new_sell_price_field.text())
-        start_dt = self.start_dt_field.date().toString(Qt.DateFormat.ISODate)
-        end_dt = self.end_dt_field.date().toString(Qt.DateFormat.ISODate)
+        start_dt = str(self.start_dt_field.date().toString(Qt.DateFormat.ISODate))
+        end_dt = str(self.end_dt_field.date().toString(Qt.DateFormat.ISODate))
 
         inventory_tracking = str(self.inventory_tracking_field.currentText())
         available_stock = str(self.available_stock_field.text())
@@ -273,61 +411,70 @@ class ProductWindow(MyWidget):
         item_price_id = self.selected_item_price_id
         promo_id = self.selected_promo_id
         stock_id = self.selected_stock_id
+        # endregion
 
+        # region > input_restrictions
+        if False in [cost.isdecimal(), sell_price.isdecimal()]:
+            QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
+            return
+        
         if '' in [
             item_name,
-            brand,
-            sales_group,
-            supplier,
             cost,
             sell_price
+            # !!! CHECKPOINT !!!
         ]:
             QMessageBox.critical(self, 'Error', 'Must fill required field.')
-            pass
+            return
 
-        else:
-            self.product_schema.edit_selected_product(
-                barcode=barcode,
-                item_name=item_name,
-                expire_dt=expire_dt,
+        if inventory_tracking == 'Enabled' and False in [available_stock.isdigit(), on_hand_stock.isdigit()]:
+            QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
+            return
+        # endregion
 
-                item_type=item_type,
-                brand=brand,
-                sales_group=sales_group,
-                supplier=supplier,
 
-                cost=cost,
-                sell_price=sell_price,
-                effective_dt=effective_dt,
-                promo_name=promo_name,
-                promo_type=promo_type,
-                discount_percent=discount_percent,
-                discount_value=discount_value,
-                new_sell_price=new_sell_price,
-                start_dt=start_dt,
-                end_dt=end_dt,
+        self.product_schema.edit_selected_product(
+            barcode=barcode,
+            item_name=item_name,
+            expire_dt=expire_dt,
 
-                inventory_tracking=inventory_tracking,
-                available_stock=available_stock,
-                on_hand_stock=on_hand_stock,
+            item_type=item_type,
+            brand=brand,
+            sales_group=sales_group,
+            supplier=supplier,
 
-                item_id=item_id,
-                item_price_id=item_price_id,
-                promo_id=promo_id,
-                stock_id=stock_id
-            )
+            cost=cost,
+            sell_price=sell_price,
+            effective_dt=effective_dt,
+            promo_name=promo_name,
+            promo_type=promo_type,
+            discount_percent=discount_percent,
+            discount_value=discount_value,
+            new_sell_price=new_sell_price,
+            start_dt=start_dt,
+            end_dt=end_dt,
 
-            self.total_row_count = self.product_schema.count_product()
-            self.populate_table()
-            self.populate_combo_box()
-            self.total_data.setText(f'Total product: {self.product_schema.count_product()}')
+            inventory_tracking=inventory_tracking,
+            available_stock=available_stock,
+            on_hand_stock=on_hand_stock,
 
-            QMessageBox.information(self, 'Success', 'Product has been edited!')
+            item_id=item_id,
+            item_price_id=item_price_id,
+            promo_id=promo_id,
+            stock_id=stock_id
+        )
+        
+        self.total_row_count = self.product_schema.count_product()
+        self.populate_table()
+        self.populate_combo_box()
+
+        self.total_data.setText(f'Total product: {self.product_schema.count_product()}')
+
+        QMessageBox.information(self, 'Success', 'Product has been edited!')
         pass
     
     def on_data_mgt_sync_button_clicked(self):
         self.sync_ui()
-
         pass
     def on_data_mgt_import_button_clicked(self):
         csv_file, _ = QFileDialog.getOpenFileName(None, 'Open CSV', '', 'CSV Files (*.csv)')
@@ -346,6 +493,11 @@ class ProductWindow(MyWidget):
     def on_data_mgt_add_button_clicked(self):
         self.clicked_data_list_edit_button.setDisabled(False) if self.clicked_data_list_edit_button else None
         self.data_mgt_add_button.setDisabled(True)
+
+        self.primary_info_page.show()
+        self.category_info_page.show()
+        self.price_info_page.show()
+        self.inventory_info_page.show()
 
         self.form_save_new_button.show()
         self.form_save_edit_button.hide()
@@ -379,8 +531,17 @@ class ProductWindow(MyWidget):
         pass
         pass
 
+    def on_text_filter_field_text_changed(self):
+        self.data_list_curr_page = 1
+        self.data_list_pgn_page.setText(f'Page {self.data_list_curr_page}')
+        self.populate_table(text_filter=str(self.text_filter_field.text()), current_page=self.data_list_curr_page)
+        pass
+
     def on_item_name_field_text_changed(self):
         self.item_name_label.setText(f'Item name {self.required_field_indicator}') if self.item_name_field.text() == '' else  self.item_name_label.setText(f'Item name')
+        pass
+    def on_item_type_field_current_text_changed(self):
+        self.item_type_label.setText(f'Item type {self.required_field_indicator}') if self.item_type_field.currentText() == '' else  self.item_type_label.setText(f'Item type')
         pass
     def on_brand_field_current_text_changed(self):
         self.brand_label.setText(f'Brand {self.required_field_indicator}') if self.brand_field.currentText() == '' else  self.brand_label.setText(f'Brand')
@@ -393,6 +554,22 @@ class ProductWindow(MyWidget):
         pass
     def on_sell_price_field_text_changed(self):
         self.sell_price_label.setText(f'Sell price {self.required_field_indicator}') if self.sell_price_field.text() == '' else  self.sell_price_label.setText(f'Sell price')
+        
+        try:
+            sell_price = float(self.sell_price_field.text())
+            discount_percent = float(self.discount_percent_field.text())
+
+            old_sell_price = sell_price
+            discount_value = old_sell_price * (discount_percent / 100)
+            new_sell_price = sell_price - discount_value
+
+            self.discount_value_field.setText(f'{discount_value:.2f}')
+            self.new_sell_price_field.setText(f'{new_sell_price:.2f}')
+            pass
+        except ValueError:
+            print('error')
+            self.discount_value_field.setText('Error')
+            self.new_sell_price_field.setText('Error')
         pass
     def on_promo_name_field_current_text_changed(self):
         if self.promo_name_field.currentText() == 'No promo':
@@ -411,7 +588,6 @@ class ProductWindow(MyWidget):
             self.new_sell_price_field.hide()
             self.start_dt_field.hide()
             self.end_dt_field.hide()
-            pass
         else:
             self.effective_dt_label.hide()
             self.promo_type_label.show()
@@ -428,6 +604,28 @@ class ProductWindow(MyWidget):
             self.new_sell_price_field.show()
             self.start_dt_field.show()
             self.end_dt_field.show()
+        
+            pt_and_dp_data = self.product_schema.list_promo_type_and_discount_percent(self.promo_name_field.currentText())
+
+            for row in pt_and_dp_data:
+                self.promo_type_field.setText(str(row[0]))
+                self.discount_percent_field.setText(str(row[1]))
+
+            try:
+                sell_price = float(self.sell_price_field.text())
+                discount_percent = float(self.discount_percent_field.text())
+
+                old_sell_price = sell_price
+                discount_value = old_sell_price * (discount_percent / 100)
+                new_sell_price = sell_price - discount_value
+
+                self.discount_value_field.setText(f'{discount_value:.2f}')
+                self.new_sell_price_field.setText(f'{new_sell_price:.2f}')
+                pass
+            except ValueError:
+                print('error')
+                self.discount_value_field.setText('Error')
+                self.new_sell_price_field.setText('Error')
         pass
     def on_inventory_tracking_field_current_text_changed(self):
         if self.inventory_tracking_field.currentText() == 'Disabled':
@@ -437,10 +635,10 @@ class ProductWindow(MyWidget):
             self.available_stock_field.hide()
             self.on_hand_stock_field.hide()
             pass
-        if self.inventory_tracking_field.currentText() == 'Enabled':
+        elif self.inventory_tracking_field.currentText() == 'Enabled':
             self.available_stock_label.show()
             self.on_hand_stock_label.show()
-            
+
             self.available_stock_field.show()
             self.on_hand_stock_field.show()
         pass
@@ -454,8 +652,11 @@ class ProductWindow(MyWidget):
     def populate_combo_box(self):
         self.item_type_field.clear()
         self.brand_field.clear()
+        self.sales_group_field.clear()
         self.supplier_field.clear()
         self.promo_name_field.clear()
+        self.inventory_tracking_field.clear()
+
         # region > data_list
         item_type_data = self.product_schema.list_item_type()
         brand_data = self.product_schema.list_brand()
@@ -464,16 +665,22 @@ class ProductWindow(MyWidget):
         # endregion
 
         # region > field_add_item
-        for item_type in item_type_data: self.item_type_field.addItem(item_type[0])
-        for brand in brand_data: self.brand_field.addItem(brand[0])
-        for supplier in supplier_data: self.supplier_field.addItem(supplier[0])
+        for item_type in item_type_data: 
+            self.item_type_field.addItem('No type')
+            self.item_type_field.addItem(item_type[0])
+        for brand in brand_data: 
+            self.brand_field.addItem('No brand')
+            self.brand_field.addItem(brand[0])
 
         self.sales_group_field.addItem('Retail')
         self.sales_group_field.addItem('Wholesale')
 
+        for supplier in supplier_data: 
+            self.supplier_field.addItem('No supplier')
+            self.supplier_field.addItem(supplier[0])
+
         self.promo_name_field.addItem('No promo')
-        for promo_name in promo_name_data: 
-            self.promo_name_field.addItem(promo_name[0])
+        for promo_name in promo_name_data: self.promo_name_field.addItem(promo_name[0])
 
         self.inventory_tracking_field.addItem('Disabled')
         self.inventory_tracking_field.addItem('Enabled')
@@ -496,16 +703,7 @@ class ProductWindow(MyWidget):
 
         # region > data_list_pgn_button_set_enabled
         self.data_list_pgn_prev_button.setEnabled(self.data_list_curr_page > 1)
-        self.primary_data_list_pgn_prev_button.setEnabled(self.primary_data_list_curr_page > 1)
-        self.category_data_list_pgn_prev_button.setEnabled(self.category_data_list_curr_page > 1)
-        self.price_data_list_pgn_prev_button.setEnabled(self.price_data_list_curr_page > 1)
-        self.inventory_data_list_pgn_prev_button.setEnabled(self.inventory_data_list_curr_page > 1)
-
         self.data_list_pgn_next_button.setEnabled(len(product_data) == 30)
-        self.primary_data_list_pgn_next_button.setEnabled(len(product_data) == 30)
-        self.category_data_list_pgn_next_button.setEnabled(len(product_data) == 30)
-        self.price_data_list_pgn_next_button.setEnabled(len(product_data) == 30)
-        self.inventory_data_list_pgn_next_button.setEnabled(len(inventory_data) == 30)
         # endregion
 
         # region > clicked_data_list_set_disabled
@@ -527,8 +725,8 @@ class ProductWindow(MyWidget):
             self.data_list_action_panel_layout = MyHBoxLayout(object_name='data_list_action_panel_layout')
             
             # region > set_data_list_action_buttons
-            self.data_list_edit_button = MyPushButton(object_name='data_list_edit_button')
-            self.data_list_view_button = MyPushButton(object_name='data_list_view_button')
+            self.data_list_edit_button = MyPushButton(object_name='data_list_edit_button', text='Edit')
+            self.data_list_view_button = MyPushButton(object_name='data_list_view_button', text='View')
             self.data_list_delete_button = MyPushButton(object_name='data_list_delete_button')
             # endregion
 
@@ -538,14 +736,77 @@ class ProductWindow(MyWidget):
             self.data_list_delete_button.clicked.connect(lambda _, row_value=row_value, delete_button=self.data_list_delete_button: self.on_data_list_delete_button_clicked(row_value, delete_button))
             # endregion
 
-            # region > style_data_list_action_buttons
-            self.style_data_list_action_button()
-            # endregion
-
             self.data_list_action_panel_layout.addWidget(self.data_list_edit_button)
             self.data_list_action_panel_layout.addWidget(self.data_list_view_button)
             self.data_list_action_panel_layout.addWidget(self.data_list_delete_button)
             self.data_list_action_panel.setLayout(self.data_list_action_panel_layout)
+            # endregion
+            # region > primary_data_list_action
+            self.primary_data_list_action_panel = MyGroupBox(object_name='data_list_action_panel') # head.a
+            self.primary_data_list_action_panel_layout = MyHBoxLayout(object_name='data_list_action_panel_layout')
+            
+            # region > set_primary_data_list_action_buttons
+            self.primary_data_list_edit_button = MyPushButton(object_name='data_list_edit_button', text='Edit')
+            self.primary_data_list_view_button = MyPushButton(object_name='data_list_view_button', text='View')
+            self.primary_data_list_delete_button = MyPushButton(object_name='data_list_delete_button')
+            # endregion
+
+            # region > primary_data_list_action_button_connections
+            self.primary_data_list_edit_button.clicked.connect(lambda _, row_value=row_value, edit_button=self.primary_data_list_edit_button: self.on_data_list_edit_button_clicked(row_value, edit_button))
+            self.primary_data_list_view_button.clicked.connect(lambda _, row_value=row_value, view_button=self.primary_data_list_view_button: self.on_data_list_view_button_clicked(row_value, view_button))
+            self.primary_data_list_delete_button.clicked.connect(lambda _, row_value=row_value, delete_button=self.primary_data_list_delete_button: self.on_data_list_delete_button_clicked(row_value, delete_button))
+            # endregion
+
+            self.primary_data_list_action_panel_layout.addWidget(self.primary_data_list_edit_button)
+            self.primary_data_list_action_panel_layout.addWidget(self.primary_data_list_view_button)
+            self.primary_data_list_action_panel_layout.addWidget(self.primary_data_list_delete_button)
+            self.primary_data_list_action_panel.setLayout(self.primary_data_list_action_panel_layout)
+            # endregion
+            # region > category_data_list_action
+            self.category_data_list_action_panel = MyGroupBox(object_name='data_list_action_panel') # head.a
+            self.category_data_list_action_panel_layout = MyHBoxLayout(object_name='data_list_action_panel_layout')
+            
+            # region > set_category_data_list_action_buttons
+            self.category_data_list_edit_button = MyPushButton(object_name='data_list_edit_button', text='Edit')
+            self.category_data_list_view_button = MyPushButton(object_name='data_list_view_button', text='View')
+            self.category_data_list_delete_button = MyPushButton(object_name='data_list_delete_button')
+            # endregion
+
+            # region > category_data_list_action_button_connections
+            self.category_data_list_edit_button.clicked.connect(lambda _, row_value=row_value, edit_button=self.category_data_list_edit_button: self.on_data_list_edit_button_clicked(row_value, edit_button))
+            self.category_data_list_view_button.clicked.connect(lambda _, row_value=row_value, view_button=self.category_data_list_view_button: self.on_data_list_view_button_clicked(row_value, view_button))
+            self.category_data_list_delete_button.clicked.connect(lambda _, row_value=row_value, delete_button=self.category_data_list_delete_button: self.on_data_list_delete_button_clicked(row_value, delete_button))
+            # endregion
+
+            self.category_data_list_action_panel_layout.addWidget(self.category_data_list_edit_button)
+            self.category_data_list_action_panel_layout.addWidget(self.category_data_list_view_button)
+            self.category_data_list_action_panel_layout.addWidget(self.category_data_list_delete_button)
+            self.category_data_list_action_panel.setLayout(self.category_data_list_action_panel_layout)
+            # endregion
+            # region > price_data_list_action
+            self.price_data_list_action_panel = MyGroupBox(object_name='data_list_action_panel') # head.a
+            self.price_data_list_action_panel_layout = MyHBoxLayout(object_name='data_list_action_panel_layout')
+            
+            # region > set_price_data_list_action_buttons
+            self.price_data_list_edit_button = MyPushButton(object_name='data_list_edit_button', text='Edit')
+            self.price_data_list_view_button = MyPushButton(object_name='data_list_view_button', text='View')
+            self.price_data_list_delete_button = MyPushButton(object_name='data_list_delete_button')
+            # endregion
+
+            # region > price_data_list_action_button_connections
+            self.price_data_list_edit_button.clicked.connect(lambda _, row_value=row_value, edit_button=self.price_data_list_edit_button: self.on_data_list_edit_button_clicked(row_value, edit_button))
+            self.price_data_list_view_button.clicked.connect(lambda _, row_value=row_value, view_button=self.price_data_list_view_button: self.on_data_list_view_button_clicked(row_value, view_button))
+            self.price_data_list_delete_button.clicked.connect(lambda _, row_value=row_value, delete_button=self.price_data_list_delete_button: self.on_data_list_delete_button_clicked(row_value, delete_button))
+            # endregion
+
+            self.price_data_list_action_panel_layout.addWidget(self.price_data_list_edit_button)
+            self.price_data_list_action_panel_layout.addWidget(self.price_data_list_view_button)
+            self.price_data_list_action_panel_layout.addWidget(self.price_data_list_delete_button)
+            self.price_data_list_action_panel.setLayout(self.price_data_list_action_panel_layout)
+            # endregion
+
+            # region > style_data_list_action_buttons
+            self.style_data_list_action_button()
             # endregion
 
             # region > set_table_item_values
@@ -602,18 +863,24 @@ class ProductWindow(MyWidget):
                 QTableWidgetItem(str(row_value[15])),
                 QTableWidgetItem(str(row_value[15]))
             ]
-            
             # endregion
-
             # region > set_table_item_alignment
+            expire_dt.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+
+            for sg in sales_group: sg.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            supplier.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+
             cost.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-            for sell_price_text in sell_price: sell_price_text.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-            for discount_value_text in discount_value: discount_value_text.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-            for inventory_tracking_text in inventory_tracking: inventory_tracking_text.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-            for update_ts_text in update_ts: update_ts_text.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            for sp in sell_price: sp.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            for ed in effective_dt: ed.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            for dv in discount_value: dv.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            
+            for it in inventory_tracking: it.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            for ut in update_ts: ut.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             # endregion
         
             # region > set_data_list_table_cells
+            # region > overview
             self.data_list_table.setCellWidget(row_index, 0, self.data_list_action_panel)
             self.data_list_table.setItem(row_index, 1, item_name[0])
             self.data_list_table.setItem(row_index, 2, brand[0])
@@ -625,16 +892,15 @@ class ProductWindow(MyWidget):
             self.data_list_table.setItem(row_index, 8, inventory_tracking[0])
             self.data_list_table.setItem(row_index, 9, update_ts[0])
             # endregion
-            # region > set_primary_data_list_table_cells
-            # self.primary_data_list_table.setCellWidget(row_index, 0, self.primary_data_list_action_panel)
+            # region > primary
+            self.primary_data_list_table.setCellWidget(row_index, 0, self.primary_data_list_action_panel)
             self.primary_data_list_table.setItem(row_index, 1, barcode)
             self.primary_data_list_table.setItem(row_index, 2, item_name[1])
             self.primary_data_list_table.setItem(row_index, 3, expire_dt)
-
             self.primary_data_list_table.setItem(row_index, 4, update_ts[1])
             # endregion
-            # region > set_category_data_list_table_cells
-            # self.category_data_list_table.setCellWidget(row_index, 0, self.category_data_list_action_panel)
+            # region > category
+            self.category_data_list_table.setCellWidget(row_index, 0, self.category_data_list_action_panel)
             self.category_data_list_table.setItem(row_index, 1, item_name[2])
             self.category_data_list_table.setItem(row_index, 2, item_type)
             self.category_data_list_table.setItem(row_index, 3, brand[1])
@@ -642,8 +908,8 @@ class ProductWindow(MyWidget):
             self.category_data_list_table.setItem(row_index, 5, supplier)
             self.category_data_list_table.setItem(row_index, 6, update_ts[2])
             # endregion
-            # region > set_price_data_list_table_cells
-            # self.price_data_list_table.setCellWidget(row_index, 0, self.price_data_list_action_panel)
+            # region > price
+            self.price_data_list_table.setCellWidget(row_index, 0, self.price_data_list_action_panel)
             self.price_data_list_table.setItem(row_index, 1, item_name[3])
             self.price_data_list_table.setItem(row_index, 2, cost)
             self.price_data_list_table.setItem(row_index, 3, sell_price[1])
@@ -652,20 +918,76 @@ class ProductWindow(MyWidget):
             self.price_data_list_table.setItem(row_index, 6, promo_name[1])
             self.price_data_list_table.setItem(row_index, 7, update_ts[3])
             # endregion
-            # region > set_inventory_data_list_table_cells
-            # self.inventory_data_list_table.setCellWidget(row_index, 0, self.inventory_data_list_action_panel)
-            # self.inventory_data_list_table.setItem(row_index, 1, item_name)
-            # self.inventory_data_list_table.setItem(row_index, 2, brand)
-            # self.inventory_data_list_table.setItem(row_index, 3, sales_group)
-            # self.inventory_data_list_table.setItem(row_index, 4, sell_price)
-            # self.inventory_data_list_table.setItem(row_index, 5, discount_value)
-            # self.inventory_data_list_table.setItem(row_index, 6, effective_dt)
-            # self.inventory_data_list_table.setItem(row_index, 7, promo_name)
-            # self.inventory_data_list_table.setItem(row_index, 8, inventory_tracking)
-            # self.inventory_data_list_table.setItem(row_index, 9, update_ts)
             # endregion
-            !!! CHECK POINT !!!
 
+            # region > colored_rows_if_has_promo
+            if row_value[18] != 0:
+                barcode.setForeground(QColor(238,78,52))
+                expire_dt.setForeground(QColor(238,78,52))
+                item_type.setForeground(QColor(238,78,52))
+                supplier.setForeground(QColor(238,78,52))
+                cost.setForeground(QColor(238,78,52))
+
+                for itn in item_name: itn.setForeground(QColor(238,78,52))
+                for br in brand: br.setForeground(QColor(238,78,52))
+                for sg in sales_group: sg.setForeground(QColor(238,78,52))
+                for sp in sell_price: sp.setForeground(QColor(238,78,52))
+                for ed in effective_dt: ed.setForeground(QColor(238,78,52))
+                for pn in promo_name: pn.setForeground(QColor(238,78,52))
+                for dv in discount_value: dv.setForeground(QColor(238,78,52))
+                for it in inventory_tracking: it.setForeground(QColor(238,78,52))
+                for ut in update_ts: ut.setForeground(QColor(238,78,52))
+
+                self.data_list_edit_button.hide()
+            # endregion
+
+        for row_index, row_value in enumerate(inventory_data):
+            # region > inventory_data_list_action
+            self.inventory_data_list_action_panel = MyGroupBox(object_name='data_list_action_panel') # head.a
+            self.inventory_data_list_action_panel_layout = MyHBoxLayout(object_name='data_list_action_panel_layout')
+            
+            # region > set_inventory_data_list_action_buttons
+            self.inventory_data_list_edit_button = MyPushButton(object_name='data_list_edit_button', text='Edit')
+            self.inventory_data_list_view_button = MyPushButton(object_name='data_list_view_button', text='View')
+            self.inventory_data_list_delete_button = MyPushButton(object_name='data_list_delete_button')
+            # endregion
+
+            # region > inventory_data_list_action_button_connections
+            self.inventory_data_list_edit_button.clicked.connect(lambda _, row_value=row_value, edit_button=self.inventory_data_list_edit_button: self.on_inventory_data_list_edit_button_clicked(row_value, edit_button))
+            self.inventory_data_list_view_button.clicked.connect(lambda _, row_value=row_value, view_button=self.inventory_data_list_view_button: self.on_inventory_data_list_view_button_clicked(row_value, view_button))
+            self.inventory_data_list_delete_button.clicked.connect(lambda _, row_value=row_value, delete_button=self.inventory_data_list_delete_button: self.on_inventory_data_list_delete_button_clicked(row_value, delete_button))
+            # endregion
+
+            self.inventory_data_list_action_panel_layout.addWidget(self.inventory_data_list_edit_button)
+            self.inventory_data_list_action_panel_layout.addWidget(self.inventory_data_list_view_button)
+            self.inventory_data_list_action_panel_layout.addWidget(self.inventory_data_list_delete_button)
+            self.inventory_data_list_action_panel.setLayout(self.inventory_data_list_action_panel_layout)
+            # endregion
+
+            # region > style_data_list_action_buttons
+            self.style_inventory_data_list_action_button()
+            # endregion
+
+            # region > set_table_item_values
+            item_name = QTableWidgetItem(str(row_value[0]))
+            available_stock = QTableWidgetItem(str(row_value[1]))
+            on_hand_stock = QTableWidgetItem(str(row_value[2]))
+            update_ts = QTableWidgetItem(str(row_value[3]))
+            # endregion
+
+            # region > set_table_item_alignment
+            available_stock.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            on_hand_stock.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            update_ts.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            # endregion
+        
+
+            self.inventory_data_list_table.setCellWidget(row_index, 0, self.inventory_data_list_action_panel)
+            self.inventory_data_list_table.setItem(row_index, 1, item_name)
+            self.inventory_data_list_table.setItem(row_index, 2, available_stock)
+            self.inventory_data_list_table.setItem(row_index, 3, on_hand_stock)
+            self.inventory_data_list_table.setItem(row_index, 4, update_ts)
+            # !!! CHECKPOINT !!!
         pass
 
     def show_extra_info_panel(self):
@@ -688,71 +1010,21 @@ class ProductWindow(MyWidget):
         self.form_page = MyGroupBox(object_name='form_page')
         self.form_page_layout = MyFormLayout(object_name='form_page_layout')
 
+        # region > primary_info_page
         self.primary_info_page = MyGroupBox(object_name='primary_info_page') # head.a.a
-        self.category_info_page = MyGroupBox(object_name='category_info_page') # head.a.a
-        self.price_info_page = MyGroupBox(object_name='price_info_page') # head.a.a
-        self.inventory_info_page = MyGroupBox(object_name='inventory_info_page') # head.a.a
-
         self.primary_info_page_layout = MyFormLayout(object_name='primary_info_page_layout')
-        self.category_info_page_layout = MyFormLayout(object_name='category_info_page_layout')
-        self.price_info_page_layout = MyFormLayout(object_name='price_info_page_layout')
-        self.inventory_info_page_layout = MyFormLayout(object_name='inventory_info_page_layout')
 
-        # region > form_labels
         self.barcode_label = MyLabel(object_name='barcode_label', text=f'Barcode')
         self.item_name_label = MyLabel(object_name='item_name_label', text=f'Item name {self.required_field_indicator}')
         self.expire_dt_label = MyLabel(object_name='expire_dt_label', text=f'Expire date')
 
-        self.item_type_label = MyLabel(object_name='item_type_label', text=f'Item type')
-        self.brand_label = MyLabel(object_name='brand_label', text=f'Brand {self.required_field_indicator}')
-        self.sales_group_label = MyLabel(object_name='sales_group_label', text=f'Sales group')
-        self.supplier_label = MyLabel(object_name='supplier_label', text=f'Supplier {self.required_field_indicator}')
-
-        self.cost_label = MyLabel(object_name='cost_label', text=f'Cost {self.required_field_indicator}')
-        self.sell_price_label = MyLabel(object_name='sell_price_label', text=f'Sell price {self.required_field_indicator}')
-        self.effective_dt_label = MyLabel(object_name='effective_dt_label', text=f'Effective date')
-        self.promo_name_label = MyLabel(object_name='promo_name_label', text=f'Promo name')
-        self.promo_type_label = MyLabel(object_name='promo_type_label', text=f'Promo type')
-        self.discount_percent_label = MyLabel(object_name='discount_percent_label', text=f'Discount percent')
-        self.discount_value_label = MyLabel(object_name='discount_value_label', text=f'Discount value')
-        self.new_sell_price_label = MyLabel(object_name='new_sell_price_label', text=f'New_sell price')
-        self.start_dt_label = MyLabel(object_name='start_dt_label', text=f'Start date')
-        self.end_dt_label = MyLabel(object_name='end_dt_label', text=f'End date')
-
-        self.inventory_tracking_label = MyLabel(object_name='inventory_tracking_label', text=f'Inventory tracking')
-        self.available_stock_label = MyLabel(object_name='available_stock_label', text=f'Available stock {self.required_field_indicator}')
-        self.on_hand_stock_label = MyLabel(object_name='on_hand_stock_label', text=f'On hand stock {self.required_field_indicator}')
-
-        # endregion
-
-        # region > form_fields
         self.barcode_field = MyLineEdit(object_name='barcode_field')
         self.item_name_field = MyLineEdit(object_name='item_name_field')
         self.expire_dt_field = MyDateEdit(object_name='expire_dt_field')
 
-        self.item_type_field = MyComboBox(object_name='item_type_field')
-        self.brand_field = MyComboBox(object_name='brand_field')
-        self.sales_group_field = MyComboBox(object_name='sales_group_field')
-        self.supplier_field = MyComboBox(object_name='supplier_field')
+        self.item_name_field.textChanged.connect(self.on_item_name_field_text_changed)
 
-        self.cost_field = MyLineEdit(object_name='cost_field')
-        self.sell_price_field = MyLineEdit(object_name='sell_price_field')
-        self.effective_dt_field = MyDateEdit(object_name='effective_dt_field')
-        self.promo_name_field = MyComboBox(object_name='promo_name_field')
-        self.promo_type_field = MyLineEdit(object_name='promo_type_field')
-        self.discount_percent_field = MyLineEdit(object_name='discount_percent_field')
-        self.discount_value_field = MyLineEdit(object_name='discount_value_field')
-        self.new_sell_price_field = MyLineEdit(object_name='new_sell_price_field')
-        self.start_dt_field = MyDateEdit(object_name='start_dt_field')
-        self.end_dt_field = MyDateEdit(object_name='end_dt_field')
-
-        self.inventory_tracking_field = MyComboBox(object_name='inventory_tracking_field')
-        self.available_stock_field = MyLineEdit(object_name='available_stock_field')
-        self.on_hand_stock_field = MyLineEdit(object_name='on_hand_stock_field')
-        # endregion
-
-        # region > add_row/insert_row
-        self.primary_info_page_layout.insertRow(0, QLabel('Primary Information'))
+        self.primary_info_page_layout.insertRow(0, QLabel("<font color='#EE4E34'><b>Primary Information</b></font>"))
         self.primary_info_page_layout.insertRow(1, QLabel('<hr>'))
 
         self.primary_info_page_layout.insertRow(2, self.barcode_label)
@@ -763,7 +1035,27 @@ class ProductWindow(MyWidget):
         self.primary_info_page_layout.insertRow(5, self.item_name_field)
         self.primary_info_page_layout.insertRow(7, self.expire_dt_field)
 
-        self.category_info_page_layout.insertRow(0, QLabel('Category'))
+        self.primary_info_page.setLayout(self.primary_info_page_layout)
+        # endregion
+        # region > category_info_page
+        self.category_info_page = MyGroupBox(object_name='category_info_page') # head.a.a
+        self.category_info_page_layout = MyFormLayout(object_name='category_info_page_layout')
+
+        self.item_type_label = MyLabel(object_name='item_type_label', text=f'Item type {self.required_field_indicator}')
+        self.brand_label = MyLabel(object_name='brand_label', text=f'Brand {self.required_field_indicator}')
+        self.sales_group_label = MyLabel(object_name='sales_group_label', text=f'Sales group')
+        self.supplier_label = MyLabel(object_name='supplier_label', text=f'Supplier {self.required_field_indicator}')
+
+        self.item_type_field = MyComboBox(object_name='item_type_field')
+        self.brand_field = MyComboBox(object_name='brand_field')
+        self.sales_group_field = MyComboBox(object_name='sales_group_field')
+        self.supplier_field = MyComboBox(object_name='supplier_field')
+
+        self.item_type_field.currentTextChanged.connect(self.on_item_type_field_current_text_changed)
+        self.brand_field.currentTextChanged.connect(self.on_brand_field_current_text_changed)
+        self.supplier_field.currentTextChanged.connect(self.on_supplier_field_current_text_changed)
+
+        self.category_info_page_layout.insertRow(0, QLabel("<font color='#EE4E34'><b>Category</b></font>"))
         self.category_info_page_layout.insertRow(1, QLabel('<hr>'))
 
         self.category_info_page_layout.insertRow(2, self.item_type_label)
@@ -776,7 +1068,39 @@ class ProductWindow(MyWidget):
         self.category_info_page_layout.insertRow(7, self.sales_group_field)
         self.category_info_page_layout.insertRow(9, self.supplier_field)
 
-        self.price_info_page_layout.insertRow(0, QLabel('Price'))
+        self.category_info_page.setLayout(self.category_info_page_layout)
+        # endregion
+        # region > price_info_page
+        self.price_info_page = MyGroupBox(object_name='price_info_page') # head.a.a
+        self.price_info_page_layout = MyFormLayout(object_name='price_info_page_layout')
+
+        self.cost_label = MyLabel(object_name='cost_label', text=f'Cost {self.required_field_indicator}')
+        self.sell_price_label = MyLabel(object_name='sell_price_label', text=f'Sell price {self.required_field_indicator}')
+        self.effective_dt_label = MyLabel(object_name='effective_dt_label', text=f'Effective date')
+        self.promo_name_label = MyLabel(object_name='promo_name_label', text=f'Promo name')
+        self.promo_type_label = MyLabel(object_name='promo_type_label', text=f'Promo type')
+        self.discount_percent_label = MyLabel(object_name='discount_percent_label', text=f'Discount percent')
+        self.discount_value_label = MyLabel(object_name='discount_value_label', text=f'Discount value')
+        self.new_sell_price_label = MyLabel(object_name='new_sell_price_label', text=f'New sell price')
+        self.start_dt_label = MyLabel(object_name='start_dt_label', text=f'Start date')
+        self.end_dt_label = MyLabel(object_name='end_dt_label', text=f'End date')
+
+        self.cost_field = MyLineEdit(object_name='cost_field')
+        self.sell_price_field = MyLineEdit(object_name='sell_price_field')
+        self.effective_dt_field = MyDateEdit(object_name='effective_dt_field')
+        self.promo_name_field = MyComboBox(object_name='promo_name_field')
+        self.promo_type_field = MyLineEdit(object_name='promo_type_field')
+        self.discount_percent_field = MyLineEdit(object_name='discount_percent_field')
+        self.discount_value_field = MyLineEdit(object_name='discount_value_field')
+        self.new_sell_price_field = MyLineEdit(object_name='new_sell_price_field')
+        self.start_dt_field = MyDateEdit(object_name='start_dt_field')
+        self.end_dt_field = MyDateEdit(object_name='end_dt_field')
+
+        self.cost_field.textChanged.connect(self.on_cost_field_text_changed)
+        self.sell_price_field.textChanged.connect(self.on_sell_price_field_text_changed)
+        self.promo_name_field.currentTextChanged.connect(self.on_promo_name_field_current_text_changed)
+
+        self.price_info_page_layout.insertRow(0, QLabel("<font color='#EE4E34'><b>Price</b></font>"))
         self.price_info_page_layout.insertRow(1, QLabel('<hr>'))
 
         self.price_info_page_layout.insertRow(2, self.cost_label)
@@ -801,7 +1125,25 @@ class ProductWindow(MyWidget):
         self.price_info_page_layout.insertRow(19, self.start_dt_field)
         self.price_info_page_layout.insertRow(21, self.end_dt_field)
 
-        self.inventory_info_page_layout.insertRow(0, QLabel('Inventory'))
+        self.price_info_page.setLayout(self.price_info_page_layout)
+        # endregion
+        # region > inventory_info_page
+        self.inventory_info_page = MyGroupBox(object_name='inventory_info_page') # head.a.a
+        self.inventory_info_page_layout = MyFormLayout(object_name='inventory_info_page_layout')
+
+        self.inventory_tracking_label = MyLabel(object_name='inventory_tracking_label', text=f'Inventory tracking')
+        self.available_stock_label = MyLabel(object_name='available_stock_label', text=f'Available stock {self.required_field_indicator}')
+        self.on_hand_stock_label = MyLabel(object_name='on_hand_stock_label', text=f'On hand stock {self.required_field_indicator}')
+
+        self.inventory_tracking_field = MyComboBox(object_name='inventory_tracking_field')
+        self.available_stock_field = MyLineEdit(object_name='available_stock_field')
+        self.on_hand_stock_field = MyLineEdit(object_name='on_hand_stock_field')
+
+        self.inventory_tracking_field.currentTextChanged.connect(self.on_inventory_tracking_field_current_text_changed)
+        self.available_stock_field.textChanged.connect(self.on_available_stock_field_text_changed)
+        self.on_hand_stock_field.textChanged.connect(self.on_on_hand_stock_field_text_changed)
+
+        self.inventory_info_page_layout.insertRow(0, QLabel("<font color='#EE4E34'><b>Inventory</b></font>"))
         self.inventory_info_page_layout.insertRow(1, QLabel('<hr>'))
 
         self.inventory_info_page_layout.insertRow(2, self.inventory_tracking_label)
@@ -811,12 +1153,10 @@ class ProductWindow(MyWidget):
         self.inventory_info_page_layout.insertRow(3, self.inventory_tracking_field)
         self.inventory_info_page_layout.insertRow(5, self.available_stock_field)
         self.inventory_info_page_layout.insertRow(7, self.on_hand_stock_field)
-        # endregion
 
-        self.primary_info_page.setLayout(self.primary_info_page_layout)
-        self.category_info_page.setLayout(self.category_info_page_layout)
-        self.price_info_page.setLayout(self.price_info_page_layout)
+
         self.inventory_info_page.setLayout(self.inventory_info_page_layout)
+        # endregion
 
         self.form_page_layout.addRow(self.primary_info_page)
         self.form_page_layout.addRow(self.category_info_page)
@@ -835,18 +1175,6 @@ class ProductWindow(MyWidget):
         self.form_action_panel_layout.addWidget(self.form_save_new_button)
         self.form_action_panel_layout.addWidget(self.form_save_edit_button)
         self.form_action_panel.setLayout(self.form_action_panel_layout)
-        # endregion
-
-        # region > form_field_connections
-        self.item_name_field.textChanged.connect(self.on_item_name_field_text_changed)
-        self.brand_field.currentTextChanged.connect(self.on_brand_field_current_text_changed)
-        self.supplier_field.currentTextChanged.connect(self.on_supplier_field_current_text_changed)
-        self.cost_field.textChanged.connect(self.on_cost_field_text_changed)
-        self.sell_price_field.textChanged.connect(self.on_sell_price_field_text_changed)
-        self.promo_name_field.currentTextChanged.connect(self.on_promo_name_field_current_text_changed)
-        self.inventory_tracking_field.currentTextChanged.connect(self.on_inventory_tracking_field_current_text_changed)
-        self.available_stock_field.textChanged.connect(self.on_available_stock_field_text_changed)
-        self.on_hand_stock_field.textChanged.connect(self.on_on_hand_stock_field_text_changed)
         # endregion
 
         # region > form_button_connections
@@ -884,7 +1212,7 @@ class ProductWindow(MyWidget):
         # region > data_list_sorter
         self.data_list_sorter_tab = MyTabWidget(object_name='data_list_sorter_tab') # head.c
 
-        # region > overview_data_list_panel
+        # region > data_list_pgn_panel
         self.data_list_pgn_panel = MyGroupBox(object_name='data_list_pgn_panel') # head.c.a
         self.data_list_pgn_panel_layout = MyVBoxLayout(object_name='data_list_pgn_panel_layout')
         self.data_list_table = MyTableWidget(object_name='data_list_table')
@@ -901,15 +1229,15 @@ class ProductWindow(MyWidget):
         self.data_list_pgn_panel_layout.addWidget(self.data_list_pgn_action_panel)
         self.data_list_pgn_panel.setLayout(self.data_list_pgn_panel_layout)
         # endregion
-        # region > primary_data_list_panel
+        # region > primary_data_list_pgn_panel
         self.primary_data_list_pgn_panel = MyGroupBox(object_name='primary_data_list_pgn_panel') # head.c.a
         self.primary_data_list_pgn_panel_layout = MyVBoxLayout(object_name='primary_data_list_pgn_panel_layout')
         self.primary_data_list_table = MyTableWidget(object_name='primary_data_list_table')
-        self.primary_data_list_pgn_action_panel = MyGroupBox(object_name='primary_data_list_pgn_action_panel')
-        self.primary_data_list_pgn_action_panel_layout = MyGridLayout(object_name='primary_data_list_pgn_action_panel_layout')
-        self.primary_data_list_pgn_prev_button = MyPushButton(object_name='primary_data_list_pgn_prev_button')
-        self.primary_data_list_pgn_page = MyLabel(object_name='primary_data_list_pgn_page', text='Page 1')
-        self.primary_data_list_pgn_next_button = MyPushButton(object_name='primary_data_list_pgn_next_button')
+        self.primary_data_list_pgn_action_panel = MyGroupBox(object_name='data_list_pgn_action_panel')
+        self.primary_data_list_pgn_action_panel_layout = MyGridLayout(object_name='data_list_pgn_action_panel_layout')
+        self.primary_data_list_pgn_prev_button = MyPushButton(object_name='data_list_pgn_prev_button')
+        self.primary_data_list_pgn_page = MyLabel(object_name='data_list_pgn_page', text='Page 1')
+        self.primary_data_list_pgn_next_button = MyPushButton(object_name='data_list_pgn_next_button')
         self.primary_data_list_pgn_action_panel_layout.addWidget(self.primary_data_list_pgn_prev_button,0,0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.primary_data_list_pgn_action_panel_layout.addWidget(self.primary_data_list_pgn_page,0,1, Qt.AlignmentFlag.AlignCenter)
         self.primary_data_list_pgn_action_panel_layout.addWidget(self.primary_data_list_pgn_next_button,0,2, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
@@ -918,15 +1246,15 @@ class ProductWindow(MyWidget):
         self.primary_data_list_pgn_panel_layout.addWidget(self.primary_data_list_pgn_action_panel)
         self.primary_data_list_pgn_panel.setLayout(self.primary_data_list_pgn_panel_layout)
         # endregion
-        # region > category_data_list_panel
+        # region > category_data_list_pgn_panel
         self.category_data_list_pgn_panel = MyGroupBox(object_name='category_data_list_pgn_panel') # head.c.a
         self.category_data_list_pgn_panel_layout = MyVBoxLayout(object_name='category_data_list_pgn_panel_layout')
         self.category_data_list_table = MyTableWidget(object_name='category_data_list_table')
-        self.category_data_list_pgn_action_panel = MyGroupBox(object_name='category_data_list_pgn_action_panel')
-        self.category_data_list_pgn_action_panel_layout = MyGridLayout(object_name='category_data_list_pgn_action_panel_layout')
-        self.category_data_list_pgn_prev_button = MyPushButton(object_name='category_data_list_pgn_prev_button')
-        self.category_data_list_pgn_page = MyLabel(object_name='category_data_list_pgn_page', text='Page 1')
-        self.category_data_list_pgn_next_button = MyPushButton(object_name='category_data_list_pgn_next_button')
+        self.category_data_list_pgn_action_panel = MyGroupBox(object_name='data_list_pgn_action_panel')
+        self.category_data_list_pgn_action_panel_layout = MyGridLayout(object_name='data_list_pgn_action_panel_layout')
+        self.category_data_list_pgn_prev_button = MyPushButton(object_name='data_list_pgn_prev_button')
+        self.category_data_list_pgn_page = MyLabel(object_name='data_list_pgn_page', text='Page 1')
+        self.category_data_list_pgn_next_button = MyPushButton(object_name='data_list_pgn_next_button')
         self.category_data_list_pgn_action_panel_layout.addWidget(self.category_data_list_pgn_prev_button,0,0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.category_data_list_pgn_action_panel_layout.addWidget(self.category_data_list_pgn_page,0,1, Qt.AlignmentFlag.AlignCenter)
         self.category_data_list_pgn_action_panel_layout.addWidget(self.category_data_list_pgn_next_button,0,2, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
@@ -935,15 +1263,15 @@ class ProductWindow(MyWidget):
         self.category_data_list_pgn_panel_layout.addWidget(self.category_data_list_pgn_action_panel)
         self.category_data_list_pgn_panel.setLayout(self.category_data_list_pgn_panel_layout)
         # endregion
-        # region > price_data_list_panel
+        # region > price_data_list_pgn_panel
         self.price_data_list_pgn_panel = MyGroupBox(object_name='price_data_list_pgn_panel') # head.c.a
         self.price_data_list_pgn_panel_layout = MyVBoxLayout(object_name='price_data_list_pgn_panel_layout')
         self.price_data_list_table = MyTableWidget(object_name='price_data_list_table')
-        self.price_data_list_pgn_action_panel = MyGroupBox(object_name='price_data_list_pgn_action_panel')
-        self.price_data_list_pgn_action_panel_layout = MyGridLayout(object_name='price_data_list_pgn_action_panel_layout')
-        self.price_data_list_pgn_prev_button = MyPushButton(object_name='price_data_list_pgn_prev_button')
-        self.price_data_list_pgn_page = MyLabel(object_name='price_data_list_pgn_page', text='Page 1')
-        self.price_data_list_pgn_next_button = MyPushButton(object_name='price_data_list_pgn_next_button')
+        self.price_data_list_pgn_action_panel = MyGroupBox(object_name='data_list_pgn_action_panel')
+        self.price_data_list_pgn_action_panel_layout = MyGridLayout(object_name='data_list_pgn_action_panel_layout')
+        self.price_data_list_pgn_prev_button = MyPushButton(object_name='data_list_pgn_prev_button')
+        self.price_data_list_pgn_page = MyLabel(object_name='data_list_pgn_page', text='Page 1')
+        self.price_data_list_pgn_next_button = MyPushButton(object_name='data_list_pgn_next_button')
         self.price_data_list_pgn_action_panel_layout.addWidget(self.price_data_list_pgn_prev_button,0,0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.price_data_list_pgn_action_panel_layout.addWidget(self.price_data_list_pgn_page,0,1, Qt.AlignmentFlag.AlignCenter)
         self.price_data_list_pgn_action_panel_layout.addWidget(self.price_data_list_pgn_next_button,0,2, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
@@ -952,15 +1280,15 @@ class ProductWindow(MyWidget):
         self.price_data_list_pgn_panel_layout.addWidget(self.price_data_list_pgn_action_panel)
         self.price_data_list_pgn_panel.setLayout(self.price_data_list_pgn_panel_layout)
         # endregion
-        # region > inventory_data_list_panel
+        # region > inventory_data_list_pgn_panel
         self.inventory_data_list_pgn_panel = MyGroupBox(object_name='inventory_data_list_pgn_panel') # head.c.a
         self.inventory_data_list_pgn_panel_layout = MyVBoxLayout(object_name='inventory_data_list_pgn_panel_layout')
         self.inventory_data_list_table = MyTableWidget(object_name='inventory_data_list_table')
-        self.inventory_data_list_pgn_action_panel = MyGroupBox(object_name='inventory_data_list_pgn_action_panel')
-        self.inventory_data_list_pgn_action_panel_layout = MyGridLayout(object_name='inventory_data_list_pgn_action_panel_layout')
-        self.inventory_data_list_pgn_prev_button = MyPushButton(object_name='inventory_data_list_pgn_prev_button')
-        self.inventory_data_list_pgn_page = MyLabel(object_name='inventory_data_list_pgn_page', text='Page 1')
-        self.inventory_data_list_pgn_next_button = MyPushButton(object_name='inventory_data_list_pgn_next_button')
+        self.inventory_data_list_pgn_action_panel = MyGroupBox(object_name='data_list_pgn_action_panel')
+        self.inventory_data_list_pgn_action_panel_layout = MyGridLayout(object_name='data_list_pgn_action_panel_layout')
+        self.inventory_data_list_pgn_prev_button = MyPushButton(object_name='data_list_pgn_prev_button')
+        self.inventory_data_list_pgn_page = MyLabel(object_name='data_list_pgn_page', text='Page 1')
+        self.inventory_data_list_pgn_next_button = MyPushButton(object_name='data_list_pgn_next_button')
         self.inventory_data_list_pgn_action_panel_layout.addWidget(self.inventory_data_list_pgn_prev_button,0,0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.inventory_data_list_pgn_action_panel_layout.addWidget(self.inventory_data_list_pgn_page,0,1, Qt.AlignmentFlag.AlignCenter)
         self.inventory_data_list_pgn_action_panel_layout.addWidget(self.inventory_data_list_pgn_next_button,0,2, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
@@ -970,7 +1298,6 @@ class ProductWindow(MyWidget):
         self.inventory_data_list_pgn_panel.setLayout(self.inventory_data_list_pgn_panel_layout)
         # endregion
 
-        # !!!CHECK POINT!!!
         self.data_list_sorter_tab.addTab(self.data_list_pgn_panel, 'Overview')
         self.data_list_sorter_tab.addTab(self.primary_data_list_pgn_panel, 'Primary')
         self.data_list_sorter_tab.addTab(self.category_data_list_pgn_panel, 'Category')
@@ -982,12 +1309,26 @@ class ProductWindow(MyWidget):
         self.data_mgt_sync_button.clicked.connect(self.on_data_mgt_sync_button_clicked)
         self.data_mgt_import_button.clicked.connect(self.on_data_mgt_import_button_clicked)
         self.data_mgt_add_button.clicked.connect(self.on_data_mgt_add_button_clicked)
-        self.data_list_pgn_prev_button.clicked.connect(self.on_data_list_pgn_prev_button_clicked)
-        self.data_list_pgn_next_button.clicked.connect(self.on_data_list_pgn_next_button_clicked)
-        # endregion
 
+        # region > data_list_pgn_button
+        self.data_list_pgn_prev_button.clicked.connect(self.on_data_list_pgn_prev_button_clicked)
+        self.primary_data_list_pgn_prev_button.clicked.connect(self.on_data_list_pgn_prev_button_clicked)
+        self.category_data_list_pgn_prev_button.clicked.connect(self.on_data_list_pgn_prev_button_clicked)
+        self.price_data_list_pgn_prev_button.clicked.connect(self.on_data_list_pgn_prev_button_clicked)
+        self.inventory_data_list_pgn_prev_button.clicked.connect(self.on_data_list_pgn_prev_button_clicked)
+
+        self.data_list_pgn_next_button.clicked.connect(self.on_data_list_pgn_next_button_clicked)
+        self.primary_data_list_pgn_next_button.clicked.connect(self.on_data_list_pgn_next_button_clicked)
+        self.category_data_list_pgn_next_button.clicked.connect(self.on_data_list_pgn_next_button_clicked)
+        self.price_data_list_pgn_next_button.clicked.connect(self.on_data_list_pgn_next_button_clicked)
+        self.inventory_data_list_pgn_next_button.clicked.connect(self.on_data_list_pgn_next_button_clicked)
+        # endregion
+        # endregion
+        # region > content_text_filter_connection
+        self.text_filter_field.textChanged.connect(self.on_text_filter_field_text_changed)
+        # endregion
         # region > style_content_buttons
-        self.style_data_mgt__action_button()
+        self.style_data_mgt_action_button()
         self.style_data_list_pgn_action_button()
         # endregion
 

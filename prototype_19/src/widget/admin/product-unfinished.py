@@ -64,17 +64,13 @@ class MyTableWidget(QTableWidget):
                 'Date and time created' 
             ])
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.horizontalHeader().setMinimumSectionSize(150)
             self.verticalHeader().setVisible(False)
             self.verticalHeader().setDefaultSectionSize(50)
             pass
         if object_name == 'primary_data_list_table':
             self.setColumnCount(5)
-            self.setHorizontalHeaderLabels([
-                'Action',
-                'Barcode',
-                'Item name',
-                'Expire date',
-                'Date and time created' 
+            self.setHorizontalHeaderLabels([ 'Action', 'Barcode', 'Item name', 'Expire date', 'Date and time created' 
             ])
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.verticalHeader().setVisible(False)
@@ -82,14 +78,7 @@ class MyTableWidget(QTableWidget):
             pass
         if object_name == 'category_data_list_table':
             self.setColumnCount(7)
-            self.setHorizontalHeaderLabels([
-                'Action',
-                'Item name',
-                'Item type',
-                'Brand',
-                'Sales group',
-                'Supplier',
-                'Date and time created' 
+            self.setHorizontalHeaderLabels(['Action', 'Item name', 'Item type', 'Brand', 'Sales group', 'Supplier', 'Date and time created' 
             ])
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.verticalHeader().setVisible(False)
@@ -97,15 +86,7 @@ class MyTableWidget(QTableWidget):
             pass
         if object_name == 'price_data_list_table':
             self.setColumnCount(8)
-            self.setHorizontalHeaderLabels([
-                'Action',
-                'Item name',
-                'Cost',
-                'Sell price',
-                'Effective date',
-                'Promo name',
-                'Discount value',
-                'Date and time created' 
+            self.setHorizontalHeaderLabels([ 'Action', 'Item name', 'Cost', 'Sell price', 'Discount value', 'Effective date', 'Promo name', 'Date and time created' 
             ])
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.verticalHeader().setVisible(False)
@@ -113,12 +94,7 @@ class MyTableWidget(QTableWidget):
             pass
         if object_name == 'inventory_data_list_table':
             self.setColumnCount(5)
-            self.setHorizontalHeaderLabels([
-                'Action',
-                'Item name',
-                'Available stock',
-                'On hand stock',
-                'Date and time created' 
+            self.setHorizontalHeaderLabels([ 'Action', 'Item name', 'Available stock', 'On hand stock', 'Date and time created' 
             ])
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.verticalHeader().setVisible(False)
@@ -146,7 +122,6 @@ class MyGroupBox(QGroupBox):
             """)
 
         if object_name == 'data_list_action_panel':
-            self.setMinimumWidth(100)
             pass
 
         if object_name == 'form_panel':

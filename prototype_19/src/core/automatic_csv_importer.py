@@ -10,9 +10,9 @@ from PyQt6.QtGui import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from database.product import *
-from database.promo import *
-from widget.promo import*
+from database.admin.product import *
+from database.admin.promo import *
+from widget.admin.admin import*
 
 class AutomaticPromoImport(QThread):
     progress_signal = pyqtSignal(int)

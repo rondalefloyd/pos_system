@@ -1,5 +1,6 @@
 import os, sys
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
+from datetime import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -7,12 +8,14 @@ class PromoSchema():
     def __init__(self):
         super().__init__()
         # Creates folder for the db file
-        self.db_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sales.db'))
-        os.makedirs(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/')), exist_ok=True)
+        self.db_file_path = os.path.abspath('data/sales.db')
+        os.makedirs(os.path.abspath(os.path.join(os.path.dirname(__file__), 'data/')), exist_ok=True)
 
         # Connects to SQL database named 'SALES.db'w
         self.conn = sqlite3.connect(database=self.db_file_path)
         self.cursor = self.conn.cursor()
+
+        self.create_promo_table()
 
     def create_promo_table(self):
         self.cursor.execute('''
@@ -34,8 +37,6 @@ class PromoSchema():
         discount_percent = 0 if discount_percent == '' else discount_percent
         description = '[no data]' if description == '' else description
         # endregion -- assign values if empty string
-
-        self.create_promo_table()
 
         self.cursor.execute('''
         INSERT INTO Promo (Name, PromoType, DiscountPercent, Description)
@@ -71,12 +72,6 @@ class PromoSchema():
         DELETE FROM Promo
         WHERE PromoId = ?
         ''', (promo_id,))
-        self.conn.commit()
-
-    def delete_all_promo(self):
-        self.cursor.execute('''
-        DELETE FROM Promo
-        ''')
         self.conn.commit()
 
     def list_promo(self, text_filter='', page_number=1, page_size=30):

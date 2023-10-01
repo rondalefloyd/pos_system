@@ -7,11 +7,14 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(''))
+print('sys path: ', os.path.abspath(''))
 
-from gui.product import *
-from gui.promo import *
-from widget.admin import *
+from src.database.admin.product import *
+from src.database.admin.promo import *
+from src.gui.admin.product import *
+from src.gui.admin.promo import *
+from src.widget.admin.admin import *
 
 class AdminWindow(MyWidget):
     def __init__(self):
@@ -23,9 +26,10 @@ class AdminWindow(MyWidget):
         self.sync_ui()
 
     def default_init(self):
+        self.promo_schema = PromoSchema()
+        self.product_schema = ProductSchema()
         self.my_push_button = MyPushButton()
 
-        
     def sync_ui(self):
         pass
 
