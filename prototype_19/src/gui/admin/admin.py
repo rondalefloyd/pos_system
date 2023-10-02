@@ -12,8 +12,16 @@ print('sys path: ', os.path.abspath(''))
 
 from src.database.admin.product import *
 from src.database.admin.promo import *
+from src.database.admin.reward import *
+from src.database.admin.customer import *
+from src.database.admin.user import *
+
 from src.gui.admin.product import *
 from src.gui.admin.promo import *
+from src.gui.admin.reward import *
+from src.gui.admin.customer import *
+from src.gui.admin.user import *
+
 from src.widget.admin.admin import *
 
 class AdminWindow(MyWidget):
@@ -26,9 +34,19 @@ class AdminWindow(MyWidget):
         self.sync_ui()
 
     def default_init(self):
-        self.promo_schema = PromoSchema()
         self.product_schema = ProductSchema()
+        self.promo_schema = PromoSchema()
+        self.reward_schema = CustomerSchema()
+        self.customer_schema = RewardSchema()
+        self.user_schema = UserSchema()
+
         self.my_push_button = MyPushButton()
+
+        self.product_window = ProductWindow()
+        self.promo_window = PromoWindow()
+        self.reward_window = RewardWindow()
+        self.customer_window = CustomerWindow()
+        self.user_window = UserWindow()
 
     def sync_ui(self):
         pass
@@ -37,6 +55,7 @@ class AdminWindow(MyWidget):
         side_nav_button = [
             self.product_window_button,
             self.promo_window_button,
+            self.reward_window_button,
             self.customer_window_button,
             self.user_window_button,
             self.settings_window_button
@@ -48,32 +67,41 @@ class AdminWindow(MyWidget):
     def on_product_window_button_clicked(self):
         self.style_side_nav_button(0)
         self.stacked_panel.setCurrentIndex(0)
+        self.product_window.sync_ui()
         pass
     def on_promo_window_button_clicked(self):
         self.style_side_nav_button(1)
         self.stacked_panel.setCurrentIndex(1)
+        self.promo_window.sync_ui()
         pass
-    def on_customer_window_button_clicked(self):
+    def on_reward_window_button_clicked(self):
         self.style_side_nav_button(2)
         self.stacked_panel.setCurrentIndex(2)
+        self.reward_window.sync_ui()
         pass
-    def on_user_window_button_clicked(self):
+    def on_customer_window_button_clicked(self):
         self.style_side_nav_button(3)
+        self.customer_window.sync_ui()
         self.stacked_panel.setCurrentIndex(3)
         pass
-    def on_settings_window_button_clicked(self):
+    def on_user_window_button_clicked(self):
         self.style_side_nav_button(4)
+        self.user_window.sync_ui()
         self.stacked_panel.setCurrentIndex(4)
+        pass
+    def on_settings_window_button_clicked(self):
+        self.style_side_nav_button(5)
+        self.stacked_panel.setCurrentIndex(5)
         pass
 
     def show_stacked_panel(self):
         self.stacked_panel = MyStackedWidget()
 
-        self.product_window = ProductWindow()
-        self.promo_window = PromoWindow()
-
         self.stacked_panel.addWidget(self.product_window)
         self.stacked_panel.addWidget(self.promo_window)
+        self.stacked_panel.addWidget(self.reward_window)
+        self.stacked_panel.addWidget(self.customer_window)
+        self.stacked_panel.addWidget(self.user_window)
 
         pass
     def show_side_nav_panel(self):
@@ -82,12 +110,14 @@ class AdminWindow(MyWidget):
 
         self.product_window_button = MyPushButton(object_name='product_window_button', text='Product')
         self.promo_window_button = MyPushButton(object_name='promo_window_button', text='Promo')
+        self.reward_window_button = MyPushButton(object_name='reward_window_button', text='Reward')
         self.customer_window_button = MyPushButton(object_name='customer_window_button', text='Customer')
         self.user_window_button = MyPushButton(object_name='user_window_button', text='User')
         self.settings_window_button = MyPushButton(object_name='settings_window_button', text='Settings')
 
         self.product_window_button.clicked.connect(self.on_product_window_button_clicked)
         self.promo_window_button.clicked.connect(self.on_promo_window_button_clicked)
+        self.reward_window_button.clicked.connect(self.on_reward_window_button_clicked)
         self.customer_window_button.clicked.connect(self.on_customer_window_button_clicked)
         self.user_window_button.clicked.connect(self.on_user_window_button_clicked)
         self.settings_window_button.clicked.connect(self.on_settings_window_button_clicked)
@@ -96,6 +126,7 @@ class AdminWindow(MyWidget):
 
         self.side_nav_panel_layout.addRow(self.product_window_button)
         self.side_nav_panel_layout.addRow(self.promo_window_button)
+        self.side_nav_panel_layout.addRow(self.reward_window_button)
         self.side_nav_panel_layout.addRow(self.customer_window_button)
         self.side_nav_panel_layout.addRow(self.user_window_button)
         self.side_nav_panel_layout.addRow(self.settings_window_button)

@@ -12,12 +12,12 @@ print('sys path: ', os.path.abspath(''))
 
 from src.core.color_scheme import *
 from src.core.manual_csv_importer import *
-from src.database.admin.promo import *
-from src.widget.admin.promo import *
+from src.database.admin.reward import *
+from src.widget.admin.reward import *
 
 color_scheme = ColorScheme()
 
-class PromoWindow(MyWidget):
+class RewardWindow(MyWidget):
     def __init__(self):
         super().__init__()
 
@@ -26,24 +26,23 @@ class PromoWindow(MyWidget):
         self.sync_ui()
 
     def default_init(self):
-        self.promo_schema = PromoSchema()
+        self.reward_schema = RewardSchema()
         self.my_push_button = MyPushButton()
 
         self.data_list_curr_page = 1
         self.clicked_data_list_edit_button = None
         self.clicked_data_list_view_button = None
         self.clicked_data_list_delete_button = None
-        self.selected_promo_id = None
+        self.selected_reward_id = None
 
         self.required_field_indicator = "<font color='red'>-- required</font>"
 
-        self.total_row_count = self.promo_schema.count_promo()
+        self.total_row_count = self.reward_schema.count_reward()
         pass
     def sync_ui(self):
-        self.populate_combo_box()
         self.populate_table()
 
-        self.total_data.setText(f'Total promo: {self.promo_schema.count_promo()}')
+        self.total_data.setText(f'Total reward: {self.reward_schema.count_reward()}')
 
         self.data_mgt_add_button.setDisabled(False)
         self.form_panel.hide()
@@ -76,13 +75,12 @@ class PromoWindow(MyWidget):
         self.form_save_new_button.hide()
         self.form_save_edit_button.show()
         self.form_panel.show()
-        
-        self.promo_name_field.setText(str(row_value[0]))
-        self.promo_type_field.setCurrentText(str(row_value[1]))
-        self.discount_percent_field.setText(str(row_value[2]))
-        self.description_field.setText(str(row_value[3]))
 
-        self.selected_promo_id = str(row_value[5])
+        self.reward_name_field.setText(str(row_value[0]))
+        self.description_field.setText(str(row_value[1]))
+        self.points_rate_field.setText(str(row_value[2]))
+        self.selected_reward_id = str(row_value[4])
+
         self.clicked_data_list_edit_button = edit_button
 
         pass
@@ -90,16 +88,14 @@ class PromoWindow(MyWidget):
         self.data_list_view_dialog = MyDialog(object_name='data_list_view_dialog', parent=self)
         self.data_list_view_dialog_layout = MyFormLayout()
 
-        promo_name_info = MyLabel(text=str(row_value[0]))
-        promo_type_info = MyLabel(text=str(row_value[1]))
-        discount_percent_info = MyLabel(text=str(row_value[2]))
-        description_info = MyLabel(text=str(row_value[3]))
-        date_created_info = MyLabel(text=str(row_value[4]))
+        reward_name_info = MyLabel(text=str(row_value[0]))
+        description_info = MyLabel(text=str(row_value[1]))
+        points_rate_info = MyLabel(text=str(row_value[2]))
+        date_created_info = MyLabel(text=str(row_value[3]))
 
-        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Promo name:'), promo_name_info)
-        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Promo type:'), promo_type_info)
-        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Discount percent:'), discount_percent_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Reward name:'), reward_name_info)
         self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Description:'), description_info)
+        self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Points rate:'), points_rate_info)
         self.data_list_view_dialog_layout.addRow(MyLabel(text='<hr>'))
         self.data_list_view_dialog_layout.addRow(MyLabel(object_name='view_dialog_labels', text='Date and time created:'), date_created_info)
         self.data_list_view_dialog.setLayout(self.data_list_view_dialog_layout)
@@ -109,14 +105,13 @@ class PromoWindow(MyWidget):
     def on_data_list_delete_button_clicked(self, row_value, delete_button):
         confirmation_a = QMessageBox.warning(self, 'Confirm', f'Are you sure you want to delete {row_value[0]}?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if confirmation_a == QMessageBox.StandardButton.Yes:
-            self.selected_promo_id = str(row_value[5])
-            self.promo_schema.delete_selected_promo(self.selected_promo_id)
+            self.selected_reward_id = str(row_value[4])
+            self.reward_schema.delete_selected_reward(self.selected_reward_id)
 
             self.populate_table()
-            self.populate_combo_box()
-            self.total_data.setText(f'Total promo: {self.promo_schema.count_promo()}')
+            self.total_data.setText(f'Total reward: {self.reward_schema.count_reward()}')
 
-            QMessageBox.information(self, 'Success', 'Promo has been deleted!')
+            QMessageBox.information(self, 'Success', 'Reward has been deleted!')
         pass
 
     def on_form_close_button_clicked(self):
@@ -125,72 +120,64 @@ class PromoWindow(MyWidget):
         pass
     def on_form_save_new_button_clicked(self):
         # region > convert field input into str
-        promo_name = str(self.promo_name_field.text())
-        promo_type = str(self.promo_type_field.currentText())
-        discount_percent = str(self.discount_percent_field.text())
+        reward_name = str(self.reward_name_field.text())
         description = str(self.description_field.text())
+        points_rate = str(self.points_rate_field.text())
         # endregion
 
         # region > input_restrictions
-        if not discount_percent.replace('.', '', 1).isdigit():
+        if not points_rate.replace('.', '', 1).isdigit():
             QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
             return
         if '' in [
-            promo_name,
-            promo_type,
-            discount_percent
+            reward_name,
+            points_rate
         ]:
             QMessageBox.critical(self, 'Error', 'Must fill required field.')
             return
         # endregion
         
-        self.promo_schema.add_new_promo(
-            promo_name=promo_name,
-            promo_type=promo_type,
-            discount_percent=discount_percent,
-            description=description
+        self.reward_schema.add_new_reward(
+            reward_name=reward_name,
+            description=description,
+            points_rate=points_rate
         )
         
-        self.total_row_count = self.promo_schema.count_promo()
+        self.total_row_count = self.reward_schema.count_reward()
         self.populate_table()
-        self.populate_combo_box()
-        self.total_data.setText(f'Total promo: {self.promo_schema.count_promo()}')
+        self.total_data.setText(f'Total reward: {self.reward_schema.count_reward()}')
 
-        QMessageBox.information(self, 'Success', 'New promo has been added!')
+        QMessageBox.information(self, 'Success', 'New reward has been added!')
         pass
     def on_form_save_edit_button_clicked(self):
-        promo_name = str(self.promo_name_field.text())
-        promo_type = str(self.promo_type_field.currentText())
-        discount_percent = str(self.discount_percent_field.text())
+        reward_name = str(self.reward_name_field.text())
         description = str(self.description_field.text())
-        promo_id = str(self.selected_promo_id)
+        points_rate = str(self.points_rate_field.text())
+        reward_id = str(self.selected_reward_id)
 
-        if not discount_percent.replace('.', '', 1).isdigit():
+        if not points_rate.replace('.', '', 1).isdigit():
             QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
             return
         if '' in [
-            promo_name,
-            promo_type,
-            discount_percent
+            reward_name,
+            points_rate
         ]:
             QMessageBox.critical(self, 'Error', 'Must fill required field.')
             return
 
-        self.promo_schema.edit_selected_promo(
-            promo_name=promo_name,
-            promo_type=promo_type,
-            discount_percent=discount_percent,
+        self.reward_schema.edit_selected_reward(
+            reward_name=reward_name,
             description=description,
-            promo_id=promo_id
+            points_rate=points_rate,
+            reward_id=reward_id
         )
 
-        self.total_row_count = self.promo_schema.count_promo()
+        self.total_row_count = self.reward_schema.count_reward()
         self.populate_table()
-        self.populate_combo_box()
         self.on_data_mgt_add_button_clicked()
-        self.total_data.setText(f'Total promo: {self.promo_schema.count_promo()}')
+        self.total_data.setText(f'Total reward: {self.reward_schema.count_reward()}')
 
-        QMessageBox.information(self, 'Success', 'Promo has been edited!')
+        QMessageBox.information(self, 'Success', 'Reward has been edited!')
         pass
     
     def on_data_mgt_sync_button_clicked(self):
@@ -201,7 +188,7 @@ class PromoWindow(MyWidget):
         csv_file, _ = QFileDialog.getOpenFileName(None, 'Open CSV', '', 'CSV Files (*.csv)')
         
         if csv_file:
-            self.manual_import = ManualPromoImport(csv_file=csv_file)
+            self.manual_import = ManualRewardImport(csv_file=csv_file)
             
             self.manual_import.progress_signal.connect(self.manual_import.update_progress)
             self.manual_import.finished_signal.connect(self.manual_import.import_finished)
@@ -253,39 +240,25 @@ class PromoWindow(MyWidget):
         self.populate_table(text_filter=str(self.text_filter_field.text()), current_page=self.data_list_curr_page)
         pass
 
-    def on_promo_name_field_text_changed(self):
-        self.promo_name_label.setText(f'Promo name {self.required_field_indicator}') if self.promo_name_field.text() == '' else  self.promo_name_label.setText(f'Promo name')
+    def on_reward_name_field_text_changed(self):
+        self.reward_name_label.setText(f'Reward name {self.required_field_indicator}') if self.reward_name_field.text() == '' else  self.reward_name_label.setText(f'Reward name')
         pass
-    def on_promo_type_field_current_text_changed(self):
-        self.promo_type_label.setText(f'Promo type {self.required_field_indicator}') if self.promo_type_field.currentText() == '' else self.promo_type_label.setText(f'Promo type') 
-        pass
-    def on_discount_percent_field_text_changed(self):
-        self.discount_percent_label.setText(f'Discount percent {self.required_field_indicator}') if self.discount_percent_field.text() == '' else self.discount_percent_label.setText(f'Discount percent') 
+    def on_points_rate_field_text_changed(self):
+        self.points_rate_label.setText(f'Points rate {self.required_field_indicator}') if self.points_rate_field.text() == '' else  self.points_rate_label.setText(f'Points rate')
         pass
 
-    def populate_combo_box(self):
-        self.promo_type_field.clear()
-        # region > data_list
-        promo_type_data = self.promo_schema.list_promo_type()
-        # endregion
-
-        # region > field_add_item
-        for promo_type in promo_type_data: self.promo_type_field.addItem(promo_type[0])
-        # endregion
-
-        pass
     def populate_table(self, text_filter='', current_page=1):
         # region > data_list_clear_contents
         self.data_list_table.clearContents()
         # endregion
 
         # region > data_list
-        promo_data = self.promo_schema.list_promo(text_filter=text_filter, page_number=current_page)
+        reward_data = self.reward_schema.list_reward(text_filter=text_filter, page_number=current_page)
         # endregion
 
         # region > data_list_pgn_button_set_enabled
         self.data_list_pgn_prev_button.setEnabled(self.data_list_curr_page > 1)
-        self.data_list_pgn_next_button.setEnabled(len(promo_data) == 30)
+        self.data_list_pgn_next_button.setEnabled(len(reward_data) == 30)
         # endregion
 
         # region > clicked_data_list_set_disabled
@@ -294,10 +267,10 @@ class PromoWindow(MyWidget):
         # endregion
         
         # region > data_list_table_set_row_count
-        self.data_list_table.setRowCount(len(promo_data))
+        self.data_list_table.setRowCount(len(reward_data))
         # endregion
 
-        for row_index, row_value in enumerate(promo_data):
+        for row_index, row_value in enumerate(reward_data):
             # region > data_list_action
             self.data_list_action_panel = MyGroupBox(object_name='data_list_action_panel') # head.a
             self.data_list_action_panel_layout = MyHBoxLayout(object_name='data_list_action_panel_layout')
@@ -325,25 +298,23 @@ class PromoWindow(MyWidget):
             # endregion
 
             # region > set_table_item_values
-            promo_name = QTableWidgetItem(str(row_value[0]))
-            promo_type = QTableWidgetItem(str(row_value[1]))
-            discount_percent = QTableWidgetItem(str(f'{row_value[2]}%'))
-            description = QTableWidgetItem(str(row_value[3]))
-            update_ts = QTableWidgetItem(str(row_value[4]))
+            reward_name = QTableWidgetItem(str(row_value[0]))
+            description = QTableWidgetItem(str(row_value[1]))
+            points_rate = QTableWidgetItem(str(f'{row_value[2]}%'))
+            update_ts = QTableWidgetItem(str(row_value[3]))
             # endregion
 
             # region > set_table_item_alignment
-            discount_percent.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            points_rate.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             update_ts.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             # endregion
         
             # region > set_data_list_table_cells
             self.data_list_table.setCellWidget(row_index, 0, self.data_list_action_panel)
-            self.data_list_table.setItem(row_index, 1, promo_name)
-            self.data_list_table.setItem(row_index, 2, promo_type)
-            self.data_list_table.setItem(row_index, 3, discount_percent)
-            self.data_list_table.setItem(row_index, 4, description)
-            self.data_list_table.setItem(row_index, 5, update_ts)
+            self.data_list_table.setItem(row_index, 1, reward_name)
+            self.data_list_table.setItem(row_index, 2, description)
+            self.data_list_table.setItem(row_index, 3, points_rate)
+            self.data_list_table.setItem(row_index, 4, update_ts)
             # endregion
 
         pass
@@ -353,7 +324,7 @@ class PromoWindow(MyWidget):
         self.extra_info_panel_layout = MyHBoxLayout(object_name='extra_info_panel_layout')
 
         # region > extra_info_labels
-        self.total_data = MyLabel(object_name='total_data', text=f'Total promo: {self.total_row_count}')
+        self.total_data = MyLabel(object_name='total_data', text=f'Total reward: {self.total_row_count}')
         # endregion
 
         self.extra_info_panel_layout.addWidget(self.total_data,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -367,31 +338,34 @@ class PromoWindow(MyWidget):
         self.form_scroll_area = MyScrollArea(object_name='form_scroll_area') # head.a
         self.form_page = MyGroupBox(object_name='form_page')
         self.form_page_layout = MyFormLayout(object_name='form_page_layout')
+
         self.primary_info_page = MyGroupBox(object_name='primary_info_page') # head.a.a
         self.primary_info_page_layout = MyFormLayout(object_name='primary_info_page_layout')
-        self.promo_name_label = MyLabel(object_name='promo_name_label', text=f'Promo name {self.required_field_indicator}')
-        self.promo_type_label = MyLabel(object_name='promo_type_label', text=f'Promo type {self.required_field_indicator}')
-        self.discount_percent_label = MyLabel(object_name='discount_percent_label', text=f'Discount percent {self.required_field_indicator}')
-        self.description_label = MyLabel(object_name='description_label', text='Description')
-        self.promo_name_field = MyLineEdit(object_name='promo_name_field')
-        self.promo_type_field = MyComboBox(object_name='promo_type_field')
-        self.discount_percent_field = MyLineEdit(object_name='discount_percent_field')
+        
+        self.reward_name_label = MyLabel(object_name='reward_name_label', text=f'Reward name {self.required_field_indicator}')
+        self.description_label = MyLabel(object_name='description_label', text=f'Description')
+        self.points_rate_label = MyLabel(object_name='points_rate_label', text=f'Points rate {self.required_field_indicator}')
+
+        self.reward_name_field = MyLineEdit(object_name='reward_name_field')
         self.description_field = MyLineEdit(object_name='description_field')
-        self.promo_name_field.textChanged.connect(self.on_promo_name_field_text_changed)
-        self.promo_type_field.currentTextChanged.connect(self.on_promo_type_field_current_text_changed)
-        self.discount_percent_field.textChanged.connect(self.on_discount_percent_field_text_changed)
+        self.points_rate_field = MyLineEdit(object_name='points_rate_field')
+
+        self.reward_name_field.textChanged.connect(self.on_reward_name_field_text_changed)
+        self.points_rate_field.textChanged.connect(self.on_points_rate_field_text_changed)
+
         self.primary_info_page_layout.insertRow(0, QLabel(f"<font color='{color_scheme.hex_main}'><b>Primary Information</b></font>"))
         self.primary_info_page_layout.insertRow(1, QLabel('<hr>'))
-        self.primary_info_page_layout.insertRow(2, self.promo_name_label)
-        self.primary_info_page_layout.insertRow(4, self.promo_type_label)
-        self.primary_info_page_layout.insertRow(6, self.discount_percent_label)
-        self.primary_info_page_layout.insertRow(8, self.description_label)
-        self.primary_info_page_layout.insertRow(3, self.promo_name_field)
-        self.primary_info_page_layout.insertRow(5, self.promo_type_field)
-        self.primary_info_page_layout.insertRow(7, self.discount_percent_field)
-        self.primary_info_page_layout.insertRow(9, self.description_field)
+        self.primary_info_page_layout.insertRow(2, self.reward_name_label)
+        self.primary_info_page_layout.insertRow(4, self.description_label)
+        self.primary_info_page_layout.insertRow(6, self.points_rate_label)
+
+        self.primary_info_page_layout.insertRow(3, self.reward_name_field)
+        self.primary_info_page_layout.insertRow(5, self.description_field)
+        self.primary_info_page_layout.insertRow(7, self.points_rate_field)
+
         self.primary_info_page.setLayout(self.primary_info_page_layout)
         self.form_page_layout.addRow(self.primary_info_page)
+
         self.form_page.setLayout(self.form_page_layout)
         self.form_scroll_area.setWidget(self.form_page)
         # endregion
@@ -433,7 +407,7 @@ class PromoWindow(MyWidget):
         self.data_mgt_action_panel_layout = MyHBoxLayout(object_name='data_mgt_action_panel_layout')
         self.data_mgt_sync_button = MyPushButton(object_name='data_mgt_sync_button')
         self.data_mgt_import_button = MyPushButton(object_name='data_mgt_import_button')
-        self.data_mgt_add_button = MyPushButton(object_name='data_mgt_add_button', text=' Add Promo')
+        self.data_mgt_add_button = MyPushButton(object_name='data_mgt_add_button', text=' Add Reward')
         self.data_mgt_action_panel_layout.addWidget(self.data_mgt_sync_button)
         self.data_mgt_action_panel_layout.addWidget(self.data_mgt_import_button)
         self.data_mgt_action_panel_layout.addWidget(self.data_mgt_add_button)
@@ -495,6 +469,6 @@ class PromoWindow(MyWidget):
     
 if __name__ == ('__main__'):
     pos_app = QApplication(sys.argv)
-    window = PromoWindow()
+    window = RewardWindow()
     window.show()
     sys.exit(pos_app.exec())

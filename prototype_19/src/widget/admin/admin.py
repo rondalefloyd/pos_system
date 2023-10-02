@@ -7,6 +7,12 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
 
+sys.path.append(os.path.abspath(''))
+
+from src.core.color_scheme import *
+
+color_scheme = ColorScheme()
+
 class MyScrollArea(QScrollArea):
     def __init__(self, object_name=''):
         super().__init__()
@@ -92,16 +98,17 @@ class MyPushButton(QPushButton):
         self.setText(text)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        self.active_side_nav_button_ss = """
-            QPushButton { background-color: rgba(225, 225, 225, 25); border: 0px; border-right: 3px solid #EE4E34; text-align: left; padding: 10px; color: #fff }
+        self.active_side_nav_button_ss = f"""
+            QPushButton {{ background-color: rgba(225, 225, 225, 25); border: 0px; border-right: 3px solid {color_scheme.hex_main}; text-align: left; padding: 10px; color: #fff }}
         """
-        self.inactive_side_nav_button_ss = """
-            QPushButton { background-color: None; border: 0px; border-right: 3px solid #222; text-align: left; padding: 10px; color: #fff }
-            QPushButton:hover { background-color: rgba(225, 225, 225, 25); border-right: 3px solid #EE4E34 }
+        self.inactive_side_nav_button_ss = f"""
+            QPushButton {{ background-color: None; border: 0px; border-right: 3px solid #222; text-align: left; padding: 10px; color: #fff }}
+            QPushButton:hover {{ background-color: rgba(225, 225, 225, 25); border-right: 3px solid {color_scheme.hex_main} }}
         """
 
         product_icon_path = os.path.abspath('src/icons/side_nav_panel/product.png')
         promo_icon_path = os.path.abspath('src/icons/side_nav_panel/promo.png')
+        reward_icon_path = os.path.abspath('src/icons/side_nav_panel/reward.png')
         customer_icon_path = os.path.abspath('src/icons/side_nav_panel/customer.png')
         user_icon_path = os.path.abspath('src/icons/side_nav_panel/user.png')
         settings_icon_path = os.path.abspath('src/icons/side_nav_panel/settings.png')
@@ -113,6 +120,11 @@ class MyPushButton(QPushButton):
             pass
         if object_name == 'promo_window_button':
             self.setIcon(QIcon(promo_icon_path))
+            self.setIconSize(QSize(20,25))
+            self.setText('    ' + text)
+            pass
+        if object_name == 'reward_window_button':
+            self.setIcon(QIcon(reward_icon_path))
             self.setIconSize(QSize(20,25))
             self.setText('    ' + text)
             pass

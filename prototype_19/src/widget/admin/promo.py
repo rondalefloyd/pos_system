@@ -1,11 +1,14 @@
-import sqlite3
-import sys, os
-import pandas as pd
-import threading
+import os, sys
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
+
+sys.path.append(os.path.abspath(''))
+
+from src.core.color_scheme import *
+
+color_scheme = ColorScheme()
 
 class MyScrollArea(QScrollArea):
     def __init__(self, object_name=''):
@@ -48,7 +51,7 @@ class MyTableWidget(QTableWidget):
             self.setColumnCount(6)
             self.setHorizontalHeaderLabels(['Action','Promo name','Promo type','Discount percent','Description','Date and time created'])
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-            self.horizontalHeader().setMinimumSectionSize(150)
+            self.horizontalHeader().setMinimumSectionSize(160)
             self.verticalHeader().setVisible(False)
             self.verticalHeader().setDefaultSectionSize(50)
         pass
@@ -68,7 +71,7 @@ class MyGroupBox(QGroupBox):
             self.setStyleSheet(f"""
             QGroupBox {{ border: 0px }}
             QGroupBox#{object_name} {{ border-top: 1px solid #ddd }}
-            QLineEdit#text_filter_field {{ padding: 5px }}
+            QLineEdit#text_filter_field {{ border: 1px solid #bbb; padding: 5px }}
             """)
 
         if object_name == 'data_list_action_panel':
@@ -85,18 +88,14 @@ class MyGroupBox(QGroupBox):
 
         if object_name == 'primary_info_page':
             self.setStyleSheet(f"""
-                QGroupBox#{object_name} {{background-color: #eee; border: 0px; border-top: 3px solid #EE4E34}}
+                QGroupBox#{object_name} {{background-color: #eee; border: 0px; border-top: 3px solid {color_scheme.hex_main}}}
                 QLabel {{ color: #222 }}
-                QLineEdit#promo_name_field {{ padding: 5px; margin-bottom: 10px }}
-                QComboBox#promo_type_field {{ padding: 5px; margin-bottom: 10px }}
-                QLineEdit#discount_percent_field {{ padding: 5px; margin-bottom: 10px }}
-                QPlainTextEdit#description_field {{ background-color: #fff; padding: 5px; }}
             """)
             pass
 
         if object_name == 'extra_info_panel':
             self.setStyleSheet(f"""
-                QGroupBox#{object_name} {{ background-color: #EE4E34; border: 0px }}
+                QGroupBox#{object_name} {{ background-color: {color_scheme.hex_main}; border: 0px }}
             """)
         pass
 
@@ -189,9 +188,10 @@ class MyLabel(QLabel):
             'discount_percent_label',
             'description_label'
         ]:
-            self.setStyleSheet(f"""
-                QLabel#{object_name} {{ font-size: 10px }}
-            """)
+            # self.setStyleSheet(f"""
+            #     QLabel#{object_name} {{ font-size: 10px }}
+            # """)
+            pass
         
         if object_name == 'view_dialog_labels':
             self.setFixedWidth(125)
@@ -209,41 +209,40 @@ class MyPushButton(QPushButton):
 
         self.data_list_action_button_ss = f"""
             QPushButton#data_list_edit_button, 
-            QPushButton#data_list_view_button {{ background-color: #ddd; border: 0px; border-radius: 3px; color: #222; font-size: 10px; padding: 3px }}
-            QPushButton#data_list_delete_button {{ background-color: #DC143C; border: 0px; border-radius: 3px; color: #222; padding: 3px }}
+            QPushButton#data_list_view_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; font-size: 10px; padding: 3px }}
+            QPushButton#data_list_delete_button {{ background-color: {color_scheme.hex_delete}; border: 0px; border-radius: 3px; color: #222; padding: 3px }}
 
             QPushButton#data_list_edit_button:hover, 
-            QPushButton#data_list_view_button:hover {{ background-color: rgba(0,0,0,45) }}
-            QPushButton#data_list_delete_button:hover {{ background-color: rgba(190,0,30,225) }}
+            QPushButton#data_list_view_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
+            QPushButton#data_list_delete_button:hover {{ background-color: {color_scheme.hex_delete_hover} }}
         """
 
         self.form_close_button_ss = f"""
-            QPushButton#form_close_button {{ background-color: #ddd; border: 0px; border-radius: 3px; color: #222; padding: 10px }}
-            QPushButton#form_close_button:hover {{ background-color: rgba(0, 0, 0, 50) }}
+            QPushButton#form_close_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; padding: 10px }}
+            QPushButton#form_close_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
         """
         self.form_save_new_button_ss = f"""
-            QPushButton#form_save_new_button {{ background-color: #EE4E34; border: 0px; border-radius: 3px; color: #fff; padding: 10px }}
-            QPushButton#form_save_new_button:hover {{ background-color: rgba(218,58,42,255) }}
+            QPushButton#form_save_new_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; padding: 10px }}
+            QPushButton#form_save_new_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
         """
         self.form_save_edit_button_ss = f"""
-            QPushButton#form_save_edit_button {{ background-color: #EE4E34; border: 0px; border-radius: 3px; color: #fff; padding: 10px }}
-            QPushButton#form_save_edit_button:hover {{ background-color: rgba(238,78,52,200) }}
+            QPushButton#form_save_edit_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; padding: 10px }}
+            QPushButton#form_save_edit_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
         """
 
         self.data_mgt_button_ss = f"""
             QPushButton#data_mgt_sync_button, 
-            QPushButton#data_mgt_import_button {{ background-color: #ddd; border: 0px; border-radius: 3px; color: #222; padding: 3px }}
-            QPushButton#data_mgt_add_button {{ background-color: #EE4E34; border: 0px; border-radius: 3px; color: #fff; font-size: 10px; padding: 3px }}
+            QPushButton#data_mgt_import_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; padding: 3px }}
+            QPushButton#data_mgt_add_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; font-size: 10px; padding: 3px }}
 
             QPushButton#data_mgt_sync_button:hover, 
-            QPushButton#data_mgt_import_button:hover {{ background-color: rgba(0, 0, 0, 30) }}
-            QPushButton#data_mgt_add_button:hover {{ background-color: rgba(208,48,22,255) }}
-            QPushButton#data_mgt_add_button:focus {{ background-color: rgba(208,48,22,255) }}
+            QPushButton#data_mgt_import_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
+            QPushButton#data_mgt_add_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
         """
 
         self.data_list_pgn_button_ss = f"""
-            QPushButton#data_list_pgn_prev_button, QPushButton#data_list_pgn_next_button {{ background-color: #ddd; border: 0px; border-radius: 3px; color: #222; padding: 3px }}
-            QPushButton#data_list_pgn_prev_button:hover, QPushButton#data_list_pgn_next_button:hover {{ background-color: rgba(0, 0, 0, 50) }}
+            QPushButton#data_list_pgn_prev_button, QPushButton#data_list_pgn_next_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; padding: 3px }}
+            QPushButton#data_list_pgn_prev_button:hover, QPushButton#data_list_pgn_next_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
         """
 
         edit_icon_path = os.path.abspath('src/icons/content_panel/edit.png')
@@ -311,21 +310,9 @@ class MyLineEdit(QLineEdit):
             self.setMaximumWidth(600)
             self.setPlaceholderText('Filter promo')
         pass
-class MyTextEdit(QTextEdit):
-    def __init__(self, object_name=''):
-        super().__init__()
-        
-        self.setObjectName(object_name)
-        pass
 class MyPlainTextEdit(QPlainTextEdit):
     def __init__(self, object_name=''):
         super().__init__()
         
-        self.setObjectName(object_name)
-        pass
-class MyDateEdit(QDateEdit):
-    def __init__(self, object_name=''):
-        super().__init__()
-    
         self.setObjectName(object_name)
         pass

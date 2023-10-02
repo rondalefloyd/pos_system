@@ -10,10 +10,12 @@ from PyQt6 import *
 sys.path.append(os.path.abspath(''))
 print('sys path: ', os.path.abspath(''))
 
+from src.core.color_scheme import *
 from src.core.manual_csv_importer import *
-from src.core.please_wait_sleeper import *
 from src.database.admin.product import *
 from src.widget.admin.product import *
+
+color_scheme = ColorScheme()
 
 class ProductWindow(MyWidget):
     def __init__(self):
@@ -41,7 +43,7 @@ class ProductWindow(MyWidget):
         self.populate_combo_box()
         self.populate_table()
 
-        self.total_data.setText(f'Total product: {self.product_schema.count_product()}') !!! CHECKPOINT !!!
+        self.total_data.setText(f'Total product: {self.product_schema.count_product()}')
 
         self.primary_info_page.show()
         self.category_info_page.show()
@@ -57,6 +59,7 @@ class ProductWindow(MyWidget):
         self.new_sell_price_label.hide()
         self.start_dt_label.hide()
         self.end_dt_label.hide()
+        self.inventory_item_name_label.hide()
         self.available_stock_label.hide()
         self.on_hand_stock_label.hide()
 
@@ -66,6 +69,7 @@ class ProductWindow(MyWidget):
         self.new_sell_price_field.hide()
         self.start_dt_field.hide()
         self.end_dt_field.hide()
+        self.inventory_item_name_field.hide()
         self.available_stock_field.hide()
         self.on_hand_stock_field.hide()
 
@@ -73,6 +77,8 @@ class ProductWindow(MyWidget):
         self.discount_percent_field.setDisabled(True)
         self.discount_value_field.setDisabled(True)
         self.new_sell_price_field.setDisabled(True)
+        self.inventory_item_name_field.setDisabled(True)
+
         pass
 
     def style_data_list_action_button(self):
@@ -133,6 +139,9 @@ class ProductWindow(MyWidget):
 
         self.inventory_tracking_label.show()
         self.inventory_tracking_field.show()
+
+        self.inventory_item_name_label.hide()
+        self.inventory_item_name_field.hide()
 
         self.available_stock_label.hide()
         self.on_hand_stock_label.hide()
@@ -247,7 +256,12 @@ class ProductWindow(MyWidget):
         self.inventory_info_page.show()
 
         self.inventory_tracking_label.hide()
+        self.inventory_item_name_label.show()
+        self.available_stock_label.show()
+        self.on_hand_stock_label.show()
+
         self.inventory_tracking_field.hide()
+        self.inventory_item_name_field.show()
         self.available_stock_field.show()
         self.on_hand_stock_field.show()
 
@@ -256,6 +270,7 @@ class ProductWindow(MyWidget):
         self.form_panel.show()
         
         # region > set_form_field_input
+        self.inventory_item_name_field.setText(str(row_value[0]))
         self.available_stock_field.setText(str(row_value[1]))
         self.on_hand_stock_field.setText(str(row_value[2]))
         # endregion
@@ -328,7 +343,7 @@ class ProductWindow(MyWidget):
         # endregion
 
         # region > input_restrictions
-        if False in [cost.isdecimal(), sell_price.isdecimal()]:
+        if not (cost.replace('.', '', 1).isdigit() and sell_price.replace('.', '', 1).isdigit()):
             QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
             return
         
@@ -414,7 +429,7 @@ class ProductWindow(MyWidget):
         # endregion
 
         # region > input_restrictions
-        if False in [cost.isdecimal(), sell_price.isdecimal()]:
+        if not (cost.replace('.', '', 1).isdigit() and sell_price.replace('.', '', 1).isdigit()):
             QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
             return
         
@@ -431,7 +446,6 @@ class ProductWindow(MyWidget):
             QMessageBox.critical(self, 'Error', 'Incorrect numerical input.')
             return
         # endregion
-
 
         self.product_schema.edit_selected_product(
             barcode=barcode,
@@ -467,7 +481,8 @@ class ProductWindow(MyWidget):
         self.total_row_count = self.product_schema.count_product()
         self.populate_table()
         self.populate_combo_box()
-
+        self.on_data_mgt_add_button_clicked()
+        
         self.total_data.setText(f'Total product: {self.product_schema.count_product()}')
 
         QMessageBox.information(self, 'Success', 'Product has been edited!')
@@ -498,6 +513,9 @@ class ProductWindow(MyWidget):
         self.category_info_page.show()
         self.price_info_page.show()
         self.inventory_info_page.show()
+
+        self.inventory_item_name_label.hide()
+        self.inventory_item_name_field.hide()
 
         self.form_save_new_button.show()
         self.form_save_edit_button.hide()
@@ -567,7 +585,6 @@ class ProductWindow(MyWidget):
             self.new_sell_price_field.setText(f'{new_sell_price:.2f}')
             pass
         except ValueError:
-            print('error')
             self.discount_value_field.setText('Error')
             self.new_sell_price_field.setText('Error')
         pass
@@ -623,7 +640,6 @@ class ProductWindow(MyWidget):
                 self.new_sell_price_field.setText(f'{new_sell_price:.2f}')
                 pass
             except ValueError:
-                print('error')
                 self.discount_value_field.setText('Error')
                 self.new_sell_price_field.setText('Error')
         pass
@@ -830,10 +846,10 @@ class ProductWindow(MyWidget):
             ]
             supplier = QTableWidgetItem(str(row_value[6]))
 
-            cost = QTableWidgetItem(f'₱{row_value[7]}')
+            cost = QTableWidgetItem(f'₱{row_value[7]:.2f}')
             sell_price = [
-                QTableWidgetItem(f'₱{row_value[8]}'),
-                QTableWidgetItem(f'₱{row_value[8]}')
+                QTableWidgetItem(f'₱{row_value[8]:.2f}'),
+                QTableWidgetItem(f'₱{row_value[8]:.2f}')
             ]
             effective_dt = [
                 QTableWidgetItem(str(row_value[9])),
@@ -844,8 +860,8 @@ class ProductWindow(MyWidget):
                 QTableWidgetItem(str(row_value[10]))
             ]
             discount_value = [
-                QTableWidgetItem(f'₱{row_value[11]}'),
-                QTableWidgetItem(f'₱{row_value[11]}')
+                QTableWidgetItem(f'₱{row_value[11]:.2f}'),
+                QTableWidgetItem(f'₱{row_value[11]:.2f}')
             ]
 
             inventory_tracking = [
@@ -922,21 +938,21 @@ class ProductWindow(MyWidget):
 
             # region > colored_rows_if_has_promo
             if row_value[18] != 0:
-                barcode.setForeground(QColor(238,78,52))
-                expire_dt.setForeground(QColor(238,78,52))
-                item_type.setForeground(QColor(238,78,52))
-                supplier.setForeground(QColor(238,78,52))
-                cost.setForeground(QColor(238,78,52))
+                barcode.setForeground(QColor(204,49,61))
+                expire_dt.setForeground(QColor(204,49,61))
+                item_type.setForeground(QColor(204,49,61))
+                supplier.setForeground(QColor(204,49,61))
+                cost.setForeground(QColor(204,49,61))
 
-                for itn in item_name: itn.setForeground(QColor(238,78,52))
-                for br in brand: br.setForeground(QColor(238,78,52))
-                for sg in sales_group: sg.setForeground(QColor(238,78,52))
-                for sp in sell_price: sp.setForeground(QColor(238,78,52))
-                for ed in effective_dt: ed.setForeground(QColor(238,78,52))
-                for pn in promo_name: pn.setForeground(QColor(238,78,52))
-                for dv in discount_value: dv.setForeground(QColor(238,78,52))
-                for it in inventory_tracking: it.setForeground(QColor(238,78,52))
-                for ut in update_ts: ut.setForeground(QColor(238,78,52))
+                for itn in item_name: itn.setForeground(QColor(204,49,61))
+                for br in brand: br.setForeground(QColor(204,49,61))
+                for sg in sales_group: sg.setForeground(QColor(204,49,61))
+                for sp in sell_price: sp.setForeground(QColor(204,49,61))
+                for ed in effective_dt: ed.setForeground(QColor(204,49,61))
+                for pn in promo_name: pn.setForeground(QColor(204,49,61))
+                for dv in discount_value: dv.setForeground(QColor(204,49,61))
+                for it in inventory_tracking: it.setForeground(QColor(204,49,61))
+                for ut in update_ts: ut.setForeground(QColor(204,49,61))
 
                 self.data_list_edit_button.hide()
             # endregion
@@ -1024,7 +1040,7 @@ class ProductWindow(MyWidget):
 
         self.item_name_field.textChanged.connect(self.on_item_name_field_text_changed)
 
-        self.primary_info_page_layout.insertRow(0, QLabel("<font color='#EE4E34'><b>Primary Information</b></font>"))
+        self.primary_info_page_layout.insertRow(0, QLabel(f"<font color='{color_scheme.hex_main}'><b>Primary Information</b></font>"))
         self.primary_info_page_layout.insertRow(1, QLabel('<hr>'))
 
         self.primary_info_page_layout.insertRow(2, self.barcode_label)
@@ -1055,7 +1071,7 @@ class ProductWindow(MyWidget):
         self.brand_field.currentTextChanged.connect(self.on_brand_field_current_text_changed)
         self.supplier_field.currentTextChanged.connect(self.on_supplier_field_current_text_changed)
 
-        self.category_info_page_layout.insertRow(0, QLabel("<font color='#EE4E34'><b>Category</b></font>"))
+        self.category_info_page_layout.insertRow(0, QLabel(f"<font color='{color_scheme.hex_main}'><b>Category</b></font>"))
         self.category_info_page_layout.insertRow(1, QLabel('<hr>'))
 
         self.category_info_page_layout.insertRow(2, self.item_type_label)
@@ -1100,7 +1116,7 @@ class ProductWindow(MyWidget):
         self.sell_price_field.textChanged.connect(self.on_sell_price_field_text_changed)
         self.promo_name_field.currentTextChanged.connect(self.on_promo_name_field_current_text_changed)
 
-        self.price_info_page_layout.insertRow(0, QLabel("<font color='#EE4E34'><b>Price</b></font>"))
+        self.price_info_page_layout.insertRow(0, QLabel(f"<font color='{color_scheme.hex_main}'><b>Price</b></font>"))
         self.price_info_page_layout.insertRow(1, QLabel('<hr>'))
 
         self.price_info_page_layout.insertRow(2, self.cost_label)
@@ -1132,10 +1148,12 @@ class ProductWindow(MyWidget):
         self.inventory_info_page_layout = MyFormLayout(object_name='inventory_info_page_layout')
 
         self.inventory_tracking_label = MyLabel(object_name='inventory_tracking_label', text=f'Inventory tracking')
+        self.inventory_item_name_label = MyLabel(object_name='item_name_label', text=f'Item name')
         self.available_stock_label = MyLabel(object_name='available_stock_label', text=f'Available stock {self.required_field_indicator}')
         self.on_hand_stock_label = MyLabel(object_name='on_hand_stock_label', text=f'On hand stock {self.required_field_indicator}')
 
         self.inventory_tracking_field = MyComboBox(object_name='inventory_tracking_field')
+        self.inventory_item_name_field = MyLineEdit(object_name='item_name_field')
         self.available_stock_field = MyLineEdit(object_name='available_stock_field')
         self.on_hand_stock_field = MyLineEdit(object_name='on_hand_stock_field')
 
@@ -1143,16 +1161,19 @@ class ProductWindow(MyWidget):
         self.available_stock_field.textChanged.connect(self.on_available_stock_field_text_changed)
         self.on_hand_stock_field.textChanged.connect(self.on_on_hand_stock_field_text_changed)
 
-        self.inventory_info_page_layout.insertRow(0, QLabel("<font color='#EE4E34'><b>Inventory</b></font>"))
+        self.inventory_info_page_layout.insertRow(0, QLabel(f"<font color='{color_scheme.hex_main}'><b>Inventory</b></font>"))
         self.inventory_info_page_layout.insertRow(1, QLabel('<hr>'))
 
         self.inventory_info_page_layout.insertRow(2, self.inventory_tracking_label)
-        self.inventory_info_page_layout.insertRow(4, self.available_stock_label)
-        self.inventory_info_page_layout.insertRow(6, self.on_hand_stock_label)
+        self.inventory_info_page_layout.insertRow(4, self.inventory_item_name_label)
+        self.inventory_info_page_layout.insertRow(6, self.available_stock_label)
+        self.inventory_info_page_layout.insertRow(8, self.on_hand_stock_label)
 
         self.inventory_info_page_layout.insertRow(3, self.inventory_tracking_field)
-        self.inventory_info_page_layout.insertRow(5, self.available_stock_field)
-        self.inventory_info_page_layout.insertRow(7, self.on_hand_stock_field)
+        self.inventory_info_page_layout.insertRow(5, self.inventory_item_name_field)
+        self.inventory_info_page_layout.insertRow(7, self.available_stock_field)
+        self.inventory_info_page_layout.insertRow(9, self.on_hand_stock_field)
+
 
 
         self.inventory_info_page.setLayout(self.inventory_info_page_layout)

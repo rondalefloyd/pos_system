@@ -372,8 +372,12 @@ class ProductSchema():
         start_dt = str(date.today()) if start_dt == '' else start_dt
         end_dt = str(date.today()) if end_dt == '' else end_dt
 
-        inventory_tracking = 'Disabled' if inventory_tracking == '' else inventory_tracking
-        inventory_tracking = 'Enabled' if available_stock != '' and on_hand_stock != '' else inventory_tracking
+        print('before:', type(inventory_tracking), inventory_tracking)
+        print('before:', type(available_stock), available_stock)
+        print('before:', type(on_hand_stock), on_hand_stock)
+
+        inventory_tracking = 'Disabled' if available_stock == '[no data]' and on_hand_stock == '[no data]' else inventory_tracking
+        inventory_tracking = 'Enabled' if available_stock != '[no data]' and on_hand_stock != '[no data]' else inventory_tracking
         available_stock = '0' if available_stock == '' else available_stock
         on_hand_stock = '0' if on_hand_stock == '' else on_hand_stock
         # endregion
@@ -386,18 +390,13 @@ class ProductSchema():
                 Name = ?,
                 ExpireDt = ?
             WHERE ItemId = ? 
-            AND EXISTS (
-                SELECT 1
-                FROM ItemPrice
-                WHERE Item.ItemId = ItemPrice.ItemId
-                AND ItemPrice.EffectiveDt > CURRENT_DATE
-            )''', (barcode, item_name, expire_dt, item_id))
+            ''', (barcode, item_name, expire_dt, item_id))
             self.conn.commit()
 
             self.cursor.execute('''
             UPDATE ItemPrice
             SET Cost = ?, SellPrice = ?, EffectiveDt = ?
-            WHERE ItemPriceId = ? AND EffectiveDt > CURRENT_DATE
+            WHERE ItemPriceId = ?
             ''', (cost, sell_price, effective_dt, item_price_id))
             self.conn.commit()
         elif promo_id == '0' and promo_name != 'No promo':
@@ -616,7 +615,7 @@ class ProductSchema():
                 COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), '[no data]') AS EffectiveDt,
                 CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
                 COALESCE(NULLIF(ItemPrice.DiscountValue, ''), '[no data]') AS DiscountValue,
-                            
+
                 CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryTracking,
                 COALESCE(NULLIF(Stock.Available, ''), '[no data]') AS Available,
                 COALESCE(NULLIF(Stock.OnHand, ''), '[no data]') AS OnHand,
@@ -644,14 +643,13 @@ class ProductSchema():
                 LEFT JOIN Stock
                     ON Item.ItemId = Stock.ItemId
             WHERE 
-                (Item.Barcode LIKE ? OR
+                Item.Barcode LIKE ? OR
                 Item.Name LIKE ? OR
                 ItemType.Name LIKE ? OR 
                 Brand.Name LIKE ? OR 
                 SalesGroup.Name LIKE ? OR 
                 Supplier.Name LIKE ? OR
-                InventoryTracking LIKE ?) AND
-                (ItemPrice.UpdateTs >= CURRENT_DATE)
+                InventoryTracking LIKE ?
             ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, Item.UpdateTs DESC
             LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
             ''', (
@@ -740,7 +738,7 @@ class ProductSchema():
                 Item LIKE ? OR
                 Available LIKE ? OR
                 OnHand LIKE ?
-            ORDER BY Item, Item.UpdateTs DESC
+            ORDER BY Item, Stock.UpdateTs DESC
             LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
                                 
             ''', (
@@ -756,14 +754,11 @@ class ProductSchema():
         return stock
         pass
     
-# CHECKPOINT!!!
-
-
     def count_product(self):
         self.create_product_table()
 
         self.cursor.execute('''
-        SELECT COUNT(*) FROM Item
+        SELECT COUNT(*) FROM ItemPrice
         ''')
         count = self.cursor.fetchone()[0]
         
