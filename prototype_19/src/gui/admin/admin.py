@@ -49,6 +49,8 @@ class AdminWindow(MyWidget):
         self.user_window = UserWindow()
 
     def sync_ui(self):
+        self.uncollapse_right_button.hide()
+
         pass
 
     def style_side_nav_button(self, current_index):
@@ -63,6 +65,36 @@ class AdminWindow(MyWidget):
         
         for index, button in enumerate(side_nav_button):
             button.setStyleSheet(self.my_push_button.active_side_nav_button_ss) if index == current_index else button.setStyleSheet(self.my_push_button.inactive_side_nav_button_ss)
+        
+        self.collapse_left_button.setStyleSheet(self.my_push_button.collapse_button_ss)
+        self.uncollapse_right_button.setStyleSheet(self.my_push_button.collapse_button_ss)
+
+    def on_collapse_left_button_clicked(self):
+        self.collapse_left_button.hide()
+        self.uncollapse_right_button.show()
+
+        self.product_window_button.hide()
+        self.promo_window_button.hide()
+        self.reward_window_button.hide()
+        self.customer_window_button.hide()
+        self.user_window_button.hide()
+        self.settings_window_button.hide()
+
+        self.settings_window_button.hide()
+        pass
+    def on_uncollapse_right_button_clicked(self):
+        self.collapse_left_button.show()
+        self.uncollapse_right_button.hide()
+
+        self.product_window_button.show()
+        self.promo_window_button.show()
+        self.reward_window_button.show()
+        self.customer_window_button.show()
+        self.user_window_button.show()
+        self.settings_window_button.show()
+
+        self.settings_window_button.show()
+
 
     def on_product_window_button_clicked(self):
         self.style_side_nav_button(0)
@@ -108,12 +140,23 @@ class AdminWindow(MyWidget):
         self.side_nav_panel = MyGroupBox(object_name='side_nav_panel')
         self.side_nav_panel_layout = MyFormLayout()
 
+        self.collapse_panel = MyGroupBox(object_name='collapse_panel')
+        self.collapse_panel_layout = MyGridLayout(object_name='collapse_panel_layout')
+        self.collapse_left_button = MyPushButton(object_name='collapse_left_button')
+        self.uncollapse_right_button = MyPushButton(object_name='uncollapse_right_button')
+        self.collapse_panel_layout.addWidget(self.collapse_left_button,0,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.collapse_panel_layout.addWidget(self.uncollapse_right_button,0,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.collapse_panel.setLayout(self.collapse_panel_layout)
+
         self.product_window_button = MyPushButton(object_name='product_window_button', text='Product')
         self.promo_window_button = MyPushButton(object_name='promo_window_button', text='Promo')
         self.reward_window_button = MyPushButton(object_name='reward_window_button', text='Reward')
         self.customer_window_button = MyPushButton(object_name='customer_window_button', text='Customer')
         self.user_window_button = MyPushButton(object_name='user_window_button', text='User')
         self.settings_window_button = MyPushButton(object_name='settings_window_button', text='Settings')
+
+        self.collapse_left_button.clicked.connect(self.on_collapse_left_button_clicked)
+        self.uncollapse_right_button.clicked.connect(self.on_uncollapse_right_button_clicked)
 
         self.product_window_button.clicked.connect(self.on_product_window_button_clicked)
         self.promo_window_button.clicked.connect(self.on_promo_window_button_clicked)
@@ -124,6 +167,7 @@ class AdminWindow(MyWidget):
 
         self.style_side_nav_button(0)
 
+        self.side_nav_panel_layout.addRow(self.collapse_panel)
         self.side_nav_panel_layout.addRow(self.product_window_button)
         self.side_nav_panel_layout.addRow(self.promo_window_button)
         self.side_nav_panel_layout.addRow(self.reward_window_button)

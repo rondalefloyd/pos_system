@@ -114,17 +114,14 @@ class MyPushButton(QPushButton):
             QPushButton {{ background-color: rgba(225, 225, 225, 25); border: 0px; border-right: 3px solid {color_scheme.hex_main}; text-align: left; padding: 10px; color: #fff }}
         """
         self.inactive_side_nav_button_ss = f"""
-            QPushButton {{ background-color: None; border: 0px; border-right: 3px solid #222; text-align: left; padding: 10px; color: #fff }}
+            QPushButton {{ background-color: None; border: 0px; border-right: 3px solid #333; text-align: left; padding: 10px; color: #fff }}
             QPushButton:hover {{ background-color: rgba(225, 225, 225, 25); border-right: 3px solid {color_scheme.hex_main} }}
         """
 
         collapse_left_icon_path = os.path.abspath('src/icons/side_nav_panel/collapse_left.png')
         uncollapse_right_icon_path = os.path.abspath('src/icons/side_nav_panel/uncollapse_right.png')
-        product_icon_path = os.path.abspath('src/icons/side_nav_panel/product.png')
-        promo_icon_path = os.path.abspath('src/icons/side_nav_panel/promo.png')
-        reward_icon_path = os.path.abspath('src/icons/side_nav_panel/reward.png')
-        customer_icon_path = os.path.abspath('src/icons/side_nav_panel/customer.png')
-        user_icon_path = os.path.abspath('src/icons/side_nav_panel/user.png')
+        sales_icon_path = os.path.abspath('src/icons/side_nav_panel/sales.png')
+        transaction_icon_path = os.path.abspath('src/icons/side_nav_panel/transaction.png')
         settings_icon_path = os.path.abspath('src/icons/side_nav_panel/settings.png')
 
         if object_name == 'collapse_left_button':
@@ -137,37 +134,19 @@ class MyPushButton(QPushButton):
             pass
 
         if object_name in [
-            'product_window_button',
-            'promo_window_button',
-            'reward_window_button',
-            'customer_window_button',
-            'user_window_button',
+            'sales_window_button',
+            'transaction_window_button',
             'settings_window_button'
         ]:
             self.setFixedWidth(200)
 
-        if object_name == 'product_window_button':
-            self.setIcon(QIcon(product_icon_path))
+        if object_name == 'sales_window_button':
+            self.setIcon(QIcon(sales_icon_path))
             self.setIconSize(QSize(20,25))
             self.setText('    ' + text)
             pass
-        if object_name == 'promo_window_button':
-            self.setIcon(QIcon(promo_icon_path))
-            self.setIconSize(QSize(20,25))
-            self.setText('    ' + text)
-            pass
-        if object_name == 'reward_window_button':
-            self.setIcon(QIcon(reward_icon_path))
-            self.setIconSize(QSize(20,25))
-            self.setText('    ' + text)
-            pass
-        if object_name == 'customer_window_button':
-            self.setIcon(QIcon(customer_icon_path))
-            self.setIconSize(QSize(20,25))
-            self.setText('    ' + text)
-            pass
-        if object_name == 'user_window_button':
-            self.setIcon(QIcon(user_icon_path))
+        if object_name == 'transaction_window_button':
+            self.setIcon(QIcon(transaction_icon_path))
             self.setIconSize(QSize(20,25))
             self.setText('    ' + text)
             pass
@@ -178,10 +157,8 @@ class MyPushButton(QPushButton):
             pass
 
         if object_name in [
-            'product_window_button',
-            'promo_window_button',
-            'customer_window_button',
-            'user_window_button',
+            'sales_window_button',
+            'transaction_window_button',
             'settings_window_button'
         ]:
             # self.setStyleSheet(f"""
