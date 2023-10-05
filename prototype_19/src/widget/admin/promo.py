@@ -71,7 +71,7 @@ class MyGroupBox(QGroupBox):
             self.setStyleSheet(f"""
             QGroupBox {{ border: 0px }}
             QGroupBox#{object_name} {{ border-top: 1px solid #ddd }}
-            QLineEdit#text_filter_field {{ border: 1px solid #bbb; padding: 5px }}
+            QLineEdit#text_filter_field {{ padding: 3px 5px }}
             """)
 
         if object_name == 'data_list_action_panel':

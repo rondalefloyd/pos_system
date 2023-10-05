@@ -230,7 +230,7 @@ class PromoWindow(MyWidget):
             self.data_list_curr_page -= 1
             self.data_list_pgn_page.setText(f'Page {self.data_list_curr_page}')
 
-        self.populate_table(current_page=self.data_list_curr_page)
+        self.populate_table(text_filter=self.text_filter_field.text(), current_page=self.data_list_curr_page)
 
         self.clicked_data_list_edit_button = None
         pass
@@ -241,7 +241,7 @@ class PromoWindow(MyWidget):
         self.data_list_curr_page += 1
         self.data_list_pgn_page.setText(f'Page {self.data_list_curr_page}')
         
-        self.populate_table(current_page=self.data_list_curr_page)
+        self.populate_table(text_filter=self.text_filter_field.text(), current_page=self.data_list_curr_page)
         
         self.clicked_data_list_edit_button = None
         pass

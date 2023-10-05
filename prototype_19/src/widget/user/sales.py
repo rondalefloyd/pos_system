@@ -46,34 +46,41 @@ class MyTableWidget(QTableWidget):
         self.setObjectName(object_name)
 
         self.setWordWrap(False)
-        self.setShowGrid(False)
+        # self.setShowGrid(False)
         self.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
         self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.setStyleSheet('''
             QTableWidget#data_list_table,
             QTableWidget#cart_list_table { border: 0px; border-bottom: 1px solid #ddd }
             QHeaderView::section { background-color: rgba(255,255,255,255); border: 0px; border-bottom: 1px solid #ddd; }
-            QTableWidget::item { border: 0px; border-bottom: 1px solid #ccc; font-size: 10px; padding: 0px 20px }
+            QTableWidget#data_list_table::item { border: 0px; border-bottom: 1px solid #ccc; font-size: 10px; padding: 0px 20px }
+            QTableWidget#cart_list_table::item { border: 0px; border-bottom: 1px solid #ccc; font-size: 10px; padding: 0px 10px }
         ''')
 
         if object_name == 'data_list_table':
-            self.setColumnCount(5)
+            self.setColumnCount(6)
             self.setHorizontalHeaderLabels([
                 'Action',
                 'Barcode',
                 'Item name',
                 'Brand',
+                'Sales group',
                 'Sell price'
             ])
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-            self.horizontalHeader().setMinimumSectionSize(160)
+            self.horizontalHeader().setMinimumSectionSize(150)
             self.verticalHeader().setVisible(False)
             self.verticalHeader().setDefaultSectionSize(50)
 
         if object_name == 'cart_list_table':
             self.setColumnCount(4)
-            self.setHorizontalHeaderLabels(['Action','Item name','Quantity','Price'])
-            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.setHorizontalHeaderLabels(['Action','Item name','Qty','Price'])
+            self.horizontalHeader().setMinimumSectionSize(50)
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
+            self.horizontalHeader().resizeSection(0, 100)
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.verticalHeader().setVisible(False)
             self.verticalHeader().setDefaultSectionSize(50)
         pass
@@ -89,11 +96,17 @@ class MyGroupBox(QGroupBox):
         
         self.setObjectName(object_name)
 
+        if object_name == 'text_filter_panel':
+            self.setStyleSheet(f"""
+                QGroupBox#{object_name} {{ border: 0px; }}
+            """)
+
         if object_name == 'content_panel':
             self.setStyleSheet(f"""
             QGroupBox {{ border: 0px }}
             QGroupBox#{object_name} {{ border-top: 1px solid #ddd }}
-            QLineEdit#text_filter_field {{ border: 1px solid #bbb; padding: 5px }}
+            QLineEdit#text_filter_field {{ padding: 3px 5px }}
+            QLineEdit#data_mgt_scanned_barcode_field {{ padding: 3px 5px }}
             """)
 
         if object_name == 'data_list_action_panel':
@@ -106,12 +119,20 @@ class MyGroupBox(QGroupBox):
                 QGroupBox {{ background-color: #fff; border: 0px }}
                 QGroupBox#{object_name} {{ border-top: 1px solid #ddd; border-left: 1px solid #ddd }}
                 QScrollArea#sales_mgt_scroll_area {{ border: 0px }}
+                QComboBox#customer_name_field {{ padding: 3px 5px }}
             """)
 
-        if object_name == 'primary_info_page':
+        if object_name == 'bill_review_panel':
+            self.setFixedWidth(250)
             self.setStyleSheet(f"""
-                QGroupBox#{object_name} {{background-color: #eee; border: 0px; border-top: 3px solid {color_scheme.hex_main}}}
-                QLabel {{ color: #222 }}
+                QGroupBox#{object_name} {{ background-color: #fff; border: 0px; border-right: 1px solid #ddd; border-top: 1px solid #ddd }}
+            """)
+        
+        if object_name == 'payment_panel':
+            self.setStyleSheet(f"""
+                QGroupBox#{object_name} {{ border: 0px }}
+                QGroupBox#amt_tendered_panel {{ border: 0px; border-top: 1px solid #ddd }}
+                QGroupBox#payment_action_button_panel {{border: 0px;  }}
             """)
             pass
 
@@ -133,6 +154,10 @@ class MyDialog(QDialog):
 
         if object_name == 'data_list_view_dialog':
             self.setMinimumWidth(300)
+            pass
+        
+        if object_name == 'payment_dialog':
+            self.setFixedWidth(600)
             pass
         pass
 
@@ -156,6 +181,10 @@ class MyHBoxLayout(QHBoxLayout):
         
         self.setObjectName(object_name)
 
+        if object_name == 'text_filter_panel_layout':
+            self.setContentsMargins(0,0,0,0)
+            self.setSpacing(3)
+
         if object_name == 'data_list_action_panel_layout':
             self.setContentsMargins(0,0,0,0)
             self.setSpacing(3)
@@ -170,6 +199,11 @@ class MyHBoxLayout(QHBoxLayout):
 
         if object_name == 'add_cart_tab_panel_layout':
             pass
+        
+        if object_name == 'cart_list_action_panel_layout':
+            self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.setContentsMargins(0,0,0,0)
+            self.setSpacing(3)
         pass
 class MyGridLayout(QGridLayout):
     def __init__(self, object_name=''):
@@ -187,6 +221,10 @@ class MyGridLayout(QGridLayout):
             self.setSpacing(0)
             pass
 
+        if object_name == 'payment_dialog_layout':
+            self.setContentsMargins(0,0,0,0)
+            self.setSpacing(0)
+
         pass
 class MyFormLayout(QFormLayout):
     def __init__(self, object_name=''):
@@ -196,10 +234,13 @@ class MyFormLayout(QFormLayout):
 
         if object_name == 'sales_mgt_page_layout':
             self.setContentsMargins(10,10,10,10)
-        pass
 
         if object_name == 'cart_list_bill_layout':
             self.setContentsMargins(10,10,10,10)
+
+        if object_name == 'payment_panel_layout':
+            self.setContentsMargins(0,0,0,0)
+            self.setSpacing(0)
 
 class MyLabel(QLabel):
     def __init__(self, object_name='', text=''):
@@ -230,6 +271,10 @@ class MyPushButton(QPushButton):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setText(text)
 
+        self.text_filter_button_ss = f"""
+            QPushButton#text_filter_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; font-size: 10px; padding: 3px }}
+        """
+
         self.data_list_action_button_ss = f"""
             QPushButton#data_list_atc_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; font-size: 10px; padding: 3px }}
             QPushButton#data_list_view_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; font-size: 10px; padding: 3px }}
@@ -242,6 +287,19 @@ class MyPushButton(QPushButton):
             QPushButton#add_cart_tab_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; font-size: 10px; padding: 3px }}
             QPushButton#add_cart_tab_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
         """
+
+        self.cart_list_action_panel_ss = f"""
+            QPushButton#cart_list_drop_all_qty_button {{ background-color: {color_scheme.hex_delete}; border: 0px; border-radius: 3px; color: #222; font-size: 10px; padding: 3px }}
+            QPushButton#cart_list_drop_qty_button,
+            QPushButton#cart_list_add_qty_button,
+            QPushButton#cart_list_edit_qty_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; font-size: 10px; padding: 3px }}
+
+            QPushButton#cart_list_drop_all_qty_button:hover {{ background-color: {color_scheme.hex_delete_hover} }}
+            QPushButton#cart_list_drop_qty_button:hover,
+            QPushButton#cart_list_add_qty_button:hover,
+            QPushButton#cart_list_edit_qty_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
+        """
+
         self.sales_mgt_discard_button_ss = f"""
             QPushButton#sales_mgt_discard_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; padding: 10px }}
             QPushButton#sales_mgt_discard_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
@@ -251,15 +309,40 @@ class MyPushButton(QPushButton):
             QPushButton#sales_mgt_pay_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
         """
 
+        self.amt_tendered_opt_button_ss = f"""
+            QPushButton#amt_tendered_opt_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; padding: 5px }}
+            QPushButton#amt_tendered_opt_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
+        """
+
+        self.payment_back_button_ss = f"""
+            QPushButton#payment_back_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; padding: 10px }}
+            QPushButton#payment_back_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
+        """
+        self.process_payment_button_ss = f"""
+            QPushButton#process_payment_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; padding: 10px }}
+            QPushButton#process_payment_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
+        """
+
         self.data_mgt_button_ss = f"""
             QPushButton#data_mgt_sync_button, 
+
+            QPushButton#data_mgt_toggle_retail_txn_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; font-size: 10px; padding: 3px }}
+            QPushButton#data_mgt_toggle_wholesale_txn_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; font-size: 10px; padding: 3px }}
+
             QPushButton#data_mgt_toggle_aatc_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; padding: 3px }}
             QPushButton#data_mgt_untoggle_aatc_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #222; padding: 3px }}
+
             QPushButton#data_mgt_add_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; font-size: 10px; padding: 3px }}
 
+            
             QPushButton#data_mgt_sync_button:hover, 
+
+            QPushButton#data_mgt_toggle_retail_txn_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
+            QPushButton#data_mgt_toggle_wholesale_txn_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
+
             QPushButton#data_mgt_toggle_aatc_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
             QPushButton#data_mgt_untoggle_aatc_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
+
             QPushButton#data_mgt_add_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
         """
 
@@ -268,10 +351,19 @@ class MyPushButton(QPushButton):
             QPushButton#data_list_pgn_prev_button:hover, QPushButton#data_list_pgn_next_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
         """
 
+        text_filter_icon_path = os.path.abspath('src/icons/content_panel/text_filter.png')
+
+        drop_all_qty_icon = os.path.abspath('src/icons/content_panel/drop_all_qty.png')
+        drop_qty_icon = os.path.abspath('src/icons/content_panel/drop_qty.png')
+        add_qty_icon = os.path.abspath('src/icons/content_panel/add_qty.png')
+        edit_qty_icon = os.path.abspath('src/icons/content_panel/edit_qty.png')
+
         atc_icon_path = os.path.abspath('src/icons/content_panel/atc.png')
         view_icon_path = os.path.abspath('src/icons/content_panel/view.png')
 
         sync_icon_path = os.path.abspath('src/icons/content_panel/sync.png')
+        toggle_retail_txn_icon_path = os.path.abspath('src/icons/content_panel/toggle_retail_txn.png')
+        toggle_wholesale_txn_icon_path = os.path.abspath('src/icons/content_panel/toggle_wholesale_txn.png')
         toggle_aatc_icon_path = os.path.abspath('src/icons/content_panel/toggle_aatc.png')
         untoggle_aatc_icon_path = os.path.abspath('src/icons/content_panel/untoggle_aatc.png')
 
@@ -279,6 +371,33 @@ class MyPushButton(QPushButton):
         next_icon_path = os.path.abspath('src/icons/content_panel/next.png')
 
         add_icon_path = os.path.abspath('src/icons/content_panel/add_cart_tab.png')
+
+        if object_name == 'text_filter_button':
+            self.setIcon(QIcon(text_filter_icon_path))
+            self.setIconSize(QSize(15,20))
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            pass
+
+        if object_name == 'cart_list_drop_all_qty_button':
+            self.setIcon(QIcon(drop_all_qty_icon))
+            self.setIconSize(QSize(7,12))
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            pass
+        if object_name == 'cart_list_drop_qty_button':
+            self.setIcon(QIcon(drop_qty_icon))
+            self.setIconSize(QSize(7,12))
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            pass
+        if object_name == 'cart_list_add_qty_button':
+            self.setIcon(QIcon(add_qty_icon))
+            self.setIconSize(QSize(7,12))
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            pass
+        if object_name == 'cart_list_edit_qty_button':
+            self.setIcon(QIcon(edit_qty_icon))
+            self.setIconSize(QSize(7,12))
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            pass
 
         if object_name == 'data_list_atc_button':
             self.setIcon(QIcon(atc_icon_path))
@@ -297,10 +416,21 @@ class MyPushButton(QPushButton):
             pass
         if object_name == 'sales_mgt_discard_button':
             self.setFixedWidth(100)
+            
+        if object_name == 'payment_back_button':
+            self.setFixedWidth(100)
 
         if object_name == 'data_mgt_sync_button':
             self.setIcon(QIcon(sync_icon_path))
             self.setIconSize(QSize(15,20))
+        if object_name == 'data_mgt_toggle_retail_txn_button':
+            self.setIcon(QIcon(toggle_retail_txn_icon_path))
+            self.setIconSize(QSize(15,20))
+            pass
+        if object_name == 'data_mgt_toggle_wholesale_txn_button':
+            self.setIcon(QIcon(toggle_wholesale_txn_icon_path))
+            self.setIconSize(QSize(15,20))
+            pass
         if object_name == 'data_mgt_toggle_aatc_button':
             self.setIcon(QIcon(toggle_aatc_icon_path))
             self.setIconSize(QSize(15,20))
@@ -331,8 +461,12 @@ class MyLineEdit(QLineEdit):
         self.setObjectName(object_name)
 
         if object_name == 'text_filter_field':
-            self.setMaximumWidth(600)
+            self.setMinimumWidth(400)
             self.setPlaceholderText('Filter product')
+
+        if object_name == 'data_mgt_scanned_barcode_field':
+            self.setMaximumWidth(350)
+            self.setPlaceholderText('Scan barcode')
         pass
 class MyPlainTextEdit(QPlainTextEdit):
     def __init__(self, object_name=''):

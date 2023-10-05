@@ -532,7 +532,7 @@ class ProductWindow(MyWidget):
             self.data_list_curr_page -= 1
             self.data_list_pgn_page.setText(f'Page {self.data_list_curr_page}')
 
-        self.populate_table(current_page=self.data_list_curr_page)
+        self.populate_table(text_filter=self.text_filter_field.text(), current_page=self.data_list_curr_page)
 
         self.clicked_data_list_edit_button = None
         pass
@@ -543,7 +543,7 @@ class ProductWindow(MyWidget):
         self.data_list_curr_page += 1
         self.data_list_pgn_page.setText(f'Page {self.data_list_curr_page}')
         
-        self.populate_table(current_page=self.data_list_curr_page)
+        self.populate_table(text_filter=self.text_filter_field.text(), current_page=self.data_list_curr_page)
         
         self.clicked_data_list_edit_button = None
         pass
@@ -719,7 +719,16 @@ class ProductWindow(MyWidget):
 
         # region > data_list_pgn_button_set_enabled
         self.data_list_pgn_prev_button.setEnabled(self.data_list_curr_page > 1)
+        self.primary_data_list_pgn_prev_button.setEnabled(self.data_list_curr_page > 1)
+        self.category_data_list_pgn_prev_button.setEnabled(self.data_list_curr_page > 1)
+        self.price_data_list_pgn_prev_button.setEnabled(self.data_list_curr_page > 1)
+        self.inventory_data_list_pgn_prev_button.setEnabled(self.data_list_curr_page > 1)
+
         self.data_list_pgn_next_button.setEnabled(len(product_data) == 30)
+        self.primary_data_list_pgn_next_button.setEnabled(len(product_data) == 30)
+        self.category_data_list_pgn_next_button.setEnabled(len(product_data) == 30)
+        self.price_data_list_pgn_next_button.setEnabled(len(product_data) == 30)
+        self.inventory_data_list_pgn_next_button.setEnabled(len(product_data) == 30)
         # endregion
 
         # region > clicked_data_list_set_disabled

@@ -154,7 +154,7 @@ class AdminWindow(MyWidget):
         self.customer_window_button = MyPushButton(object_name='customer_window_button', text='Customer')
         self.user_window_button = MyPushButton(object_name='user_window_button', text='User')
         self.settings_window_button = MyPushButton(object_name='settings_window_button', text='Settings')
-
+    
         self.collapse_left_button.clicked.connect(self.on_collapse_left_button_clicked)
         self.uncollapse_right_button.clicked.connect(self.on_uncollapse_right_button_clicked)
 
