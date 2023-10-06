@@ -46,15 +46,19 @@ class MyTableWidget(QTableWidget):
         self.setObjectName(object_name)
 
         self.setWordWrap(False)
-        # self.setShowGrid(False)
+        self.setShowGrid(False)
         self.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
         self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.setStyleSheet('''
             QTableWidget#data_list_table,
-            QTableWidget#cart_list_table { border: 0px; border-bottom: 1px solid #ddd }
-            QHeaderView::section { background-color: rgba(255,255,255,255); border: 0px; border-bottom: 1px solid #ddd; }
-            QTableWidget#data_list_table::item { border: 0px; border-bottom: 1px solid #ccc; font-size: 10px; padding: 0px 20px }
-            QTableWidget#cart_list_table::item { border: 0px; border-bottom: 1px solid #ccc; font-size: 10px; padding: 0px 10px }
+            QTableWidget#cart_list_table { border: 0px; border-bottom: 1px solid #ddd; font-size: 10px }
+            QTableWidget#bill_review_cart_list { border: 0px; font-size: 10px }
+                           
+            QHeaderView::section { background-color: #fff; border: 0px; font-size: 10px; border-bottom: 1px solid #ddd; }
+                           
+            QTableWidget#data_list_table::item { border: 0px; border-bottom: 1px solid #ccc; padding: 0px 20px }
+            QTableWidget#cart_list_table::item { border: 0px; border-bottom: 1px solid #ccc; padding: 0px 10px }
+            QTableWidget#bill_review_cart_list::item { border: 0px; padding: 0px 10px }
         ''')
 
         if object_name == 'data_list_table':
@@ -67,22 +71,39 @@ class MyTableWidget(QTableWidget):
                 'Sales group',
                 'Sell price'
             ])
-            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-            self.horizontalHeader().setMinimumSectionSize(150)
+            self.horizontalHeader().setMinimumSectionSize(100)
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+            self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().resizeSection(0, 150)
             self.verticalHeader().setVisible(False)
             self.verticalHeader().setDefaultSectionSize(50)
 
         if object_name == 'cart_list_table':
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             self.setColumnCount(4)
             self.setHorizontalHeaderLabels(['Action','Item name','Qty','Price'])
             self.horizontalHeader().setMinimumSectionSize(50)
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
-            self.horizontalHeader().resizeSection(0, 100)
             self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
             self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().resizeSection(0, 130)
             self.verticalHeader().setVisible(False)
             self.verticalHeader().setDefaultSectionSize(50)
+            pass
+        if object_name == 'bill_review_cart_list':
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            self.setColumnCount(3)
+            self.setHorizontalHeaderLabels(['Item name','Qty','Price'])
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+            self.verticalHeader().setVisible(False)
+
         pass
 class MyWidget(QWidget):
     def __init__(self, object_name='', parent=None):
@@ -105,7 +126,8 @@ class MyGroupBox(QGroupBox):
             self.setStyleSheet(f"""
             QGroupBox {{ border: 0px }}
             QGroupBox#{object_name} {{ border-top: 1px solid #ddd }}
-            QLineEdit#text_filter_field {{ padding: 3px 5px }}
+            
+            QLineEdit#text_filter_field,
             QLineEdit#data_mgt_scanned_barcode_field {{ padding: 3px 5px }}
             """)
 
@@ -123,15 +145,19 @@ class MyGroupBox(QGroupBox):
             """)
 
         if object_name == 'bill_review_panel':
-            self.setFixedWidth(250)
+            self.setFixedWidth(350)
             self.setStyleSheet(f"""
                 QGroupBox#{object_name} {{ background-color: #fff; border: 0px; border-right: 1px solid #ddd; border-top: 1px solid #ddd }}
             """)
         
         if object_name == 'payment_panel':
+            self.setFixedWidth(300)
             self.setStyleSheet(f"""
                 QGroupBox#{object_name} {{ border: 0px }}
                 QGroupBox#amt_tendered_panel {{ border: 0px; border-top: 1px solid #ddd }}
+
+                QLineEdit#amt_tendered_field {{ padding: 3px 5px }}
+
                 QGroupBox#payment_action_button_panel {{border: 0px;  }}
             """)
             pass
@@ -157,7 +183,8 @@ class MyDialog(QDialog):
             pass
         
         if object_name == 'payment_dialog':
-            self.setFixedWidth(600)
+            self.setFixedWidth(650)
+            self.setMinimumHeight(500)
             pass
         pass
 
@@ -253,10 +280,16 @@ class MyLabel(QLabel):
         if object_name == 'total_data':
             self.setStyleSheet(f"QLabel#{object_name} {{ color: #fff; font-size: 10px }} ")
 
-        if object_name == 'bill_value_label':
+        if object_name in ['bill_value_label', 'bill_total_value_label']:
             self.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             pass
         
+        if object_name in ['bill_review_total', 'bill_total_value_label']:
+            self.setStyleSheet(f"""
+                QLabel#bill_review_total,
+                QLabel#bill_total_value_label {{ font-weight: bold; }}
+            """)
+
         if object_name == 'view_dialog_labels':
             self.setFixedWidth(125)
             
@@ -305,7 +338,8 @@ class MyPushButton(QPushButton):
             QPushButton#sales_mgt_discard_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
         """
         self.sales_mgt_pay_button_ss = f"""
-            QPushButton#sales_mgt_pay_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; padding: 10px }}
+            QLabel {{ color: #fff; font-weight: bold; font-size: 15px; }}
+            QPushButton#sales_mgt_pay_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; font-weight: bold; font-size: 15px; text-align: right; padding: 10px }}
             QPushButton#sales_mgt_pay_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
         """
 
@@ -380,22 +414,26 @@ class MyPushButton(QPushButton):
 
         if object_name == 'cart_list_drop_all_qty_button':
             self.setIcon(QIcon(drop_all_qty_icon))
-            self.setIconSize(QSize(7,12))
+            self.setFixedSize(20,20)
+            self.setIconSize(QSize(12,15))
             self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             pass
         if object_name == 'cart_list_drop_qty_button':
             self.setIcon(QIcon(drop_qty_icon))
-            self.setIconSize(QSize(7,12))
+            self.setFixedSize(20,20)
+            self.setIconSize(QSize(12,15))
             self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             pass
         if object_name == 'cart_list_add_qty_button':
             self.setIcon(QIcon(add_qty_icon))
-            self.setIconSize(QSize(7,12))
+            self.setFixedSize(20,20)
+            self.setIconSize(QSize(12,15))
             self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             pass
         if object_name == 'cart_list_edit_qty_button':
             self.setIcon(QIcon(edit_qty_icon))
-            self.setIconSize(QSize(7,12))
+            self.setFixedSize(20,20)
+            self.setIconSize(QSize(12,15))
             self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             pass
 
@@ -414,8 +452,15 @@ class MyPushButton(QPushButton):
             self.setIcon(QIcon(add_icon_path))
             self.setIconSize(QSize(15,20))
             pass
+        
         if object_name == 'sales_mgt_discard_button':
             self.setFixedWidth(100)
+        if object_name == 'sales_mgt_pay_button':
+            layout = MyHBoxLayout()
+            pay_label = QLabel('PAY')
+            layout.addWidget(pay_label)
+            self.setLayout(layout)
+            
             
         if object_name == 'payment_back_button':
             self.setFixedWidth(100)
@@ -474,3 +519,10 @@ class MyPlainTextEdit(QPlainTextEdit):
         
         self.setObjectName(object_name)
         pass
+
+class MyTableWidgetItem(QTableWidgetItem):
+    def __init__(self, object_name='', text=''):
+        super().__init__()
+
+        self.setText(text)
+        self.setToolTip(text)

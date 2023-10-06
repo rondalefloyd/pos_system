@@ -476,7 +476,7 @@ class PromoWindow(MyWidget):
         self.style_data_list_pgn_action_button()
         # endregion
 
-        self.content_panel_layout.addWidget(self.text_filter_field,0,0)
+        self.content_panel_layout.addWidget(self.text_filter_field,0,0,Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         self.content_panel_layout.addWidget(self.data_mgt_action_panel,0,1,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.content_panel_layout.addWidget(self.data_list_sorter_tab,1,0,1,2)
         self.content_panel.setLayout(self.content_panel_layout)

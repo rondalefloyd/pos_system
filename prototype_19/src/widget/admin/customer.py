@@ -330,7 +330,7 @@ class MyLineEdit(QLineEdit):
         self.setObjectName(object_name)
 
         if object_name == 'text_filter_field':
-            self.setMaximumWidth(600)
+            self.setMinimumWidth(400)
             self.setPlaceholderText('Filter customer')
         pass
 class MyPlainTextEdit(QPlainTextEdit):
