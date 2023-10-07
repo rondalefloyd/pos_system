@@ -18,10 +18,12 @@ class ReceiptGenerator(QThread):
 
         self.cart_list_data = cart_list_data
         self.bill_summary_data = bill_summary_data
+        print('self.cart_list_data:', self.cart_list_data)
+        print('self.bill_summary_data:', self.bill_summary_data)
         self.default_init()
 
     def default_init(self):
-        self.tin = ''
+        self.ref_number = ''
 
     def run(self):
         self.print_receipt()
@@ -41,17 +43,19 @@ class ReceiptGenerator(QThread):
         print('cart_list_data:', self.cart_list_data)
         print('bill_summary_data:', self.bill_summary_data)
 
+        self.ref_number_generator()
+        self.tin_generator()
+
         self.process_table_a()
         self.process_table_b()
         self.process_table_c()
         self.process_table_d()
 
-        self.tin_generator()
         # Save the modified document
-        self.doc.SaveAs(os.path.abspath('G:' + f'/My Drive/receipt/saved/{self.tin}.docx'))  # Save with the same file path to overwrite the original
+        self.doc.SaveAs(os.path.abspath('G:' + f'/My Drive/receipt/saved/{self.ref_number}.docx'))  # Save with the same file path to overwrite the original
 
         # Specify the path to the DOCX file
-        self.updated_docx_file = os.path.abspath('G:' + f'/My Drive/receipt/saved/{self.tin}.docx')
+        self.updated_docx_file = os.path.abspath('G:' + f'/My Drive/receipt/saved/{self.ref_number}.docx')
 
         # Open the DOCX file
         self.updated_doc = word.Documents.Open(self.updated_docx_file)
@@ -73,10 +77,17 @@ class ReceiptGenerator(QThread):
         print('CONVERTED!')
         self.finished.emit()
 
-    def tin_generator(self):
+    def ref_number_generator(self):
         update_ts = datetime.today()
         number = random.randint(100000000, 999999999)
-        self.tin = f"{number}_{update_ts.strftime('%m%d%Y')}"
+        self.ref_number = f"{number}-{update_ts.strftime('%m%d%Y')}"
+
+    def tin_generator(self):
+        first_group = random.randint(1, 999)
+        second_group = random.randint(1, 999)
+        third_group = random.randint(1, 999)
+        fourth_group = random.randint(1, 999)
+        self.tin = f'{first_group:03}-{second_group:03}-{third_group:03}-{fourth_group:03}'
 
     def process_table_a(self):
         # Access the first table in the document (assuming it's the only table)
@@ -86,8 +97,8 @@ class ReceiptGenerator(QThread):
         table_a_placeholders = {
             '{address}': 'Zone 1 Liboro, Ragay, Camarines Sur',
             '{transaction_date}': f'{date.today()}',
-            '{transaction_reference}': f'{self.tin}',
-            '{tin}': '123-45-6789',
+            '{transaction_reference}': f'{self.ref_number}',
+            '{tin}': f'{self.tin}',
             '{min}': '987654321'
         }
 
@@ -118,7 +129,7 @@ class ReceiptGenerator(QThread):
         }
 
         # Add rows to Table B and populate with item names and prices
-        for qty, item_name, price in zip(item_names, qtys, prices):
+        for qty, item_name, price in zip(qtys, item_names, prices):
             # Add a new row to the table
             row = table_b.Rows.Add()
 
@@ -129,7 +140,7 @@ class ReceiptGenerator(QThread):
                         cell.Range.Text = cell.Range.Text.replace(placeholder, value)
 
             # Populate the cells with item name and price
-            row.Cells[0].Range.Text = qty
+            row.Cells[0].Range.Text = 'x' + qty
             row.Cells[1].Range.Text = item_name
             row.Cells[2].Range.Text = '₱' + price
 
@@ -150,11 +161,11 @@ class ReceiptGenerator(QThread):
 
         # Define placeholders and values
         table_c_placeholders = {
-            '{subtotal}': f'{subtotal:.2f}',
-            '{discount}': f'{discount:.2f}',
-            '{tax}': f'{tax:.2f}',
-            '{total}': f'{total:.2f}',
-            '{change}': f'{change:.2f}'
+            '{subtotal}': f'{subtotal:,.2f}',
+            '{discount}': f'{discount:,.2f}',
+            '{tax}': f'{tax:,.2f}',
+            '{total}': f'{total:,.2f}',
+            '{change}': f'{change:,.2f}'
         }
 
         # Replace table_c_placeholders with values
@@ -192,12 +203,12 @@ class ReceiptGenerator(QThread):
 #         self.form_layout = QFormLayout()
 
 #         self.print_button = QPushButton('Print')
-#         self.tin = QPushButton('Show TIN')
+#         self.ref_number = QPushButton('Show TIN')
 #         self.print_button.clicked.connect(self.print_receipt_button)
-#         self.tin.clicked.connect(self.show_tin)
+#         self.ref_number.clicked.connect(self.show_tin)
 
 #         self.form_layout.addRow(self.print_button)
-#         self.form_layout.addRow(self.tin)
+#         self.form_layout.addRow(self.ref_number)
 
 #         self.setLayout(self.form_layout)
 

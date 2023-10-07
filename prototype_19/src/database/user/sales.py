@@ -143,6 +143,28 @@ class SalesSchema():
         ''')
         self.conn.commit()
 
+        # item sold
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ItemSold (
+            ItemSoldId INTEGER PRIMARY KEY AUTOINCREMENT,
+            DateId INTEGER DEFAULT 0,
+            ItemPriceId INTEGER DEFAULT 0,
+            CustomerId INTEGER DEFAULT 0,
+            StockId INTEGER DEFAULT 0,
+            UserId INTEGER DEFAULT 0,
+            ReasonId INTEGER DEFAULT 0,
+            Quantity INTEGER,
+            TotalAmount DECIMAL(15, 2),
+            Void BIT DEFAULT 0,
+            ReferenceId TEXT,
+            UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ItemPriceId) REFERENCES ItemPrice(ItemPriceId),
+            FOREIGN KEY (CustomerId) REFERENCES Customer(CustomerId),
+            FOREIGN KEY (StockId) REFERENCES Stocks(StockId)
+        );
+        ''')
+        self.conn.commit()
+        
     def list_product(self, text_filter='', txn_type='Retail', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
@@ -282,6 +304,52 @@ class SalesSchema():
         product = self.cursor.fetchall()
 
         return product
+    
+    def register_transaction(
+        self,
+        date_id,
+        itemprice_id,
+        customer_id,
+        stock_id,
+        user_id,
+        quantity,
+        reason_id,
+        total_amount,
+        void,
+        reference_id
+    ):
+        self.cursor.execute('''
+        INSERT INTO ItemSold (
+            DateId,
+            ItemPriceId,
+            CustomerId,
+            StockId,
+            UserId,
+            Quantity,
+            ReasonId,
+            TotalAmount,
+            Void,
+            ReferenceId
+        )
+        SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        WHERE NOT EXISTS(
+        SELECT 1 FROM ItemSold
+        WHERE
+            DateId = ? AND
+            ItemPriceId = ? AND
+            CustomerId = ? AND
+            StockId = ? AND
+            UserId = ? AND
+            Quantity = ? AND
+            ReasonId = ? AND
+            TotalAmount = ? AND
+            Void = ? AND
+            ReferenceId = ?
+                            
+        )''', (date_id, itemprice_id, customer_id, stock_id, user_id, quantity, reason_id, total_amount, void, reference_id,
+            date_id, itemprice_id, customer_id, stock_id, user_id, quantity, reason_id, total_amount, void, reference_id))
+        self.conn.commit()
+        pass
     
     def count_product(self):
         self.create_product_table()
