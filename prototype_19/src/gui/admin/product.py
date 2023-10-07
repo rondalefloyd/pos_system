@@ -581,8 +581,8 @@ class ProductWindow(MyWidget):
             discount_value = old_sell_price * (discount_percent / 100)
             new_sell_price = sell_price - discount_value
 
-            self.discount_value_field.setText(f'{discount_value:.2f}')
-            self.new_sell_price_field.setText(f'{new_sell_price:.2f}')
+            self.discount_value_field.setText(f'{discount_value:,.2f}')
+            self.new_sell_price_field.setText(f'{new_sell_price:,.2f}')
             pass
         except ValueError:
             self.discount_value_field.setText('Error')
@@ -636,8 +636,8 @@ class ProductWindow(MyWidget):
                 discount_value = old_sell_price * (discount_percent / 100)
                 new_sell_price = sell_price - discount_value
 
-                self.discount_value_field.setText(f'{discount_value:.2f}')
-                self.new_sell_price_field.setText(f'{new_sell_price:.2f}')
+                self.discount_value_field.setText(f'{discount_value:,.2f}')
+                self.new_sell_price_field.setText(f'{new_sell_price:,.2f}')
                 pass
             except ValueError:
                 self.discount_value_field.setText('Error')
@@ -855,10 +855,10 @@ class ProductWindow(MyWidget):
             ]
             supplier = QTableWidgetItem(str(row_value[6]))
 
-            cost = QTableWidgetItem(f'₱{row_value[7]:.2f}')
+            cost = QTableWidgetItem(f'₱{row_value[7]:,.2f}')
             sell_price = [
-                QTableWidgetItem(f'₱{row_value[8]:.2f}'),
-                QTableWidgetItem(f'₱{row_value[8]:.2f}')
+                QTableWidgetItem(f'₱{row_value[8]:,.2f}'),
+                QTableWidgetItem(f'₱{row_value[8]:,.2f}')
             ]
             effective_dt = [
                 QTableWidgetItem(str(row_value[9])),
@@ -869,8 +869,8 @@ class ProductWindow(MyWidget):
                 QTableWidgetItem(str(row_value[10]))
             ]
             discount_value = [
-                QTableWidgetItem(f'₱{row_value[11]:.2f}'),
-                QTableWidgetItem(f'₱{row_value[11]:.2f}')
+                QTableWidgetItem(f'₱{row_value[11]:,.2f}'),
+                QTableWidgetItem(f'₱{row_value[11]:,.2f}')
             ]
 
             inventory_tracking = [

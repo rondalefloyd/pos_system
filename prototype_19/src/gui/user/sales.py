@@ -39,6 +39,7 @@ class SalesWindow(MyWidget):
         self.required_field_indicator = "<font color='red'>-- required</font>"
 
         self.total_product_count = self.sales_schema.count_product()
+        self.current_user = None # set to None for the mean time
 
         # region > cart_panel
 
@@ -63,6 +64,8 @@ class SalesWindow(MyWidget):
         pass
 
     def container_list(self):
+        self.cart_tab_name = []
+
         self.cart_list_table = []
 
         self.sub_total_value = []
@@ -75,6 +78,8 @@ class SalesWindow(MyWidget):
         self.tax_value_label = []
         self.total_value_label = []
 
+        self.sales_mgt_locked_cart_button = []
+        self.sales_mgt_unlocked_cart_button = []
         self.sales_mgt_discard_button = []
         self.sales_mgt_pay_button = []
 
@@ -216,6 +221,29 @@ class SalesWindow(MyWidget):
         self.populate_data_list_table(text_filter=str(self.text_filter_field.text()), txn_type=self.txn_type_toggle, current_page=self.data_list_curr_page)
         pass
 
+    def transaction_complete(self):
+        i = self.cart_tab.currentIndex()
+
+        print('current index:', i)
+
+        QMessageBox.information(self, 'Success', 'Transaction complete.')
+        self.payment_dialog.close()
+        self.cart_tab.removeTab(i)
+        
+        self.cart_list_table.remove(self.cart_list_table[i])
+        self.sub_total_value.remove(self.sub_total_value[i])
+        self.discount_value.remove(self.discount_value[i])
+        self.tax_value.remove(self.tax_value[i])
+        self.total_value.remove(self.total_value[i])
+        self.sub_total_value_label.remove(self.sub_total_value_label[i])
+        self.discount_value_label.remove(self.discount_value_label[i])
+        self.tax_value_label.remove(self.tax_value_label[i])
+        self.total_value_label.remove(self.total_value_label[i])
+        self.sales_mgt_discard_button.remove(self.sales_mgt_discard_button[i])
+        self.sales_mgt_pay_button.remove(self.sales_mgt_pay_button[i])
+
+        self.populate_cart_tab()
+        
     def on_payment_back_button_clicked(self):
         self.payment_dialog.close()
         self.cart_list_data = []
@@ -223,35 +251,52 @@ class SalesWindow(MyWidget):
     def on_process_payment_button_clicked(self):
         i = self.cart_tab.currentIndex()
         
-
         if self.amt_tendered_field.text().isdigit():
             if float(self.amt_tendered_field.text()) >= float(self.total_value[i]):
+                confirm = QMessageBox.warning(self.payment_dialog, 'Print', 'Print receipt?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
-                # self.sales_schema.register_transaction() -- needs to be checked
-                
-                change_value = max(0,  float(self.amt_tendered_field.text()) - float(self.total_value[i]))
+                if confirm is QMessageBox.StandardButton.Yes:
+                    
+                    item_id = 'sample'
+                    customer = self.cart_tab_name[i]
+                    user = 'sample'
 
-                self.bill_summary_data.append([
-                    self.sub_total_value[i],
-                    self.discount_value[i],
-                    self.tax_value[i],
-                    self.total_value[i],
-                    change_value
-                ])
+                    print('item_id:', item_id)
+                    print('customer:', customer)
+                    print('user:', user)
 
-                self.receipt_generator = ReceiptGenerator(cart_list_data=self.cart_list_data, bill_summary_data=self.bill_summary_data)
 
-                self.receipt_generator.finished.connect(self.finished_progress)  # Handle finished signal if needed
-                self.receipt_generator.start()
+                    # QMessageBox.information(self, 'Processing', 'Please wait...') # CHECKPOINT!!!!!
+                    # self.sales_schema.register_transaction(
+                    #     item_id=item_id,
+                    #     customer=customer,
+                    #     user=user
+                    # ) # -- needs to be checked
+                    
+                    change_value = max(0,  float(self.amt_tendered_field.text()) - float(self.total_value[i]))
+
+                    self.bill_summary_data.append([
+                        self.sub_total_value[i],
+                        self.discount_value[i],
+                        self.tax_value[i],
+                        self.total_value[i],
+                        change_value
+                    ])
+
+                    self.receipt_generator = ReceiptGenerator(cart_list_data=self.cart_list_data, bill_summary_data=self.bill_summary_data)
+
+                    self.receipt_generator.finished.connect(self.transaction_complete)  # Handle finished signal if needed
+
+                    self.receipt_generator.start()
+                else:
+                    return
             else:
                 QMessageBox.critical(self.payment_dialog, 'Error', 'Insufficient tendered amount.')
+            
         else:
             QMessageBox.critical(self.payment_dialog, 'Error', 'Invalid input. Please try again.')
 
         pass
-
-    def finished_progress(self):
-        print('finished')
 
     def on_amt_tendered_field_return_pressed(self):
         self.on_process_payment_button_clicked()
@@ -296,12 +341,48 @@ class SalesWindow(MyWidget):
             pass
 
         pass
+    def on_sales_mgt_locked_cart_button_clicked(self):
+        i = self.cart_tab.currentIndex()
+
+        self.sales_mgt_unlocked_cart_button[i].show()
+        self.sales_mgt_locked_cart_button[i].hide()
+
+        self.cart_list_table[i].setDisabled(False)
+        self.sub_total_value_label[i].setDisabled(False)
+        self.discount_value_label[i].setDisabled(False)
+        self.tax_value_label[i].setDisabled(False)
+        self.total_value_label[i].setDisabled(False)
+        self.sales_mgt_discard_button[i].setDisabled(False)
+        self.sales_mgt_pay_button[i].setDisabled(False)
+
+        if self.sales_mgt_locked_cart_button[i].isHidden() == True:
+            self.sales_mgt_discard_button[i].setStyleSheet(self.my_push_button.sales_mgt_discard_button_ss)
+            self.sales_mgt_pay_button[i].setStyleSheet(self.my_push_button.sales_mgt_pay_button_ss)
+        pass
+    def on_sales_mgt_unlocked_cart_button_clicked(self):
+        i = self.cart_tab.currentIndex()
+
+        self.sales_mgt_unlocked_cart_button[i].hide()
+        self.sales_mgt_locked_cart_button[i].show()
+
+        self.cart_list_table[i].setDisabled(True)
+        self.sub_total_value_label[i].setDisabled(True)
+        self.discount_value_label[i].setDisabled(True)
+        self.tax_value_label[i].setDisabled(True)
+        self.total_value_label[i].setDisabled(True)
+        self.sales_mgt_discard_button[i].setDisabled(True)
+        self.sales_mgt_pay_button[i].setDisabled(True)
+
+        if self.sales_mgt_unlocked_cart_button[i].isHidden() == True:
+            self.sales_mgt_discard_button[i].setStyleSheet(self.my_push_button.disabled_sales_mgt_discard_button_ss)
+            self.sales_mgt_pay_button[i].setStyleSheet(self.my_push_button.disabled_sales_mgt_pay_button_ss)
+        pass
     def on_sales_mgt_pay_button_clicked(self):
         i = self.cart_tab.currentIndex()
         print(os.system('cls'))
         print('current_index:', i)
         
-        if self.total_value[i] > 0:
+        if self.cart_list_table[i].rowCount() > 0:
             self.payment_dialog = MyDialog(object_name='payment_dialog')
             self.payment_dialog_layout = MyGridLayout(object_name='payment_dialog_layout')
 
@@ -639,107 +720,115 @@ class SalesWindow(MyWidget):
     def on_data_list_atc_button_clicked(self, row_value): # cart process 
         i = self.cart_tab.currentIndex()
         
-        while True:
-            proposed_quantity, confirm = QInputDialog.getText(self, 'Quantity', 'Input quantity:')
+        if i >= 0:
+            if self.sales_mgt_locked_cart_button[i].isHidden() == True:
+                while True:
+                    proposed_quantity, confirm = QInputDialog.getText(self, 'Quantity', 'Input quantity:')
 
-            if proposed_quantity.isdigit() is True and confirm is True:
-                try:
-                    item_list = self.cart_list_table[i].findItems(row_value[1], Qt.MatchFlag.MatchExactly) # finds the item in the table by matching the item name
-                    
-                    if item_list: # if item already exist in table, update row of item
-                        for item in item_list:
-                            row = item.row()  # Get the row of the item
+                    if proposed_quantity.isdigit() is True and confirm is True:
+                        try:
+                            item_list = self.cart_list_table[i].findItems(row_value[1], Qt.MatchFlag.MatchExactly) # finds the item in the table by matching the item name
+                            
+                            if item_list: # if item already exist in table, update row of item
+                                for item in item_list:
+                                    row = item.row()  # Get the row of the item
 
-                            current_quantity = int(self.cart_list_table[i].item(row, 1).text().replace('x', ''))  # Get the current value and convert it to an integer
-                            current_price = float(self.cart_list_table[i].item(row, 3).text().replace('₱', ''))  # Remove '₱' and convert to an integer[]
+                                    current_quantity = int(self.cart_list_table[i].item(row, 1).text().replace('x', ''))  # Get the current value and convert it to an integer
+                                    current_price = float(self.cart_list_table[i].item(row, 3).text().replace('₱', ''))  # Remove '₱' and convert to an integer[]
 
-                            self.new_quantity = int(proposed_quantity) + current_quantity
-                            self.new_price = (float(row_value[8]) * int(proposed_quantity)) + current_price
+                                    self.new_quantity = int(proposed_quantity) + current_quantity
+                                    self.new_price = (float(row_value[8]) * int(proposed_quantity)) + current_price
 
-                            quantity = MyTableWidgetItem(text=f'x{self.new_quantity}')  # Create a new 
-                            price = MyTableWidgetItem(text=f'₱{self.new_price:,.2f}')  # Create a new 
+                                    quantity = MyTableWidgetItem(text=f'x{self.new_quantity}')  # Create a new 
+                                    price = MyTableWidgetItem(text=f'₱{self.new_price:,.2f}')  # Create a new 
 
-                            quantity.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-                            price.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+                                    quantity.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+                                    price.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
-                            self.cart_list_table[i].setItem(row, 1, quantity)
-                            self.cart_list_table[i].setItem(row, 3, price)
-                            pass
-                    else: # if item does not exist, add new row of item
-                        row_index = self.cart_list_table[i].rowCount()
+                                    self.cart_list_table[i].setItem(row, 1, quantity)
+                                    self.cart_list_table[i].setItem(row, 3, price)
+                                    pass
+                            else: # if item does not exist, add new row of item
+                                row_index = self.cart_list_table[i].rowCount()
 
-                        self.cart_list_table[i].insertRow(row_index)
-                        
-                        self.new_quantity = proposed_quantity
-                        self.new_price = float(row_value[8]) * int(proposed_quantity)
+                                self.cart_list_table[i].insertRow(row_index)
+                                
+                                self.new_quantity = proposed_quantity
+                                self.new_price = float(row_value[8]) * int(proposed_quantity)
 
-                        # region > cart_list_action_panel
-                        cart_list_action_panel = MyGroupBox(object_name='cart_list_action_panel')
-                        cart_list_action_panel_layout = MyHBoxLayout(object_name='cart_list_action_panel_layout')
-                        cart_list_drop_all_qty_button = MyPushButton(object_name='cart_list_drop_all_qty_button')
-                        cart_list_drop_qty_button = MyPushButton(object_name='cart_list_drop_qty_button')
-                        cart_list_add_qty_button = MyPushButton(object_name='cart_list_add_qty_button')
-                        cart_list_edit_qty_button = MyPushButton(object_name='cart_list_edit_qty_button')
-                        cart_list_action_panel_layout.addWidget(cart_list_drop_all_qty_button)
-                        cart_list_action_panel_layout.addWidget(cart_list_drop_qty_button)
-                        cart_list_action_panel_layout.addWidget(cart_list_add_qty_button)
-                        cart_list_action_panel_layout.addWidget(cart_list_edit_qty_button)
-                        cart_list_action_panel.setLayout(cart_list_action_panel_layout)
-                        # endregion
-                        quantity = MyTableWidgetItem(text=f'x{self.new_quantity}')  # Create a new 
-                        item_name = MyTableWidgetItem(text=str(row_value[1]))
-                        price = MyTableWidgetItem(text=f'₱{self.new_price:,.2f}')
+                                # region > cart_list_action_panel
+                                cart_list_action_panel = MyGroupBox(object_name='cart_list_action_panel')
+                                cart_list_action_panel_layout = MyHBoxLayout(object_name='cart_list_action_panel_layout')
+                                cart_list_drop_all_qty_button = MyPushButton(object_name='cart_list_drop_all_qty_button')
+                                cart_list_drop_qty_button = MyPushButton(object_name='cart_list_drop_qty_button')
+                                cart_list_add_qty_button = MyPushButton(object_name='cart_list_add_qty_button')
+                                cart_list_edit_qty_button = MyPushButton(object_name='cart_list_edit_qty_button')
+                                cart_list_action_panel_layout.addWidget(cart_list_drop_all_qty_button)
+                                cart_list_action_panel_layout.addWidget(cart_list_drop_qty_button)
+                                cart_list_action_panel_layout.addWidget(cart_list_add_qty_button)
+                                cart_list_action_panel_layout.addWidget(cart_list_edit_qty_button)
+                                cart_list_action_panel.setLayout(cart_list_action_panel_layout)
+                                # endregion
+                                quantity = MyTableWidgetItem(text=f'x{self.new_quantity}')  # Create a new 
+                                item_name = MyTableWidgetItem(text=str(row_value[1]))
+                                price = MyTableWidgetItem(text=f'₱{self.new_price:,.2f}')
 
-                        # region > set item alignment
-                        quantity.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-                        price.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-                        # endregion
+                                # region > set item alignment
+                                quantity.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+                                price.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+                                # endregion
 
-                        self.cart_list_table[i].setCellWidget(row_index, 0, cart_list_action_panel)
-                        self.cart_list_table[i].setItem(row_index, 1, quantity)
-                        self.cart_list_table[i].setItem(row_index, 2, item_name)
-                        self.cart_list_table[i].setItem(row_index, 3, price)
+                                self.cart_list_table[i].setCellWidget(row_index, 0, cart_list_action_panel)
+                                self.cart_list_table[i].setItem(row_index, 1, quantity)
+                                self.cart_list_table[i].setItem(row_index, 2, item_name)
+                                self.cart_list_table[i].setItem(row_index, 3, price)
 
-                        # region > connections
-                        cart_list_drop_all_qty_button.clicked.connect(lambda: self.on_cart_list_drop_all_qty_button_clicked(row_value))
-                        cart_list_drop_qty_button.clicked.connect(lambda: self.on_cart_list_drop_qty_button_clicked(row_value))
-                        cart_list_add_qty_button.clicked.connect(lambda: self.on_cart_list_add_qty_button_clicked(row_value))
-                        cart_list_edit_qty_button.clicked.connect(lambda: self.on_cart_list_edit_qty_button_clicked(row_value))
-                        # endregion
+                                # region > connections
+                                cart_list_drop_all_qty_button.clicked.connect(lambda: self.on_cart_list_drop_all_qty_button_clicked(row_value))
+                                cart_list_drop_qty_button.clicked.connect(lambda: self.on_cart_list_drop_qty_button_clicked(row_value))
+                                cart_list_add_qty_button.clicked.connect(lambda: self.on_cart_list_add_qty_button_clicked(row_value))
+                                cart_list_edit_qty_button.clicked.connect(lambda: self.on_cart_list_edit_qty_button_clicked(row_value))
+                                # endregion
 
-                        # region > style_buttons
-                        cart_list_drop_all_qty_button.setStyleSheet(self.my_push_button.cart_list_action_panel_ss)
-                        cart_list_drop_qty_button.setStyleSheet(self.my_push_button.cart_list_action_panel_ss)
-                        cart_list_add_qty_button.setStyleSheet(self.my_push_button.cart_list_action_panel_ss)
-                        cart_list_edit_qty_button.setStyleSheet(self.my_push_button.cart_list_action_panel_ss)
-                        # endregion
+                                # region > style_buttons
+                                cart_list_drop_all_qty_button.setStyleSheet(self.my_push_button.cart_list_action_panel_ss)
+                                cart_list_drop_qty_button.setStyleSheet(self.my_push_button.cart_list_action_panel_ss)
+                                cart_list_add_qty_button.setStyleSheet(self.my_push_button.cart_list_action_panel_ss)
+                                cart_list_edit_qty_button.setStyleSheet(self.my_push_button.cart_list_action_panel_ss)
+                                # endregion
 
+                                pass
+
+                            self.sub_total_value[i] += (float(row_value[8]) * int(proposed_quantity))
+                            self.discount_value[i] += (float(row_value[11]) * int(proposed_quantity))
+                            self.tax_value[i] += (0 * int(proposed_quantity))
+                            self.total_value[i] = (self.sub_total_value[i] - self.discount_value[i]) + self.tax_value[i]
+                            
+                            self.sub_total_value_label[i].setText(f'₱{self.sub_total_value[i]:,.2f}')
+                            self.discount_value_label[i].setText(f'₱{self.discount_value[i]:,.2f}')
+                            self.tax_value_label[i].setText(f'₱{self.tax_value[i]:,.2f}')
+                            self.total_value_label[i].setText(f'₱{self.total_value[i]:,.2f}')
+
+                            self.sales_mgt_pay_button[i].setText(f'₱{self.total_value[i]:,.2f}')
+
+                            self.new_quantity = 1
+                            self.new_price = 0
+                        except Exception as e:
+                            print(e)
+                        break
+                    elif proposed_quantity.isdigit() is False and confirm is True:
+                        QMessageBox.critical(self, 'Error', 'Invalid input. Please try again.')
                         pass
 
-                    self.sub_total_value[i] += (float(row_value[8]) * int(proposed_quantity))
-                    self.discount_value[i] += (float(row_value[11]) * int(proposed_quantity))
-                    self.tax_value[i] += (0 * int(proposed_quantity))
-                    self.total_value[i] = (self.sub_total_value[i] - self.discount_value[i]) + self.tax_value[i]
-                    
-                    self.sub_total_value_label[i].setText(f'₱{self.sub_total_value[i]:,.2f}')
-                    self.discount_value_label[i].setText(f'₱{self.discount_value[i]:,.2f}')
-                    self.tax_value_label[i].setText(f'₱{self.tax_value[i]:,.2f}')
-                    self.total_value_label[i].setText(f'₱{self.total_value[i]:,.2f}')
+                    elif confirm is False:
+                        break
+                    pass
+            else:
+                QMessageBox.critical(self, 'Error', 'Cart is locked. Please unlock it first.')
 
-                    self.sales_mgt_pay_button[i].setText(f'₱{self.total_value[i]:,.2f}')
+        else:
+            QMessageBox.critical(self, 'Error', 'Please add cart tab first.')
 
-                    self.new_quantity = 1
-                    self.new_price = 0
-                except Exception as e:
-                    print(e)
-                break
-            elif proposed_quantity.isdigit() is False and confirm is True:
-                QMessageBox.critical(self, 'Error', 'Invalid input. Please try again.')
-                pass
-
-            elif confirm is False:
-                break
-            pass
     def on_data_mgt_scanned_barcode_field_return_pressed(self):
         i = self.cart_tab.currentIndex()
 
@@ -880,35 +969,41 @@ class SalesWindow(MyWidget):
         sales_mgt_action_panel = MyGroupBox(object_name='sales_mgt_action_panel') # head.b
         sales_mgt_action_panel_layout = MyFormLayout(object_name='sales_mgt_action_panel_layout')
         
-        sales_mgt_sub_action_panel = MyGroupBox()
-        sales_mgt_sub_action_panel_layout = MyHBoxLayout()
+        sales_mgt_sub_action_panel = MyGroupBox(object_name='sales_mgt_sub_action_panel')
+        sales_mgt_sub_action_panel_layout = MyHBoxLayout(object_name='sales_mgt_sub_action_panel_layout')
         sales_mgt_discard_button = MyPushButton(object_name='sales_mgt_discard_button', text='Discard')
-        sales_mgt_lock_cart_button = MyPushButton(object_name='sales_mgt_lock_cart_button', text='Lock')
-        sales_mgt_unlock_cart_button = MyPushButton(object_name='sales_mgt_unlock_cart_button', text='Unlock')
+        sales_mgt_locked_cart_button = MyPushButton(object_name='sales_mgt_locked_cart_button')
+        sales_mgt_unlocked_cart_button = MyPushButton(object_name='sales_mgt_unlocked_cart_button')
         sales_mgt_sub_action_panel_layout.addWidget(sales_mgt_discard_button)
-        sales_mgt_sub_action_panel_layout.addWidget(sales_mgt_lock_cart_button)
-        sales_mgt_sub_action_panel_layout.addWidget(sales_mgt_unlock_cart_button)
+        sales_mgt_sub_action_panel_layout.addWidget(sales_mgt_locked_cart_button)
+        sales_mgt_sub_action_panel_layout.addWidget(sales_mgt_unlocked_cart_button)
         sales_mgt_sub_action_panel.setLayout(sales_mgt_sub_action_panel_layout)
 
         sales_mgt_pay_button = MyPushButton(object_name='sales_mgt_pay_button', text=f'₱{total_value:,.2f}')
 
         sales_mgt_action_panel_layout.addRow(sales_mgt_sub_action_panel)
+        sales_mgt_action_panel_layout.addRow(sales_mgt_pay_button)
         sales_mgt_action_panel.setLayout(sales_mgt_action_panel_layout)
         # endregion
 
         cart_panel_layout.addWidget(cart_list_table)
         cart_panel_layout.addWidget(cart_list_bill)
         cart_panel_layout.addWidget(sales_mgt_action_panel)
-        cart_panel_layout.addWidget(sales_mgt_pay_button)
         cart_panel.setLayout(cart_panel_layout)
         
         # region > connections
+        sales_mgt_locked_cart_button.clicked.connect(self.on_sales_mgt_locked_cart_button_clicked)
+        sales_mgt_unlocked_cart_button.clicked.connect(self.on_sales_mgt_unlocked_cart_button_clicked)
         sales_mgt_discard_button.clicked.connect(self.on_sales_mgt_discard_button_clicked)
         sales_mgt_pay_button.clicked.connect(self.on_sales_mgt_pay_button_clicked)
         # endregion
 
         # region > style_buttons
+        sales_mgt_locked_cart_button.hide()
+
         sales_mgt_discard_button.setStyleSheet(self.my_push_button.sales_mgt_discard_button_ss)
+        sales_mgt_locked_cart_button.setStyleSheet(self.my_push_button.sales_mgt_sub_action_ss)
+        sales_mgt_unlocked_cart_button.setStyleSheet(self.my_push_button.sales_mgt_sub_action_ss)
         sales_mgt_pay_button.setStyleSheet(self.my_push_button.sales_mgt_pay_button_ss)
 
         cart_tab_name = f'New customer' if cart_tab_name == '' else cart_tab_name
@@ -918,6 +1013,8 @@ class SalesWindow(MyWidget):
         # endregion
         
         # region > append to list
+        self.cart_tab_name.append(cart_tab_name)
+
         self.cart_list_table.append(cart_list_table)
 
         self.sub_total_value.append(sub_total_value)
@@ -930,6 +1027,8 @@ class SalesWindow(MyWidget):
         self.tax_value_label.append(tax_value_label)
         self.total_value_label.append(total_value_label)
 
+        self.sales_mgt_locked_cart_button.append(sales_mgt_locked_cart_button)
+        self.sales_mgt_unlocked_cart_button.append(sales_mgt_unlocked_cart_button)
         self.sales_mgt_discard_button.append(sales_mgt_discard_button)
         self.sales_mgt_pay_button.append(sales_mgt_pay_button)
         # endregion
@@ -1025,10 +1124,12 @@ class SalesWindow(MyWidget):
         self.extra_info_panel_layout = MyHBoxLayout(object_name='extra_info_panel_layout')
 
         # region > extra_info_labels
+        self.current_user = MyLabel(object_name='current_user', text=f'Current user: {self.current_user}')
         self.total_data = MyLabel(object_name='total_data', text=f'Total product: {self.total_product_count}')
         # endregion
 
-        self.extra_info_panel_layout.addWidget(self.total_data,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.extra_info_panel_layout.addWidget(self.current_user,0,Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        self.extra_info_panel_layout.addWidget(self.total_data,1,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.extra_info_panel.setLayout(self.extra_info_panel_layout)
         pass
     def show_sales_mgt_panel(self):

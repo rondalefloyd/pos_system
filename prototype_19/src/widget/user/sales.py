@@ -141,7 +141,7 @@ class MyGroupBox(QGroupBox):
             self.setFixedWidth(400)
 
             self.setStyleSheet(f"""
-                QGroupBox {{ background-color: #fff; border: 0px }}
+                QGroupBox {{ border: 0px }}
                 QGroupBox#{object_name} {{ border-top: 1px solid #ddd; border-left: 1px solid #ddd }}
                 QScrollArea#sales_mgt_scroll_area {{ border: 0px }}
                 QComboBox#customer_name_field {{ padding: 3px 5px }}
@@ -234,6 +234,11 @@ class MyHBoxLayout(QHBoxLayout):
             self.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.setContentsMargins(0,0,0,0)
             self.setSpacing(3)
+
+        if object_name == 'sales_mgt_sub_action_panel_layout':
+            self.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            self.setContentsMargins(0,0,0,0)
+            self.setSpacing(3)
         pass
 class MyGridLayout(QGridLayout):
     def __init__(self, object_name=''):
@@ -284,7 +289,10 @@ class MyLabel(QLabel):
 
         self.setText(text)
 
-        if object_name == 'total_data':
+        if object_name in [
+            'total_data',
+            'current_user'
+        ]:
             self.setStyleSheet(f"QLabel#{object_name} {{ color: #fff; font-size: 10px }} ")
 
         if object_name in ['bill_value_label', 'bill_total_value_label']:
@@ -340,14 +348,32 @@ class MyPushButton(QPushButton):
             QPushButton#cart_list_edit_qty_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
         """
 
-        self.sales_mgt_discard_button_ss = f"""
-            QPushButton#sales_mgt_discard_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; padding: 10px }}
-            QPushButton#sales_mgt_discard_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
+        self.sales_mgt_sub_action_ss = f"""
+            QPushButton#sales_mgt_locked_cart_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 3px; color: #fff; padding: 5px }}
+            QPushButton#sales_mgt_unlocked_cart_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; padding: 5px }}
+
+            QPushButton#sales_mgt_locked_cart_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
+            QPushButton#sales_mgt_unlocked_cart_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
         """
+
+        self.sales_mgt_discard_button_ss = f"""
+            QPushButton#sales_mgt_discard_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #222; padding: 5px }}
+            QPushButton#sales_mgt_discard_button:hover {{ background-color: {color_scheme.hex_light_button_hover} }}
+
+        """
+        self.disabled_sales_mgt_discard_button_ss = f"""
+            QPushButton#sales_mgt_discard_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 3px; color: #aaa; padding: 5px }}
+
+        """
+        
         self.sales_mgt_pay_button_ss = f"""
             QLabel {{ color: #fff; font-weight: bold; font-size: 15px; }}
-            QPushButton#sales_mgt_pay_button {{ background-color: {color_scheme.hex_main}; border: 0px; color: #fff; font-weight: bold; font-size: 25px; text-align: right; padding: 15px }}
+            QPushButton#sales_mgt_pay_button {{ background-color: {color_scheme.hex_main}; border: 0px; border-radius: 5px; color: #fff; font-weight: bold; font-size: 20px; text-align: right; padding: 15px }}
             QPushButton#sales_mgt_pay_button:hover {{ background-color: {color_scheme.hex_main_hover} }}
+        """
+        self.disabled_sales_mgt_pay_button_ss = f"""
+            QLabel {{ color: #fff; font-weight: bold; font-size: 15px; }}
+            QPushButton#sales_mgt_pay_button {{ background-color: {color_scheme.hex_light_button}; border: 0px; border-radius: 5px; color: #fff; font-weight: bold; font-size: 20px; text-align: right; padding: 15px }}
         """
 
         self.amt_tendered_opt_button_ss = f"""
@@ -393,6 +419,9 @@ class MyPushButton(QPushButton):
         """
 
         text_filter_icon_path = os.path.abspath('src/icons/content_panel/text_filter.png')
+
+        locked_cart_icon_path = os.path.abspath('src/icons/content_panel/locked_cart.png')
+        unlocked_cart_icon_path = os.path.abspath('src/icons/content_panel/unlocked_cart.png')
 
         drop_all_qty_icon = os.path.abspath('src/icons/content_panel/drop_all_qty.png')
         drop_qty_icon = os.path.abspath('src/icons/content_panel/drop_qty.png')
@@ -460,13 +489,24 @@ class MyPushButton(QPushButton):
             self.setIconSize(QSize(15,20))
             pass
         
+        if object_name == 'sales_mgt_locked_cart_button':
+            self.setIcon(QIcon(locked_cart_icon_path))
+            self.setIconSize(QSize(15,20))
+            self.setFixedSize(30,30)
+            pass
+        if object_name == 'sales_mgt_unlocked_cart_button':
+            self.setIcon(QIcon(unlocked_cart_icon_path))
+            self.setIconSize(QSize(15,20))
+            self.setFixedSize(30,30)
+            pass
         if object_name == 'sales_mgt_discard_button':
-            self.setFixedWidth(100)
+            self.setFixedSize(80,30)
+            
         if object_name == 'sales_mgt_pay_button':
             layout = MyHBoxLayout()
             layout.setContentsMargins(15,15,15,15)
             pay_label = QLabel('PAY')
-            pay_label.setStyleSheet('font-size: 25px')
+            pay_label.setStyleSheet('font-size: 20px')
             layout.addWidget(pay_label)
             self.setLayout(layout)
             

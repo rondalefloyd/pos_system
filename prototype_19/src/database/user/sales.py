@@ -307,49 +307,82 @@ class SalesSchema():
     
     def register_transaction(
         self,
-        date_id,
-        itemprice_id,
-        customer_id,
-        stock_id,
-        user_id,
-        quantity,
-        reason_id,
-        total_amount,
-        void,
-        reference_id
+        item_id='',
+        customer='',
+        user='',
+
+        date_id='',
+        item_price_id='',
+        customer_id='',
+        stock_id='',
+        user_id='',
+        quantity='',
+        reason_id='',
+        total_amount='',
+        void='',
+        reference_id=''
     ):
-        self.cursor.execute('''
-        INSERT INTO ItemSold (
-            DateId,
-            ItemPriceId,
-            CustomerId,
-            StockId,
-            UserId,
-            Quantity,
-            ReasonId,
-            TotalAmount,
-            Void,
-            ReferenceId
-        )
-        SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        WHERE NOT EXISTS(
-        SELECT 1 FROM ItemSold
-        WHERE
-            DateId = ? AND
-            ItemPriceId = ? AND
-            CustomerId = ? AND
-            StockId = ? AND
-            UserId = ? AND
-            Quantity = ? AND
-            ReasonId = ? AND
-            TotalAmount = ? AND
-            Void = ? AND
-            ReferenceId = ?
+        item_price_id = self.cursor.execute('''
+        SELECT ItemPriceId FROM ItemPrice
+        WHERE ItemId = ?
+        ''', (item_id,))
+        item_price_id = self.cursor.fetchone()[0]
+
+        customer_id = self.cursor.execute('''
+        SELECT CustomerId FROM Customer
+        WHERE Name = ?
+        ''', (customer,))
+        customer_id = self.cursor.fetchone()[0]
+
+        stock_id = self.cursor.execute('''
+        SELECT StockId FROM Stock
+        WHERE Name = ?
+        ''', (item_id,))
+        stock_id = self.cursor.fetchone()[0]
+
+        user_id = self.cursor.execute('''
+        SELECT UserId FROM User
+        WHERE Name = ?
+        ''', (user,))
+        user_id = self.cursor.fetchone()[0]
+
+        print('item_price_id:', item_price_id)
+        print('customer_id:', customer_id)
+        print('stock_id:', stock_id)
+        print('user_id:', user_id)
+
+        # self.cursor.execute('''
+        # INSERT INTO ItemSold (
+        #     DateId,
+        #     ItemPriceId,
+        #     CustomerId,
+        #     StockId,
+        #     UserId,
+        #     Quantity,
+        #     ReasonId,
+        #     TotalAmount,
+        #     Void,
+        #     ReferenceId
+        # )
+        # SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        # WHERE NOT EXISTS(
+        # SELECT 1 FROM ItemSold
+        # WHERE
+        #     DateId = ? AND
+        #     ItemPriceId = ? AND
+        #     CustomerId = ? AND
+        #     StockId = ? AND
+        #     UserId = ? AND
+        #     Quantity = ? AND
+        #     ReasonId = ? AND
+        #     TotalAmount = ? AND
+        #     Void = ? AND
+        #     ReferenceId = ?
                             
-        )''', (date_id, itemprice_id, customer_id, stock_id, user_id, quantity, reason_id, total_amount, void, reference_id,
-            date_id, itemprice_id, customer_id, stock_id, user_id, quantity, reason_id, total_amount, void, reference_id))
-        self.conn.commit()
-        pass
+        # )''', (date_id, item_price_id, customer_id, stock_id, user_id, quantity, reason_id, total_amount, void, reference_id,
+        #     date_id, item_price_id, customer_id, stock_id, user_id, quantity, reason_id, total_amount, void, reference_id))
+        # self.conn.commit()
+        # pass
     
     def count_product(self):
         self.create_product_table()

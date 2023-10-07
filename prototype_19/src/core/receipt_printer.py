@@ -11,6 +11,7 @@ from PyQt6.QtGui import *
 from PyQt6 import *
 
 class ReceiptGenerator(QThread):
+    # update = pyqtSignal(int)
     finished = pyqtSignal()
 
     def __init__(self, cart_list_data=[], bill_summary_data=[]):
@@ -27,7 +28,9 @@ class ReceiptGenerator(QThread):
 
     def run(self):
         self.print_receipt()
-        # self.convert_receipt_to_pdf()
+        self.finished.emit()
+        self.convert_receipt_to_pdf()
+
 
     def print_receipt(self):
         pythoncom.CoInitialize()
@@ -61,7 +64,7 @@ class ReceiptGenerator(QThread):
         self.updated_doc = word.Documents.Open(self.updated_docx_file)
         
         # Print the document
-        self.updated_doc.PrintOut()
+        # self.updated_doc.PrintOut()
 
         word.Quit()
 
@@ -75,7 +78,6 @@ class ReceiptGenerator(QThread):
             os.remove(self.updated_docx_file)
 
         print('CONVERTED!')
-        self.finished.emit()
 
     def ref_number_generator(self):
         update_ts = datetime.today()
