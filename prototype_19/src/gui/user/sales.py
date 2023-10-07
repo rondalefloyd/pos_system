@@ -242,6 +242,9 @@ class SalesWindow(MyWidget):
         self.sales_mgt_discard_button.remove(self.sales_mgt_discard_button[i])
         self.sales_mgt_pay_button.remove(self.sales_mgt_pay_button[i])
 
+        self.sales_mgt_unlocked_cart_button.remove(self.sales_mgt_unlocked_cart_button[i])
+        self.sales_mgt_locked_cart_button.remove(self.sales_mgt_locked_cart_button[i])
+
         self.populate_cart_tab()
         
     def on_payment_back_button_clicked(self):
@@ -336,6 +339,9 @@ class SalesWindow(MyWidget):
             self.total_value_label.remove(self.total_value_label[i])
             self.sales_mgt_discard_button.remove(self.sales_mgt_discard_button[i])
             self.sales_mgt_pay_button.remove(self.sales_mgt_pay_button[i])
+
+            self.sales_mgt_unlocked_cart_button.remove(self.sales_mgt_unlocked_cart_button[i])
+            self.sales_mgt_locked_cart_button.remove(self.sales_mgt_locked_cart_button[i])
             pass
         else:
             pass
