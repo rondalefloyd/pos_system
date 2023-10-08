@@ -11,7 +11,7 @@ print('sys path: ', os.path.abspath(''))
 
 # from src.database.user.user import *
 
-from src.gui.user.sales import *
+from src.gui.user.sales_unfinished import *
 
 from src.widget.user.user import *
 

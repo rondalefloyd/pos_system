@@ -129,7 +129,6 @@ class CustomerSchema():
 
         # NEEDS TO ADD CUSTOMER REWARD !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
     def delete_selected_customer(self, customer_id):
         self.cursor.execute('''
         DELETE FROM Customer

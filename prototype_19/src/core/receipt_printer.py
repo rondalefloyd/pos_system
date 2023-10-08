@@ -2,6 +2,8 @@ import os
 import random
 import time as tm
 import pythoncom
+import uuid
+import machineid
 from datetime import *
 from docx2pdf import *
 import win32com.client
@@ -14,17 +16,20 @@ class ReceiptGenerator(QThread):
     # update = pyqtSignal(int)
     finished = pyqtSignal()
 
-    def __init__(self, cart_list_data=[], bill_summary_data=[]):
+    def __init__(self, cart_list_data=[], bill_summary_data=[], customer_summary_data=[], current_user=''):
         super().__init__()
 
         self.cart_list_data = cart_list_data
         self.bill_summary_data = bill_summary_data
+        self.customer_summary_data = customer_summary_data
+        self.current_user = current_user
         print('self.cart_list_data:', self.cart_list_data)
         print('self.bill_summary_data:', self.bill_summary_data)
         self.default_init()
 
     def default_init(self):
         self.ref_number = ''
+        self.min = ''
 
     def run(self):
         self.print_receipt()
@@ -48,6 +53,7 @@ class ReceiptGenerator(QThread):
 
         self.ref_number_generator()
         self.tin_generator()
+        self.min_generator()
 
         self.process_table_a()
         self.process_table_b()
@@ -80,16 +86,23 @@ class ReceiptGenerator(QThread):
         print('CONVERTED!')
 
     def ref_number_generator(self):
-        update_ts = datetime.today()
-        number = random.randint(100000000, 999999999)
-        self.ref_number = f"{number}-{update_ts.strftime('%m%d%Y')}"
+
+        sales_group_id = f'{1:02}'
+        customer_id = f'{self.customer_summary_data[0][0]:05}'
+        update_ts = f"{datetime.today().strftime('%y%m%d%H%M')}"
+        
+        print('receipt_customer_id:', customer_id)
+
+        self.ref_number = f"{sales_group_id}-{customer_id}-{update_ts}"
 
     def tin_generator(self):
-        first_group = random.randint(1, 999)
-        second_group = random.randint(1, 999)
-        third_group = random.randint(1, 999)
-        fourth_group = random.randint(1, 999)
-        self.tin = f'{first_group:03}-{second_group:03}-{third_group:03}-{fourth_group:03}'
+        self.tin = f'40567264400000'
+
+    def min_generator(self):
+        # uuid_value = uuid.uuid4()
+        # self.min = str(uuid_value)[:8]
+        self.min = f'{machineid.id()}'
+        pass
 
     def process_table_a(self):
         # Access the first table in the document (assuming it's the only table)
@@ -101,7 +114,7 @@ class ReceiptGenerator(QThread):
             '{transaction_date}': f'{date.today()}',
             '{transaction_reference}': f'{self.ref_number}',
             '{tin}': f'{self.tin}',
-            '{min}': '987654321'
+            '{min}': f'{self.min}'
         }
 
         # Replace table_a_placeholders with values
@@ -185,7 +198,7 @@ class ReceiptGenerator(QThread):
 
         # Define placeholders and values
         table_d_placeholders = {
-            '{cashier}': 'Angie',
+            '{cashier}': f'{self.current_user}',
             '{phone}': '+1234567890',
         }
 
