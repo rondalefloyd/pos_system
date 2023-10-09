@@ -1,4 +1,4 @@
-class ColorScheme:
+class QSSConfig:
     hex_delete = '#cc313d'
     hex_delete_hover = '#ab2b35'
     
@@ -20,7 +20,5 @@ class ColorScheme:
     default_color_d = '#E1E1E1' # default color for button background 
     default_color_e = '#CCCCCC' # default color for scroll bar
     default_color_f = '#ADADAD' # default color for button's border
-    default_color_d = '#666666' # default color for field's border
-
-
-    default_border_radius = "10%"
+    default_color_g = '#666666' # default color for field's border
+    default_color_h = '#222222' # default color for field's border

@@ -173,19 +173,19 @@ class SalesSchema():
         self.cursor.execute('''
             SELECT
                 COALESCE(NULLIF(Item.Barcode, ''), '[no data]') AS Barcode,
-                COALESCE(NULLIF(Item.Name, ''), '[no data]') AS Item,
+                COALESCE(NULLIF(Item.Name, ''), '[no data]') AS Item, -- 1
                 COALESCE(NULLIF(Item.ExpireDt, ''), '[no data]') AS ExpireDt,
                             
                 COALESCE(NULLIF(ItemType.Name, ''), '[no data]') AS ItemType, 
-                COALESCE(NULLIF(Brand.Name, ''), '[no data]') AS Brand, 
-                COALESCE(NULLIF(SalesGroup.Name, ''), '[no data]') AS SalesGroup, 
+                COALESCE(NULLIF(Brand.Name, ''), '[no data]') AS Brand, -- 4 
+                COALESCE(NULLIF(SalesGroup.Name, ''), '[no data]') AS SalesGroup, -- 5
                 COALESCE(NULLIF(Supplier.Name, ''), '[no data]') AS Supplier,
                             
                 COALESCE(NULLIF(ItemPrice.Cost, ''), '[no data]') AS Cost,
-                COALESCE(NULLIF(ItemPrice.SellPrice, ''), '[no data]') AS SellPrice,
+                COALESCE(NULLIF(ItemPrice.SellPrice, ''), '[no data]') AS SellPrice, -- 8
                 COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), '[no data]') AS EffectiveDt,
                 CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
-                COALESCE(NULLIF(ItemPrice.DiscountValue, ''), '[no data]') AS DiscountValue,
+                COALESCE(NULLIF(ItemPrice.DiscountValue, ''), '[no data]') AS DiscountValue, -- 11
 
                 CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryTracking,
                 COALESCE(NULLIF(Stock.Available, ''), '[no data]') AS Available,
@@ -239,6 +239,82 @@ class SalesSchema():
         product = self.cursor.fetchall()
 
         return product
+
+    def list_product_via_promo(self, text_filter='', txn_type='Retail', page_number=1, page_size=30):
+        offset = (page_number - 1) * page_size
+        
+        self.create_product_table()
+
+        self.cursor.execute('''
+            SELECT
+                COALESCE(NULLIF(Item.Barcode, ''), '[no data]') AS Barcode,
+                COALESCE(NULLIF(Item.Name, ''), '[no data]') AS Item,
+                COALESCE(NULLIF(Item.ExpireDt, ''), '[no data]') AS ExpireDt,
+                            
+                COALESCE(NULLIF(ItemType.Name, ''), '[no data]') AS ItemType, 
+                COALESCE(NULLIF(Brand.Name, ''), '[no data]') AS Brand, 
+                COALESCE(NULLIF(SalesGroup.Name, ''), '[no data]') AS SalesGroup, 
+                COALESCE(NULLIF(Supplier.Name, ''), '[no data]') AS Supplier,
+                            
+                COALESCE(NULLIF(ItemPrice.Cost, ''), '[no data]') AS Cost,
+                COALESCE(NULLIF(ItemPrice.SellPrice, ''), '[no data]') AS SellPrice,
+                COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), '[no data]') AS EffectiveDt,
+                CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
+                COALESCE(NULLIF(ItemPrice.DiscountValue, ''), '[no data]') AS DiscountValue,
+
+                CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryTracking,
+                COALESCE(NULLIF(Stock.Available, ''), '[no data]') AS Available,
+                COALESCE(NULLIF(Stock.OnHand, ''), '[no data]') AS OnHand,
+                            
+                ItemPrice.UpdateTs, -- 15
+                                
+                ItemPrice.ItemId,
+                ItemPrice.ItemPriceId,
+                ItemPrice.PromoId,
+                Stock.StockId
+                            
+            FROM ItemPrice
+                LEFT JOIN Item
+                    ON ItemPrice.ItemId = Item.ItemId
+                LEFT JOIN ItemType
+                    ON Item.ItemTypeId = ItemType.ItemTypeId
+                LEFT JOIN Brand
+                    ON Item.BrandId = Brand.BrandId
+                LEFT JOIN Supplier
+                    ON Item.SupplierId = Supplier.SupplierId
+                LEFT JOIN SalesGroup
+                    ON Item.SalesGroupId = SalesGroup.SalesGroupId
+                LEFT JOIN Promo
+                    ON ItemPrice.PromoId = Promo.PromoId
+                LEFT JOIN Stock
+                    ON Item.ItemId = Stock.ItemId     
+            WHERE 
+                (Item.Barcode LIKE ? OR
+                Item.Name LIKE ? OR
+                ItemType.Name LIKE ? OR 
+                Brand.Name LIKE ? OR 
+                Supplier.Name LIKE ? OR
+                InventoryTracking LIKE ?) AND
+                SalesGroup.Name = ? AND
+                Promo.Name != 'No promo' AND
+                ItemPrice.EffectiveDt <= CURRENT_DATE
+            ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC
+            LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
+            ''', (
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                txn_type,
+                page_size,  # Limit
+                offset     # Offset
+            ))
+
+        prod_with_promo = self.cursor.fetchall()
+
+        return prod_with_promo
     
     def list_customer(self):
         self.cursor.execute('''
