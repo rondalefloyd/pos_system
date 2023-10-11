@@ -165,7 +165,7 @@ class SalesSchema():
         ''')
         self.conn.commit()
         
-    def list_product(self, text_filter='', txn_type='Retail', page_number=1, page_size=30):
+    def list_product(self, text_filter='', order_type='Retail', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
         self.create_product_table()
@@ -231,7 +231,7 @@ class SalesSchema():
                 '%' + str(text_filter) + '%',
                 '%' + str(text_filter) + '%',
                 '%' + str(text_filter) + '%',
-                txn_type,
+                order_type,
                 page_size,  # Limit
                 offset     # Offset
             ))
@@ -240,7 +240,7 @@ class SalesSchema():
 
         return product
 
-    def list_product_via_promo(self, text_filter='', txn_type='Retail', page_number=1, page_size=30):
+    def list_product_via_promo(self, text_filter='', order_type='Retail', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
         
         self.create_product_table()
@@ -307,7 +307,7 @@ class SalesSchema():
                 '%' + str(text_filter) + '%',
                 '%' + str(text_filter) + '%',
                 '%' + str(text_filter) + '%',
-                txn_type,
+                order_type,
                 page_size,  # Limit
                 offset     # Offset
             ))
@@ -316,16 +316,23 @@ class SalesSchema():
 
         return prod_with_promo
     
-    def list_customer(self):
+    def list_customer(self, customer=''):
         self.cursor.execute('''
-        SELECT COALESCE(NULLIF(Customer.Name, ''), '[no data]') AS CustomerName FROM Customer
-        ''')
+        SELECT 
+            Customer.Name, Customer.Phone, CustomerReward.Points
+        FROM Customer
+            LEFT JOIN CustomerReward
+                ON Customer.CustomerId = CustomerReward.CustomerId
+        WHERE Customer.Name LIKE ?
+        ORDER BY Customer.UpdateTs DESC
+            
+        ''', ('%' + str(customer) + '%',))
         
         customer = self.cursor.fetchall()
         
         return customer
 
-    def list_product_via_barcode(self, barcode='', txn_type='Retail'):
+    def list_product_via_barcode(self, barcode='', order_type='Retail'):
         self.create_product_table()
 
         self.cursor.execute('''
@@ -385,6 +392,7 @@ class SalesSchema():
         self.cursor.execute('''
         SELECT CustomerId FROM Customer
         WHERE Name = ?
+        ORDER BY Customer.UpdateTs DESC
         ''', (customer,))
         
         customer_id = self.cursor.fetchone()[0]
@@ -480,7 +488,7 @@ class SalesSchema():
         
         return count
 
-    def count_product_list_total_pages(self, txn_type='Retail', page_size=30):
+    def count_product_list_total_pages(self, order_type='Retail', page_size=30):
         self.cursor.execute('''
             SELECT COUNT(*)
             FROM ItemPrice
@@ -501,7 +509,7 @@ class SalesSchema():
             WHERE 
                 SalesGroup.Name = ? AND
                 ItemPrice.EffectiveDt <= CURRENT_DATE
-            ''', (txn_type,))
+            ''', (order_type,))
 
         total_product = self.cursor.fetchone()[0]
         total_pages = (total_product - 1) // page_size + 1

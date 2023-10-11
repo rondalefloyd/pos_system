@@ -35,7 +35,7 @@ class MySalesModel:
     def set_a_panel_container(self):
         self.curr_tab = ''
         self.curr_page = 1
-        self.total_page = self.schema.count_product_list_total_pages(txn_type='Retail')
+        self.total_page = self.schema.count_product_list_total_pages(order_type='Retail')
     def set_b_panel_container(self):
         self.a_prod_list = self.schema.list_product()
         self.b_prod_list = self.schema.list_product_via_promo()
@@ -181,7 +181,6 @@ class MySalesView(MyWidget):
         pass
     def populate_via_atc(self, row_value):
         i = self.cust_order_tab.currentIndex()
-
 
         proposed_qty, confirm = QInputDialog.getText(self, 'Add quantity', 'Enter quantity:')
 
@@ -384,8 +383,8 @@ class MySalesView(MyWidget):
         self.add_order_txn_type_field.addItem('Wholesale')
         pass
     def populate_prod_list_table(self, text_filter='', txn_type='Retail', curr_page=1):
-        self.model.a_prod_list = self.model.schema.list_product(text_filter=text_filter, txn_type=txn_type, page_number=curr_page)
-        self.model.b_prod_list = self.model.schema.list_product_via_promo(text_filter=text_filter, txn_type=txn_type, page_number=curr_page)
+        self.model.a_prod_list = self.model.schema.list_product(text_filter=text_filter, order_type=txn_type, page_number=curr_page)
+        self.model.b_prod_list = self.model.schema.list_product_via_promo(text_filter=text_filter, order_type=txn_type, page_number=curr_page)
 
         self.a_prod_list_prev_button.setEnabled(self.model.curr_page > 1)
         self.b_prod_list_prev_button.setEnabled(self.model.curr_page > 1)

@@ -30,11 +30,11 @@ class MyTableWidget(QTableWidget):
     
         self.setObjectName(object_name)
         
-        if object_name == 'prod_table_a':
+        if object_name == 'prod_list_a_table':
             self.setColumnCount(7)
             self.setHorizontalHeaderLabels(['Action','Product','Brand','Sales group','Price','Promo','Discount'])
             pass
-        if object_name == 'prod_table_b':
+        if object_name == 'prod_list_b_table':
             self.setColumnCount(7)
             self.setHorizontalHeaderLabels(['Action','Product','Brand','Sales group','Price','Promo','Discount'])
             pass
@@ -79,6 +79,8 @@ class MyHBoxLayout(QHBoxLayout):
     
         self.setObjectName(object_name)
 
+        if object_name == 'prod_list_a_act_layout':
+            self.setContentsMargins(0,0,0,0)
         pass
 class MyGridLayout(QGridLayout):
     def __init__(self, object_name=''):
