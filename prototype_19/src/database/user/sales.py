@@ -515,3 +515,32 @@ class SalesSchema():
         total_pages = (total_product - 1) // page_size + 1
 
         return total_pages
+
+    def count_product_list_via_promo_total_pages(self, order_type='Retail', page_size=30):
+        self.cursor.execute('''
+            SELECT COUNT(*)
+            FROM ItemPrice
+                LEFT JOIN Item
+                    ON ItemPrice.ItemId = Item.ItemId
+                LEFT JOIN ItemType
+                    ON Item.ItemTypeId = ItemType.ItemTypeId
+                LEFT JOIN Brand
+                    ON Item.BrandId = Brand.BrandId
+                LEFT JOIN Supplier
+                    ON Item.SupplierId = Supplier.SupplierId
+                LEFT JOIN SalesGroup
+                    ON Item.SalesGroupId = SalesGroup.SalesGroupId
+                LEFT JOIN Promo
+                    ON ItemPrice.PromoId = Promo.PromoId
+                LEFT JOIN Stock
+                    ON Item.ItemId = Stock.ItemId
+            WHERE 
+                SalesGroup.Name = ? AND
+                Promo.Name != 'No promo' AND
+                ItemPrice.EffectiveDt <= CURRENT_DATE
+            ''', (order_type,))
+
+        total_product = self.cursor.fetchone()[0]
+        total_pages = (total_product - 1) // page_size + 1
+
+        return total_pages

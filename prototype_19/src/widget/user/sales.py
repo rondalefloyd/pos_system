@@ -30,11 +30,11 @@ class MyTableWidget(QTableWidget):
     
         self.setObjectName(object_name)
         
-        if object_name == 'prod_list_a_table':
+        if object_name == 'prod_list_table_a':
             self.setColumnCount(7)
             self.setHorizontalHeaderLabels(['Action','Product','Brand','Sales group','Price','Promo','Discount'])
             pass
-        if object_name == 'prod_list_b_table':
+        if object_name == 'prod_list_table_b':
             self.setColumnCount(7)
             self.setHorizontalHeaderLabels(['Action','Product','Brand','Sales group','Price','Promo','Discount'])
             pass
@@ -112,6 +112,19 @@ class MyPushButton(QPushButton):
         self.setObjectName(object_name)
         self.setText(text)
 
+        if object_name in [
+            'barcode_scan_button_untoggle',
+            'cust_order_restrict_button_untoggle',
+        ]:
+            self.hide()
+        pass
+class MyCheckBox(QCheckBox):
+    def __init__(self, object_name='', text=''):
+        super().__init__()
+        
+        self.setObjectName(object_name)
+        self.setText(text)
+
         pass
 class MyComboBox(QComboBox):
     def __init__(self, object_name=''):
@@ -126,6 +139,8 @@ class MyLineEdit(QLineEdit):
     
         self.setObjectName(object_name)
 
+        if object_name == 'barcode_scan_field':
+            self.hide()
         pass
 class MyPlainTextEdit(QPlainTextEdit):
     def __init__(self, object_name=''):
