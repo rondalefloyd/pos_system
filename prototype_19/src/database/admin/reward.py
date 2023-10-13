@@ -8,8 +8,9 @@ class RewardSchema():
     def __init__(self):
         super().__init__()
         # Creates folder for the db file
-        self.db_file_path = os.path.abspath('data/sales.db')
-        os.makedirs(os.path.abspath(os.path.join(os.path.dirname(__file__), 'data/')), exist_ok=True)
+        dir_path = 'G:' + f"/My Drive/database/"
+        self.db_file_path = os.path.abspath(dir_path + '/sales.db')
+        os.makedirs(os.path.abspath(dir_path), exist_ok=True)
 
         # Connects to SQL database named 'SALES.db'w
         self.conn = sqlite3.connect(database=self.db_file_path)

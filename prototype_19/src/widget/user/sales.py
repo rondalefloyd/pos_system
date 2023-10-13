@@ -43,6 +43,10 @@ class MyTableWidget(QTableWidget):
             self.setColumnCount(5)
             self.setHorizontalHeaderLabels(['Action','Quantity','Product','Price','Discount'])
 
+        if object_name == 'cust_order_final_table':
+            self.setColumnCount(3)
+            self.setHorizontalHeaderLabels(['Quantity','Product','Price'])
+
         pass
 class MyWidget(QWidget):
     def __init__(self, object_name='', parent=None):
@@ -57,6 +61,8 @@ class MyGroupBox(QGroupBox):
     
         self.setObjectName(object_name)
 
+        if object_name == 'numpad_box':
+            self.hide()
         pass
 class MyDialog(QDialog):
     def __init__(self, object_name='', parent=None):
@@ -115,8 +121,16 @@ class MyPushButton(QPushButton):
         if object_name in [
             'barcode_scan_button_untoggle',
             'cust_order_restrict_button_untoggle',
+            'numpad_button_untoggle',
         ]:
             self.hide()
+
+        # FIX: unavailable for now
+        if object_name in [
+            'add_cust_load_button',
+            'cust_order_save_button',
+        ]:
+            self.setDisabled(True)
         pass
 class MyCheckBox(QCheckBox):
     def __init__(self, object_name='', text=''):

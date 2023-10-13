@@ -8,8 +8,9 @@ class SalesSchema():
     def __init__(self):
         super().__init__()
         # Creates folder for the db file
-        self.db_file_path = os.path.abspath('data/sales.db')
-        os.makedirs(os.path.abspath(os.path.join(os.path.dirname(__file__), 'data/')), exist_ok=True)
+        dir_path = 'G:' + f"/My Drive/database/"
+        self.db_file_path = os.path.abspath(dir_path + '/sales.db')
+        os.makedirs(os.path.abspath(dir_path), exist_ok=True)
 
         # Connects to SQL database named 'SALES.db'w
         self.conn = sqlite3.connect(database=self.db_file_path)
@@ -139,6 +140,25 @@ class SalesSchema():
             Points INTEGER,  
             CurrencyAmount FLOAT,
             UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        ''')
+        self.conn.commit()
+
+        # saved order
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS SavedOrder (
+            SavedOrderId INTEGER PRIMARY KEY AUTOINCREMENT,
+            SalesGroupId INTEGER DEFAULT 0,
+            CustomerId INTEGER DEFAULT 0,
+            StockId INTEGER DEFAULT 0,
+            UserId INTEGER DEFAULT 0,
+            Quantity INTEGER,
+            Name TEXT,
+            TotalAmount DECIMAL(15,2),
+            DiscountValue DECIMAL (15,2),
+            UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (SalesGroupId) REFERENCES SalesGroup(SalesGroupId),
+            FOREIGN KEY (CustomerId) REFERENCES Customer(CustomerId)
         );
         ''')
         self.conn.commit()
@@ -316,17 +336,17 @@ class SalesSchema():
 
         return prod_with_promo
     
-    def list_customer(self, customer=''):
+    def list_customer(self, customer_id=''):
         self.cursor.execute('''
         SELECT 
-            Customer.Name, Customer.Phone, CustomerReward.Points
+            Customer.Name, CustomerReward.Points, Customer.Phone
         FROM Customer
             LEFT JOIN CustomerReward
                 ON Customer.CustomerId = CustomerReward.CustomerId
-        WHERE Customer.Name LIKE ?
+        WHERE Customer.CustomerId LIKE ?
         ORDER BY Customer.UpdateTs DESC
             
-        ''', ('%' + str(customer) + '%',))
+        ''', ('%' + str(customer_id) + '%',))
         
         customer = self.cursor.fetchall()
         
@@ -544,3 +564,40 @@ class SalesSchema():
         total_pages = (total_product - 1) // page_size + 1
 
         return total_pages
+
+    def save_order(self, sales_group, quantity, name, total_amount):
+        self.create_product_table()
+        
+        sales_group_id = self.cursor.execute('''
+        SELECT SalesGroupId FROM SalesGroup
+        WHERE Name = ?
+        ''', (sales_group,))
+        sales_group_id = self.cursor.fetchone()[0]
+
+        # customer_id = self.cursor.execute('''
+        # SELECT CustomerId FROM Customer
+        # WHERE Name
+        # ''', (customer))
+        # customer_id = self.cursor.fetchone()[0]
+
+        # user_id = self.cursor.execute('''
+        # SELECT UserId FROM User
+        # WHERE Name
+        # ''', (user))
+        # user_id = self.cursor.fetchone()[0]
+
+        self.cursor.execute('''
+        INSERT INTO SavedOrder (SalesGroupId, Quantity, Name, TotalAmount)
+        SELECT ?, ?, ?, ?
+        WHERE NOT EXISTS(
+            SELECT 1 FROM SavedOrder
+            WHERE
+                SalesGroupId = ? AND
+                Quantity = ? AND
+                Name = ? AND
+                TotalAmount = ?
+        )
+        ''', (sales_group_id, quantity, name, total_amount,
+              sales_group_id, quantity, name, total_amount))
+        
+        self.conn.commit()
