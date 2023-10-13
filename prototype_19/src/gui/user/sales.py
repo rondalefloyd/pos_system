@@ -844,7 +844,7 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
                                     current_price = float(self.model.cust_order_tables[i].item(item_i, 3).text().replace('₱', ''))  # Remove '₱' and convert to an integer[]
                                     current_discount = float(self.model.cust_order_tables[i].item(item_i, 4).text().replace('₱', ''))  # Remove '₱' and convert to an integer[]
 
-                                    self.model.new_quantity = int(current_quantity + int)(prop_quantity)
+                                    self.model.new_quantity = int(current_quantity + int(prop_quantity))
                                     self.model.new_price = current_price + (float(row_v[8]) * int(prop_quantity))
                                     self.model.new_discount = current_discount + (float(row_v[11]) * int(prop_quantity))
 
@@ -1379,6 +1379,18 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
             QMessageBox.critical(self.payment_dialog, 'Error', 'Invalid input.')
         pass
     def on_print_button_clicked(self, action):
+        self.payment_dialog.close()
+        
+        self.wait_label = QLabel('Processing order...')
+        self.wait_dialog = MyDialog(parent=self.cash_drawer_dialog)
+        self.wait_layout = MyHBoxLayout()
+        self.wait_layout.addWidget(self.wait_label)
+        self.wait_dialog.setLayout(self.wait_layout)
+
+        print('cust_order_item_data:', self.model.cust_order_item_data)
+        print('cust_order_summary_data:', self.model.cust_order_summary_data)
+        print('customer_id:', self.model.customer_id)
+
         if action == 'print_receipt':
             self.receipt_printer = ReceiptGenerator(
                 cust_order_item_data=self.model.cust_order_item_data,
@@ -1387,6 +1399,7 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
                 current_user='test',
                 action=action,
             )
+
 
             self.receipt_printer.start()
             self.receipt_printer.finished.connect(self.on_receipt_printer_finished)
@@ -1402,18 +1415,25 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
 
             self.receipt_printer.start()
             self.receipt_printer.finished.connect(self.on_receipt_printer_finished)
+        
+        self.model.cust_order_summary_data = [] # REVIEW: THIS IS A CHECKPOINT!!!
+        
+        self.wait_dialog.exec()
+        
         pass
 
     def on_receipt_printer_finished(self):
+        self.wait_dialog.close()
         i = self.view.cust_order_tab.currentIndex()
 
         self.payment_dialog.close()
         self.cash_drawer_dialog.close()
         
-        QMessageBox.information(self.view, 'Success', 'Item has been sold.')
-
         self.view.cust_order_tab.removeTab(i)
         self.model.remove_cust_order_data(i)
+        
+        QMessageBox.information(self.view, 'Success', 'Item has been sold.')
+
         
         self.populate_cust_order_tab()
 

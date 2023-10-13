@@ -16,7 +16,7 @@ class ReceiptGenerator(QThread):
     # update = pyqtSignal(int)
     finished = pyqtSignal()
 
-    def __init__(self, cust_order_item_data=[], cust_order_summary_data=[], customer_id=0, current_user='', action=''):
+    def __init__(self, cust_order_item_data, cust_order_summary_data, customer_id, current_user, action):
         super().__init__()
 
         self.action = action
@@ -26,8 +26,7 @@ class ReceiptGenerator(QThread):
         self.customer_id = customer_id
         self.customer_id = 0 if customer_id == None else self.customer_id
         self.current_user = current_user
-        print('self.cust_order_item_data:', self.cust_order_item_data)
-        print('self.cust_order_summary_data:', self.cust_order_summary_data)
+        
         self.default_init()
 
     def default_init(self):
@@ -39,6 +38,10 @@ class ReceiptGenerator(QThread):
         self.finished.emit()
         self.convert_receipt_to_pdf()
 
+        print('cust_order_item_data:', self.cust_order_item_data)
+        print('cust_order_summary_data:', self.cust_order_summary_data)
+        print('customer_id:', self.customer_id)
+        print('current_user:', self.current_user)
 
     def print_receipt(self):
         pythoncom.CoInitialize()
@@ -101,7 +104,7 @@ class ReceiptGenerator(QThread):
 
         sales_group_id = f'{1:02}'
         customer_id = f'{self.customer_id:05}'
-        update_ts = f"{datetime.today().strftime('%y%m%d%H%M')}"
+        update_ts = f"{datetime.today().strftime('%y%m%d%H%M%S')}"
         
         print('receipt_customer_id:', customer_id)
 
@@ -149,7 +152,7 @@ class ReceiptGenerator(QThread):
         table_b = self.doc.Tables[1]  # Assuming Table B is the second table in the document
 
         # Define placeholders for Table B
-        placeholders_b = {
+        table_b_placeholders = {
             '{qty}': '',
             '{item_name}': '',
             '{price}': ''
@@ -162,7 +165,7 @@ class ReceiptGenerator(QThread):
 
             # Replace placeholders with values for the new row in Table B
             for cell in row.Cells:
-                for placeholder, value in placeholders_b.items():
+                for placeholder, value in table_b_placeholders.items():
                     if placeholder in cell.Range.Text:
                         cell.Range.Text = cell.Range.Text.replace(placeholder, value)
 
@@ -181,6 +184,11 @@ class ReceiptGenerator(QThread):
         discount = cust_order_summary_data[0][1]
         tax = cust_order_summary_data[0][2]
         total = cust_order_summary_data[0][3]
+
+        print('THIS IS THE VALUE!!!', subtotal)
+        print('THIS IS THE VALUE!!!', discount)
+        print('THIS IS THE VALUE!!!', tax)
+        print('THIS IS THE VALUE!!!', total)
 
         # Access the first table in the document (assuming it's the only table)
         table_c = self.doc.tables[2] 
