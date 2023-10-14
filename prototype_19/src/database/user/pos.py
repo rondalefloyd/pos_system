@@ -4,13 +4,13 @@ from datetime import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-class SalesSchema():
+class POSSchema():
     def __init__(self):
         super().__init__()
         # Creates folder for the db file
-        dir_path = 'G:' + f"/My Drive/database/"
-        self.db_file_path = os.path.abspath(dir_path + '/sales.db')
-        os.makedirs(os.path.abspath(dir_path), exist_ok=True)
+        gdrive_path = 'G:' + f"/My Drive/database/"
+        self.db_file_path = os.path.abspath(gdrive_path + '/sales.db')
+        os.makedirs(os.path.abspath(gdrive_path), exist_ok=True)
 
         # Connects to SQL database named 'SALES.db'w
         self.conn = sqlite3.connect(database=self.db_file_path)
@@ -259,7 +259,6 @@ class SalesSchema():
         product = self.cursor.fetchall()
 
         return product
-
     def list_product_via_promo(self, text_filter='', order_type='Retail', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
         
@@ -335,23 +334,6 @@ class SalesSchema():
         prod_with_promo = self.cursor.fetchall()
 
         return prod_with_promo
-    
-    def list_customer(self, customer_id=''):
-        self.cursor.execute('''
-        SELECT 
-            Customer.Name, CustomerReward.Points, Customer.Phone
-        FROM Customer
-            LEFT JOIN CustomerReward
-                ON Customer.CustomerId = CustomerReward.CustomerId
-        WHERE Customer.CustomerId LIKE ?
-        ORDER BY Customer.UpdateTs DESC
-            
-        ''', ('%' + str(customer_id) + '%',))
-        
-        customer = self.cursor.fetchall()
-        
-        return customer
-
     def list_product_via_barcode(self, barcode='', order_type='Retail'):
         self.create_product_table()
 
@@ -407,7 +389,22 @@ class SalesSchema():
         product = self.cursor.fetchall()
 
         return product
-    
+    def list_customer(self, customer_id=''):
+        self.cursor.execute('''
+        SELECT 
+            Customer.Name, CustomerReward.Points, Customer.Phone
+        FROM Customer
+            LEFT JOIN CustomerReward
+                ON Customer.CustomerId = CustomerReward.CustomerId
+        WHERE Customer.CustomerId LIKE ?
+        ORDER BY Customer.UpdateTs DESC
+            
+        ''', ('%' + str(customer_id) + '%',))
+        
+        customer = self.cursor.fetchall()
+        
+        return customer
+
     def get_customer_id(self, customer):
         self.cursor.execute('''
         SELECT CustomerId FROM Customer
@@ -419,85 +416,6 @@ class SalesSchema():
 
         return customer_id
     
-    def register_transaction(
-        self,
-        item_id='',
-        customer='',
-        user='',
-
-        date_id='',
-        item_price_id='',
-        customer_id='',
-        stock_id='',
-        user_id='',
-        quantity='',
-        reason_id='',
-        total_amount='',
-        void='',
-        reference_id=''
-    ):
-        item_price_id = self.cursor.execute('''
-        SELECT ItemPriceId FROM ItemPrice
-        WHERE ItemId = ?
-        ''', (item_id,))
-        item_price_id = self.cursor.fetchone()[0]
-
-        customer_id = self.cursor.execute('''
-        SELECT CustomerId FROM Customer
-        WHERE Name = ?
-        ''', (customer,))
-        customer_id = self.cursor.fetchone()[0]
-
-        stock_id = self.cursor.execute('''
-        SELECT StockId FROM Stock
-        WHERE Name = ?
-        ''', (item_id,))
-        stock_id = self.cursor.fetchone()[0]
-
-        user_id = self.cursor.execute('''
-        SELECT UserId FROM User
-        WHERE Name = ?
-        ''', (user,))
-        user_id = self.cursor.fetchone()[0]
-
-        print('item_price_id:', item_price_id)
-        print('customer_id:', customer_id)
-        print('stock_id:', stock_id)
-        print('user_id:', user_id)
-
-        # self.cursor.execute('''
-        # INSERT INTO ItemSold (
-        #     DateId,
-        #     ItemPriceId,
-        #     CustomerId,
-        #     StockId,
-        #     UserId,
-        #     Quantity,
-        #     ReasonId,
-        #     TotalAmount,
-        #     Void,
-        #     ReferenceId
-        # )
-        # SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        # WHERE NOT EXISTS(
-        # SELECT 1 FROM ItemSold
-        # WHERE
-        #     DateId = ? AND
-        #     ItemPriceId = ? AND
-        #     CustomerId = ? AND
-        #     StockId = ? AND
-        #     UserId = ? AND
-        #     Quantity = ? AND
-        #     ReasonId = ? AND
-        #     TotalAmount = ? AND
-        #     Void = ? AND
-        #     ReferenceId = ?
-                            
-        # )''', (date_id, item_price_id, customer_id, stock_id, user_id, quantity, reason_id, total_amount, void, reference_id,
-        #     date_id, item_price_id, customer_id, stock_id, user_id, quantity, reason_id, total_amount, void, reference_id))
-        # self.conn.commit()
-        # pass
-    
     def count_product(self):
         self.create_product_table()
 
@@ -507,7 +425,6 @@ class SalesSchema():
         count = self.cursor.fetchone()[0]
         
         return count
-
     def count_product_list_total_pages(self, order_type='Retail', page_size=30):
         self.cursor.execute('''
             SELECT COUNT(*)
@@ -535,7 +452,6 @@ class SalesSchema():
         total_pages = (total_product - 1) // page_size + 1
 
         return total_pages
-
     def count_product_list_via_promo_total_pages(self, order_type='Retail', page_size=30):
         self.cursor.execute('''
             SELECT COUNT(*)
@@ -565,39 +481,48 @@ class SalesSchema():
 
         return total_pages
 
-    def save_order(self, sales_group, quantity, name, total_amount):
-        self.create_product_table()
+    def add_new_product_sold(
+        self,
+        item_name,
+        customer,
+        quantity,
+        total_amount,
+    ):
+        # REVIEW: needs to be reviewed
+        item_id = self.cursor.execute('''
+            SELECT ItemId FROM Item
+            WHERE Name = ?
+        ''', (item_name,))
+        item_id = self.cursor.fetchone()[0]
+
+        item_price_id = self.cursor.execute('''
+            SELECT ItemPriceId FROM ItemPrice
+            WHERE ItemId = ?
+        ''', (item_id,))
+        item_price_id = self.cursor.fetchone()[0]
         
-        sales_group_id = self.cursor.execute('''
-        SELECT SalesGroupId FROM SalesGroup
-        WHERE Name = ?
-        ''', (sales_group,))
-        sales_group_id = self.cursor.fetchone()[0]
-
-        # customer_id = self.cursor.execute('''
-        # SELECT CustomerId FROM Customer
-        # WHERE Name
-        # ''', (customer))
-        # customer_id = self.cursor.fetchone()[0]
-
-        # user_id = self.cursor.execute('''
-        # SELECT UserId FROM User
-        # WHERE Name
-        # ''', (user))
-        # user_id = self.cursor.fetchone()[0]
+        if customer == 'Order':
+            customer_id = 0
+            pass
+        else:
+            customer_id = self.cursor.execute('''
+                SELECT CustomerId FROM Customer
+                WHERE Name = ?
+            ''', (customer,))
+            customer_id = self.cursor.fetchone()[0]
+            
 
         self.cursor.execute('''
-        INSERT INTO SavedOrder (SalesGroupId, Quantity, Name, TotalAmount)
-        SELECT ?, ?, ?, ?
-        WHERE NOT EXISTS(
-            SELECT 1 FROM SavedOrder
-            WHERE
-                SalesGroupId = ? AND
-                Quantity = ? AND
-                Name = ? AND
-                TotalAmount = ?
-        )
-        ''', (sales_group_id, quantity, name, total_amount,
-              sales_group_id, quantity, name, total_amount))
+            INSERT INTO ItemSold (ItemPriceId, CustomerId, Quantity, TotalAmount)
+            SELECT ?, ?, ?, ?
+            WHERE NOT EXISTS(
+                SELECT 1 FROM ItemSold
+                WHERE 
+                    ItemPriceId = ? AND 
+                    CustomerId = ? AND
+                    Quantity = ? AND 
+                    TotalAmount = ?
+            )''', (item_price_id, customer_id, quantity, total_amount,
+                   item_price_id, customer_id, quantity, total_amount))
         
         self.conn.commit()

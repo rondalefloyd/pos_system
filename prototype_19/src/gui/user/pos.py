@@ -15,11 +15,11 @@ from src.core.manual_csv_importer import *
 from src.core.qss_config import *
 from src.core.receipt_printer import *
 
-from database.user.sales import *
-from widget.user.sales import *
+from database.user.pos import *
+from widget.user.pos import *
 
-class MySalesModel: # IDEA: can't use 'MySalesView' and 'MySalesController' attributes
-    def __init__(self, schema: SalesSchema):
+class MyPOSModel: # IDEA: can't use 'MySalesView' and 'MySalesController' attributes
+    def __init__(self, schema: POSSchema):
         self.schema = schema
 
         self.page_number = 1
@@ -34,7 +34,6 @@ class MySalesModel: # IDEA: can't use 'MySalesView' and 'MySalesController' attr
         self.save_file_path = 'G:' + f"/My Drive/saved_orders/"
         # IDEA: container
         self.set_cust_order_data()
-
 
     def set_cust_order_data(self):
         self.cust_order_name_values = []
@@ -166,10 +165,8 @@ class MySalesModel: # IDEA: can't use 'MySalesView' and 'MySalesController' attr
             self.cust_info_points = '[unavailable]'
             self.cust_info_phone = '[unavailable]'
 
-        print('customer_id:', self.customer_id)
-
-class MySalesView(MyWidget): # IDEA: can only use 'MySalesModel' attributes
-    def __init__(self, model: MySalesModel):
+class MyPOSView(MyWidget): # IDEA: can only use 'MySalesModel' attributes
+    def __init__(self, model: MyPOSModel):
         super().__init__(object_name='my_sales_view')
 
         self.model = model
@@ -311,8 +308,8 @@ class MySalesView(MyWidget): # IDEA: can only use 'MySalesModel' attributes
         self.panel_c_box.setLayout(self.panel_c_layout)
         pass
 
-class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attributes
-    def __init__(self, model: MySalesModel, view: MySalesView):
+class MyPOSController: # IDEA: can use 'MySalesModel' and 'MySalesView' attributes
+    def __init__(self, model: MyPOSModel, view: MyPOSView):
         self.model = model
         self.view = view
 
@@ -441,10 +438,10 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
         self.cust_order_tax_value = 0
         self.cust_order_total_value = 0
 
-        self.cust_order_subtotal_label = MyLabel(text=f"₱{self.cust_order_subtotal_value}")
-        self.cust_order_discount_label = MyLabel(text=f"₱{self.cust_order_discount_value}")
-        self.cust_order_tax_label = MyLabel(text=f"₱{self.cust_order_tax_value}")
-        self.cust_order_total_label = MyLabel(text=f"₱{self.cust_order_total_value}")
+        self.cust_order_subtotal_label = MyLabel(text=f"₱{self.cust_order_subtotal_value:.2f}")
+        self.cust_order_discount_label = MyLabel(text=f"₱{self.cust_order_discount_value:.2f}")
+        self.cust_order_tax_label = MyLabel(text=f"₱{self.cust_order_tax_value:.2f}")
+        self.cust_order_total_label = MyLabel(text=f"₱{self.cust_order_total_value:.2f}")
         self.cust_order_summary_box = MyGroupBox()
         self.cust_order_summary_layout = MyFormLayout()
         self.cust_order_summary_layout.addRow('Subtotal:', self.cust_order_subtotal_label)
@@ -632,7 +629,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
         self.payment_points_button.clicked.connect(lambda: self.on_payment_button_clicked(action='points_payment'))
    
         # for numpad_keys_i in range(10):
-        #     print(numpad_keys_i)
         #     self.numpad_keys_button[numpad_keys_i][2].clicked.connect(lambda value=numpad_keys_i: self.on_numpad_keys_button_clicked(value=value))
 
         self.populate_cust_order_final_table()
@@ -824,7 +820,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
             self.populate_prod_list_table(text_filter=self.view.text_filter_field.text(), order_type=self.model.cust_order_type_values[i], page_number=self.model.page_number)
         pass
     def on_prod_list_add_button_clicked(self, row_v):
-        print(row_v)
         # DONE: add_button
         i = self.view.cust_order_tab.currentIndex()
 
@@ -922,8 +917,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
         self.new_price = 0
         pass
     def on_prod_list_view_button_clicked(self, row_v):
-        print(row_v)
-        # TODO: view_button
         self.view_dialog = MyDialog(parent=self.view)
         self.view_layout = MyFormLayout()
 
@@ -982,7 +975,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
         self.populate_cust_order_tab()
         pass
     def on_add_cust_load_button_clicked(self):
-        # TODO: finish this
         
         filename, _ = QFileDialog.getOpenFileName(self.view, 'Load', '', "Text Files (*.txt);;All Files (*)")
 
@@ -997,7 +989,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
         # Update self.model.cust_order_item_data with the loaded data
         self.model.cust_order_item_data = loaded_data
 
-        print('data:', self.model.cust_order_item_data)
         pass
 
     def on_cust_order_tab_current_changed(self):
@@ -1262,7 +1253,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
         self.model.cust_order_pay_buttons[i].setDisabled(condition)
         pass
     def on_cust_order_save_button_clicked(self):
-        # TODO: order_save_button
         i = self.view.cust_order_tab.currentIndex()
 
         for row in range(self.model.cust_order_tables[i].rowCount()):
@@ -1275,7 +1265,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
 
             self.model.append_cust_order_item_data(item_row_data)
 
-        print('data:', self.model.cust_order_item_data)
 
         confirm = QMessageBox.warning(self.view, 'Save', 'Save this order?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
@@ -1292,7 +1281,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
 
         pass
     def on_cust_order_pay_button_clicked(self):
-        # TODO: order_pay_button
         i = self.view.cust_order_tab.currentIndex()
 
         if self.model.cust_order_tables[i].rowCount() > 0:
@@ -1350,8 +1338,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
             self.model.cust_order_amount_tendered_value = float(self.amount_tendered_field.text())
             self.model.cust_order_change_value = self.model.cust_order_amount_tendered_value - self.model.cust_order_total_values[i]
 
-            print('amount_tendered:', self.model.cust_order_amount_tendered_value)
-            print('change:', self.model.cust_order_change_value)
 
             if self.model.cust_order_amount_tendered_value >= self.model.cust_order_total_values[i]:
                 if action == 'cash_payment':
@@ -1369,7 +1355,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
                     self.payment_dialog.exec()
                     pass
                 if action == 'points_payment':
-                    print('points')
                     pass
 
             else:
@@ -1387,9 +1372,6 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
         self.wait_layout.addWidget(self.wait_label)
         self.wait_dialog.setLayout(self.wait_layout)
 
-        print('cust_order_item_data:', self.model.cust_order_item_data)
-        print('cust_order_summary_data:', self.model.cust_order_summary_data)
-        print('customer_id:', self.model.customer_id)
 
         if action == 'print_receipt':
             self.receipt_printer = ReceiptGenerator(
@@ -1432,19 +1414,33 @@ class MySalesController: # IDEA: can use 'MySalesModel' and 'MySalesView' attrib
         self.view.cust_order_tab.removeTab(i)
         self.model.remove_cust_order_data(i)
         
+        for i, v in enumerate(self.model.cust_order_item_data):
+            # REVIEW: needs to be reviewed
+            item_name=str(v[3])
+            customer=str(v[0])
+            quantity=str(v[2])
+            total_amount=str(v[4])
+
+            schema.add_new_product_sold(
+                item_name=item_name,
+                customer=customer,
+                quantity=quantity,
+                total_amount=total_amount,
+            )
+
         QMessageBox.information(self.view, 'Success', 'Item has been sold.')
 
-        
-        self.populate_cust_order_tab()
+        if self.view.cust_order_tab.count() <= 0:
+            self.populate_cust_order_tab()
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)
 
-    schema = SalesSchema()
+    schema = POSSchema()
 
-    model = MySalesModel(schema)
-    view = MySalesView(model)
-    controller = MySalesController(model, view)
+    model = MyPOSModel(schema)
+    view = MyPOSView(model)
+    controller = MyPOSController(model, view)
 
     view.show()
     sys.exit(app.exec())
