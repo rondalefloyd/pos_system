@@ -452,7 +452,6 @@ class POSSchema():
         total_pages = (total_product - 1) // page_size + 1
 
         return total_pages
-    
     def count_product_list_via_promo_total_pages(self, order_type='Retail', page_size=30):
         self.cursor.execute('''
             SELECT COUNT(*)
