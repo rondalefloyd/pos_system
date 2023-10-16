@@ -94,7 +94,7 @@ class MyDevController:
         access_level = self.view.access_level_field.currentText()
         phone = self.view.phone_field.text()
 
-        schema.add_new_user(user_name=name, password=password, access_level=access_level, phone=phone)
+        schema.add_new_user(user_name=name, user_password=password, user_level=access_level, user_phone=phone)
 
         print('SAVED!')
     pass

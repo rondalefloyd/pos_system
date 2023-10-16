@@ -2,7 +2,11 @@ import os, sys
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 from datetime import *
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(''))
+
+from templates.qss.qss_config import *
+
+qss = QSSConfig()
 
 class MyUserSchema():
     def __init__(self):
@@ -29,37 +33,35 @@ class MyUserSchema():
         ''')
         self.conn.commit()
     
-    def add_new_user(self, user_name, password, access_level, phone):
+    def add_new_user(self, user_name, user_password, user_phone):
         user_name = '[no data]' if user_name == '' else user_name
-        password = '[no data]' if password == '' else password
-        access_level = '[no data]' if access_level == '' else access_level
-        phone = '[no data]' if phone == '' else phone
+        user_password = '[no data]' if user_password == '' else user_password
+        user_phone = '[no data]' if user_phone == '' else user_phone
 
         self.cursor.execute('''
         INSERT INTO User (Name, Password, AccessLevel, Phone)
-        SELECT ?, ?, ?, ?
+        SELECT ?, ?, 1, ?
         WHERE NOT EXISTS(
         SELECT 1 FROM User
         WHERE
             Name = ? AND
             Password = ? AND
-            AccessLevel = ? AND
+            AccessLevel = 1 AND -- Cashier level
             Phone = ?
-        )''', (user_name, password, access_level, phone,
-              user_name, password, access_level, phone))
+        )''', (user_name, user_password, user_phone,
+              user_name, user_password, user_phone))
         self.conn.commit()
-
-    def edit_selected_user(self, user_name, password, access_level, phone, user_id):
+        pass
+    def edit_selected_user(self, user_name, user_password, user_phone, user_id):
         user_name = '[no data]' if user_name == '' else user_name
-        password = '[no data]' if password == '' else password
-        access_level = '[no data]' if access_level == '' else access_level
-        phone = '[no data]' if phone == '' else phone
+        user_password = '[no data]' if user_password == '' else user_password
+        user_phone = '[no data]' if user_phone == '' else user_phone
             
         self.cursor.execute('''
         UPDATE User
-        SET Name = ?, Password = ?, AccessLevel = ?, Phone = ?
+        SET Name = ?, Password = ?, Phone = ?
         WHERE UserId = ?
-        ''', (user_name, password, access_level, phone, user_id))
+        ''', (user_name, user_password, user_phone, user_id))
         self.conn.commit()
     def delete_selected_user(self, user_id):
         self.cursor.execute('''
@@ -68,23 +70,32 @@ class MyUserSchema():
         ''', (user_id,))
         self.conn.commit()
 
-    def list_user_data(self, text_filter='', page_number=1, page_size=30):
+    def list_all_user_col(self, text_filter='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
         self.create_user_table()
 
+
         self.cursor.execute('''
-        SELECT Name, Password, AccessLevel, Phone, UpdateTs, UserId FROM User
+        SELECT 
+            COALESCE(NULLIF(Name, ''), '[no data]') AS Name,
+            COALESCE(NULLIF(Password, ''), '[no data]') AS Password,
+            COALESCE(NULLIF(Phone, ''), '[no data]') AS Phone,
+            UpdateTs,
+            UserId,
+            AccessLevel FROM User
         WHERE
-            Name LIKE ? OR
+            (Name LIKE ? OR
             Password LIKE ? OR
-            AccessLevel LIKE ? OR
             Phone LIKE ? OR
-            UpdateTs LIKE ?
-        ORDER BY UserId DESC, UpdateTs DESC
+            UpdateTs LIKE ?) AND
+            AccessLevel BETWEEN 1 AND 2
+        ORDER BY 
+            CASE WHEN AccessLevel = 2 THEN 1 ELSE 2 END,
+            UserId DESC, 
+            UpdateTs DESC
         LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
         ''', (
-            '%' + str(text_filter) + '%',
             '%' + str(text_filter) + '%',
             '%' + str(text_filter) + '%',
             '%' + str(text_filter) + '%',
@@ -97,7 +108,7 @@ class MyUserSchema():
         
         return user
 
-    def count_user(self):
+    def count_all_user(self):
         self.create_user_table()
 
         self.cursor.execute('''

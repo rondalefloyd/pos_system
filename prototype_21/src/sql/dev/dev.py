@@ -12,9 +12,9 @@ class MyDevSchema():
     def __init__(self):
         super().__init__()
 
-        self.accounts_file = os.path.abspath(qss.database_file_path + qss.accounts_file_name)
+        self.accounts_file = os.path.abspath(qss.db_file_path + qss.accounts_file_name)
         
-        os.makedirs(os.path.abspath(qss.database_file_path), exist_ok=True)
+        os.makedirs(os.path.abspath(qss.db_file_path), exist_ok=True)
 
         self.conn = sqlite3.connect(database=self.accounts_file)
         self.cursor = self.conn.cursor()
@@ -34,11 +34,11 @@ class MyDevSchema():
         ''')
         self.conn.commit()
 
-    def add_new_user(self, user_name, password, access_level, phone):
+    def add_new_user(self, user_name, user_password, user_level, user_phone):
         user_name = '[no data]' if user_name == '' else user_name
-        password = '[no data]' if password == '' else password
-        access_level = '[no data]' if access_level == '' else access_level
-        phone = '[no data]' if phone == '' else phone
+        user_password = '[no data]' if user_password == '' else user_password
+        user_level = 0 if user_level == '' else user_level
+        user_phone = '[no data]' if user_phone == '' else user_phone
 
         self.cursor.execute('''
         INSERT INTO User (Name, Password, AccessLevel, Phone)
@@ -50,8 +50,8 @@ class MyDevSchema():
             Password = ? AND
             AccessLevel = ? AND
             Phone = ?
-        )''', (user_name, password, access_level, phone,
-              user_name, password, access_level, phone))
+        )''', (user_name, user_password, user_level, user_phone,
+              user_name, user_password, user_level, user_phone))
         self.conn.commit()
         pass
     def edit_selected_user(self, user_name, password, access_level, phone, user_id):

@@ -24,5 +24,7 @@ class QSSConfig:
     required_label = "<span style='color: red; font-size: 10px'><i>required</i></span>"
     optional_label = "<span style='font-size: 10px'><i>(optional)</i></span>"
 
-    database_file_path = 'G:' + f"/My Drive/database/"
+    db_file_path = 'G:' + f"/My Drive/database/"
+    csv_file_path = 'G:' + f"/My Drive/csv/"
     accounts_file_name = '/accounts.db'
+    sales_file_name = '/sales.db'

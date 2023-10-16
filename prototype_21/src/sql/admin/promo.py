@@ -2,16 +2,21 @@ import os, sys
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 from datetime import *
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(''))
+
+from templates.qss.qss_config import *
+
+qss = QSSConfig()
 
 class MyPromoSchema():
     def __init__(self):
         super().__init__()
-        dir_path = 'G:' + f"/My Drive/database/"
-        self.db_file_path = os.path.abspath(dir_path + '/sales.db')
-        os.makedirs(os.path.abspath(dir_path), exist_ok=True)
 
-        self.conn = sqlite3.connect(database=self.db_file_path)
+        self.sales_file = os.path.abspath(qss.db_file_path + qss.sales_file_name)
+        
+        os.makedirs(os.path.abspath(qss.db_file_path), exist_ok=True)
+
+        self.conn = sqlite3.connect(database=self.sales_file)
         self.cursor = self.conn.cursor()
 
         self.create_promo_table()
@@ -29,11 +34,11 @@ class MyPromoSchema():
         ''')
         self.conn.commit()
 
-    def add_new_promo(self, promo_name, promo_type, discount_percent, description):
-        promo_name = '[no data]' if promo_name is '' else promo_name
-        promo_type = '[no data]' if promo_type is '' else promo_type
-        discount_percent = 0 if discount_percent is '' else discount_percent
-        description = '[no data]' if description is '' else description
+    def add_new_promo(self, promo_name, promo_type, promo_percent, promo_description):
+        promo_name = '[no data]' if promo_name == '' else promo_name
+        promo_type = '[no data]' if promo_type == '' else promo_type
+        promo_percent = 0 if promo_percent == '' else promo_percent
+        promo_description = '[no data]' if promo_description == '' else promo_description
 
         self.cursor.execute('''
         INSERT INTO Promo (Name, PromoType, DiscountPercent, Description)
@@ -45,22 +50,22 @@ class MyPromoSchema():
             PromoType = ? AND
             DiscountPercent = ? AND
             Description = ?
-        )''', (promo_name, promo_type, discount_percent, description,
-              promo_name, promo_type, discount_percent, description))
+        )''', (promo_name, promo_type, promo_percent, promo_description,
+              promo_name, promo_type, promo_percent, promo_description))
         self.conn.commit()
-
-    def edit_selected_promo(self, promo_name, promo_type, discount_percent, description, promo_id):
-        promo_name = '[no data]' if promo_name is '' else promo_name
-        promo_type = '[no data]' if promo_type is '' else promo_type
-        discount_percent = 0 if discount_percent is '' else discount_percent
-        description = '[no data]' if description is '' else description
+    def edit_selected_promo(self, promo_name, promo_type, promo_percent, promo_description, promo_id):
+        promo_name = '[no data]' if promo_name == '' else promo_name
+        promo_type = '[no data]' if promo_type == '' else promo_type
+        promo_percent = 0 if promo_percent == '' else promo_percent
+        promo_description = '[no data]' if promo_description == '' else promo_description
             
         self.cursor.execute('''
         UPDATE Promo
         SET Name = ?, PromoType = ?, DiscountPercent = ?, Description = ?
         WHERE PromoId = ?
-        ''', (promo_name, promo_type, discount_percent, description, promo_id))
+        ''', (promo_name, promo_type, promo_percent, promo_description, promo_id))
         self.conn.commit()
+        pass
     def delete_selected_promo(self, promo_id):
         self.cursor.execute('''
         DELETE FROM Promo
@@ -68,13 +73,18 @@ class MyPromoSchema():
         ''', (promo_id,))
         self.conn.commit()
 
-    def list_promo_data(self, text_filter='', page_number=1, page_size=30):
+    def list_all_promo_col(self, text_filter='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
-        self.create_promo_table()
-
         self.cursor.execute('''
-        SELECT Name, PromoType, DiscountPercent, Description, UpdateTs, PromoId FROM Promo
+        SELECT 
+            COALESCE(NULLIF(Name, ''), '[no data]') AS Name,
+            COALESCE(NULLIF(PromoType, ''), '[no data]') AS PromoType,
+            COALESCE(NULLIF(DiscountPercent, ''), 0) AS DiscountPercent,
+            COALESCE(NULLIF(Description, ''), '[no data]') AS Description,
+            UpdateTs,
+            PromoId 
+        FROM Promo
         WHERE
             Name LIKE ? OR
             PromoType LIKE ? OR
@@ -96,7 +106,7 @@ class MyPromoSchema():
         promo = self.cursor.fetchall()
         
         return promo
-    def list_promo_type(self):
+    def list_promo_type_col(self):
         self.cursor.execute('''
         SELECT DISTINCT PromoType FROM Promo
         ORDER BY PromoId DESC, UpdateTs DESC                
@@ -106,9 +116,7 @@ class MyPromoSchema():
         
         return promo
 
-    def count_promo(self):
-        self.create_promo_table()
-
+    def count_all_promo(self):
         self.cursor.execute('''
         SELECT COUNT(*) FROM Promo
         ''')

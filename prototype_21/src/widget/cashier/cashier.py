@@ -21,7 +21,9 @@ class MyScrollArea(QScrollArea):
     def __init__(self, object_name=''):
         super().__init__()
         
+        # NOTE: global attributes
         self.setObjectName(object_name)
+        self.setWidgetResizable(True)
 
     pass
 class MyTabWidget(QTabWidget):
