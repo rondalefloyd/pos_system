@@ -8,21 +8,20 @@ from templates.qss.qss_config import *
 
 qss = QSSConfig()
 
-class ProductSchema():
+class MyProdSchema():
     def __init__(self):
         super().__init__()
-        # Creates folder for the db file
-        dir_path = 'G:' + f"/My Drive/database/"
-        self.db_file_path = os.path.abspath(dir_path + '/sales.db')
-        os.makedirs(os.path.abspath(dir_path), exist_ok=True)
 
-        # Connects to SQL database named 'SALES.db'w
-        self.conn = sqlite3.connect(database=self.db_file_path)
+        self.sales_file = os.path.abspath(qss.db_file_path + qss.sales_file_name)
+        
+        os.makedirs(os.path.abspath(qss.db_file_path), exist_ok=True)
+
+        self.conn = sqlite3.connect(database=self.sales_file)
         self.cursor = self.conn.cursor()
 
-        self.create_product_table()
+        self.create_prod_table()
 
-    def create_product_table(self):
+    def create_prod_table(self):
         # item type
         self.cursor.execute('''
         CREATE TABLE IF NOT EXISTS ItemType (
@@ -120,102 +119,97 @@ class ProductSchema():
         );
         ''')
 
-    def add_new_product(
+    def add_new_prod(
         # region -- params
         self='',
-        barcode='',
-        item_name='',
-        expire_dt='',
-        item_type='',
-        brand='',
-        sales_group='',
-        supplier='',
-        cost='',
-        sell_price='',
-        effective_dt='',
-        promo_name='',
-        promo_type='',
-        discount_percent='',
-        discount_value='',
-        new_sell_price='',
-        start_dt='',
-        end_dt='',
-        inventory_tracking='',
-        available_stock='',
-        on_hand_stock=''
+        prod_barcode='',
+        prod_name='',
+        prod_exp_dt='',
+        prod_type='',
+        prod_brand='',
+        prod_sales_group='',
+        prod_supplier='',
+        prod_cost='',
+        prod_sell_price='',
+        prod_effective_dt='',
+        prod_promo_name='',
+        prod_promo_type='',
+        prod_promo_percent='',
+        prod_promo_value='',
+        prod_promo_sell_price='',
+        prod_promo_start_dt='',
+        prod_promo_end_dt='',
+        prod_tracking='',
         # endregion -- params
     ):
         # region -- assign values if empty string
-        barcode = '[no data]' if barcode == '' else barcode
-        item_name = '[no data]' if item_name == '' else item_name
-        expire_dt = '9999-12-31' if expire_dt == '' else expire_dt
+        prod_barcode = '[no data]' if prod_barcode == '' else prod_barcode
+        prod_name = '[no data]' if prod_name == '' else prod_name
+        prod_exp_dt = '9999-12-31' if prod_exp_dt == '' else prod_exp_dt
 
-        item_type = '[no data]' if item_type == '' else item_type
-        brand = '[no data]' if brand == '' else brand
-        sales_group = '[no data]' if sales_group == '' else sales_group
-        supplier = '[no data]' if supplier == '' else supplier
+        prod_type = '[no data]' if prod_type == '' else prod_type
+        prod_brand = '[no data]' if prod_brand == '' else prod_brand
+        prod_sales_group = '[no data]' if prod_sales_group == '' else prod_sales_group
+        prod_supplier = '[no data]' if prod_supplier == '' else prod_supplier
 
-        cost = '0' if cost == '' else cost
-        sell_price = '0' if sell_price == '' else sell_price
-        effective_dt = str(date.today()) if effective_dt == '' else effective_dt
-        promo_name = 'No promo' if promo_name == '' else promo_name
-        promo_type = '[no data]' if promo_type == '' else promo_type
-        discount_percent = '0' if discount_percent == '' else discount_percent
-        discount_value = '0' if discount_value == '' else discount_value
-        new_sell_price = '0' if new_sell_price == '' else new_sell_price
-        start_dt = str(date.today()) if start_dt == '' else start_dt
-        end_dt = str(date.today()) if end_dt == '' else end_dt
+        prod_cost = 0 if prod_cost == '' else prod_cost
+        prod_sell_price = 0 if prod_sell_price == '' else prod_sell_price
+        prod_effective_dt = str(date.today()) if prod_effective_dt == '' else prod_effective_dt
+        prod_promo_name = 'No promo' if prod_promo_name == '' else prod_promo_name
+        prod_promo_type = '[no data]' if prod_promo_type == '' else prod_promo_type
+        prod_promo_percent = 0 if prod_promo_percent == '' else prod_promo_percent
+        prod_promo_value = 0 if prod_promo_value == '' else prod_promo_value
+        prod_promo_sell_price = 0 if prod_promo_sell_price == '' else prod_promo_sell_price
+        prod_promo_start_dt = str(date.today()) if prod_promo_start_dt == '' else prod_promo_start_dt
+        prod_promo_end_dt = str(date.today()) if prod_promo_end_dt == '' else prod_promo_end_dt
 
-        inventory_tracking = 'Disabled' if inventory_tracking == '' else inventory_tracking
-        inventory_tracking = 'Enabled' if available_stock != '' and on_hand_stock != '' else inventory_tracking
-        available_stock = '0' if available_stock == '' else available_stock
-        on_hand_stock = '0' if on_hand_stock == '' else on_hand_stock
+        prod_tracking = False if prod_tracking == '' else prod_tracking
         # endregion
 
         # region -- step a: insert item_type, brand, sales_group, and supplier into their respective tables
         self.cursor.execute('''
         INSERT INTO ItemType (Name)
         SELECT ? WHERE NOT EXISTS (SELECT 1 FROM ItemType WHERE Name = ?)
-        ''', (item_type, item_type))
+        ''', (prod_type, prod_type))
 
         self.cursor.execute('''
         INSERT INTO Brand (Name)
         SELECT ? WHERE NOT EXISTS (SELECT 1 FROM Brand WHERE Name = ?)
-        ''', (brand, brand))
+        ''', (prod_brand, prod_brand))
 
         self.cursor.execute('''
         INSERT INTO SalesGroup (Name)
         SELECT ? WHERE NOT EXISTS (SELECT 1 FROM SalesGroup WHERE Name = ?)
-        ''', (sales_group, sales_group))
+        ''', (prod_sales_group, prod_sales_group))
 
         self.cursor.execute('''
         INSERT INTO Supplier (Name)
         SELECT ? WHERE NOT EXISTS (SELECT 1 FROM Supplier WHERE Name = ?)
-        ''', (supplier, supplier))
+        ''', (prod_supplier, prod_supplier))
         # endregion -- step a: insert item_type, brand, sales_group, and supplier into their respective tables
         # region -- step b: select item_type_id, brand_id, sales_group_id, and supplier_id to get their ids
         item_type_id = self.cursor.execute('''
         SELECT ItemTypeId FROM ItemType
         WHERE Name = ?
-        ''', (item_type,))
+        ''', (prod_type,))
         item_type_id = self.cursor.fetchone()[0]
 
         brand_id = self.cursor.execute('''
         SELECT BrandId FROM Brand
         WHERE Name = ?
-        ''', (brand,))
+        ''', (prod_brand,))
         brand_id = self.cursor.fetchone()[0]
 
         sales_group_id = self.cursor.execute('''
         SELECT SalesGroupId FROM SalesGroup
         WHERE Name = ?
-        ''', (sales_group,))
+        ''', (prod_sales_group,))
         sales_group_id = self.cursor.fetchone()[0]
 
         supplier_id = self.cursor.execute('''
         SELECT SupplierId FROM Supplier
         WHERE Name = ?
-        ''', (supplier,))
+        ''', (prod_supplier,))
         supplier_id = self.cursor.fetchone()[0]
         # endregion -- step b: select item_type_id, brand_id, sales_group_id, and supplier_id to get their ids
         # region -- step c: insert barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, and supplier_id into the item table
@@ -236,19 +230,19 @@ class ProductSchema():
             Item.BrandId = ? AND
             Item.SupplierId = ? AND
             Item.SalesGroupId = ?
-        )''', (barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id,
-              barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id))
+        )''', (prod_barcode, prod_name, prod_exp_dt, item_type_id, brand_id, sales_group_id, supplier_id,
+              prod_barcode, prod_name, prod_exp_dt, item_type_id, brand_id, sales_group_id, supplier_id))
         # endregion -- step c: insert barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, and supplier_id into the item table
-        # region -- step d: select item_id to get its id
-        item_id = self.cursor.execute('''
+        # region -- step d: select prod_item_id to get its id
+        prod_item_id = self.cursor.execute('''
         SELECT ItemId FROM Item
         WHERE Barcode = ? AND Name = ? AND ExpireDt = ? AND ItemTypeId = ? AND BrandId = ? AND SalesGroupId = ? AND SupplierId = ?
-        ''', (barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id))
-        item_id = self.cursor.fetchone()[0]
-        # endregion -- step d: select item_id to get its id
+        ''', (prod_barcode, prod_name, prod_exp_dt, item_type_id, brand_id, sales_group_id, supplier_id))
+        prod_item_id = self.cursor.fetchone()[0]
+        # endregion -- step d: select prod_item_id to get its id
         # region -- step e: insert item_price data depending on the conditions
         # region -- condition 1
-        if promo_name == 'No promo':
+        if prod_promo_name == 'No promo':
             self.cursor.execute('''
             INSERT INTO ItemPrice (ItemId, Cost, SellPrice, DiscountValue, EffectiveDt)
             SELECT ?, ?, ?, 0, ?
@@ -258,20 +252,20 @@ class ProductSchema():
                 ItemId = ? AND
                 Cost = ? AND
                 SellPrice = ? AND
-                DiscountValue = 0 AND -- discount value is set to 0 if promo_name is 'No promo'
+                DiscountValue = 0 AND -- discount value is set to 0 if prod_promo_name is 'No promo'
                 EffectiveDt = ?
-            )''', (item_id, cost, sell_price, effective_dt,
-                item_id, cost, sell_price, effective_dt))
+            )''', (prod_item_id, prod_cost, prod_sell_price, prod_effective_dt,
+                prod_item_id, prod_cost, prod_sell_price, prod_effective_dt))
             self.conn.commit()
         # endregion -- condition 1
         # region -- condition 2
         else:
-            # select promo_id to get its id
-            promo_id = self.cursor.execute('''
+            # select prod_promo_id to get its id
+            prod_promo_id = self.cursor.execute('''
             SELECT PromoId FROM Promo
             WHERE Name = ? AND PromoType = ? AND DiscountPercent = ?
-            ''', (promo_name, promo_type, discount_percent))
-            promo_id = self.cursor.fetchone()[0]
+            ''', (prod_promo_name, prod_promo_type, prod_promo_percent))
+            prod_promo_id = self.cursor.fetchone()[0]
 
             # insert item_price with end_date 
             self.cursor.execute('''
@@ -286,8 +280,8 @@ class ProductSchema():
                 PromoId = 0 AND
                 DiscountValue = 0 AND
                 EffectiveDt = DATE(?, '+1 day')
-            )''', (item_id, cost, sell_price, end_dt,
-                item_id, cost, sell_price, end_dt))
+            )''', (prod_item_id, prod_cost, prod_sell_price, prod_promo_end_dt,
+                prod_item_id, prod_cost, prod_sell_price, prod_promo_end_dt))
 
             # insert item_price with start_date
             self.cursor.execute('''
@@ -302,156 +296,142 @@ class ProductSchema():
                 PromoId = ? AND
                 DiscountValue = ? AND
                 EffectiveDt = ?
-            )''', (item_id, cost, new_sell_price, promo_id, discount_value, start_dt,
-                item_id, cost, new_sell_price, promo_id, discount_value, start_dt))
+            )''', (prod_item_id, prod_cost, prod_promo_sell_price, prod_promo_id, prod_promo_value, prod_promo_start_dt,
+                prod_item_id, prod_cost, prod_promo_sell_price, prod_promo_id, prod_promo_value, prod_promo_start_dt))
             self.conn.commit()
         # endregion -- condition 2
         # endregion -- step e: insert item_price data depending on the conditions
         # region -- step f: insert stock data depending on the conditions
-        if inventory_tracking == 'Enabled':
+        if prod_tracking == True:
             self.cursor.execute('''
             INSERT INTO Stock (ItemId, Available, OnHand)
-            SELECT ?, ?, ?
+            SELECT ?, 0, 0
             WHERE NOT EXISTS(
             SELECT 1 FROM Stock
             WHERE
                 ItemId = ? AND
-                Available = ? AND
-                OnHand = ?
-            )''', (item_id, available_stock, on_hand_stock,
-                item_id, available_stock, on_hand_stock))
+                Available = 0 AND
+                OnHand = 0
+            )''', (prod_item_id, prod_item_id))
             self.conn.commit()
             pass
-        else:
-            pass
         # endregion -- step f: insert stock data depending on the conditions
-    def edit_selected_product(
-        # region -- params
+    def edit_selected_prod(
         self,
-        barcode,
-        item_name,
-        expire_dt,
-        item_type,
-        brand,
-        sales_group,
-        supplier,
-        cost,
-        sell_price,
-        effective_dt,
-        promo_name,
-        promo_type,
-        discount_percent,
-        discount_value,
-        new_sell_price,
-        start_dt,
-        end_dt,
-        inventory_tracking,
-        available_stock,
-        on_hand_stock,
+        prod_barcode,
+        prod_name,
+        prod_exp_dt,
+        prod_type,
+        prod_brand,
+        prod_sales_group,
+        prod_supplier,
+        prod_cost,
+        prod_sell_price,
+        prod_effective_dt,
+        prod_promo_name,
+        prod_promo_type,
+        prod_promo_percent,
+        prod_promo_value,
+        prod_promo_sell_price,
+        prod_promo_start_dt,
+        prod_promo_end_dt,
+        prod_tracking,
 
-        item_id,
-        item_price_id,
-        promo_id,
-        stock_id
-        # endregion -- params
+        prod_item_id,
+        prod_price_id,
+        prod_promo_id,
+        prod_stock_id
     ):
         # region -- assign values if empty string
-        barcode = '[no data]' if barcode == '' else barcode
-        item_name = '[no data]' if item_name == '' else item_name
-        expire_dt = '9999-12-31' if expire_dt == '' else expire_dt
+        prod_barcode = '[no data]' if prod_barcode == '' else prod_barcode
+        prod_name = '[no data]' if prod_name == '' else prod_name
+        prod_exp_dt = '9999-12-31' if prod_exp_dt == '' else prod_exp_dt
 
-        item_type = '[no data]' if item_type == '' else item_type
-        brand = '[no data]' if brand == '' else brand
-        sales_group = '[no data]' if sales_group == '' else sales_group
-        supplier = '[no data]' if supplier == '' else supplier
+        prod_type = '[no data]' if prod_type == '' else prod_type
+        prod_brand = '[no data]' if prod_brand == '' else prod_brand
+        prod_sales_group = '[no data]' if prod_sales_group == '' else prod_sales_group
+        prod_supplier = '[no data]' if prod_supplier == '' else prod_supplier
 
-        cost = '0' if cost == '' else cost
-        sell_price = '0' if sell_price == '' else sell_price
-        effective_dt = str(date.today()) if effective_dt == '' else effective_dt
-        promo_name = 'No promo' if promo_name == '' else promo_name
-        promo_type = '[no data]' if promo_type == '' else promo_type
-        discount_percent = '0' if discount_percent == '' else discount_percent
-        discount_value = '0' if discount_value == '' else discount_value
-        new_sell_price = '0' if new_sell_price == '' else new_sell_price
-        start_dt = str(date.today()) if start_dt == '' else start_dt
-        end_dt = str(date.today()) if end_dt == '' else end_dt
+        prod_cost = 0 if prod_cost == '' else prod_cost
+        prod_sell_price = 0 if prod_sell_price == '' else prod_sell_price
+        prod_effective_dt = str(date.today()) if prod_effective_dt == '' else prod_effective_dt
+        prod_promo_name = 'No promo' if prod_promo_name == '' else prod_promo_name
+        prod_promo_type = '[no data]' if prod_promo_type == '' else prod_promo_type
+        prod_promo_percent = 0 if prod_promo_percent == '' else prod_promo_percent
+        prod_promo_value = 0 if prod_promo_value == '' else prod_promo_value
+        prod_promo_sell_price = 0 if prod_promo_sell_price == '' else prod_promo_sell_price
+        prod_promo_start_dt = str(date.today()) if prod_promo_start_dt == '' else prod_promo_start_dt
+        prod_promo_end_dt = str(date.today()) if prod_promo_end_dt == '' else prod_promo_end_dt
 
-        print('before:', type(inventory_tracking), inventory_tracking)
-        print('before:', type(available_stock), available_stock)
-        print('before:', type(on_hand_stock), on_hand_stock)
-
-        inventory_tracking = 'Disabled' if available_stock == '[no data]' and on_hand_stock == '[no data]' else inventory_tracking
-        inventory_tracking = 'Enabled' if available_stock != '[no data]' and on_hand_stock != '[no data]' else inventory_tracking
-        available_stock = '0' if available_stock == '' else available_stock
-        on_hand_stock = '0' if on_hand_stock == '' else on_hand_stock
+        prod_tracking = False if prod_tracking == '' else prod_tracking
         # endregion
         
-        if promo_id == '0' and promo_name == 'No promo':
-            print(item_name)
+        if prod_promo_id == 0 and prod_promo_name == 'No promo':
+            print(prod_name)
             self.cursor.execute('''
             UPDATE Item
             SET Barcode = ?,
                 Name = ?,
                 ExpireDt = ?
             WHERE ItemId = ? 
-            ''', (barcode, item_name, expire_dt, item_id))
+            ''', (prod_barcode, prod_name, prod_exp_dt, prod_item_id))
             self.conn.commit()
 
             self.cursor.execute('''
             UPDATE ItemPrice
             SET Cost = ?, SellPrice = ?, EffectiveDt = ?
             WHERE ItemPriceId = ?
-            ''', (cost, sell_price, effective_dt, item_price_id))
+            ''', (prod_cost, prod_sell_price, prod_effective_dt, prod_price_id))
             self.conn.commit()
-        elif promo_id == '0' and promo_name != 'No promo':
+        elif prod_promo_id == 0 and prod_promo_name != 'No promo':
             # step a: insert item_type, brand, sales_group, and supplier into their respective tables
             self.cursor.execute('''
             INSERT INTO ItemType (Name)
             SELECT ? WHERE NOT EXISTS (SELECT 1 FROM ItemType WHERE Name = ?)
-            ''', (item_type, item_type))
+            ''', (prod_type, prod_type))
             self.conn.commit()
 
             self.cursor.execute('''
             INSERT INTO Brand (Name)
             SELECT ? WHERE NOT EXISTS (SELECT 1 FROM Brand WHERE Name = ?)
-            ''', (brand, brand))
+            ''', (prod_brand, prod_brand))
             self.conn.commit()
 
             self.cursor.execute('''
             INSERT INTO SalesGroup (Name)
             SELECT ? WHERE NOT EXISTS (SELECT 1 FROM SalesGroup WHERE Name = ?)
-            ''', (sales_group, sales_group))
+            ''', (prod_sales_group, prod_sales_group))
             self.conn.commit()
 
             self.cursor.execute('''
             INSERT INTO Supplier (Name)
             SELECT ? WHERE NOT EXISTS (SELECT 1 FROM Supplier WHERE Name = ?)
-            ''', (supplier, supplier))
+            ''', (prod_supplier, prod_supplier))
             self.conn.commit()
 
             # step b: select item_type_id, brand_id, sales_group_id, and supplier_id to get their ids
             item_type_id = self.cursor.execute('''
             SELECT ItemTypeId FROM ItemType
             WHERE Name = ?
-            ''', (item_type,))
+            ''', (prod_type,))
             item_type_id = self.cursor.fetchone()[0]
 
             brand_id = self.cursor.execute('''
             SELECT BrandId FROM Brand
             WHERE Name = ?
-            ''', (brand,))
+            ''', (prod_brand,))
             brand_id = self.cursor.fetchone()[0]
 
             sales_group_id = self.cursor.execute('''
             SELECT SalesGroupId FROM SalesGroup
             WHERE Name = ?
-            ''', (sales_group,))
+            ''', (prod_sales_group,))
             sales_group_id = self.cursor.fetchone()[0]
 
             supplier_id = self.cursor.execute('''
             SELECT SupplierId FROM Supplier
             WHERE Name = ?
-            ''', (supplier,))
+            ''', (prod_supplier,))
             supplier_id = self.cursor.fetchone()[0]
 
             # step c: insert barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, and supplier_id into the item table
@@ -472,24 +452,24 @@ class ProductSchema():
                 Item.BrandId = ? AND
                 Item.SupplierId = ? AND
                 Item.SalesGroupId = ?
-            )''', (barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id,
-                barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id))
+            )''', (prod_barcode, prod_name, prod_exp_dt, item_type_id, brand_id, sales_group_id, supplier_id,
+                prod_barcode, prod_name, prod_exp_dt, item_type_id, brand_id, sales_group_id, supplier_id))
             self.conn.commit()
 
             # step d:
-            # select item_id to get its id
-            item_id = self.cursor.execute('''
+            # select prod_item_id to get its id
+            prod_item_id = self.cursor.execute('''
             SELECT ItemId FROM Item
             WHERE Barcode = ? AND Name = ? AND ExpireDt = ? AND ItemTypeId = ? AND BrandId = ? AND SalesGroupId = ? AND SupplierId = ?
-            ''', (barcode, item_name, expire_dt, item_type_id, brand_id, sales_group_id, supplier_id))
-            item_id = self.cursor.fetchone()[0]
+            ''', (prod_barcode, prod_name, prod_exp_dt, item_type_id, brand_id, sales_group_id, supplier_id))
+            prod_item_id = self.cursor.fetchone()[0]
 
-            # select promo_id to get its id
-            new_promo_id = self.cursor.execute('''
+            # select prod_promo_id to get its id
+            new_prod_promo_id = self.cursor.execute('''
             SELECT PromoId FROM Promo
             WHERE Name = ? AND PromoType = ? AND DiscountPercent = ?
-            ''', (promo_name, promo_type, discount_percent))
-            new_promo_id = self.cursor.fetchone()[0]
+            ''', (prod_promo_name, prod_promo_type, prod_promo_percent))
+            new_prod_promo_id = self.cursor.fetchone()[0]
 
             # insert item_price with end_date 
             self.cursor.execute('''
@@ -504,8 +484,8 @@ class ProductSchema():
                 PromoId = 0 AND
                 DiscountValue = 0 AND
                 EffectiveDt = DATE(?, '+1 day')
-            )''', (item_id, cost, sell_price, end_dt,
-                item_id, cost, sell_price, end_dt))
+            )''', (prod_item_id, prod_cost, prod_sell_price, prod_promo_end_dt,
+                prod_item_id, prod_cost, prod_sell_price, prod_promo_end_dt))
             self.conn.commit()
 
             # insert item_price with start_date
@@ -521,85 +501,72 @@ class ProductSchema():
                 PromoId = ? AND
                 DiscountValue = ? AND
                 EffectiveDt = ?
-            )''', (item_id, cost, new_sell_price, new_promo_id, discount_value, start_dt,
-                item_id, cost, new_sell_price, promo_id, discount_value, start_dt))
+            )''', (prod_item_id, prod_cost, prod_promo_sell_price, new_prod_promo_id, prod_promo_value, prod_promo_start_dt,
+                prod_item_id, prod_cost, prod_promo_sell_price, prod_promo_id, prod_promo_value, prod_promo_start_dt))
             self.conn.commit()
-        elif promo_id != '0' and promo_name != 'No promo':
+        elif prod_promo_id != 0 and prod_promo_name != 'No promo':
             self.cursor.execute('''
             UPDATE Item
             SET Barcode = ?, Name = ?, ExpireDt = ?
             WHERE ItemId = ?
-            ''', (barcode, item_name, expire_dt, item_id))
+            ''', (prod_barcode, prod_name, prod_exp_dt, prod_item_id))
             self.conn.commit()
 
-        if stock_id == str(None) and inventory_tracking == 'Enabled':
+        if prod_stock_id == str(None) and prod_tracking == True:
             print('a here!!!')
             self.cursor.execute('''
             INSERT INTO Stock (ItemId, Available, OnHand)
-            SELECT ?, ?, ?
+            SELECT ?, 0, 0
             WHERE NOT EXISTS(
             SELECT 1 FROM Stock
             WHERE
                 ItemId = ? AND
-                Available = ? AND
-                OnHand = ?
-            )''', (item_id, available_stock, on_hand_stock,
-                item_id, available_stock, on_hand_stock))
+                Available = 0 AND
+                OnHand = 0
+            )''', (prod_item_id, prod_item_id))
             self.conn.commit()
             pass
-        elif stock_id != str(None) and inventory_tracking == 'Disabled':
+        elif prod_stock_id != str(None) and prod_tracking == False:
             print('b here!!!')
-
             self.cursor.execute('''
             DELETE FROM Stock
             WHERE StockId = ? AND ItemId = ?
-            ''', (stock_id, item_id))
+            ''', (prod_stock_id, prod_item_id))
             self.conn.commit()
             pass
-        elif stock_id != str(None) and inventory_tracking == 'Enabled':
-            print('c here!!!')
+        elif prod_stock_id != str(None) and prod_tracking == True:
+            print('a here!!!')
+            self.cursor.execute('''
+            INSERT INTO Stock (ItemId, Available, OnHand)
+            SELECT ?, 0, 0
+            WHERE NOT EXISTS(
+            SELECT 1 FROM Stock
+            WHERE
+                ItemId = ? AND
+                Available = 0 AND
+                OnHand = 0
+            )''', (prod_item_id, prod_item_id))
+            self.conn.commit()
+            pass
 
-            self.cursor.execute('''
-            UPDATE Stock
-            SET Available = ?, OnHand = ?
-            WHERE ItemId = ? AND StockId = ?
-            ''', (available_stock, on_hand_stock, item_id, stock_id))
-            self.conn.commit()
-            pass
-    def delete_selected_product(self, item_price_id, stock_id):
-        try:
-            # Attempt to delete the selected product
-            self.cursor.execute('''
-                DELETE FROM ItemPrice
-                WHERE ItemPriceId = ? AND EffectiveDt > CURRENT_DATE
-                ''', (item_price_id,))
-            
-            # Check if any rows were affected (product deleted)
-            if self.cursor.rowcount > 0:
-                # Product was deleted, now delete the inventory
-                self.cursor.execute('''
-                    DELETE FROM Stock
-                    WHERE StockId = ?
-                    ''', (stock_id,))
-                self.conn.commit()
-                return True  # Indicate successful deletion
-            else:
-                return False  # Product was not deleted, indicate unsuccessful deletion
-        except Exception as e:
-            print(f"Error deleting items: {e}")
-            self.conn.rollback()  # Rollback the transaction
-            return False  # Indicate unsuccessful deletion
-    def delete_selected_inventory(self, stock_id):
+        pass
+    def delete_selected_prod(self, prod_price_id):
+        self.cursor.execute('''
+            DELETE FROM ItemPrice
+            WHERE ItemPriceId = ? AND EffectiveDt > CURRENT_DATE
+            ''', (prod_price_id,))
+        
+        self.conn.commit()
+        pass
+    def delete_selected_inventory(self, prod_stock_id):
         self.cursor.execute('''
         DELETE FROM Stock
         WHERE StockId = ?
-        ''', (stock_id,))
+        ''', (prod_stock_id,))
         self.conn.commit()
 
-    def list_product(self, text_filter='', page_number=1, page_size=30):
+    def list_all_prod_col(self, text_filter='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
-
-        self.create_product_table()
 
         self.cursor.execute('''
             SELECT
@@ -612,22 +579,19 @@ class ProductSchema():
                 COALESCE(NULLIF(SalesGroup.Name, ''), '[no data]') AS SalesGroup, 
                 COALESCE(NULLIF(Supplier.Name, ''), '[no data]') AS Supplier,
                             
-                COALESCE(NULLIF(ItemPrice.Cost, ''), '[no data]') AS Cost,
-                COALESCE(NULLIF(ItemPrice.SellPrice, ''), '[no data]') AS SellPrice,
+                COALESCE(NULLIF(ItemPrice.Cost, ''), 0) AS Cost,
+                COALESCE(NULLIF(ItemPrice.SellPrice, ''), 0) AS SellPrice,
                 COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), '[no data]') AS EffectiveDt,
                 CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
-                COALESCE(NULLIF(ItemPrice.DiscountValue, ''), '[no data]') AS DiscountValue,
+                COALESCE(NULLIF(ItemPrice.DiscountValue, ''), 0) AS DiscountValue,
 
                 CASE WHEN Stock.StockId <> 0 THEN 'Enabled' ELSE 'Disabled' END AS InventoryTracking,
-                COALESCE(NULLIF(Stock.Available, ''), '[no data]') AS Available,
-                COALESCE(NULLIF(Stock.OnHand, ''), '[no data]') AS OnHand,
                             
-                ItemPrice.UpdateTs, -- 15
-                                
-                ItemPrice.ItemId,
-                ItemPrice.ItemPriceId,
-                ItemPrice.PromoId,
-                Stock.StockId
+                ItemPrice.UpdateTs, -- 13                       
+                ItemPrice.ItemId, -- 14
+                ItemPrice.ItemPriceId, -- 15
+                ItemPrice.PromoId, -- 16
+                Stock.StockId -- 17
                             
             FROM ItemPrice
                 LEFT JOIN Item
@@ -669,15 +633,15 @@ class ProductSchema():
         product = self.cursor.fetchall()
 
         return product
-    def list_inventory(self, text_filter='', page_number=1, page_size=30):
-        # Calculate the offset to skip rows based on page number and page size
+        pass
+    def list_all_stock_col(self, text_filter='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
         self.cursor.execute('''
             SELECT
                 COALESCE(NULLIF(Item.Name, ''), '[no data]') AS Item,
-                COALESCE(NULLIF(Stock.Available, ''), '[no data]') AS Available,
-                COALESCE(NULLIF(Stock.OnHand, ''), '[no data]') AS OnHand,
+                COALESCE(NULLIF(Stock.Available, ''), 0) AS Available,
+                COALESCE(NULLIF(Stock.OnHand, ''), 0) AS OnHand,
                 Stock.UpdateTs,
                 Stock.ItemId,
                 StockId
@@ -702,8 +666,7 @@ class ProductSchema():
         
         return stock
         pass
-    
-    def list_item_type(self):
+    def list_item_type_col(self):
         self.cursor.execute('''
         SELECT DISTINCT Name FROM ItemType
         ORDER BY UpdateTs DESC
@@ -713,7 +676,7 @@ class ProductSchema():
 
         return item_type
         pass
-    def list_brand(self):
+    def list_brand_col(self):
         self.cursor.execute('''
         SELECT DISTINCT Name FROM Brand
         ORDER BY UpdateTs DESC
@@ -723,7 +686,7 @@ class ProductSchema():
 
         return brand 
         pass
-    def list_supplier(self):
+    def list_supplier_col(self):
         self.cursor.execute('''
         SELECT DISTINCT Name FROM Supplier
         ORDER BY UpdateTs DESC
@@ -733,7 +696,7 @@ class ProductSchema():
 
         return supplier 
         pass
-    def list_promo(self):
+    def list_promo_name_col(self):
         self.cursor.execute('''
         SELECT DISTINCT Name FROM Promo
         ORDER BY UpdateTs DESC
@@ -743,24 +706,44 @@ class ProductSchema():
 
         return promo 
         pass
-
-    def list_promo_type_and_discount_percent(self, promo_name):
+    def list_promo_type_col(self, prod_promo_name):
         self.cursor.execute('''
-        SELECT DISTINCT PromoType, DiscountPercent FROM Promo
+        SELECT DISTINCT PromoType FROM Promo
         WHERE Name = ?
         ORDER BY PromoId DESC, UpdateTs DESC                
-        ''', (promo_name,))
+        ''', (prod_promo_name,))
         
-        data = self.cursor.fetchall()
+        promo_type = self.cursor.fetchone()[0]
         
-        return data
+        return promo_type
+        pass
+    def list_promo_percent_col(self, prod_promo_name):
+        self.cursor.execute('''
+        SELECT DISTINCT DiscountPercent FROM Promo
+        WHERE Name = ?
+        ORDER BY PromoId DESC, UpdateTs DESC                
+        ''', (prod_promo_name,))
+        
+        promo_percent = self.cursor.fetchone()[0]
+        
+        return promo_percent
 
-    def count_product(self):
-        self.create_product_table()
-
+    def count_all_prod(self):
         self.cursor.execute('''
         SELECT COUNT(*) FROM ItemPrice
         ''')
         count = self.cursor.fetchone()[0]
         
         return count
+        pass
+    def count_prod_list_total_pages(self, page_size=30):
+        self.cursor.execute('''
+            SELECT COUNT(*)
+            FROM Customer
+            ''')
+
+        total_prod = self.cursor.fetchone()[0]
+        total_pages = (total_prod - 1) // page_size + 1
+
+        return total_pages
+    

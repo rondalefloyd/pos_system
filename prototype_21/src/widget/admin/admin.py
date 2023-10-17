@@ -74,6 +74,7 @@ class MyTableWidget(QTableWidget):
         self.on_user_widgets()
         self.on_cust_widgets()
         self.on_reward_widgets()
+        self.on_prod_widgets()
 
     def on_global_widgets(self):
         self.setWordWrap(False)
@@ -81,7 +82,6 @@ class MyTableWidget(QTableWidget):
         self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-            
     def on_promo_widgets(self):
         if self.object_name == 'promo_list_table':
             self.setColumnCount(6)
@@ -92,7 +92,6 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
             self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
-    
     def on_user_widgets(self):
         if self.object_name == 'user_list_table':
             self.setColumnCount(5)
@@ -102,7 +101,6 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
-
     def on_cust_widgets(self):
         if self.object_name == 'cust_list_table':
             self.setColumnCount(11)
@@ -118,7 +116,6 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(8, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(9, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(10, QHeaderView.ResizeMode.ResizeToContents)
-
     def on_reward_widgets(self):
         if self.object_name == 'reward_list_table':
             self.setColumnCount(6)
@@ -129,6 +126,27 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
+    def on_prod_widgets(self):
+        if self.object_name == 'prod_list_table':
+            self.setColumnCount(15)
+            self.setHorizontalHeaderLabels(['Action','Barcode','Product','Expire date','Item type','Brand','Sales group','Supplier','Cost','Price','Effective date','Promo','Discount value','Inventory tracking','Date/Time created'])
+
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents) # 'Action',
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents) # 'Barcode',
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed) # 'Product',
+            self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents) # 'Expire date',
+            self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents) # 'Item type',
+            self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.Stretch) # 'Brand',
+            self.horizontalHeader().setSectionResizeMode(6, QHeaderView.ResizeMode.ResizeToContents) # 'Sales group',
+            self.horizontalHeader().setSectionResizeMode(7, QHeaderView.ResizeMode.Fixed) # 'Supplier',
+            self.horizontalHeader().setSectionResizeMode(8, QHeaderView.ResizeMode.ResizeToContents) # 'Cost',
+            self.horizontalHeader().setSectionResizeMode(9, QHeaderView.ResizeMode.ResizeToContents) # 'Price',
+            self.horizontalHeader().setSectionResizeMode(10, QHeaderView.ResizeMode.ResizeToContents) # 'Effective date',
+            self.horizontalHeader().setSectionResizeMode(11, QHeaderView.ResizeMode.Fixed) # 'Promo',
+            self.horizontalHeader().setSectionResizeMode(12, QHeaderView.ResizeMode.ResizeToContents) # 'Discount value',
+            self.horizontalHeader().setSectionResizeMode(13, QHeaderView.ResizeMode.ResizeToContents) # 'Inventory tracking',
+            self.horizontalHeader().setSectionResizeMode(14, QHeaderView.ResizeMode.ResizeToContents) # 'Date/Time created'
+    
     pass
 
 class MyVBoxLayout(QVBoxLayout):
@@ -162,14 +180,13 @@ class MyHBoxLayout(QHBoxLayout):
             self.setContentsMargins(0,0,0,0)
 
         if self.object_name in [
-            'product_list_pag_layout',
+            'prod_list_pag_layout',
             'promo_list_pag_layout',
             'reward_list_pag_layout',
             'cust_list_pag_layout',
             'user_list_pag_layout',
         ]:
             self.setContentsMargins(0,0,0,0)
-
 
     def on_promo_widgets(self):
         if self.object_name == 'promo_act_layout':
@@ -199,16 +216,6 @@ class MyLabel(QLabel):
         self.setText(text)
 
     pass
-class MyPushButton(QPushButton):
-    def __init__(self, object_name='', text=''):
-        super().__init__()
-        self.object_name = object_name
-        
-        self.setObjectName(object_name)
-        self.setText(text)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-
-    pass
 class MyComboBox(QComboBox):
     def __init__(self, object_name=''):
         super().__init__()
@@ -218,6 +225,7 @@ class MyComboBox(QComboBox):
 
         self.on_promo_widgets()
         self.on_cust_widgets()
+        self.on_product_widgets()
 
     def on_promo_widgets(self):
         if self.object_name == 'promo_type_field':
@@ -225,6 +233,13 @@ class MyComboBox(QComboBox):
         pass
     def on_cust_widgets(self):
         if self.object_name in ['cust_barrio_field', 'cust_town_field']:
+            self.setEditable(True)
+    def on_product_widgets(self):
+        if self.object_name in [
+            'prod_type_field',
+            'prod_brand_field',
+            'prod_supplier_field',
+        ]:
             self.setEditable(True)
     pass
 class MyLineEdit(QLineEdit):
@@ -237,6 +252,7 @@ class MyLineEdit(QLineEdit):
         self.setObjectName(object_name)
 
         self.on_promo_widgets()
+        self.on_product_widgets()
 
     def on_promo_widgets(self):
         if self.object_name == 'text_filter_field':
@@ -247,12 +263,62 @@ class MyLineEdit(QLineEdit):
             self.setLayout(layout)
 
         pass
-
+    def on_product_widgets(self):
+        if self.object_name in [
+            'prod_promo_type_field',
+            'prod_promo_percent_field',
+            'prod_promo_value_field',
+            'prod_promo_sell_price_field',
+        ]:
+            self.setDisabled(True)
     pass
 class MyPlainTextEdit(QPlainTextEdit):
     def __init__(self, object_name=''):
         super().__init__()
         
         self.setObjectName(object_name)
+    
+    pass
+class MyDateEdit(QDateEdit):
+    def __init__(self, object_name=''):
+        super().__init__()
+        
+        self.setObjectName(object_name)
 
+        self.setCalendarPopup(True)
+        self.setMinimumDate(QDate().currentDate())
+    pass
+class MyPushButton(QPushButton):
+    def __init__(self, object_name='', text=''):
+        super().__init__()
+        self.object_name = object_name
+        
+        self.setObjectName(object_name)
+        self.setText(text)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
+    pass
+class MyCheckBox(QCheckBox):
+    def __init__(self, object_name='', text=''):
+        super().__init__()
+        self.object_name = object_name
+        
+        self.setObjectName(object_name)
+        self.setText(text)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    pass
+
+class MyTableWidgetItem(QTableWidgetItem):
+    def __init__(self, text='', has_promo=False):
+        super().__init__()
+
+        self.has_promo = has_promo
+        
+        self.setText(text)
+
+        self.on_prod_widgets()
+
+    def on_prod_widgets(self):
+        if self.has_promo is True:
+            self.setForeground(QColor(255,0,0))

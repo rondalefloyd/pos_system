@@ -11,6 +11,7 @@ sys.path.append(os.path.abspath(''))
 
 from templates.qss.qss_config import QSSConfig
 from src.gui.admin.cust import MyCustWindow
+from src.gui.admin.prod import MyProdWindow
 from src.gui.admin.promo import MyPromoWindow
 from src.gui.admin.reward import MyRewardWindow
 from src.gui.admin.user import MyUserWindow
@@ -72,15 +73,15 @@ class MyAdminView(MyWidget):
     def set_panel_b(self):
         self.panel_b_stacked = MyStackedWidget()
         
-        product_content = QWidget()
         promo_content = MyPromoWindow(name=self.model.user_name)
+        prod_content = MyProdWindow(name=self.model.user_name)
         reward_content = MyRewardWindow(name=self.model.user_name)
         cust_content = MyCustWindow(name=self.model.user_name)
         user_content = MyUserWindow(name=self.model.user_name)
         settings_content = QWidget()
         
         self.panel_b_stacked.setCurrentIndex(0)
-        self.panel_b_stacked.addWidget(product_content)
+        self.panel_b_stacked.addWidget(prod_content)
         self.panel_b_stacked.addWidget(promo_content)
         self.panel_b_stacked.addWidget(reward_content)
         self.panel_b_stacked.addWidget(cust_content)

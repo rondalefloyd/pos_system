@@ -11,11 +11,12 @@ qss = QSSConfig()
 class MyUserSchema():
     def __init__(self):
         super().__init__()
-        dir_path = 'G:' + f"/My Drive/database/"
-        self.db_file_path = os.path.abspath(dir_path + '/accounts.db')
-        os.makedirs(os.path.abspath(dir_path), exist_ok=True)
 
-        self.conn = sqlite3.connect(database=self.db_file_path)
+        self.accounts_file = os.path.abspath(qss.db_file_path + qss.accounts_file_name)
+        
+        os.makedirs(os.path.abspath(qss.db_file_path), exist_ok=True)
+
+        self.conn = sqlite3.connect(database=self.accounts_file)
         self.cursor = self.conn.cursor()
 
         self.create_user_table()

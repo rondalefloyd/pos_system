@@ -12,6 +12,7 @@ from PyQt6.QtGui import *
 sys.path.append(os.path.abspath(''))
 
 from src.sql.admin.cust import *
+from src.sql.admin.prod import *
 from src.sql.admin.promo import *
 from src.sql.admin.reward import *
 from src.sql.admin.user import *
@@ -40,14 +41,17 @@ class MyDataImportThread(QThread):
             self.user_schema = MyUserSchema() if self.data_name == 'user' else None
             self.cust_schema = MyCustSchema() if self.data_name == 'cust' else None
             self.reward_schema = MyRewardSchema() if self.data_name == 'reward' else None
+            self.prod_schema = MyProdSchema() if self.data_name == 'prod' else None
 
             for row_v in self.data_frame.itertuples(index=False):
+                print('PASSED')
                 # FIX: needs to change the condition (i.e. if the df does not contain the expected header)
                 if self.thread_running:
                     self.import_promo(row_v) if self.data_name == 'promo' else None
                     self.import_user(row_v) if self.data_name == 'user' else None
                     self.import_cust(row_v) if self.data_name == 'cust' else None
                     self.import_reward(row_v) if self.data_name == 'reward' else None
+                    self.import_prod(row_v) if self.data_name == 'prod' else None
                     self.update_signal.emit()
                     pass
                 else:
@@ -102,6 +106,30 @@ class MyDataImportThread(QThread):
                             reward_description=reward_description,
                             reward_unit=reward_unit,
                             reward_points=reward_points,
+                        )
+        pass
+    def import_prod(self, row_v):
+        prod_barcode, prod_exp_dt, prod_name, prod_type, prod_brand, prod_sales_group, prod_supplier, prod_cost, prod_sell_price = row_v[:9]
+
+        print('PASSED')
+        # NOTE: for temporary use only!
+        current_date = QDateEdit()
+        current_date.setDate(QDate().currentDate())
+        temp_effective_data = current_date.date().toString(Qt.DateFormat.ISODate)
+
+        self.prod_schema.add_new_prod(
+                            prod_barcode=prod_barcode,
+                            prod_name=prod_name,
+                            prod_exp_dt='9999-99-99',
+                            prod_type=prod_type,
+                            prod_brand=prod_brand,
+                            prod_sales_group=prod_sales_group,
+                            prod_supplier=prod_supplier,
+                            prod_cost=prod_cost,
+                            prod_sell_price=prod_sell_price,
+                            prod_effective_dt=temp_effective_data, # NOTE: applied here
+
+
                         )
         pass
 

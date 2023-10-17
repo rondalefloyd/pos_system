@@ -11,13 +11,12 @@ qss = QSSConfig()
 class MyRewardSchema():
     def __init__(self):
         super().__init__()
-        # Creates folder for the db file
-        dir_path = 'G:' + f"/My Drive/database/"
-        self.db_file_path = os.path.abspath(dir_path + '/sales.db')
-        os.makedirs(os.path.abspath(dir_path), exist_ok=True)
 
-        # Connects to SQL database named 'SALES.db'w
-        self.conn = sqlite3.connect(database=self.db_file_path)
+        self.sales_file = os.path.abspath(qss.db_file_path + qss.sales_file_name)
+        
+        os.makedirs(os.path.abspath(qss.db_file_path), exist_ok=True)
+
+        self.conn = sqlite3.connect(database=self.sales_file)
         self.cursor = self.conn.cursor()
 
         self.create_reward_table()
