@@ -10,7 +10,9 @@ from PyQt6.QtGui import *
 sys.path.append(os.path.abspath(''))
 
 from templates.qss.qss_config import QSSConfig
-from src.widget.cashier.cashier import *
+from src.gui.cashier.pos import MyPOSWindow
+from src.widget.admin.admin import *
+
 
 qss = QSSConfig()
 
@@ -36,14 +38,14 @@ class MyCashierView(MyWidget):
         self.set_panel_c()
         self.main_layout = MyGridLayout()
         self.main_layout.addWidget(self.panel_a_box,0,0)
-        self.main_layout.addWidget(self.panel_b_box,0,1)
+        self.main_layout.addWidget(self.panel_b_stacked,0,1)
         self.main_layout.addWidget(self.panel_c_box,1,0,1,2)
         self.setLayout(self.main_layout)
         pass
 
     def set_panel_a(self):
-        self.panel_a_box = MyGroupBox()
-        self.panel_a_layout = MyVBoxLayout()
+        self.panel_a_box = MyGroupBox(object_name='panel_a_box')
+        self.panel_a_layout = MyVBoxLayout(object_name='panel_a_layout')
 
         self.navbar_pos_button = MyPushButton(text='POS')
         self.navbar_transactions_button = MyPushButton(text='Transactions')
@@ -61,20 +63,15 @@ class MyCashierView(MyWidget):
         self.panel_a_box.setLayout(self.panel_a_layout)
         pass
     def set_panel_b(self):
-        self.panel_b_box = MyGroupBox()
-        self.panel_b_layout = MyVBoxLayout()
+        self.panel_b_stacked = MyStackedWidget()
         
-        pos_content = MyGroupBox() # TODO: replace with dedicated content 
-        transactions_content = MyGroupBox() # TODO: replace with dedicated content
-        settings_content = MyGroupBox() # TODO: replace with dedicated content
+        pos_content = MyPOSWindow(name=self.model.user_name, phone=self.model.user_phone)
+        settings_content = QWidget()
         
-        self.content_stacked = MyStackedWidget()
-        self.content_stacked.addWidget(pos_content)
-        self.content_stacked.addWidget(transactions_content)
-        self.content_stacked.addWidget(settings_content)
-
-        self.panel_b_layout.addWidget(self.content_stacked)
-        self.panel_b_box.setLayout(self.panel_b_layout)
+        self.panel_b_stacked.setCurrentIndex(0)
+        self.panel_b_stacked.addWidget(pos_content)
+        self.panel_b_stacked.addWidget(settings_content)
+        pass
         pass
 
     def set_panel_c(self):
@@ -98,6 +95,14 @@ class MyCashierController:
         self.view = view
         self.model = model
 
+        self.set_panel_a_conn()
+
+    def set_panel_a_conn(self):
+        self.view.navbar_pos_button.clicked.connect(lambda: self.on_navbar_button_clicked(stack_index=0))
+    
+    def on_navbar_button_clicked(self, stack_index):
+        self.view.panel_b_stacked.setCurrentIndex(stack_index)
+        print(stack_index)
     pass
 
 class MyCashierWindow:
@@ -110,10 +115,10 @@ class MyCashierWindow:
         self.view.show()
     pass
 
-# # NOTE: For testing purpsoes only.
-# if __name__ == ('__main__'):
-#     app = QApplication(sys.argv)
-#     cashier_window = MyCashierWindow()
+# NOTE: For testing purpsoes only.
+if __name__ == ('__main__'):
+    app = QApplication(sys.argv)
+    cashier_window = MyCashierWindow(name='test-name', phone='test-phone')
 
-#     cashier_window.run()
-#     app.exec()
+    cashier_window.run()
+    app.exec()

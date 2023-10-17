@@ -30,10 +30,14 @@ class MyProdModel: # NOTE: entries
         self.init_stock_list_page_entry()
 
     # region: prod
+    def init_prod_list_page_entry(self):
+        self.prod_page_number = 1
+        self.prod_total_page_number = schema.count_prod_list_total_pages()
+        pass
     def setup_prod_list_tab_panel(self):
         self.prod_list_table = MyTableWidget(object_name='prod_list_table')
         self.prod_list_prev_button = MyPushButton(text='Prev')
-        self.prod_list_page_label = MyLabel(text=f"Page {self.page_number}/{self.total_page_number}")
+        self.prod_list_page_label = MyLabel(text=f"Page {self.prod_page_number}/{self.prod_total_page_number}")
         self.prod_list_next_button = MyPushButton(text='Next')
         self.prod_list_pag_box = MyGroupBox()
         self.prod_list_pag_layout = MyHBoxLayout(object_name='prod_list_pag_layout')
@@ -47,9 +51,6 @@ class MyProdModel: # NOTE: entries
         self.prod_list_layout.addWidget(self.prod_list_pag_box,1,0,Qt.AlignmentFlag.AlignCenter)
         self.prod_list_box.setLayout(self.prod_list_layout)
         pass
-    def init_prod_list_page_entry(self):
-        self.page_number = 1
-        self.total_page_number = schema.count_prod_list_total_pages()
     def init_selected_prod_data_entry(self):
         self.sel_prod_barcode_value = None
         self.sel_prod_name_value = None
@@ -586,20 +587,20 @@ class MyProdController: # NOTE: connections, setting attributes
         pass
 
     def on_text_filter_button_clicked(self):
-        self.model.page_number = 1
+        self.model.prod_page_number = 1
         self.model.stock_page_number = 1
-        self.model.prod_list_page_label.setText(f"Page {self.model.page_number}/{self.model.total_page_number}")
+        self.model.prod_list_page_label.setText(f"Page {self.model.prod_page_number}/{self.model.prod_total_page_number}")
         self.model.stock_list_page_label.setText(f"Page {self.model.stock_page_number}/{self.model.stock_total_page_number}")
 
-        self.populate_prod_list_table(text_filter=self.view.text_filter_field.text(), page_number=self.model.page_number) 
+        self.populate_prod_list_table(text_filter=self.view.text_filter_field.text(), page_number=self.model.prod_page_number) 
         self.populate_stock_list_table(text_filter=self.view.text_filter_field.text(), page_number=self.model.stock_page_number)
         pass
     def on_sync_ui_button_clicked(self):
         self.model.init_prod_list_page_entry()
         self.model.init_stock_list_page_entry()
 
-        self.model.prod_list_page_label.setText(f"Page {self.model.page_number}/{self.model.total_page_number}")
-        self.model.stock_list_page_label.setText(f"Page {self.model.page_number}/{self.model.stock_total_page_number}")
+        self.model.prod_list_page_label.setText(f"Page {self.model.prod_page_number}/{self.model.prod_total_page_number}")
+        self.model.stock_list_page_label.setText(f"Page {self.model.prod_page_number}/{self.model.stock_total_page_number}")
 
         self.populate_prod_list_table()
         self.populate_stock_list_table()
@@ -680,7 +681,7 @@ class MyProdController: # NOTE: connections, setting attributes
     def populate_prod_list_table(self, text_filter='', page_number=1):
         prod_list = schema.list_all_prod_col(text_filter=text_filter, page_number=page_number)
 
-        self.model.prod_list_page_label.setText(f"Page {page_number}/{self.model.total_page_number}")
+        self.model.prod_list_page_label.setText(f"Page {page_number}/{self.model.prod_total_page_number}")
 
         self.model.prod_list_prev_button.setEnabled(page_number > 1)
         self.model.prod_list_next_button.setEnabled(len(prod_list) == 30)
@@ -749,17 +750,17 @@ class MyProdController: # NOTE: connections, setting attributes
     def on_prod_list_pag_button_clicked(self, action):
         print('prod_list_prev_button_clicked')
         if action == 'go_prev':
-            if self.model.page_number > 1:
-                self.model.page_number -= 1
-                self.model.prod_list_page_label.setText(f"Page {self.model.page_number}/{self.model.total_page_number}")
+            if self.model.prod_page_number > 1:
+                self.model.prod_page_number -= 1
+                self.model.prod_list_page_label.setText(f"Page {self.model.prod_page_number}/{self.model.prod_total_page_number}")
 
-            self.populate_prod_list_table(text_filter=self.view.text_filter_field.text(), page_number=self.model.page_number)
+            self.populate_prod_list_table(text_filter=self.view.text_filter_field.text(), page_number=self.model.prod_page_number)
             pass
         elif action == 'go_next':
-            self.model.page_number += 1
-            self.model.prod_list_page_label.setText(f"Page {self.model.page_number}/{self.model.total_page_number}")
+            self.model.prod_page_number += 1
+            self.model.prod_list_page_label.setText(f"Page {self.model.prod_page_number}/{self.model.prod_total_page_number}")
 
-            self.populate_prod_list_table(text_filter=self.view.text_filter_field.text(), page_number=self.model.page_number)
+            self.populate_prod_list_table(text_filter=self.view.text_filter_field.text(), page_number=self.model.prod_page_number)
             pass
         pass
 

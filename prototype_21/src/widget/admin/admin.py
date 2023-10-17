@@ -48,10 +48,15 @@ class MyGroupBox(QGroupBox):
         self.setObjectName(object_name)
 
         self.on_admin_widgets()
+        self.on_pos_widgets()
 
     def on_admin_widgets(self):
         if self.object_name == 'panel_a_box':
             self.setFixedWidth(250)
+    
+    def on_pos_widgets(self):
+        if self.object_name == 'panel_b_box':
+            self.setFixedWidth(450)
     pass
 class MyDialog(QDialog):
     def __init__(self, object_name='', parent=None, window_title=''):
@@ -76,12 +81,15 @@ class MyTableWidget(QTableWidget):
         self.on_reward_widgets()
         self.on_prod_widgets()
 
+        self.on_pos_widgets()
+
     def on_global_widgets(self):
         self.setWordWrap(False)
         self.setShowGrid(False)
         self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+    
     def on_promo_widgets(self):
         if self.object_name == 'promo_list_table':
             self.setColumnCount(6)
@@ -155,6 +163,24 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch) # 'Product',
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents) # 'Date/Time created'
     
+    def on_pos_widgets(self):
+        if self.object_name == 'pos_list_table':
+            self.setColumnCount(8)
+            self.setHorizontalHeaderLabels(['Action','Barcode','Product','Brand','Price','Effective date','Promo','On hand stock'])
+
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents) # 'Action'
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents) # 'Barcode'
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents) # 'Date/Time created'
+    
+        if self.object_name == 'order_table':
+            self.setColumnCount(5)
+            self.setHorizontalHeaderLabels(['Action','Qty','Product','Price','Discount'])
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents) # 'Action'
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents) # 'Action'
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch) # 'Action'
+            self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents) # 'Action'
+            self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents) # 'Action'
+
     pass
 
 class MyVBoxLayout(QVBoxLayout):

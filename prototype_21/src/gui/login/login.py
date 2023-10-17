@@ -102,18 +102,20 @@ class MyLoginController: # IDEA: connections, populations, on signals
                 self.admin = MyAdminWindow(name=name)
                 self.admin.run()
                 pass
-            elif access_level == 3:
-                print('DEVELOPER WINDOW')
-                self.dev = MyDevWindow()
-                self.dev.run()
-                pass
             pass
+        
         else:
             QMessageBox.critical(self.view, 'Error', 'User not found.')
             self.view.username_field.clear()
             self.view.password_field.clear()
             pass
-        pass
+        
+        # NOTE: FOR DEVs
+        if username == 'dev' and password == 'dev@2023':
+            print('DEVELOPER WINDOW')
+            self.dev = MyDevWindow()
+            self.dev.run()
+            pass
 
 if __name__ == ('__main__'):
     login_app = QApplication(sys.argv)
