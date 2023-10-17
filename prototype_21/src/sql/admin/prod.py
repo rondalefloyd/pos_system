@@ -565,6 +565,24 @@ class MyProdSchema():
         ''', (prod_stock_id,))
         self.conn.commit()
 
+    def edit_selected_stock(self, stock_available, stock_on_hand, stock_id):
+        stock_available = 0 if stock_available == '' else stock_available
+        stock_on_hand = 0 if stock_on_hand == '' else stock_on_hand
+            
+        self.cursor.execute('''
+        UPDATE Stock
+        SET Available = ?, OnHand = ?
+        WHERE StockId = ?
+        ''', (stock_available, stock_on_hand, stock_id))
+        self.conn.commit()
+        pass
+    def delete_selected_stock(self, stock_id):
+        self.cursor.execute('''
+        DELETE FROM Stock
+        WHERE StockId = ?
+        ''', (stock_id,))
+        self.conn.commit()
+
     def list_all_prod_col(self, text_filter='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
@@ -643,8 +661,8 @@ class MyProdSchema():
                 COALESCE(NULLIF(Stock.Available, ''), 0) AS Available,
                 COALESCE(NULLIF(Stock.OnHand, ''), 0) AS OnHand,
                 Stock.UpdateTs,
-                Stock.ItemId,
-                StockId
+                Stock.ItemId, -- 4
+                StockId -- 5
             FROM Stock
                 LEFT JOIN Item ON Stock.ItemId = Item.ItemId
             WHERE
@@ -666,6 +684,7 @@ class MyProdSchema():
         
         return stock
         pass
+    
     def list_item_type_col(self):
         self.cursor.execute('''
         SELECT DISTINCT Name FROM ItemType
@@ -739,7 +758,18 @@ class MyProdSchema():
     def count_prod_list_total_pages(self, page_size=30):
         self.cursor.execute('''
             SELECT COUNT(*)
-            FROM Customer
+            FROM Item
+            ''')
+
+        total_prod = self.cursor.fetchone()[0]
+        total_pages = (total_prod - 1) // page_size + 1
+
+        return total_pages
+        pass
+    def count_stock_list_total_pages(self, page_size=30):
+        self.cursor.execute('''
+            SELECT COUNT(*)
+            FROM Stock
             ''')
 
         total_prod = self.cursor.fetchone()[0]

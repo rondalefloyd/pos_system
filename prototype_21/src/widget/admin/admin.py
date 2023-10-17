@@ -146,6 +146,14 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(12, QHeaderView.ResizeMode.ResizeToContents) # 'Discount value',
             self.horizontalHeader().setSectionResizeMode(13, QHeaderView.ResizeMode.ResizeToContents) # 'Inventory tracking',
             self.horizontalHeader().setSectionResizeMode(14, QHeaderView.ResizeMode.ResizeToContents) # 'Date/Time created'
+
+        if self.object_name == 'stock_list_table':
+            self.setColumnCount(5)
+            self.setHorizontalHeaderLabels(['Action','Product','Available','On hand','Date/Time created'])
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents) # 'Action',
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch) # 'Barcode',
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch) # 'Product',
+            self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents) # 'Date/Time created'
     
     pass
 
@@ -181,6 +189,7 @@ class MyHBoxLayout(QHBoxLayout):
 
         if self.object_name in [
             'prod_list_pag_layout',
+            'stock_list_pag_layout',
             'promo_list_pag_layout',
             'reward_list_pag_layout',
             'cust_list_pag_layout',
