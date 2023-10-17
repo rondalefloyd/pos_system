@@ -140,6 +140,8 @@ class MyProdSchema():
         prod_promo_start_dt='',
         prod_promo_end_dt='',
         prod_tracking='',
+        stock_available='',
+        stock_on_hand=''
         # endregion -- params
     ):
         # region -- assign values if empty string
@@ -164,6 +166,9 @@ class MyProdSchema():
         prod_promo_end_dt = str(date.today()) if prod_promo_end_dt == '' else prod_promo_end_dt
 
         prod_tracking = False if prod_tracking == '' else prod_tracking
+        stock_available = 0 if stock_available == '' else stock_available
+        stock_on_hand = 0 if stock_on_hand == '' else stock_on_hand
+         
         # endregion
 
         # region -- step a: insert item_type, brand, sales_group, and supplier into their respective tables
@@ -305,14 +310,15 @@ class MyProdSchema():
         if prod_tracking == True:
             self.cursor.execute('''
             INSERT INTO Stock (ItemId, Available, OnHand)
-            SELECT ?, 0, 0
+            SELECT ?, ?, ?
             WHERE NOT EXISTS(
             SELECT 1 FROM Stock
             WHERE
                 ItemId = ? AND
-                Available = 0 AND
-                OnHand = 0
-            )''', (prod_item_id, prod_item_id))
+                Available = ? AND
+                OnHand = ?
+            )''', (prod_item_id, stock_available, stock_on_hand,
+                   prod_item_id, stock_available, stock_on_hand))
             self.conn.commit()
             pass
         # endregion -- step f: insert stock data depending on the conditions

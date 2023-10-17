@@ -581,6 +581,8 @@ class MyProdController: # NOTE: connections, setting attributes
         self.view.add_prod_button.clicked.connect(self.on_add_prod_button_clicked)
         self.model.prod_list_prev_button.clicked.connect(lambda: self.on_prod_list_pag_button_clicked(action='go_prev'))
         self.model.prod_list_next_button.clicked.connect(lambda: self.on_prod_list_pag_button_clicked(action='go_next'))
+        self.model.stock_list_prev_button.clicked.connect(lambda: self.on_stock_list_pag_button_clicked(action='go_prev'))
+        self.model.stock_list_next_button.clicked.connect(lambda: self.on_stock_list_pag_button_clicked(action='go_next'))
         pass
 
     def on_text_filter_button_clicked(self):
@@ -594,6 +596,8 @@ class MyProdController: # NOTE: connections, setting attributes
         pass
     def on_sync_ui_button_clicked(self):
         self.model.init_prod_list_page_entry()
+        self.model.init_stock_list_page_entry()
+        
         self.model.prod_list_page_label.setText(f"Page {self.model.page_number}/{self.model.total_page_number}")
         self.model.stock_list_page_label.setText(f"Page {self.model.page_number}/{self.model.stock_total_page_number}")
 
@@ -993,7 +997,7 @@ class MyProdController: # NOTE: connections, setting attributes
 
             self.model.init_selected_stock_data_entry()
 
-            QMessageBox.information(self.model.manage_stock_dialog, 'Success', 'Stock has been stopped.')
+            QMessageBox.information(self.view, 'Success', 'Stock has been stopped.')
 
             self.on_sync_ui_button_clicked()
             pass

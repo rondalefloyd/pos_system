@@ -122,7 +122,7 @@ class MyDataImportThread(QThread):
             prod_tracking = True
         else:
             prod_tracking = False
-            
+
         self.prod_schema.add_new_prod(
                             prod_barcode=prod_barcode,
                             prod_name=prod_name,
