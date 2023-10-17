@@ -121,7 +121,7 @@ class MyProdSchema():
 
     def add_new_prod(
         # region -- params
-        self='',
+        self,
         prod_barcode='',
         prod_name='',
         prod_exp_dt='',
@@ -145,29 +145,29 @@ class MyProdSchema():
         # endregion -- params
     ):
         # region -- assign values if empty string
-        prod_barcode = '[no data]' if prod_barcode == '' else prod_barcode
-        prod_name = '[no data]' if prod_name == '' else prod_name
-        prod_exp_dt = '9999-12-31' if prod_exp_dt == '' else prod_exp_dt
+        prod_barcode = prod_barcode or '[no data]'
+        prod_name = prod_name or '[no data]'
+        prod_exp_dt = prod_exp_dt or '9999-12-31'
 
-        prod_type = '[no data]' if prod_type == '' else prod_type
-        prod_brand = '[no data]' if prod_brand == '' else prod_brand
-        prod_sales_group = '[no data]' if prod_sales_group == '' else prod_sales_group
-        prod_supplier = '[no data]' if prod_supplier == '' else prod_supplier
+        prod_type = prod_type or '[no data]'
+        prod_brand = prod_brand or '[no data]'
+        prod_sales_group = prod_sales_group or '[no data]'
+        prod_supplier = prod_supplier or '[no data]'
 
-        prod_cost = 0 if prod_cost == '' else prod_cost
-        prod_sell_price = 0 if prod_sell_price == '' else prod_sell_price
-        prod_effective_dt = str(date.today()) if prod_effective_dt == '' else prod_effective_dt
-        prod_promo_name = 'No promo' if prod_promo_name == '' else prod_promo_name
-        prod_promo_type = '[no data]' if prod_promo_type == '' else prod_promo_type
-        prod_promo_percent = 0 if prod_promo_percent == '' else prod_promo_percent
-        prod_promo_value = 0 if prod_promo_value == '' else prod_promo_value
-        prod_promo_sell_price = 0 if prod_promo_sell_price == '' else prod_promo_sell_price
-        prod_promo_start_dt = str(date.today()) if prod_promo_start_dt == '' else prod_promo_start_dt
-        prod_promo_end_dt = str(date.today()) if prod_promo_end_dt == '' else prod_promo_end_dt
+        prod_cost = prod_cost or 0
+        prod_sell_price = prod_sell_price or 0
+        prod_effective_dt = prod_effective_dt or str(date.today())
+        prod_promo_name = prod_promo_name or 'No promo'
+        prod_promo_type = prod_promo_type or '[no data]'
+        prod_promo_percent = prod_promo_percent or 0
+        prod_promo_value = prod_promo_value or 0
+        prod_promo_sell_price = prod_promo_sell_price or 0
+        prod_promo_start_dt = prod_promo_start_dt or str(date.today())
+        prod_promo_end_dt = prod_promo_end_dt or str(date.today())
 
-        prod_tracking = False if prod_tracking == '' else prod_tracking
-        stock_available = 0 if stock_available == '' else stock_available
-        stock_on_hand = 0 if stock_on_hand == '' else stock_on_hand
+        prod_tracking = prod_tracking or False
+        stock_available = stock_available or 0
+        stock_on_hand = stock_on_hand or 0
          
         # endregion
 
@@ -261,7 +261,7 @@ class MyProdSchema():
                 EffectiveDt = ?
             )''', (prod_item_id, prod_cost, prod_sell_price, prod_effective_dt,
                 prod_item_id, prod_cost, prod_sell_price, prod_effective_dt))
-            self.conn.commit()
+
         # endregion -- condition 1
         # region -- condition 2
         else:
@@ -303,7 +303,7 @@ class MyProdSchema():
                 EffectiveDt = ?
             )''', (prod_item_id, prod_cost, prod_promo_sell_price, prod_promo_id, prod_promo_value, prod_promo_start_dt,
                 prod_item_id, prod_cost, prod_promo_sell_price, prod_promo_id, prod_promo_value, prod_promo_start_dt))
-            self.conn.commit()
+
         # endregion -- condition 2
         # endregion -- step e: insert item_price data depending on the conditions
         # region -- step f: insert stock data depending on the conditions
@@ -319,8 +319,9 @@ class MyProdSchema():
                 OnHand = ?
             )''', (prod_item_id, stock_available, stock_on_hand,
                    prod_item_id, stock_available, stock_on_hand))
-            self.conn.commit()
-            pass
+        
+        self.conn.commit()
+        pass
         # endregion -- step f: insert stock data depending on the conditions
     def edit_selected_prod(
         self,

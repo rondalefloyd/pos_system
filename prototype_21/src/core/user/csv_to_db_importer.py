@@ -111,17 +111,12 @@ class MyDataImportThread(QThread):
     def import_prod(self, row_v):
         prod_barcode, prod_name, prod_exp_dt, prod_type, prod_brand, prod_sales_group, prod_supplier, prod_cost, prod_sell_price, stock_available, stock_on_hand = row_v[:11]
 
-        print('PASSED')
-        # NOTE: for temporary use only!
-        current_date = QDateEdit()
-        current_date.setDate(QDate().currentDate())
-        temp_effective_data = current_date.date().toString(Qt.DateFormat.ISODate)
-
         
-        if '' not in [stock_available, stock_on_hand]:
+        if all(value and value > 0 for value in [stock_available, stock_on_hand]):
             prod_tracking = True
         else:
             prod_tracking = False
+
 
         self.prod_schema.add_new_prod(
                             prod_barcode=prod_barcode,
@@ -133,7 +128,6 @@ class MyDataImportThread(QThread):
                             prod_supplier=prod_supplier,
                             prod_cost=prod_cost,
                             prod_sell_price=prod_sell_price,
-                            prod_effective_dt=temp_effective_data, # REVIEW
                             prod_tracking=prod_tracking, # REVIEW
                             stock_available=stock_available, 
                             stock_on_hand=stock_on_hand

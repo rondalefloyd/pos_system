@@ -597,7 +597,7 @@ class MyProdController: # NOTE: connections, setting attributes
     def on_sync_ui_button_clicked(self):
         self.model.init_prod_list_page_entry()
         self.model.init_stock_list_page_entry()
-        
+
         self.model.prod_list_page_label.setText(f"Page {self.model.page_number}/{self.model.total_page_number}")
         self.model.stock_list_page_label.setText(f"Page {self.model.page_number}/{self.model.stock_total_page_number}")
 
@@ -608,13 +608,11 @@ class MyProdController: # NOTE: connections, setting attributes
         pass
     
     def on_import_prod_button_clicked(self):
-        print('PASSED')
         try:
             self.prod_csv_file, _ = QFileDialog.getOpenFileName(self.view, 'Open CSV', qss.csv_file_path, 'CSV File (*.csv)')
             self.prod_csv_df = pd.read_csv(self.prod_csv_file, encoding='utf-8-sig', keep_default_na=False, header=None)
 
             if self.prod_csv_file:
-                print('PASSED')
                 self.model.prog_total_data_value = len(self.prod_csv_df)
                 self.model.prog_remaining_data_value = len(self.prod_csv_df)
 
@@ -626,7 +624,6 @@ class MyProdController: # NOTE: connections, setting attributes
                 if self.model.prog_remaining_data_value > 0 and self.model.progress_dialog.close():
                     self.model.prod_import_thread.stop()
 
-                    print('PASSED')
                     self.model.init_progress_data_entry()
 
                     QMessageBox.critical(self.view, 'Cancelled', 'Import has been cancelled')
@@ -651,7 +648,6 @@ class MyProdController: # NOTE: connections, setting attributes
             self.model.progress_label.setText(f"Please wait...({self.model.prog_remaining_data_value})")
             self.model.progress_bar.setValue(progress_percent_value)
 
-            print('PASSED')
 
             pass
         except Exception as e:
