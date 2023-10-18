@@ -60,16 +60,16 @@ class MyCustSchema():
         ''')
         self.conn.commit()
 
-    def add_new_cust(self, cust_name='', cust_address='', cust_barrio='', cust_town='', cust_phone='', cust_age='', cust_gender='', cust_marital_status='', cust_points=''):
-        cust_name = '[no data]' if cust_name == '' else cust_name
-        cust_address = '[no data]' if cust_address == '' else cust_address
-        cust_barrio = '[no data]' if cust_barrio == '' else cust_barrio
-        cust_town = '[no data]' if cust_town == '' else cust_town
-        cust_phone = '[no data]' if cust_phone == '' else cust_phone
-        cust_age = '[no data]' if cust_age == '' else cust_age
-        cust_gender = '[no data]' if cust_gender == '' else cust_gender
-        cust_marital_status = '[no data]' if cust_marital_status == '' else cust_marital_status
-        cust_points == 0 if cust_points == '' else cust_points
+    def add_new_cust(self, cust_name='', cust_address='', cust_barrio='', cust_town='', cust_phone='', cust_age='', cust_gender='', cust_marital_status='', cust_points=0):
+        cust_name = cust_name or '[no data]'
+        cust_address = cust_address or '[no data]'
+        cust_barrio = cust_barrio or '[no data]'
+        cust_town = cust_town or '[no data]'
+        cust_phone = cust_phone or '[no data]'
+        cust_age = cust_age or '[no data]'
+        cust_gender = cust_gender or '[no data]'
+        cust_marital_status = cust_marital_status or '[no data]'
+        cust_points ==cust_points or  0
 
         self.cursor.execute('''
         INSERT INTO Customer (

@@ -29,17 +29,18 @@ class MyPOSSchema():
             COALESCE(NULLIF(ItemPrice.SellPrice, ''), '[no data]') AS SellPrice,
             COALESCE(NULLIF(ItemPrice.EffectiveDt, ''), '[no data]') AS EffectiveDt,
             CASE WHEN Promo.Name IS NOT NULL THEN Promo.Name ELSE 'No promo' END AS Promo,
+            ItemPrice.DiscountValue AS Discount,
             CASE
                 WHEN Stock.OnHand IS NULL THEN 'N/A'
                 WHEN Stock.OnHand = 0 THEN 'Out of stock'
                 ELSE CAST(Stock.OnHand AS TEXT) -- Or use the appropriate data type conversion
             END AS OnHand,
-            ItemPrice.UpdateTs AS DateTimeCreated, -- 15
-            ItemPrice.ItemId,
-            ItemPrice.ItemPriceId,
-            ItemPrice.PromoId,
-            Stock.StockId,
-            SalesGroup.Name -- for testing purposes
+            ItemPrice.UpdateTs AS DateTimeCreated, -- 8
+            ItemPrice.ItemId, -- 9
+            ItemPrice.ItemPriceId, -- 10
+            ItemPrice.PromoId, -- 11
+            Stock.StockId, -- 12
+            SalesGroup.Name -- 13
         """
         self.join_prod_table = """
             LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
@@ -285,8 +286,8 @@ class MyPOSSchema():
                 Brand.Name LIKE ? OR 
                 Supplier.Name LIKE ? OR
                 Stock.OnHand LIKE ?) AND
-                SalesGroup.Name = ? AND
-                ItemPrice.EffectiveDt <= CURRENT_DATE
+                SalesGroup.Name = ?
+                -- ItemPrice.EffectiveDt <= CURRENT_DATE -- NEEDS TO BE CHECKED
             ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC
             LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
             """, (
@@ -304,6 +305,7 @@ class MyPOSSchema():
         product = self.sales_cursor.fetchall()
 
         return product
+    pass
     def list_all_prod_col_via_promo(self, text_filter='', prod_type='Retail', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
         
@@ -350,7 +352,7 @@ class MyPOSSchema():
             FROM ItemPrice
                 {self.join_prod_table}
             WHERE
-                Item.Barcode LIKE ? AND SalesGroup LIKE ? AND ItemPrice.EffectiveDt <= CURRENT_DATE
+                Item.Barcode LIKE ? AND SalesGroup.Name LIKE ? AND ItemPrice.EffectiveDt <= CURRENT_DATE
             ORDER BY 
                 Item.ItemId DESC, EffectiveDt DESC, DateTimeCreated DESC LIMIT 1
             """, (barcode, prod_type))
@@ -359,29 +361,40 @@ class MyPOSSchema():
 
         return product
    
-    def list_all_cust_col(self, customer_id=''):
+    def list_cust_name_col(self):
+        cust_name = self.sales_cursor.execute(f"""
+        SELECT DISTINCT Name FROM Customer
+        ORDER BY UpdateTs DESC 
+        """)
+        cust_name = self.sales_cursor.fetchall()
+
+        return cust_name
+        
+        pass
+    def list_all_cust_col_via_cust_id(self, cust_id=''):
         self.sales_cursor.execute(f"""
         SELECT 
             Customer.Name AS Name,
-            CustomerReward.Points AS Points,
-            Customer.Phone AS Phone
+            Customer.Phone AS Phone,
+            CustomerReward.Points AS Points
         FROM Customer
             LEFT JOIN CustomerReward
                 ON Customer.CustomerId = CustomerReward.CustomerId
         WHERE Customer.CustomerId LIKE ?
         ORDER BY Customer.UpdateTs DESC
             
-        """, ('%' + str(customer_id) + '%',))
+        """, ('%' + str(cust_id) + '%',))
         
         customer = self.sales_cursor.fetchall()
         
         return customer
-    def get_customer_id(self, customer):
+    
+    def list_cust_id(self, cust):
         self.sales_cursor.execute(f"""
         SELECT CustomerId FROM Customer
         WHERE Name = ?
         ORDER BY Customer.UpdateTs DESC
-        """, (customer,))
+        """, (cust,))
         
         customer_id = self.sales_cursor.fetchone()[0]
 
@@ -396,15 +409,29 @@ class MyPOSSchema():
         count = self.sales_cursor.fetchone()[0]
         
         return count
-    def count_prod_list_total_pages(self, prod_type='Retail', page_size=30):
+    def count_prod_list_total_pages(self, text_filter='', prod_type='Retail', page_size=30):
         self.sales_cursor.execute(f"""
             SELECT COUNT(*)
             FROM ItemPrice
                 {self.join_prod_table}
             WHERE 
+                (Item.Barcode LIKE ? OR
+                Item.Name LIKE ? OR
+                ItemType.Name LIKE ? OR 
+                Brand.Name LIKE ? OR 
+                Supplier.Name LIKE ? OR
+                Stock.OnHand LIKE ?) AND
                 SalesGroup.Name = ? AND
                 ItemPrice.EffectiveDt <= CURRENT_DATE
-            """, (prod_type,))
+            """, (
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                '%' + str(text_filter) + '%',
+                prod_type,
+            ))
 
         total_product = self.sales_cursor.fetchone()[0]
         total_pages = (total_product - 1) // page_size + 1

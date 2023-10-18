@@ -834,7 +834,7 @@ class MyPOSController: # IDEA: can use 'MySalesModel' and 'MySalesView' attribut
                             
                             if cust_order_list: # if order list exist
                                 for item_v in cust_order_list:
-                                    item_i = item_v.row()  # get row index
+                                    item_i = item_v.row()  # get row index  
                                     current_quantity = int(self.model.cust_order_tables[i].item(item_i, 1).text().replace('x', ''))  # Get the current value and convert it to an integer
                                     current_price = float(self.model.cust_order_tables[i].item(item_i, 3).text().replace('₱', ''))  # Remove '₱' and convert to an integer[]
                                     current_discount = float(self.model.cust_order_tables[i].item(item_i, 4).text().replace('₱', ''))  # Remove '₱' and convert to an integer[]
