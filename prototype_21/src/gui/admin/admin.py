@@ -73,20 +73,20 @@ class MyAdminView(MyWidget):
     def set_panel_b(self):
         self.panel_b_stacked = MyStackedWidget()
         
-        promo_content = MyPromoWindow(name=self.model.user_name)
-        prod_content = MyProdWindow(name=self.model.user_name)
-        reward_content = MyRewardWindow(name=self.model.user_name)
-        cust_content = MyCustWindow(name=self.model.user_name)
-        user_content = MyUserWindow(name=self.model.user_name)
-        settings_content = QWidget()
+        self.promo_content = MyPromoWindow(name=self.model.user_name)
+        self.prod_content = MyProdWindow(name=self.model.user_name)
+        self.reward_content = MyRewardWindow(name=self.model.user_name)
+        self.cust_content = MyCustWindow(name=self.model.user_name)
+        self.user_content = MyUserWindow(name=self.model.user_name)
+        self.settings_content = QWidget()
         
         self.panel_b_stacked.setCurrentIndex(0)
-        self.panel_b_stacked.addWidget(prod_content)
-        self.panel_b_stacked.addWidget(promo_content)
-        self.panel_b_stacked.addWidget(reward_content)
-        self.panel_b_stacked.addWidget(cust_content)
-        self.panel_b_stacked.addWidget(user_content)
-        self.panel_b_stacked.addWidget(settings_content)
+        self.panel_b_stacked.addWidget(self.prod_content)
+        self.panel_b_stacked.addWidget(self.promo_content)
+        self.panel_b_stacked.addWidget(self.reward_content)
+        self.panel_b_stacked.addWidget(self.cust_content)
+        self.panel_b_stacked.addWidget(self.user_content)
+        self.panel_b_stacked.addWidget(self.settings_content)
         pass
 
     def set_panel_c(self):
@@ -122,6 +122,11 @@ class MyAdminController:
     
     def on_navbar_button_clicked(self, stack_index):
         self.view.panel_b_stacked.setCurrentIndex(stack_index)
+        self.view.promo_content.controller.start_sync_ui()
+        self.view.prod_content.controller.start_sync_ui()
+        self.view.reward_content.controller.start_sync_ui()
+        self.view.cust_content.controller.start_sync_ui()
+        self.view.user_content.controller.start_sync_ui()
         print(stack_index)
     pass
 

@@ -51,6 +51,18 @@ class MyPOSModel: # NOTE: entries
 
         self.init_final_order_ctr()
 
+
+    def init_order_clear_entry(self, i):
+        self.init_order_tab_val()
+        self.init_sel_prod_val()
+
+        self.order_subtotal_val_ctr[i] = 0
+        self.order_discount_val_ctr[i] = 0
+        self.order_tax_val_ctr[i] = 0
+        self.order_total_val_ctr[i] = 0
+
+        self.init_order_summary_update(i)
+
     def init_pos_list_page_val(self):
         self.pos_page_number = 1
         self.pos_total_page_number = 1
@@ -71,7 +83,12 @@ class MyPOSModel: # NOTE: entries
         self.pos_list_layout.addWidget(self.pos_list_table,0,0)
         self.pos_list_layout.addWidget(self.pos_list_pag_box,1,0,Qt.AlignmentFlag.AlignCenter)
         self.pos_list_box.setLayout(self.pos_list_layout)
-
+    def init_sel_prod_val(self):
+        self.sel_qty_val = 0
+        self.sel_prod_name_val = ''
+        self.sel_prod_price_val = 0
+        self.sel_prod_discount_val = 0
+        pass
     def init_order_tab_val(self):
         self.order_cust_name_value = ''
         self.order_cust_phone_value = '09-XXXXXXXXX'
@@ -106,12 +123,7 @@ class MyPOSModel: # NOTE: entries
         self.order_save_button_ctr: List[MyPushButton] = []
         self.order_pay_button_ctr: List[MyPushButton] = []
         pass
-    def init_sel_prod_val(self):
-        self.sel_qty_val = 0
-        self.sel_prod_name_val = ''
-        self.sel_prod_price_val = 0
-        self.sel_prod_discount_val = 0
-        pass
+
     def setup_order_tab_panel(self, tab_name='Order'):
         self.order_type_label = MyLabel(text=f"Order type: {self.order_order_type_value}")
         self.order_clear_button = MyPushButton(text='Clear')
@@ -366,7 +378,6 @@ class MyPOSModel: # NOTE: entries
         self.final_order_tax_value = 0
         self.final_order_total_value = 0
         pass
-
     def assign_final_order_val_entry(self, value):
         self.final_order_cust_name_value = value[0]
         self.final_order_cust_phone_value = value[0]
@@ -377,7 +388,6 @@ class MyPOSModel: # NOTE: entries
         self.final_order_discount_value = value[0]
         self.final_order_tax_value = value[0]
         self.final_order_total_value = value[0]
-
     def init_final_order_ctr(self): # NOTE: this is for the printing thread
         self.cashier_info_ctr = []
         self.cust_info_ctr = []
@@ -385,6 +395,14 @@ class MyPOSModel: # NOTE: entries
         self.final_order_summary_ctr = []
         pass
         
+    def init_ref_id_generator_entry(self, sales_group_id, cust_id):
+        sales_group_id = f'{sales_group_id:02}'
+        cust_id = f'{cust_id:05}'
+        update_ts = f"{datetime.today().strftime('%y%m%d%H%M%S')}"
+
+        self.ref_id = f"{sales_group_id}-{cust_id}-{update_ts}"
+
+        return self.ref_id
 
     pass
 class MyPOSView(MyGroupBox): # NOTE: layout
@@ -484,7 +502,7 @@ class MyPOSView(MyGroupBox): # NOTE: layout
         self.payment_a_box.setLayout(self.payment_a_layout)
 
         self.tender_amount_label = MyLabel(text='Amount tendered')
-        self.tender_amount_field = MyLineEdit()
+        self.tender_amount_field = MyLineEdit(object_name='tender_amount_field')
         self.numpad_key_toggle_button = [
             MyPushButton(object_name='numpad_key_toggle_button', text='Toggle'),
             MyPushButton(object_name='numpad_key_untoggle_button', text='Untoggle'),
@@ -549,15 +567,48 @@ class MyPOSView(MyGroupBox): # NOTE: layout
         self.payment_layout.addWidget(self.payment_b_box,0,1,Qt.AlignmentFlag.AlignTop)
         self.payment_layout.addWidget(self.payment_act_box,1,0,1,2)
         self.payment_dialog.setLayout(self.payment_layout)
+    
+    def setup_txn_complete_dialog(self):
+        self.txn_complete_dialog = MyDialog()
+        self.txn_complete_layout = MyGridLayout()
 
-    def setup_print_dialog(self):
-        self.print_receipt_button = MyPushButton(text='Print receipt')
-        self.print_invoice_button = MyPushButton(text='Print invoice')
-        self.print_dialog = MyDialog()
-        self.print_layout = MyHBoxLayout()
-        self.print_layout.addWidget(self.print_receipt_button)
-        self.print_layout.addWidget(self.print_invoice_button)
-        self.print_dialog.setLayout(self.print_layout)
+        self.txn_amount_tendered_label = MyLabel(text='Amount tendered')
+        self.txn_amount_tendered_field = MyLabel(text=f"{'100.00'}")
+        self.txn_order_change_label = MyLabel(text='Change')
+        self.txn_order_change_field = MyLabel(text=f"{'100.00'}")
+        self.txn_info_box = MyGroupBox()
+        self.txn_info_layout = MyVBoxLayout()
+        self.txn_info_layout.addWidget(self.txn_amount_tendered_label,1,Qt.AlignmentFlag.AlignCenter)
+        self.txn_info_layout.addWidget(self.txn_amount_tendered_field,1,Qt.AlignmentFlag.AlignCenter)
+        self.txn_info_layout.addWidget(self.txn_order_change_label,1,Qt.AlignmentFlag.AlignCenter)
+        self.txn_info_layout.addWidget(self.txn_order_change_field,1,Qt.AlignmentFlag.AlignCenter)
+        self.txn_info_box.setLayout(self.txn_info_layout)
+
+        self.print_receipt_button = MyPushButton(text='Print')
+        self.save_receipt_button = MyPushButton(text='Save')
+        self.txn_complete_act_a_box = MyGroupBox()
+        self.txn_complete_act_a_layout = MyHBoxLayout()
+        self.txn_complete_act_a_layout.addWidget(self.print_receipt_button)
+        self.txn_complete_act_a_layout.addWidget(self.save_receipt_button)
+        self.txn_complete_act_a_box.setLayout(self.txn_complete_act_a_layout)
+
+        self.txn_complete_summary_box = MyGroupBox(object_name='txn_complete_summary_box')
+        self.txn_complete_summary_layout = MyVBoxLayout(object_name='txn_complete_summary_layout')
+        self.txn_complete_summary_layout.addWidget(self.txn_info_box,1,Qt.AlignmentFlag.AlignCenter)
+        self.txn_complete_summary_layout.addWidget(self.txn_complete_act_a_box,1,Qt.AlignmentFlag.AlignCenter)
+        self.txn_complete_summary_box.setLayout(self.txn_complete_summary_layout)
+
+        self.add_new_order_button = MyPushButton(text='Add new order')
+        self.txn_complete_close_button = MyPushButton(text='Close')
+        self.txn_complete_act_b_box = MyGroupBox()
+        self.txn_complete_act_b_layout = MyHBoxLayout()
+        self.txn_complete_act_b_layout.addWidget(self.add_new_order_button)
+        self.txn_complete_act_b_layout.addWidget(self.txn_complete_close_button)
+        self.txn_complete_act_b_box.setLayout(self.txn_complete_act_b_layout)
+        
+        self.txn_complete_layout.addWidget(self.txn_complete_summary_box,0,0)
+        self.txn_complete_layout.addWidget(self.txn_complete_act_b_box,1,0,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
+        self.txn_complete_dialog.setLayout(self.txn_complete_layout)
     pass 
 class MyPOSController: # NOTE: connections, setting attributes
     def __init__(self, model: MyPOSModel, view: MyPOSView):
@@ -570,6 +621,7 @@ class MyPOSController: # NOTE: connections, setting attributes
         self.setup_panel_b_conn()
         self.populate_add_order_act_box()
 
+    # NOTE: THIS IS PANEL A SECTION
     def setup_panel_a_conn(self):
         self.view.text_filter_field.returnPressed.connect(self.on_text_filter_button_clicked)
         self.view.text_filter_button.clicked.connect(self.on_text_filter_button_clicked)
@@ -580,7 +632,6 @@ class MyPOSController: # NOTE: connections, setting attributes
         self.model.pos_list_prev_button.clicked.connect(lambda: self.on_pos_list_pag_button_clicked(action='go_prev'))
         self.model.pos_list_next_button.clicked.connect(lambda: self.on_pos_list_pag_button_clicked(action='go_next'))
         pass
-
     def populate_pos_list_table(self, text_filter='', prod_type='', page_number=1):
         prod_list = schema.list_all_prod_col(text_filter=text_filter, prod_type=prod_type, page_number=page_number)
 
@@ -689,6 +740,7 @@ class MyPOSController: # NOTE: connections, setting attributes
         self.start_sync_ui()
         pass
 
+    # NOTE: THIS IS PANEL B SECTION
     def setup_panel_b_conn(self):
         self.view.add_order_button.clicked.connect(self.on_add_order_button_clicked)
         self.view.order_tab.currentChanged.connect(self.on_order_tab_current_changed)
@@ -705,26 +757,38 @@ class MyPOSController: # NOTE: connections, setting attributes
         pass
     def on_add_order_button_clicked(self):
         try:
-            sel_cust_id = schema.list_cust_id(self.view.sel_cust_field.currentText()) # REVIEW: NEEDS TO HAVE A PROPER IMPLEMENTATION
-            sel_cust_data = schema.list_all_cust_col_via_cust_id(sel_cust_id) # REVIEW: NEEDS TO HAVE A PROPER IMPLEMENTATION
+            sel_cust = self.view.sel_cust_field.currentText()
 
-            for cust_name, cust_phone, cust_points in sel_cust_data: # REVIEW: NEEDS TO HAVE A PROPER IMPLEMENTATION
-                order_name = cust_name
-                order_phone = cust_phone
-                order_points = cust_points
+            sel_cust_id = schema.list_cust_id(self.view.sel_cust_field.currentText()) # REVIEW: NEEDS TO HAVE A PROPER IMPLEMENTATION
+
+            if sel_cust_id != 0:
+                sel_cust_data = schema.list_all_cust_col_via_cust_id(sel_cust_id) # REVIEW: NEEDS TO HAVE A PROPER IMPLEMENTATION
+
+                for cust_name, cust_phone, cust_points in sel_cust_data: # REVIEW: NEEDS TO HAVE A PROPER IMPLEMENTATION
+                    order_name = cust_name
+                    order_phone = cust_phone
+                    order_points = cust_points
+
+                    self.model.order_cust_name_value = order_name
+                    self.model.order_cust_phone_value = order_phone
+                    self.model.order_cust_points_value = order_points
+
+            else:
+                self.model.order_cust_name_value = sel_cust
+    
+            print('cust_name:', self.model.order_cust_name_value)
+            print('cust_phone:', self.model.order_cust_phone_value)
+            print('cust_points:', self.model.order_cust_points_value)
 
             order_type = self.view.sel_order_type_field.currentText()
 
-            self.model.order_cust_name_value = order_name
-            self.model.order_cust_phone_value = order_phone
-            self.model.order_cust_points_value = order_points
             self.model.order_order_type_value = order_type
 
             self.model.setup_order_tab_panel()
 
             self.model.append_order_tab_ctr()
 
-            curr_i = self.view.order_tab.addTab(self.model.order_box, order_name)
+            curr_i = self.view.order_tab.addTab(self.model.order_box, sel_cust)
             self.view.order_tab.setCurrentIndex(curr_i)
 
             self.setup_order_tab_conn()
@@ -759,6 +823,9 @@ class MyPOSController: # NOTE: connections, setting attributes
             if confirm is QMessageBox.StandardButton.Yes:
 
                 self.model.order_table_ctr[i].setRowCount(0)
+
+                self.model.init_order_clear_entry(i)
+
                 pass
         else:
             QMessageBox.critical(self.view, 'Error', 'This table is already empty.')
@@ -981,36 +1048,10 @@ class MyPOSController: # NOTE: connections, setting attributes
                 sel_prod_name = str(self.model.order_table_ctr[i].item(col_i, 2).text())
                 sel_prod_price = float(self.model.order_table_ctr[i].item(col_i, 3).text())
 
-                prod_qty = MyTableWidgetItem(f"{sel_prod_qty}")
-                prod_name = MyTableWidgetItem(f"{sel_prod_name}")
-                prod_price = MyTableWidgetItem(f"{sel_prod_price:.2f}")
-
-                self.view.final_order_table.insertRow(row_i)
-
-                self.view.final_order_table.setItem(row_i, 0, prod_qty)
-                self.view.final_order_table.setItem(row_i, 1, prod_name)
-                self.view.final_order_table.setItem(row_i, 2, prod_price)
+                self.populate_final_order_table(row_i, sel_prod_qty, sel_prod_name, sel_prod_price)
 
                 self.model.final_order_table_ctr.append([sel_prod_qty, sel_prod_name, sel_prod_price])
                 pass
-
-            self.view.final_order_subtotal_label.setText(f"{self.model.order_subtotal_val_ctr[i]:.2f}")
-            self.view.final_order_discount_label.setText(f"{self.model.order_discount_val_ctr[i]:.2f}")
-            self.view.final_order_tax_label.setText(f"{self.model.order_tax_val_ctr[i]:.2f}")
-            self.view.final_order_total_label.setText(f"{self.model.order_total_val_ctr[i]:.2f}")
-
-            self.view.reg_cust_name_label.setText(f"Name: {self.model.order_cust_name_value_ctr[i]}")
-            self.view.reg_cust_phone_label.setText(f"Phone: {self.model.order_cust_phone_value_ctr[i]}")
-            self.view.reg_cust_points_label.setText(f"Points: {self.model.order_cust_points_value_ctr[i]}")
-
-            print('test:', self.model.order_cust_name_value_ctr[i])
-            print('test:', self.model.order_cust_phone_value_ctr[i])
-            print('test:', type(self.model.order_cust_points_value_ctr[i]))
-
-            # TODO: ADD STOCK UPDATER
-            # TODO: ADD CUSTOMER REWARD UPDATER
-            # TODO: ADD REWARD FINDER/MATCHER
-
             self.model.cust_info_ctr.append([
                 self.model.order_cust_name_value_ctr[i],
                 self.model.order_cust_phone_value_ctr[i],
@@ -1023,14 +1064,47 @@ class MyPOSController: # NOTE: connections, setting attributes
                 self.model.order_tax_val_ctr[i],
                 self.model.order_total_val_ctr[i],
             ])
+            
+            self.update_reg_cust_box(i)
 
+            self.setup_payment_dialog_conn()
+            self.on_close_button_clicked(self.view.payment_dialog)
+           
+            self.view.payment_dialog.exec()
 
-
-
-        self.setup_payment_dialog_conn()
-        self.on_close_button_clicked(self.view.payment_dialog)
-        self.view.payment_dialog.exec()
+            if self.view.payment_dialog.close():
+                self.model.init_final_order_ctr()
+        else:
+            QMessageBox.critical(self.view, 'Error', 'Please add a product first.')
         pass
+    def populate_final_order_table(self, row_i, sel_prod_qty, sel_prod_name, sel_prod_price):
+        prod_qty = MyTableWidgetItem(f"{sel_prod_qty}")
+        prod_name = MyTableWidgetItem(f"{sel_prod_name}")
+        prod_price = MyTableWidgetItem(f"{sel_prod_price:.2f}")
+
+        self.view.final_order_table.insertRow(row_i)
+
+        self.view.final_order_table.setItem(row_i, 0, prod_qty)
+        self.view.final_order_table.setItem(row_i, 1, prod_name)
+        self.view.final_order_table.setItem(row_i, 2, prod_price)
+        pass
+    def update_reg_cust_box(self, i):
+        self.view.final_order_subtotal_label.setText(f"{self.model.order_subtotal_val_ctr[i]:.2f}")
+        self.view.final_order_discount_label.setText(f"{self.model.order_discount_val_ctr[i]:.2f}")
+        self.view.final_order_tax_label.setText(f"{self.model.order_tax_val_ctr[i]:.2f}")
+        self.view.final_order_total_label.setText(f"{self.model.order_total_val_ctr[i]:.2f}")
+
+        if self.model.order_cust_name_value_ctr[i] != 'Guest order':
+            self.view.reg_cust_name_label.setText(f"Name: {self.model.order_cust_name_value_ctr[i]}")
+            self.view.reg_cust_phone_label.setText(f"Phone: {self.model.order_cust_phone_value_ctr[i]}")
+            self.view.reg_cust_points_label.setText(f"Points: {self.model.order_cust_points_value_ctr[i]}")
+        else:
+            self.view.reg_cust_name_label.setText(f"{self.model.order_cust_name_value_ctr[i]}")
+            self.view.reg_cust_phone_label.hide()
+            self.view.reg_cust_points_label.hide()
+        pass
+
+    # NOTE: THIS IS PAYMENT DIALOG SECTION
     def setup_payment_dialog_conn(self):
         self.view.numpad_key_toggle_button[0].clicked.connect(lambda: self.on_numpad_key_toggle_button_clicked(action='toggle'))
         self.view.numpad_key_toggle_button[1].clicked.connect(lambda: self.on_numpad_key_toggle_button_clicked(action='untoggle'))
@@ -1064,28 +1138,92 @@ class MyPOSController: # NOTE: connections, setting attributes
     def on_numpad_key_button_clicked(self, value=''):
         pass
     def on_pay_cash_button_clicked(self):
-        self.view.setup_print_dialog()
+        try:
+            i = self.view.order_tab.currentIndex()
+            amount_tendered = float(self.view.tender_amount_field.text())
+            order_total = float(self.model.order_total_val_ctr[i])
 
-        # TODO: add methods here
-        self.set_print_dialog_conn(payment_type='cash')
-        self.view.print_dialog.exec()
+
+            if amount_tendered >= order_total:
+                confirm = QMessageBox.warning(self.view.payment_dialog, 'Confirm', f"Pay {amount_tendered} for this order?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                
+                if confirm is QMessageBox.StandardButton.Yes:
+
+                    order_prod_list_data = self.model.final_order_table_ctr
+
+                    for list_i, list_v in enumerate(order_prod_list_data):
+                        user_name = self.model.user_name
+                        cust_name = self.model.order_cust_name_value_ctr[i]
+                        order_type = self.model.order_order_type_value_ctr[i]
+
+                        prod_qty = int(list_v[0])
+                        prod_name = str(list_v[1])
+                        prod_price = float(list_v[2])
+
+                        item_id = schema.get_item_id(prod_name)
+                        item_price_id = schema.get_item_price_id(item_id)
+                        sales_group_id = schema.get_sales_group_id(order_type)
+                        cust_id = schema.get_cust_id(cust_name)
+                        stock_id = schema.get_stock_id(item_id)
+                        user_id = schema.get_user_id(user_name)
+
+                        ref_id = self.model.init_ref_id_generator_entry(sales_group_id, cust_id)
+
+                        schema.add_new_txn(item_price_id, cust_id, stock_id, user_id, prod_qty, prod_price, ref_id)
+
+                        schema.update_stock(item_id, stock_id, prod_qty)
+
+                    order_change = float(amount_tendered - order_total)
+
+                    schema.update_cust_reward(cust_id, order_total, ref_id) # FIX
+
+                    self.model.remove_order_tab_ctr(i)
+                    self.view.order_tab.removeTab(i)
+                    self.view.payment_dialog.close()
+
+                    self.view.setup_txn_complete_dialog()
+
+                    self.view.txn_amount_tendered_field.setText(f"<b>{amount_tendered:.2f}</b>")
+                    self.view.txn_order_change_field.setText(f"<b>{order_change:.2f}</b>")
+
+                    self.set_txn_complete_dialog_conn()
+
+                    self.view.txn_complete_dialog.exec()
+                pass
+            else:
+                QMessageBox.critical(self.view.payment_dialog, 'Error', 'Insufficient fund.')
+        except Exception as e:
+            QMessageBox.critical(self.view.payment_dialog, 'Error', 'Invalid numerical input.')
+
         pass
     def on_pay_points_button_clicked(self):
         self.view.setup_print_dialog()
-        #
+
         #  TODO: add methods here
+
         self.set_print_dialog_conn(payment_type='points')
         self.view.print_dialog.exec()
         pass
-    def set_print_dialog_conn(self, payment_type=''):
+
+    def on_add_new_order_button_clicked(self):
+        self.view.txn_complete_dialog.close()    
+        self.on_add_order_button_clicked()
+        pass
+
+    def set_txn_complete_dialog_conn(self, payment_type=''):
+        self.view.add_new_order_button.clicked.connect(self.on_add_new_order_button_clicked)
+        self.view.txn_complete_close_button.clicked.connect(lambda: self.on_close_button_clicked(widget=self.view.txn_complete_dialog))
         self.view.print_receipt_button.clicked.connect(lambda: self.on_print_button_clicked(action='print_receipt', payment_type=payment_type))
-        self.view.print_invoice_button.clicked.connect(lambda: self.on_print_button_clicked(action='print_invoice', payment_type=payment_type))
+        self.view.save_receipt_button.clicked.connect(lambda: self.on_print_button_clicked(action='save_receipt', payment_type=payment_type))
 
     def on_print_button_clicked(self, action, payment_type):
-        print('action:', action)
-        print('payment_type:', payment_type)
-
-        # self.print_thread = ReceiptGenerator()
+        if action == 'print_receipt':
+            # self.print_thread = ReceiptGenerator()
+            print(action)
+            pass
+        elif action == 'save_receipt':
+            print(action)
+            pass
         pass
     def on_close_button_clicked(self, widget: QWidget):
         try:

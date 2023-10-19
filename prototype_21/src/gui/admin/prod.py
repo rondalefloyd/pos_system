@@ -596,6 +596,12 @@ class MyProdController: # NOTE: connections, setting attributes
         self.populate_stock_list_table(text_filter=self.view.text_filter_field.text(), page_number=self.model.stock_page_number)
         pass
     def on_sync_ui_button_clicked(self):
+        self.start_sync_ui()
+
+        QMessageBox.information(self.view, 'Success', 'Synced.')
+        pass
+
+    def start_sync_ui(self):
         self.model.init_prod_list_page_entry()
         self.model.init_stock_list_page_entry()
 
@@ -604,9 +610,6 @@ class MyProdController: # NOTE: connections, setting attributes
 
         self.populate_prod_list_table()
         self.populate_stock_list_table()
-
-        QMessageBox.information(self.view, 'Success', 'Synced.')
-        pass
     
     def on_import_prod_button_clicked(self):
         try:

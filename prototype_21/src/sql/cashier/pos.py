@@ -16,6 +16,7 @@ class MyPOSSchema():
         
         self.setup_sales_db_conn()
         self.setup_txn_db_conn()
+        self.setup_accounts_db_conn()
 
         self.create_all_sales_table()
 
@@ -61,7 +62,13 @@ class MyPOSSchema():
         self.txn_file = os.path.abspath(qss.db_file_path + qss.txn_file_name)
         self.txn_conn = sqlite3.connect(database=self.txn_file)
         self.txn_cursor = self.txn_conn.cursor()
-
+        pass
+    def setup_accounts_db_conn(self):
+        self.accounts_file = os.path.abspath(qss.db_file_path + qss.accounts_file_name)
+        self.accounts_conn = sqlite3.connect(database=self.accounts_file)
+        self.accounts_cursor = self.accounts_conn.cursor()
+        pass
+    
     def create_all_sales_table(self):
         # item type
         self.sales_cursor.execute(f"""
@@ -208,7 +215,7 @@ class MyPOSSchema():
         self.sales_conn.commit()
 
         # item sold
-        self.sales_cursor.execute(f"""
+        self.txn_cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS ItemSold (
             ItemSoldId INTEGER PRIMARY KEY AUTOINCREMENT,
             DateId INTEGER DEFAULT 0,
@@ -228,45 +235,6 @@ class MyPOSSchema():
         );
         """)
         self.sales_conn.commit()
-
-    def add_new_txn(self, item_name, customer, quantity, total_amount,):
-        # REVIEW: needs to be reviewed
-        item_id = self.txn_cursor.execute(f"""
-            SELECT ItemId FROM Item
-            WHERE Name = ?
-        """, (item_name,))
-        item_id = self.txn_cursor.fetchone()[0]
-
-        item_price_id = self.txn_cursor.execute(f"""
-            SELECT ItemPriceId FROM ItemPrice
-            WHERE ItemId = ?
-        """, (item_id,))
-        item_price_id = self.txn_cursor.fetchone()[0]
-        
-        if customer == 'Order':
-            customer_id = 0
-            pass
-        else:
-            customer_id = self.txn_cursor.execute(f"""
-                SELECT CustomerId FROM Customer
-                WHERE Name = ?
-            """, (customer,))
-            customer_id = self.txn_cursor.fetchone()[0]
-            
-
-        self.txn_cursor.execute(f"""
-            INSERT INTO ItemSold (ItemPriceId, CustomerId, Quantity, TotalAmount)
-            SELECT ?, ?, ?, ?
-            WHERE NOT EXISTS(
-                SELECT 1 FROM ItemSold
-                WHERE 
-                    ItemPriceId = ? AND 
-                    CustomerId = ? AND
-                    Quantity = ? AND 
-                    TotalAmount = ?
-            )""", (item_price_id, customer_id, quantity, total_amount,
-                   item_price_id, customer_id, quantity, total_amount))
-        
         self.txn_conn.commit()
 
     def list_all_prod_col(self, text_filter='', prod_type='Retail', page_number=1, page_size=30):
@@ -287,7 +255,7 @@ class MyPOSSchema():
                 Supplier.Name LIKE ? OR
                 Stock.OnHand LIKE ?) AND
                 SalesGroup.Name = ?
-                -- ItemPrice.EffectiveDt <= CURRENT_DATE -- NEEDS TO BE CHECKED
+                -- ItemPrice.EffectiveDt <= CURRENT_DATE -- # REVIEW NEEDS TO BE CHECKED
             ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC
             LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
             """, (
@@ -372,34 +340,42 @@ class MyPOSSchema():
         
         pass
     def list_all_cust_col_via_cust_id(self, cust_id=''):
-        self.sales_cursor.execute(f"""
-        SELECT 
-            Customer.Name AS Name,
-            Customer.Phone AS Phone,
-            CustomerReward.Points AS Points
-        FROM Customer
-            LEFT JOIN CustomerReward
-                ON Customer.CustomerId = CustomerReward.CustomerId
-        WHERE Customer.CustomerId LIKE ?
-        ORDER BY Customer.UpdateTs DESC
+        try:
+            self.sales_cursor.execute(f"""
+            SELECT 
+                Customer.Name AS Name,
+                Customer.Phone AS Phone,
+                CustomerReward.Points AS Points
+            FROM Customer
+                LEFT JOIN CustomerReward
+                    ON Customer.CustomerId = CustomerReward.CustomerId
+            WHERE Customer.CustomerId LIKE ?
+            ORDER BY Customer.UpdateTs DESC
+                
+            """, ('%' + str(cust_id) + '%',))
             
-        """, ('%' + str(cust_id) + '%',))
-        
-        customer = self.sales_cursor.fetchall()
-        
+            customer = self.sales_cursor.fetchall()
+            pass
+        except Exception as e:
+            customer = ''
+
         return customer
     
     def list_cust_id(self, cust):
-        self.sales_cursor.execute(f"""
-        SELECT CustomerId FROM Customer
-        WHERE Name = ?
-        ORDER BY Customer.UpdateTs DESC
-        """, (cust,))
-        
-        customer_id = self.sales_cursor.fetchone()[0]
+        try:
+            self.sales_cursor.execute(f"""
+            SELECT CustomerId FROM Customer
+            WHERE Name = ?
+            ORDER BY Customer.UpdateTs DESC
+            """, (cust,))
+            
+            customer_id = self.sales_cursor.fetchone()[0]
+            pass
+        except Exception as e:
+            customer_id = 0
 
         return customer_id
-    
+        
     def count_all_prod(self):
         self.create_all_sales_table()
 
@@ -453,3 +429,125 @@ class MyPOSSchema():
         total_pages = (total_product - 1) // page_size + 1
 
         return total_pages
+
+    def add_new_txn(
+        self,
+        item_price_id=0,
+        cust_id=0,
+        stock_id=0,
+        user_id=0,
+        prod_qty=0,
+        prod_price=0,
+        ref_id=''
+    ):
+
+        self.txn_cursor.execute('''
+		INSERT INTO ItemSold (
+            ItemPriceId,
+            CustomerId,
+            StockId,
+            UserId,
+            Quantity,
+            TotalAmount,
+            ReferenceId
+        )
+		SELECT ?, ?, ?, ?, ?, ?, ?
+		''', (item_price_id, cust_id, stock_id, user_id, prod_qty, prod_price, ref_id))
+
+        self.sales_conn.commit()
+        pass
+    def update_cust_reward(self, cust_id, order_total, ref_id):
+        self.sales_cursor.execute("""
+		UPDATE CustomerReward
+		SET 
+            Points = Points + (
+                SELECT Reward.Points + COALESCE(Reward.Points, 0) * (? - Reward.Unit) AS TotalPoints
+                FROM ItemSold
+                CROSS JOIN Reward 
+                INNER JOIN Customer 
+                    ON ItemSold.CustomerId = Customer.CustomerId
+                WHERE 
+                    ItemSold.ReferenceId = ? AND
+                    ItemSold.CustomerId = ? AND
+                    ? >= Reward.Unit 
+                ORDER BY Reward.Unit DESC
+                LIMIT 1
+            ),
+            UpdateTs = CURRENT_TIMESTAMP		
+		WHERE CustomerReward.CustomerId = ?
+		""", (order_total, ref_id, cust_id, order_total, cust_id))
+
+        self.txn_conn.commit()
+        pass
+    def update_stock(self, item_id, stock_id, prod_qty):
+        self.sales_cursor.execute("""
+        UPDATE Stock
+        SET OnHand = CASE 
+            WHEN (OnHand - ?) < 0 THEN 0 
+            ELSE (OnHand - ?) 
+        END
+        WHERE ItemId = ? AND StockId = ?;
+        """, (prod_qty, prod_qty, item_id, stock_id))
+        
+        self.sales_conn.commit()
+
+    def get_item_id(self, prod_name):
+        item_id = self.sales_cursor.execute(f"""
+            SELECT ItemId FROM Item
+            WHERE Name = ?
+        """, (prod_name,))
+        item_id = self.sales_cursor.fetchone()[0]
+
+        return item_id
+    def get_item_price_id(self, item_id):
+        item_price_id = self.sales_cursor.execute(f"""
+            SELECT ItemPriceId FROM ItemPrice
+            WHERE ItemId = ?
+        """, (item_id,))
+        item_price_id = self.sales_cursor.fetchone()[0]
+
+        return item_price_id
+    def get_sales_group_id(self, sales_group):
+        sales_group_id = self.sales_cursor.execute(f"""
+            SELECT SalesGroupId FROM SalesGroup
+            WHERE Name = ?
+        """, (sales_group,))
+        sales_group_id = self.sales_cursor.fetchone()[0]
+
+        return sales_group_id
+    def get_cust_id(self, cust_name):
+        try:
+            cust_id = self.sales_cursor.execute(f"""
+                SELECT CustomerId FROM Customer
+                WHERE Name = ?
+            """, (cust_name,))
+            cust_id = self.sales_cursor.fetchone()[0]
+        except Exception as e:
+            cust_id = 0
+
+        return cust_id
+    def get_stock_id(self, item_id):
+        try:
+            stock_id = self.sales_cursor.execute(f"""
+                SELECT StockId FROM Stock
+                WHERE ItemId = ?
+            """, (item_id,))
+            stock_id = self.sales_cursor.fetchone()[0]
+            pass
+        except Exception as e:
+            stock_id = 0
+        
+        return stock_id
+    def get_user_id(self, user_name):
+        try:
+            user_id = self.accounts_cursor.execute(f"""
+                SELECT UserId FROM User
+                WHERE Name = ?
+            """, (user_name,))
+            user_id = self.accounts_cursor.fetchone()[0]
+            pass
+        except Exception as e:
+            user_id = 0
+
+            
+        return user_id

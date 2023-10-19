@@ -371,12 +371,15 @@ class MyCustController: # NOTE: connections, setting attributes
         self.populate_cust_list_table(text_filter=self.view.text_filter_field.text(), page_number=self.model.page_number) 
         pass
     def on_sync_ui_button_clicked(self):
-        self.model.init_cust_list_page_entry()
-        self.view.cust_list_page_label.setText(f"Page {self.model.page_number}/{self.model.total_page_number}")
-        self.populate_cust_list_table()
+        self.start_sync_ui()
 
         QMessageBox.information(self.view, 'Success', 'Synced.')
         pass
+
+    def start_sync_ui(self):
+        self.model.init_cust_list_page_entry()
+        self.view.cust_list_page_label.setText(f"Page {self.model.page_number}/{self.model.total_page_number}")
+        self.populate_cust_list_table()
     
     def on_import_cust_button_clicked(self):
         try:

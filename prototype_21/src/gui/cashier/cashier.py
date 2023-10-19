@@ -11,6 +11,7 @@ sys.path.append(os.path.abspath(''))
 
 from templates.qss.qss_config import QSSConfig
 from src.gui.cashier.pos import MyPOSWindow
+from src.gui.cashier.txn import MyTXNWindow
 from src.widget.admin.admin import *
 
 
@@ -48,12 +49,12 @@ class MyCashierView(MyWidget):
         self.panel_a_layout = MyVBoxLayout(object_name='panel_a_layout')
 
         self.navbar_pos_button = MyPushButton(text='POS')
-        self.navbar_transactions_button = MyPushButton(text='Transactions')
+        self.navbar_txn_button = MyPushButton(text='Transactions')
         self.navbar_settings_button = MyPushButton(text='Settings')
         self.navbar_box = MyGroupBox()
         self.navbar_layout = MyFormLayout()
         self.navbar_layout.addWidget(self.navbar_pos_button)
-        self.navbar_layout.addWidget(self.navbar_transactions_button)
+        self.navbar_layout.addWidget(self.navbar_txn_button)
         self.navbar_layout.addWidget(self.navbar_settings_button)
         self.navbar_box.setLayout(self.navbar_layout)
         self.navbar_scra = MyScrollArea()
@@ -65,12 +66,14 @@ class MyCashierView(MyWidget):
     def set_panel_b(self):
         self.panel_b_stacked = MyStackedWidget()
         
-        pos_content = MyPOSWindow(name=self.model.user_name, phone=self.model.user_phone)
-        settings_content = QWidget()
+        self.pos_content = MyPOSWindow(name=self.model.user_name, phone=self.model.user_phone)
+        self.txn_content = MyTXNWindow(name=self.model.user_name, phone=self.model.user_phone)
+        self.settings_content = QWidget()
         
         self.panel_b_stacked.setCurrentIndex(0)
-        self.panel_b_stacked.addWidget(pos_content)
-        self.panel_b_stacked.addWidget(settings_content)
+        self.panel_b_stacked.addWidget(self.pos_content)
+        self.panel_b_stacked.addWidget(self.txn_content)
+        self.panel_b_stacked.addWidget(self.settings_content)
         pass
         pass
 
@@ -99,9 +102,12 @@ class MyCashierController:
 
     def set_panel_a_conn(self):
         self.view.navbar_pos_button.clicked.connect(lambda: self.on_navbar_button_clicked(stack_index=0))
+        self.view.navbar_txn_button.clicked.connect(lambda: self.on_navbar_button_clicked(stack_index=1))
     
     def on_navbar_button_clicked(self, stack_index):
         self.view.panel_b_stacked.setCurrentIndex(stack_index)
+        self.view.pos_content.controller.start_sync_ui()
+        self.view.txn_content.controller.start_sync_ui()
         print(stack_index)
     pass
 

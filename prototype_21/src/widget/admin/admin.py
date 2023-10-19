@@ -69,7 +69,11 @@ class MyDialog(QDialog):
         super().__init__()
         
         self.setObjectName(object_name)
+        self.setParent(parent)
         self.setWindowTitle(window_title)
+
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlag(Qt.WindowType.Dialog)
 
     pass
 class MyTableWidget(QTableWidget):
@@ -88,6 +92,7 @@ class MyTableWidget(QTableWidget):
         self.on_prod_widgets()
 
         self.on_pos_widgets()
+        self.on_txn_widget()
 
     def on_global_widgets(self):
         self.setWordWrap(False)
@@ -199,6 +204,20 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents) # 'Action'
             self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch) # 'Action'
             self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents) # 'Action'
+    def on_txn_widget(self):
+        if self.object_name == 'txn_list_table':
+            self.setColumnCount(10)
+            self.setHorizontalHeaderLabels(['Action','User','Customer','Product','Quantity','Total price','Void','Reason','Reference Id','Date/Time created'])
+
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch) # 'Product'
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch) # 'Product'
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch) # 'Product'
+            self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch) # 'Product'
+            self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch) # 'Product'
+            self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.Stretch) # 'Product'
+            self.horizontalHeader().setSectionResizeMode(6, QHeaderView.ResizeMode.Stretch) # 'Product'
+            self.horizontalHeader().setSectionResizeMode(7, QHeaderView.ResizeMode.Stretch) # 'Product'
+            self.horizontalHeader().setSectionResizeMode(8, QHeaderView.ResizeMode.Stretch) # 'Product'
 
     pass
 
@@ -211,10 +230,15 @@ class MyVBoxLayout(QVBoxLayout):
 
         self.on_admin_widgets()
 
+        self.on_pos_widgets()
+
     def on_admin_widgets(self):
         self.setContentsMargins(0,0,0,0)
         pass
 
+    def on_pos_widgets(self):
+        if self.objectName == 'txn_complete_summary_layout':
+            pass
     pass
 class MyHBoxLayout(QHBoxLayout):
     def __init__(self, object_name=''):
@@ -333,6 +357,10 @@ class MyLineEdit(QLineEdit):
             'prod_promo_sell_price_field',
         ]:
             self.setDisabled(True)
+    
+    def on_pos_widgets(self):
+        if self.object_name == 'tender_amount_field':
+            pass
     pass
 class MyPlainTextEdit(QPlainTextEdit):
     def __init__(self, object_name=''):
