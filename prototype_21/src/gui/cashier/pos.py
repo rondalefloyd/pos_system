@@ -377,6 +377,9 @@ class MyPOSModel: # NOTE: entries
         self.final_order_discount_value = 0
         self.final_order_tax_value = 0
         self.final_order_total_value = 0
+
+        self.amount_tendered = 0
+        self.order_change = 0
         pass
     def assign_final_order_val_entry(self, value):
         self.final_order_cust_name_value = value[0]
@@ -400,9 +403,9 @@ class MyPOSModel: # NOTE: entries
         cust_id = f'{cust_id:05}'
         update_ts = f"{datetime.today().strftime('%y%m%d%H%M%S')}"
 
-        self.ref_id = f"{sales_group_id}-{cust_id}-{update_ts}"
+        self.txn_ref_id = f"{sales_group_id}-{cust_id}-{update_ts}"
 
-        return self.ref_id
+        return self.txn_ref_id
 
     pass
 class MyPOSView(MyGroupBox): # NOTE: layout
@@ -1052,19 +1055,7 @@ class MyPOSController: # NOTE: connections, setting attributes
 
                 self.model.final_order_table_ctr.append([sel_prod_qty, sel_prod_name, sel_prod_price])
                 pass
-            self.model.cust_info_ctr.append([
-                self.model.order_cust_name_value_ctr[i],
-                self.model.order_cust_phone_value_ctr[i],
-                self.model.order_cust_points_value_ctr[i],
-            ])
-            self.model.cashier_info_ctr.append([self.model.user_name, self.model.user_phone])
-            self.model.final_order_summary_ctr.append([
-                self.model.order_subtotal_val_ctr[i],
-                self.model.order_discount_val_ctr[i],
-                self.model.order_tax_val_ctr[i],
-                self.model.order_total_val_ctr[i],
-            ])
-            
+           
             self.update_reg_cust_box(i)
 
             self.setup_payment_dialog_conn()
@@ -1140,12 +1131,12 @@ class MyPOSController: # NOTE: connections, setting attributes
     def on_pay_cash_button_clicked(self):
         try:
             i = self.view.order_tab.currentIndex()
-            amount_tendered = float(self.view.tender_amount_field.text())
+            self.amount_tendered = float(self.view.tender_amount_field.text())
             order_total = float(self.model.order_total_val_ctr[i])
 
 
-            if amount_tendered >= order_total:
-                confirm = QMessageBox.warning(self.view.payment_dialog, 'Confirm', f"Pay {amount_tendered} for this order?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            if self.amount_tendered >= order_total:
+                confirm = QMessageBox.warning(self.view.payment_dialog, 'Confirm', f"Pay {self.amount_tendered} for this order?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
                 
                 if confirm is QMessageBox.StandardButton.Yes:
 
@@ -1173,7 +1164,7 @@ class MyPOSController: # NOTE: connections, setting attributes
 
                         schema.update_stock(item_id, stock_id, prod_qty)
 
-                    order_change = float(amount_tendered - order_total)
+                    self.order_change = float(self.amount_tendered - order_total)
 
                     schema.update_cust_reward(cust_id, order_total, ref_id) # FIX
 
@@ -1183,8 +1174,8 @@ class MyPOSController: # NOTE: connections, setting attributes
 
                     self.view.setup_txn_complete_dialog()
 
-                    self.view.txn_amount_tendered_field.setText(f"<b>{amount_tendered:.2f}</b>")
-                    self.view.txn_order_change_field.setText(f"<b>{order_change:.2f}</b>")
+                    self.view.txn_amount_tendered_field.setText(f"<b>{self.amount_tendered:.2f}</b>")
+                    self.view.txn_order_change_field.setText(f"<b>{self.order_change:.2f}</b>")
 
                     self.set_txn_complete_dialog_conn()
 
@@ -1210,18 +1201,80 @@ class MyPOSController: # NOTE: connections, setting attributes
         self.on_add_order_button_clicked()
         pass
 
-    def set_txn_complete_dialog_conn(self, payment_type=''):
+    def set_txn_complete_dialog_conn(self):
         self.view.add_new_order_button.clicked.connect(self.on_add_new_order_button_clicked)
         self.view.txn_complete_close_button.clicked.connect(lambda: self.on_close_button_clicked(widget=self.view.txn_complete_dialog))
-        self.view.print_receipt_button.clicked.connect(lambda: self.on_print_button_clicked(action='print_receipt', payment_type=payment_type))
-        self.view.save_receipt_button.clicked.connect(lambda: self.on_print_button_clicked(action='save_receipt', payment_type=payment_type))
+        self.view.print_receipt_button.clicked.connect(lambda: self.on_print_button_clicked(action='print_receipt'))
+        self.view.save_receipt_button.clicked.connect(lambda: self.on_print_button_clicked(action='save_receipt'))
 
-    def on_print_button_clicked(self, action, payment_type):
+    def on_print_button_clicked(self, action):
+        i = self.view.order_tab.currentIndex()
+
+        txn_ref_id = self.model.txn_ref_id
+        order_type = self.model.order_order_type_value[i]
+        user_name = self.model.user_name
+        user_phone = self.model.user_phone
+
+        order_cust_name = self.model.order_cust_name_value_ctr[i] # FIXME: list index out of range
+        order_cust_phone = self.model.order_cust_phone_value_ctr[i]
+        order_cust_points = self.model.order_cust_points_value_ctr[i]
+
+        order_table_list = self.final_order_table_ctr
+
+        order_subtotal = self.model.order_subtotal_val_ctr[i]
+        order_discount = self.model.order_discount_val_ctr[i]
+        order_tax = self.model.order_tax_val_ctr[i]
+        order_total = self.model.order_total_val_ctr[i]
+
+        amount_tendered = self.amount_tendered
+        order_change = self.order_change
+
+        print('::', txn_ref_id)
+        print('::', order_type)
+        print('::', user_name)
+        print('::', user_phone)
+        print('::', order_cust_name)
+        print('::', order_cust_phone)
+        print('::', order_cust_points)
+        print('::', order_table_list)
+        print('::', order_subtotal)
+        print('::', order_discount)
+        print('::', order_tax)
+        print('::', order_total)
+        print('::', amount_tendered)
+        print('::', order_change)
+
         if action == 'print_receipt':
-            # self.print_thread = ReceiptGenerator()
+            self.print_thread = ReceiptGenerator(
+                txn_ref_id=txn_ref_id,
+                order_type=order_type,
+                user_name=user_name,
+                user_phone=user_phone,
+                order_cust_name=order_cust_name,
+                order_cust_phone=order_cust_phone,
+                order_cust_points=order_cust_points,
+                order_table_list=order_table_list,
+                order_subtotal=order_subtotal,
+                order_discount=order_discount,
+                order_tax=order_tax,
+                order_total=order_total,
+                amount_tendered=amount_tendered,
+                order_change=order_change,
+                action=action
+            )
+
+            self.print_thread.run()
             print(action)
             pass
         elif action == 'save_receipt':
+            self.print_thread = ReceiptGenerator(
+                ref_id=self.model.txn_ref_id,
+                cashier_info=self.cashier_info_ctr,
+                cust_info=self.cust_info_ctr,
+                final_order_table=self.final_order_table_ctr,
+                final_order_summary=self.final_order_summary_ctr,
+                action=action
+            )
             print(action)
             pass
         pass
