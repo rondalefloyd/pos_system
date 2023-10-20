@@ -30,7 +30,7 @@ class MyRewardModel: # NOTE: entries
 
     def init_reward_list_page_entry(self):
         self.page_number = 1
-        self.total_page_number = schema.count_reward_list_total_pages()
+        self.total_page_number = schema.select_reward_total_pages_count()
 
     def init_selected_reward_data_entry(self):
         self.sel_reward_name_value = None
@@ -113,7 +113,7 @@ class MyRewardModel: # NOTE: entries
         reward_unit = self.reward_unit_field.text()
         reward_points = self.reward_points_field.text()
 
-        schema.add_new_reward(
+        schema.insert_new_reward_data(
                 reward_name=reward_name,
                 reward_description=reward_description,
                 reward_unit=reward_unit,
@@ -129,7 +129,7 @@ class MyRewardModel: # NOTE: entries
         reward_points = self.reward_points_field.text()
         reward_id = self.sel_reward_id_value
 
-        schema.edit_selected_reward(
+        schema.update_selected_reward_data(
                 reward_name=reward_name,
                 reward_description=reward_description,
                 reward_unit=reward_unit,
@@ -247,7 +247,7 @@ class MyRewardController: # NOTE: connections, setting attributes
         pass
 
     def populate_reward_list_table(self, text_filter='', page_number=1):
-        reward_list = schema.list_all_reward_col(text_filter=text_filter, page_number=page_number)
+        reward_list = schema.select_reward_data(text_filter=text_filter, page_number=page_number)
 
         self.view.reward_list_page_label.setText(f"Page {page_number}/{self.model.total_page_number}")
 
@@ -443,7 +443,7 @@ class MyRewardController: # NOTE: connections, setting attributes
         confirm = QMessageBox.warning(self.view, 'Confirm', f"Delete {self.model.sel_reward_name_value}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm is QMessageBox.StandardButton.Yes:
-            schema.delete_selected_reward(reward_id=self.model.sel_reward_id_value)
+            schema.delete_selected_reward_data(reward_id=self.model.sel_reward_id_value)
 
             self.model.init_selected_reward_data_entry()
 

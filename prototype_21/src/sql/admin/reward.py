@@ -12,6 +12,11 @@ class MyRewardSchema():
     def __init__(self):
         super().__init__()
 
+        self.setup_sales_conn()
+
+        self.create_reward_table()
+
+    def setup_sales_conn(self):
         self.sales_file = os.path.abspath(qss.db_file_path + qss.sales_file_name)
         
         os.makedirs(os.path.abspath(qss.db_file_path), exist_ok=True)
@@ -19,10 +24,8 @@ class MyRewardSchema():
         self.conn = sqlite3.connect(database=self.sales_file)
         self.cursor = self.conn.cursor()
 
-        self.create_reward_table()
-
     def create_reward_table(self):
-        self.cursor.execute('''
+        self.cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS Reward (
             RewardId INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT,
@@ -31,54 +34,48 @@ class MyRewardSchema():
             Points FLOAT,
             UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
         );
-        ''')
+        """)
         self.conn.commit()
     
-    def add_new_reward(self, reward_name, reward_description, reward_unit, reward_points):
-        reward_name = '[no data]' if reward_name == '' else reward_name
-        reward_description = '[no data]' if reward_description == '' else reward_description
-        reward_unit = 0 if reward_unit == '' else reward_unit
-        reward_points = 0 if reward_points == '' else reward_points
-
-        self.cursor.execute('''
+    def insert_new_reward_data(self, reward_name='', reward_description='', reward_unit=0, reward_points=0):
+        self.cursor.execute(f"""
         INSERT INTO Reward (Name, Description, Unit, Points)
-        SELECT ?, ?, ?, ?
+        SELECT '{reward_name}', '{reward_description}', {reward_unit}, {reward_points}
         WHERE NOT EXISTS(
-        SELECT 1 FROM Reward
-        WHERE
-            Name = ? AND
-            Description = ? AND
-            Unit = ? AND
-            Points = ? 
-        )''', (reward_name, reward_description, reward_unit, reward_points,
-              reward_name, reward_description, reward_unit, reward_points))
+            SELECT 1 FROM Reward
+            WHERE
+                Name = '{reward_name}' AND
+                Description = '{reward_description}' AND
+                Unit = {reward_unit} AND
+                Points = {reward_points} 
+            )
+        """)
         self.conn.commit()
         pass
-    def edit_selected_reward(self, reward_name, reward_description, reward_unit, reward_points, reward_id):
-        reward_name = '[no data]' if reward_name == '' else reward_name
-        reward_description = '[no data]' if reward_description == '' else reward_description
-        reward_unit = 0 if reward_unit == '' else reward_unit
-        reward_points = 0 if reward_points == '' else reward_points
-            
-        self.cursor.execute('''
+    def update_selected_reward_data(self, reward_name='', reward_description='', reward_unit=0, reward_points=0, reward_id=0):
+        self.cursor.execute(f"""
         UPDATE Reward
-        SET Name = ?, Description = ?, Unit = ?, Points = ?
-        WHERE RewardId = ?
-        ''', (reward_name, reward_description, reward_unit, reward_points, reward_id))
+        SET 
+            Name = '{reward_name}',
+            Description = '{reward_description}',
+            Unit = {reward_unit},
+            Points = {reward_points}
+        WHERE RewardId = {reward_id}
+        """)
         self.conn.commit()
-    def delete_selected_reward(self, reward_id):
-        self.cursor.execute('''
+    def delete_selected_reward_data(self, reward_id=0):
+        self.cursor.execute(f"""
         DELETE FROM Reward
-        WHERE RewardId = ?
-        ''', (reward_id,))
+        WHERE RewardId = {reward_id}
+        """)
         self.conn.commit()
 
-    def list_all_reward_col(self, text_filter='', page_number=1, page_size=30):
+    def select_reward_data(self, text_filter='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
         self.create_reward_table()
 
-        self.cursor.execute('''
+        self.cursor.execute(f"""
         SELECT 
             COALESCE(NULLIF(Name, ''), '[no data]') AS Name,
             COALESCE(NULLIF(Description, ''), '[no data]') AS Description,
@@ -88,42 +85,34 @@ class MyRewardSchema():
             RewardId 
         FROM Reward
         WHERE
-            Name LIKE ? OR
-            Description LIKE ? OR
-            Unit LIKE ? OR
-            Points LIKE ? OR
-            UpdateTs LIKE ?
+            Name LIKE '%{text_filter}%' OR
+            Description LIKE '%{text_filter}%' OR
+            Unit LIKE '%{text_filter}%' OR
+            Points LIKE '%{text_filter}%' OR
+            UpdateTs LIKE '%{text_filter}%'
         ORDER BY RewardId DESC, UpdateTs DESC
-        LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
-        ''', (
-            '%' + str(text_filter) + '%',
-            '%' + str(text_filter) + '%',
-            '%' + str(text_filter) + '%',
-            '%' + str(text_filter) + '%',
-            '%' + str(text_filter) + '%',
-            page_size,  # Limit
-            offset     # Offset
-        ))
+        LIMIT {page_size} OFFSET {offset}  -- Apply pagination limits and offsets
+        """)
         
         reward = self.cursor.fetchall()
         
         return reward
 
-    def count_all_reward(self):
+    def select_reward_count(self):
         self.create_reward_table()
 
-        self.cursor.execute('''
+        self.cursor.execute(f"""
         SELECT COUNT(*) FROM Reward
-        ''')
+        """)
         count = self.cursor.fetchone()[0]
         
         return count
         pass
-    def count_reward_list_total_pages(self, page_size=30):
-        self.cursor.execute('''
+    def select_reward_total_pages_count(self, page_size=30):
+        self.cursor.execute(f"""
             SELECT COUNT(*)
             FROM Reward
-            ''')
+            """)
 
         total_reward = self.cursor.fetchone()[0]
         total_pages = (total_reward - 1) // page_size + 1

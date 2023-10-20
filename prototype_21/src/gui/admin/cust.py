@@ -30,7 +30,7 @@ class MyCustModel: # NOTE: entries
 
     def init_cust_list_page_entry(self):
         self.page_number = 1
-        self.total_page_number = schema.count_cust_list_total_pages()
+        self.total_page_number = schema.select_cust_count_total_pages()
 
     def init_selected_cust_data_entry(self):
         self.sel_cust_name_value = None
@@ -153,7 +153,7 @@ class MyCustModel: # NOTE: entries
         cust_marital_status = self.cust_marital_status_field.currentText()
         cust_points = self.cust_points_field.text()
 
-        schema.add_new_cust(
+        schema.insert_new_cust_data(
                 cust_name=cust_name,
                 cust_address=cust_address,
                 cust_barrio=cust_barrio,
@@ -180,7 +180,7 @@ class MyCustModel: # NOTE: entries
         cust_id = self.sel_cust_id_value
         reward_id = self.sel_reward_id_value
 
-        schema.edit_selected_cust(
+        schema.update_selected_cust_data(
                 cust_name=cust_name,
                 cust_address=cust_address,
                 cust_barrio=cust_barrio,
@@ -314,7 +314,7 @@ class MyCustController: # NOTE: connections, setting attributes
         pass
 
     def populate_cust_list_table(self, text_filter='', page_number=1):
-        cust_list = schema.list_all_cust_col(text_filter=text_filter, page_number=page_number)
+        cust_list = schema.select_cust_data(text_filter=text_filter, page_number=page_number)
 
         self.view.cust_list_page_label.setText(f"Page {page_number}/{self.model.total_page_number}")
 
@@ -468,8 +468,8 @@ class MyCustController: # NOTE: connections, setting attributes
         self.model.manage_cust_dialog.exec()
         pass
     def populate_manage_cust_combo_box_field(self):
-        cust_barrio_data = schema.list_barrio_col()
-        cust_town_data = schema.list_town_col()
+        cust_barrio_data = schema.select_barrio()
+        cust_town_data = schema.select_town()
 
         self.model.cust_barrio_field.clear()
         self.model.cust_town_field.clear()
@@ -555,7 +555,7 @@ class MyCustController: # NOTE: connections, setting attributes
         confirm = QMessageBox.warning(self.view, 'Confirm', f"Delete {self.model.sel_cust_name_value}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm is QMessageBox.StandardButton.Yes:
-            schema.delete_selected_cust(cust_id=self.model.sel_cust_id_value, reward_id=self.model.sel_reward_id_value)
+            schema.delete_selected_cust_data(cust_id=self.model.sel_cust_id_value, reward_id=self.model.sel_reward_id_value)
 
             self.model.init_selected_cust_data_entry()
 

@@ -30,7 +30,7 @@ class MyPromoModel: # NOTE: entries
 
     def init_promo_list_page_entry(self):
         self.page_number = 1
-        self.total_page_number = schema.count_promo_list_total_pages()
+        self.total_page_number = schema.select_promo_total_pages_count()
 
     def init_selected_promo_data_entry(self):
         self.sel_promo_name_value = None
@@ -113,7 +113,7 @@ class MyPromoModel: # NOTE: entries
         promo_percent = self.promo_percent_field.text()
         promo_description = self.promo_description_field.toPlainText()
 
-        schema.add_new_promo(
+        schema.insert_new_promo_data(
                 promo_name=promo_name,
                 promo_type=promo_type,
                 promo_percent=promo_percent,
@@ -129,7 +129,7 @@ class MyPromoModel: # NOTE: entries
         promo_description = self.promo_description_field.toPlainText()
         promo_id = self.sel_promo_id_value
 
-        schema.edit_selected_promo(
+        schema.update_selected_promo_data(
                 promo_name=promo_name,
                 promo_type=promo_type,
                 promo_percent=promo_percent,
@@ -247,7 +247,7 @@ class MyPromoController: # NOTE: connections, setting attributes
         pass
 
     def populate_promo_list_table(self, text_filter='', page_number=1):
-        promo_list = schema.list_all_promo_col(text_filter=text_filter, page_number=page_number)
+        promo_list = schema.select_promo_data(text_filter=text_filter, page_number=page_number)
 
         self.view.promo_list_page_label.setText(f"Page {page_number}/{self.model.total_page_number}")
 
@@ -387,7 +387,7 @@ class MyPromoController: # NOTE: connections, setting attributes
         self.model.manage_promo_dialog.exec()
         pass
     def populate_manage_promo_combo_box_field(self):
-        promo_type_data = schema.list_promo_type_col()
+        promo_type_data = schema.select_promo_type()
 
         self.model.promo_type_field.clear()
         for promo_type in promo_type_data: self.model.promo_type_field.addItems(promo_type)
@@ -449,7 +449,7 @@ class MyPromoController: # NOTE: connections, setting attributes
         confirm = QMessageBox.warning(self.view, 'Confirm', f"Delete {self.model.sel_promo_name_value}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm is QMessageBox.StandardButton.Yes:
-            schema.delete_selected_promo(promo_id=self.model.sel_promo_id_value)
+            schema.delete_selected_promo_data(promo_id=self.model.sel_promo_id_value)
 
             self.model.init_selected_promo_data_entry()
 

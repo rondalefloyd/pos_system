@@ -31,7 +31,7 @@ class MyTXNModel: # NOTE: entries
 
     def init_txn_list_page_entry(self):
         self.page_number = 1
-        self.total_page_number = schema.count_txn_list_total_pages()
+        self.total_page_number = schema.select_item_sold_total_pages_count()
 
     def init_selected_txn_data_entry(self):
         self.sel_txn_name_value = None
@@ -91,7 +91,7 @@ class MyTXNModel: # NOTE: entries
         pass
     def save_edit_txn_entry(self):
         void_reason = self.txn_void_reason_field.currentText()
-        schema.void_selected_txn(item_sold_id=self.sel_txn_id_value, void_reason=void_reason)
+        schema.update_selected_item_sold_void(item_sold_id=self.sel_txn_id_value, reason_id=void_reason)
 
         self.sel_txn_id_value = 0
         self.manage_txn_dialog.close()
@@ -197,7 +197,7 @@ class MyTXNController: # NOTE: connections, setting attributes
         pass
 
     def populate_txn_list_table(self, text_filter='', page_number=1):
-        txn_list = schema.list_all_txn_col(text_filter=text_filter, page_number=page_number)
+        txn_list = schema.select_item_sold_data(text_filter=text_filter, page_number=page_number)
 
         self.view.txn_list_page_label.setText(f"Page {page_number}/{self.model.total_page_number}")
 

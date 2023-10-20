@@ -32,7 +32,7 @@ class MyProdModel: # NOTE: entries
     # region: prod
     def init_prod_list_page_entry(self):
         self.prod_page_number = 1
-        self.prod_total_page_number = schema.count_prod_list_total_pages()
+        self.prod_total_page_number = schema.select_item_price_count_total_pages()
         pass
     def setup_prod_list_tab_panel(self):
         self.prod_list_table = MyTableWidget(object_name='prod_list_table')
@@ -294,7 +294,7 @@ class MyProdModel: # NOTE: entries
     def save_new_prod_entry(self):
         prod_barcode, prod_name, prod_exp_dt, prod_type, prod_brand, prod_sales_group, prod_supplier, prod_cost, prod_sell_price, prod_effective_dt, prod_promo_name, prod_promo_type, prod_promo_percent, prod_promo_value, prod_promo_sell_price, prod_promo_start_dt, prod_promo_end_dt, prod_tracking = self.get_prod_input_entry()
 
-        schema.add_new_prod(
+        schema.insert_new_prod_data(
                 prod_barcode=prod_barcode,
                 prod_name=prod_name,
                 prod_exp_dt=prod_exp_dt,
@@ -369,7 +369,7 @@ class MyProdModel: # NOTE: entries
         prod_promo_id = self.sel_prod_promo_id_value
         prod_stock_id = self.sel_prod_stock_id_value
 
-        schema.edit_selected_prod(
+        schema.update_selected_prod_data(
                 prod_barcode=prod_barcode,
                 prod_name=prod_name,
                 prod_exp_dt=prod_exp_dt,
@@ -468,7 +468,7 @@ class MyProdModel: # NOTE: entries
         pass
     def init_stock_list_page_entry(self): # TODO: PENDING...
         self.stock_page_number = 1
-        self.stock_total_page_number = schema.count_stock_list_total_pages()
+        self.stock_total_page_number = schema.select_stock_count_total_pages()
     def init_selected_stock_data_entry(self):
         self.sel_stock_name_value = None
         self.sel_stock_available_value = None
@@ -682,7 +682,7 @@ class MyProdController: # NOTE: connections, setting attributes
 
     # region: prod_list
     def populate_prod_list_table(self, text_filter='', page_number=1):
-        prod_list = schema.list_all_prod_col(text_filter=text_filter, page_number=page_number)
+        prod_list = schema.select_prod_data(text_filter=text_filter, page_number=page_number)
 
         self.model.prod_list_page_label.setText(f"Page {page_number}/{self.model.prod_total_page_number}")
 
@@ -707,8 +707,8 @@ class MyProdController: # NOTE: connections, setting attributes
                 self.highlight = True
                 self.edit_prod_button.hide()
 
-            if QDate.fromString(prod_list_v[9], Qt.DateFormat.ISODate) <= QDate.currentDate():
-                self.delete_prod_button.hide()
+            # if QDate.fromString(prod_list_v[9], Qt.DateFormat.ISODate) <= QDate.currentDate():
+            #     self.delete_prod_button.hide()
 
             prod_barcode = MyTableWidgetItem(text=f"{prod_list_v[0]}", has_promo=self.highlight)
             prod_name = MyTableWidgetItem(text=f"{prod_list_v[1]}", has_promo=self.highlight)
@@ -804,10 +804,10 @@ class MyProdController: # NOTE: connections, setting attributes
         self.model.prod_supplier_field.clear()
         self.model.prod_promo_name_field.clear()
 
-        item_type_data = schema.list_item_type_col()
-        brand_data = schema.list_brand_col()
-        supplier_data = schema.list_supplier_col()
-        promo_name_data = schema.list_promo_name_col()
+        item_type_data = schema.select_item_type_name()
+        brand_data = schema.select_brand_name()
+        supplier_data = schema.select_supplier_name()
+        promo_name_data = schema.select_promo_name()
 
         self.model.prod_sales_group_field.addItem('Retail')
         self.model.prod_sales_group_field.addItem('Wholesale')
@@ -824,8 +824,8 @@ class MyProdController: # NOTE: connections, setting attributes
         self.model.setup_prod_promo_fields_hidden(hide_promo_fields=True, hide_prod_fields=False) if self.model.prod_promo_name_field.currentText() == 'No promo' else self.model.setup_prod_promo_fields_hidden(hide_promo_fields=False, hide_prod_fields=True)
         
         try: 
-            promo_type = schema.list_promo_type_col(self.model.prod_promo_name_field.currentText())
-            promo_percent = schema.list_promo_percent_col(self.model.prod_promo_name_field.currentText())
+            promo_type = schema.select_promo_type(self.model.prod_promo_name_field.currentText())
+            promo_percent = schema.select_promo_percent(self.model.prod_promo_name_field.currentText())
 
             self.model.prod_promo_type_field.setText(str(promo_type))
             self.model.prod_promo_percent_field.setText(str(promo_percent))
@@ -859,11 +859,11 @@ class MyProdController: # NOTE: connections, setting attributes
         confirm = QMessageBox.warning(self.view, 'Confirm', f"Delete {self.model.sel_prod_name_value}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm is QMessageBox.StandardButton.Yes:
-            schema.delete_selected_prod(prod_price_id=self.model.sel_prod_price_id_value)
+            schema.delete_selected_item_price_data(prod_price_id=self.model.sel_prod_price_id_value)
 
             self.model.init_selected_prod_data_entry()
 
-            QMessageBox.information(self.model.manage_prod_dialog, 'Success', 'Product has been deleted.')
+            QMessageBox.information(self.view, 'Success', 'Product has been deleted.')
 
             self.on_sync_ui_button_clicked()
             pass
@@ -874,7 +874,6 @@ class MyProdController: # NOTE: connections, setting attributes
     
     def on_manage_prod_save_button_clicked(self, action):
         prod_barcode, prod_name, prod_exp_dt, prod_type, prod_brand, prod_sales_group, prod_supplier, prod_cost, prod_sell_price, prod_effective_dt, prod_promo_name, prod_promo_type, prod_promo_percent, prod_promo_value, prod_promo_sell_price, prod_promo_start_dt, prod_promo_end_dt, prod_tracking = self.model.get_prod_input_entry()
-
 
         if '' not in [prod_name, prod_brand, prod_sales_group, prod_supplier, prod_cost, prod_sell_price, prod_effective_dt]:
             if (prod_cost.replace('.', '', 1).isdigit() and prod_sell_price.replace('.', '', 1).isdigit()):
@@ -922,7 +921,7 @@ class MyProdController: # NOTE: connections, setting attributes
 
     # region: stock_list
     def populate_stock_list_table(self, text_filter='', page_number=1):
-        stock_list = schema.list_all_stock_col(text_filter=text_filter, page_number=page_number)
+        stock_list = schema.select_stock_data(text_filter=text_filter, page_number=page_number)
 
         self.model.stock_list_page_label.setText(f"Page {page_number}/{self.model.stock_total_page_number}")
 
@@ -993,7 +992,7 @@ class MyProdController: # NOTE: connections, setting attributes
         confirm = QMessageBox.warning(self.view, 'Confirm', f"Stop tracking {self.model.sel_stock_name_value}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm is QMessageBox.StandardButton.Yes:
-            schema.delete_selected_stock(stock_id=self.model.sel_stock_id_value)
+            schema.delete_selected_stock_data(prod_item_id=self.model.sel_stock_item_id_value, stock_id=self.model.sel_stock_item_id_value)
 
             self.model.init_selected_stock_data_entry()
 
@@ -1018,7 +1017,7 @@ class MyProdController: # NOTE: connections, setting attributes
         if '' not in [stock_available, stock_on_hand]:
             if (stock_available.replace('.', '', 1).isdigit() and stock_on_hand.replace('.', '', 1).isdigit()):
                 if action == 'edit_stock':
-                    schema.edit_selected_stock(stock_available, stock_on_hand, stock_id)
+                    schema.update_selected_stock_data(stock_available, stock_on_hand, stock_id)
                     self.model.init_selected_stock_data_entry()
 
                     QMessageBox.information(self.model.manage_prod_dialog, 'Success', 'Product has been edited.')

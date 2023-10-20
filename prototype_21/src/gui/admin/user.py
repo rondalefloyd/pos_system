@@ -30,7 +30,7 @@ class MyUserModel: # NOTE: entries
 
     def init_user_list_page_entry(self):
         self.page_number = 1
-        self.total_page_number = schema.count_user_list_total_pages()
+        self.total_page_number = schema.select_user_total_pages_count()
 
     def init_selected_user_data_entry(self):
         self.sel_user_name_value = None
@@ -106,7 +106,7 @@ class MyUserModel: # NOTE: entries
         user_password = self.user_password_field.text()
         user_phone = self.user_phone_field.text()
 
-        schema.add_new_user(
+        schema.insert_new_user_data(
                 user_name=user_name,
                 user_password=user_password,
                 user_phone=user_phone
@@ -120,7 +120,7 @@ class MyUserModel: # NOTE: entries
         user_phone = self.user_phone_field.text()
         user_id = self.sel_user_id_value
 
-        schema.edit_selected_user(
+        schema.update_selected_user_data(
                 user_name=user_name,
                 user_password=user_password,
                 user_phone=user_phone,
@@ -235,7 +235,7 @@ class MyUserController: # NOTE: connections, setting attributes
         pass
 
     def populate_user_list_table(self, text_filter='', page_number=1):
-        user_list = schema.list_all_user_col(text_filter=text_filter, page_number=page_number)
+        user_list = schema.select_user_data(text_filter=text_filter, page_number=page_number)
 
         self.view.user_list_page_label.setText(f"Page {page_number}/{self.model.total_page_number}")
 
@@ -429,7 +429,7 @@ class MyUserController: # NOTE: connections, setting attributes
         confirm = QMessageBox.warning(self.view, 'Confirm', f"Delete {self.model.sel_user_name_value}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm is QMessageBox.StandardButton.Yes:
-            schema.delete_selected_user(user_id=self.model.sel_user_id_value)
+            schema.delete_selected_user_data(user_id=self.model.sel_user_id_value)
 
             self.model.init_selected_user_data_entry()
 

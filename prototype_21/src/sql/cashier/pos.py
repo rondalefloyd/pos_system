@@ -18,12 +18,12 @@ class MyPOSSchema():
         self.setup_txn_db_conn()
         self.setup_accounts_db_conn()
 
-        self.create_all_sales_table()
+        self.create_sales_table()
 
-        self.init_list_all_prod_query_entry()
-
-    def init_list_all_prod_query_entry(self):
-        self.select_prod_col = """
+        self.setup_repeating_queries()
+ 
+    def setup_repeating_queries(self):
+        self.select_prod_column_query = """
             COALESCE(NULLIF(Item.Barcode, ''), '[no data]') AS Barcode,
             COALESCE(NULLIF(Item.Name, ''), '[no data]') AS Product,
             COALESCE(NULLIF(Brand.Name, ''), '[no data]') AS Brand, 
@@ -43,7 +43,7 @@ class MyPOSSchema():
             Stock.StockId, -- 12
             SalesGroup.Name -- 13
         """
-        self.join_prod_table = """
+        self.join_prod_table_query = """
             LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
             LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
             LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
@@ -69,7 +69,7 @@ class MyPOSSchema():
         self.accounts_cursor = self.accounts_conn.cursor()
         pass
     
-    def create_all_sales_table(self):
+    def create_sales_table(self):
         # item type
         self.sales_cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS ItemType (
@@ -195,25 +195,6 @@ class MyPOSSchema():
         """)
         self.sales_conn.commit()
 
-        # saved order
-        self.sales_cursor.execute(f"""
-        CREATE TABLE IF NOT EXISTS SavedOrder (
-            SavedOrderId INTEGER PRIMARY KEY AUTOINCREMENT,
-            SalesGroupId INTEGER DEFAULT 0,
-            CustomerId INTEGER DEFAULT 0,
-            StockId INTEGER DEFAULT 0,
-            UserId INTEGER DEFAULT 0,
-            Quantity INTEGER,
-            Name TEXT,
-            TotalAmount DECIMAL(15,2),
-            DiscountValue DECIMAL (15,2),
-            UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (SalesGroupId) REFERENCES SalesGroup(SalesGroupId),
-            FOREIGN KEY (CustomerId) REFERENCES Customer(CustomerId)
-        );
-        """)
-        self.sales_conn.commit()
-
         # item sold
         self.txn_cursor.execute(f"""
         CREATE TABLE IF NOT EXISTS ItemSold (
@@ -237,99 +218,63 @@ class MyPOSSchema():
         self.sales_conn.commit()
         self.txn_conn.commit()
 
-    def list_all_prod_col(self, text_filter='', prod_type='Retail', page_number=1, page_size=30):
+    def select_prod_data(self, text_filter='', prod_type='Retail', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
-        self.create_all_sales_table()
-
         self.sales_cursor.execute(f"""
-            SELECT
-                {self.select_prod_col}
-            FROM ItemPrice
-                {self.join_prod_table}
-            WHERE 
-                (Item.Barcode LIKE ? OR
-                Item.Name LIKE ? OR
-                ItemType.Name LIKE ? OR 
-                Brand.Name LIKE ? OR 
-                Supplier.Name LIKE ? OR
-                Stock.OnHand LIKE ?) AND
-                SalesGroup.Name = ?
-                -- ItemPrice.EffectiveDt <= CURRENT_DATE -- # REVIEW NEEDS TO BE CHECKED
-            ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC
-            LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
-            """, (
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                prod_type,
-                page_size,  # Limit
-                offset     # Offset
-            ))
+            SELECT * FROM (
+                SELECT
+                    {self.select_prod_column_query},
+                    RANK () OVER ( 
+                        PARTITION BY ItemPrice.ItemId
+                        ORDER BY ItemPrice.UpdateTs DESC
+                    ) ValRank
+                FROM ItemPrice
+                    {self.join_prod_table_query}
+                WHERE 
+                    (Item.Barcode LIKE '%{text_filter}%' OR
+                    Item.Name LIKE '%{text_filter}%' OR
+                    ItemType.Name LIKE '%{text_filter}%' OR 
+                    Brand.Name LIKE '%{text_filter}%' OR 
+                    Supplier.Name LIKE '%{text_filter}%' OR
+                    Stock.OnHand LIKE '%{text_filter}%') AND
+                    SalesGroup.Name = "{prod_type}" AND
+                    ItemPrice.EffectiveDt <= CURRENT_DATE
+                    
+                ORDER BY 
+                    Item.ItemId DESC, 
+                    ItemPrice.EffectiveDt DESC, 
+                    ItemPrice.UpdateTs DESC          
+            )
+            WHERE ValRank = 1
+            LIMIT {page_size} OFFSET {offset}  -- Apply pagination limits and offsets
+            """)
 
         product = self.sales_cursor.fetchall()
 
         return product
-    pass
-    def list_all_prod_col_via_promo(self, text_filter='', prod_type='Retail', page_number=1, page_size=30):
-        offset = (page_number - 1) * page_size
-        
-        self.create_all_sales_table()
+        pass
+    def select_prod_data_via_barcode(self, barcode='', prod_type='Retail'):
+        self.create_sales_table()
 
         self.sales_cursor.execute(f"""
             SELECT
-                {self.select_prod_col}  
+                {self.select_prod_column_query}         
             FROM ItemPrice
-                {self.join_prod_table}
-            WHERE 
-                (Item.Barcode LIKE ? OR
-                Item.Name LIKE ? OR
-                ItemType.Name LIKE ? OR 
-                Brand.Name LIKE ? OR 
-                Supplier.Name LIKE ? OR
-                InventoryTracking LIKE ?) AND
-                SalesGroup.Name = ? AND
-                Promo.Name != 'No promo' AND
-                ItemPrice.EffectiveDt <= CURRENT_DATE
-            ORDER BY Item.ItemId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC
-            LIMIT ? OFFSET ?  -- Apply pagination limits and offsets
-            """, (
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                prod_type,
-                page_size,  # Limit
-                offset     # Offset
-            ))
-
-        prod_with_promo = self.sales_cursor.fetchall()
-
-        return prod_with_promo
-    def list_all_prod_col_via_barcode(self, barcode='', prod_type='Retail'):
-        self.create_all_sales_table()
-
-        self.sales_cursor.execute(f"""
-            SELECT
-                {self.select_prod_col}         
-            FROM ItemPrice
-                {self.join_prod_table}
+                {self.join_prod_table_query}
             WHERE
-                Item.Barcode LIKE ? AND SalesGroup.Name LIKE ? AND ItemPrice.EffectiveDt <= CURRENT_DATE
+                Item.Barcode LIKE "{barcode}" AND SalesGroup.Name LIKE "{prod_type}" AND ItemPrice.EffectiveDt <= CURRENT_DATE
             ORDER BY 
-                Item.ItemId DESC, EffectiveDt DESC, DateTimeCreated DESC LIMIT 1
-            """, (barcode, prod_type))
+                Item.ItemId DESC, 
+                EffectiveDt DESC, 
+                DateTimeCreated DESC 
+            LIMIT 1
+            """)
 
         product = self.sales_cursor.fetchall()
 
         return product
-   
-    def list_cust_name_col(self):
+    def select_all_cust_name(self):
         cust_name = self.sales_cursor.execute(f"""
         SELECT DISTINCT Name FROM Customer
         ORDER BY UpdateTs DESC 
@@ -339,7 +284,7 @@ class MyPOSSchema():
         return cust_name
         
         pass
-    def list_all_cust_col_via_cust_id(self, cust_id=''):
+    def select_cust_data_via_cust_id(self, cust_id=''):
         try:
             self.sales_cursor.execute(f"""
             SELECT 
@@ -349,10 +294,10 @@ class MyPOSSchema():
             FROM Customer
                 LEFT JOIN CustomerReward
                     ON Customer.CustomerId = CustomerReward.CustomerId
-            WHERE Customer.CustomerId LIKE ?
+            WHERE Customer.CustomerId LIKE '%{cust_id}%'
             ORDER BY Customer.UpdateTs DESC
                 
-            """, ('%' + str(cust_id) + '%',))
+            """)
             
             customer = self.sales_cursor.fetchall()
             pass
@@ -360,24 +305,9 @@ class MyPOSSchema():
             customer = ''
 
         return customer
-    
-    def list_cust_id(self, cust):
-        try:
-            self.sales_cursor.execute(f"""
-            SELECT CustomerId FROM Customer
-            WHERE Name = ?
-            ORDER BY Customer.UpdateTs DESC
-            """, (cust,))
-            
-            customer_id = self.sales_cursor.fetchone()[0]
-            pass
-        except Exception as e:
-            customer_id = 0
 
-        return customer_id
-        
-    def count_all_prod(self):
-        self.create_all_sales_table()
+    def select_prod_count(self):
+        self.create_sales_table()
 
         self.sales_cursor.execute(f"""
         SELECT COUNT(*) FROM ItemPrice
@@ -385,52 +315,28 @@ class MyPOSSchema():
         count = self.sales_cursor.fetchone()[0]
         
         return count
-    def count_prod_list_total_pages(self, text_filter='', prod_type='Retail', page_size=30):
+    def select_prod_total_pages_count(self, text_filter='', prod_type='Retail', page_size=30):
         self.sales_cursor.execute(f"""
             SELECT COUNT(*)
             FROM ItemPrice
-                {self.join_prod_table}
+                {self.join_prod_table_query}
             WHERE 
-                (Item.Barcode LIKE ? OR
-                Item.Name LIKE ? OR
-                ItemType.Name LIKE ? OR 
-                Brand.Name LIKE ? OR 
-                Supplier.Name LIKE ? OR
-                Stock.OnHand LIKE ?) AND
-                SalesGroup.Name = ? AND
+                (Item.Barcode LIKE '%{text_filter}%' OR
+                Item.Name LIKE '%{text_filter}%' OR
+                ItemType.Name LIKE '%{text_filter}%' OR 
+                Brand.Name LIKE '%{text_filter}%' OR 
+                Supplier.Name LIKE '%{text_filter}%' OR
+                Stock.OnHand LIKE '%{text_filter}%') AND
+                SalesGroup.Name = "{prod_type}" AND
                 ItemPrice.EffectiveDt <= CURRENT_DATE
-            """, (
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                '%' + str(text_filter) + '%',
-                prod_type,
-            ))
-
-        total_product = self.sales_cursor.fetchone()[0]
-        total_pages = (total_product - 1) // page_size + 1
-
-        return total_pages
-    
-    def count_prod_list_via_promo_total_pages(self, prod_type='Retail', page_size=30):
-        self.sales_cursor.execute(f"""
-            SELECT COUNT(*)
-            FROM ItemPrice
-                {self.join_prod_table}
-            WHERE 
-                SalesGroup.Name = ? AND
-                Promo.Name != 'No promo' AND
-                ItemPrice.EffectiveDt <= CURRENT_DATE
-            """, (prod_type,))
+            """)
 
         total_product = self.sales_cursor.fetchone()[0]
         total_pages = (total_product - 1) // page_size + 1
 
         return total_pages
 
-    def add_new_txn(
+    def insert_new_item_sold_data(
         self,
         item_price_id=0,
         cust_id=0,
@@ -441,8 +347,9 @@ class MyPOSSchema():
         ref_id=''
     ):
 
-        self.txn_cursor.execute('''
+        self.txn_cursor.execute(f"""
 		INSERT INTO ItemSold (
+            DateId # TODO:              
             ItemPriceId,
             CustomerId,
             StockId,
@@ -451,99 +358,118 @@ class MyPOSSchema():
             TotalAmount,
             ReferenceId
         )
-		SELECT ?, ?, ?, ?, ?, ?, ?
-		''', (item_price_id, cust_id, stock_id, user_id, prod_qty, prod_price, ref_id))
-
-        self.sales_conn.commit()
-        pass
-    def update_cust_reward(self, cust_id, order_total, ref_id):
-        self.sales_cursor.execute("""
-		UPDATE CustomerReward
-		SET 
-            Points = Points + (
-                SELECT Reward.Points + COALESCE(Reward.Points, 0) * (? - Reward.Unit) AS TotalPoints
-                FROM ItemSold
-                CROSS JOIN Reward 
-                INNER JOIN Customer 
-                    ON ItemSold.CustomerId = Customer.CustomerId
-                WHERE 
-                    ItemSold.ReferenceId = ? AND
-                    ItemSold.CustomerId = ? AND
-                    ? >= Reward.Unit 
-                ORDER BY Reward.Unit DESC
-                LIMIT 1
-            ),
-            UpdateTs = CURRENT_TIMESTAMP		
-		WHERE CustomerReward.CustomerId = ?
-		""", (order_total, ref_id, cust_id, order_total, cust_id))
+		SELECT 
+            {item_price_id},
+            {cust_id},
+            {stock_id},
+            {user_id},
+            {prod_qty},
+            {prod_price},
+            "{ref_id}"
+		""")
 
         self.txn_conn.commit()
         pass
-    def update_stock(self, item_id, stock_id, prod_qty):
-        self.sales_cursor.execute("""
-        UPDATE Stock
-        SET OnHand = CASE 
-            WHEN (OnHand - ?) < 0 THEN 0 
-            ELSE (OnHand - ?) 
-        END
-        WHERE ItemId = ? AND StockId = ?;
-        """, (prod_qty, prod_qty, item_id, stock_id))
-        
-        self.sales_conn.commit()
+    
+    def update_cust_reward_points(self, cust_id, prod_price):
+        try:
+            reward_points = self.sales_cursor.execute(f"""
+            SELECT Points FROM Reward
+            WHERE {prod_price} >= Unit 
+            ORDER BY Unit DESC
+            LIMIT 1
+            """)
 
-    def get_item_id(self, prod_name):
+            reward_points = self.sales_cursor.fetchone()[0]
+
+            self.sales_cursor.execute(f"""
+            UPDATE CustomerReward
+            SET 
+                Points = Points + {reward_points},
+                UpdateTs = CURRENT_TIMESTAMP		
+            WHERE CustomerId = {cust_id}
+            """)
+
+            self.sales_conn.commit()
+        except Exception as e:
+            print(e)
+            pass
+        pass
+    def update_stock_on_hand(self, item_id, stock_id, prod_qty):
+        try:
+            print('item_id:', item_id)
+            print('stock_id:', stock_id)
+            print('prod_qty:', prod_qty)
+            self.sales_cursor.execute(f"""
+            UPDATE Stock
+            SET 
+                OnHand = CASE 
+                    WHEN (OnHand - {prod_qty}) < 0 THEN 0 
+                    ELSE (OnHand - {prod_qty}) 
+                END
+            WHERE 
+                ItemId = {item_id} AND 
+                StockId = {stock_id}
+            """)
+            
+            self.sales_conn.commit()
+        except Exception as e:
+            print(e)
+            pass
+
+    def select_item_id(self, prod_name):
         item_id = self.sales_cursor.execute(f"""
             SELECT ItemId FROM Item
-            WHERE Name = ?
-        """, (prod_name,))
+            WHERE Name = "{prod_name}"
+        """)
         item_id = self.sales_cursor.fetchone()[0]
 
         return item_id
-    def get_item_price_id(self, item_id):
+    def select_item_price_id(self, item_id):
         item_price_id = self.sales_cursor.execute(f"""
             SELECT ItemPriceId FROM ItemPrice
-            WHERE ItemId = ?
-        """, (item_id,))
+            WHERE ItemId = {item_id}
+        """)
         item_price_id = self.sales_cursor.fetchone()[0]
 
         return item_price_id
-    def get_sales_group_id(self, sales_group):
+    def select_sales_group_id(self, sales_group):
         sales_group_id = self.sales_cursor.execute(f"""
             SELECT SalesGroupId FROM SalesGroup
-            WHERE Name = ?
-        """, (sales_group,))
+            WHERE Name = "{sales_group}"
+        """)
         sales_group_id = self.sales_cursor.fetchone()[0]
 
         return sales_group_id
-    def get_cust_id(self, cust_name):
+    def select_cust_id(self, cust_name):
         try:
             cust_id = self.sales_cursor.execute(f"""
                 SELECT CustomerId FROM Customer
-                WHERE Name = ?
-            """, (cust_name,))
+                WHERE Name = "{cust_name}"
+            """)
             cust_id = self.sales_cursor.fetchone()[0]
         except Exception as e:
             cust_id = 0
 
         return cust_id
-    def get_stock_id(self, item_id):
+    def select_stock_id(self, item_id):
         try:
             stock_id = self.sales_cursor.execute(f"""
                 SELECT StockId FROM Stock
-                WHERE ItemId = ?
-            """, (item_id,))
+                WHERE ItemId = {item_id}
+            """)
             stock_id = self.sales_cursor.fetchone()[0]
             pass
         except Exception as e:
             stock_id = 0
         
         return stock_id
-    def get_user_id(self, user_name):
+    def select_user_id(self, user_name):
         try:
             user_id = self.accounts_cursor.execute(f"""
                 SELECT UserId FROM User
-                WHERE Name = ?
-            """, (user_name,))
+                WHERE Name = "{user_name}"
+            """)
             user_id = self.accounts_cursor.fetchone()[0]
             pass
         except Exception as e:
