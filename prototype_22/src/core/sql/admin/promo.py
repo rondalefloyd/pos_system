@@ -33,21 +33,21 @@ class MyPromoSchema:
 
         self.sales_conn.commit()
 
-    def insert_promo_data(self, promo_name='', promo_type='', promo_percent=0, promo_description=''):
+    def insert_promo_data(self, promo_name='', promo_type='', promo_percent=0, promo_desc=''):
         self.sales_cursor.execute(f"""
             INSERT INTO Promo (Name, PromoType, DiscountPercent, Description)
             SELECT 
                 '{promo_name}', 
                 '{promo_type}', 
                 {promo_percent}, 
-                '{promo_description}'
+                '{promo_desc}'
             WHERE NOT EXISTS (
                 SELECT 1 FROM Promo
                 WHERE
                     Name = '{promo_name}' AND
                     PromoType = '{promo_type}' AND
                     DiscountPercent = {promo_percent} AND
-                    Description = '{promo_description}'
+                    Description = '{promo_desc}'
             )
         """)
 
@@ -113,14 +113,14 @@ class MyPromoSchema:
 
         return promo_type
 
-    def update_promo_data(self, promo_name='', promo_type='', promo_percent=0, promo_description='', promo_id=0):
+    def update_promo_data(self, promo_name='', promo_type='', promo_percent=0, promo_desc='', promo_id=0):
         self.sales_cursor.execute(f"""
             UPDATE Promo
             SET
                 Name = '{promo_name}',
                 PromoType = '{promo_type}',
                 DiscountPercent = {promo_percent},
-                Description = '{promo_description}'
+                Description = '{promo_desc}'
             WHERE PromoId = {promo_id}
         """)
 

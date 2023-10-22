@@ -70,13 +70,33 @@ class MyTableWidget(QTableWidget):
         self.object_name = object_name
 
         self.on_promo_table()
+        self.on_user_table()
+        self.on_reward_table()
+        self.on_customer_table()
         pass
 
     def on_promo_table(self):
-        if self.object_name == 'overview_table':
+        if self.object_name == 'promo_overview_table':
             self.setColumnCount(6)
             self.setHorizontalHeaderLabels(['Action','Name','Type','Percent','Description','Date/Time created'])
             pass
+
+    def on_user_table(self):
+        if self.object_name == 'user_overview_table':
+            self.setColumnCount(6)
+            self.setHorizontalHeaderLabels(['Action','Name','Password','Access level','Phone','Date/Time created'])
+            pass
+
+    def on_reward_table(self):
+        if self.object_name == 'reward_overview_table':
+            self.setColumnCount(6)
+            self.setHorizontalHeaderLabels(['Action','Name','Unit','Points','Description','Date/Time created'])
+            pass
+        
+    def on_customer_table(self):
+        if self.object_name == 'customer_overview_table':
+            self.setColumnCount(10)
+            self.setHorizontalHeaderLabels(['Action','Name','Address','Barrio','Town','Phone','Age','Gender','Marital status','Date/Time created'])
 
 class MyVBoxLayout(QVBoxLayout):
     def __init__(self, object_name=''):
@@ -122,7 +142,12 @@ class MyComboBox(QComboBox):
         self.on_global_combo_box()
 
     def on_global_combo_box(self):
-        if self.object_name in ['user_name_field', 'promo_type_field']:
+        if self.object_name in [
+            'user_name_field', 
+            'promo_type_field',
+            'customer_barrio_field',
+            'customer_town_field',
+        ]:
             self.setEditable(True)
         pass
 class MyLineEdit(QLineEdit):

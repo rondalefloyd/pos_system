@@ -10,67 +10,67 @@ sys.path.append(os.path.abspath(''))
 
 from src.gui.widget.my_widget import *
 from src.core.csv_to_db_importer import MyDataImportThread
-from src.core.sql.admin.promo import MyPromoSchema
+from src.core.sql.admin.reward import MyRewardSchema
 from template.qss.qss import MyQSSConfig
 
 qss = MyQSSConfig()
-schema = MyPromoSchema()
+schema = MyRewardSchema()
 
-class MyPromoModel:
+class MyRewardModel:
     def __init__(self, name, phone):
         self.user_name = name
         self.user_phone = phone
 
-        self.total_page_number = schema.select_promo_data_total_page_count()
+        self.total_page_number = schema.select_reward_data_total_page_count()
         self.page_number = 1 if self.total_page_number > 0 else 0
 
-        self.sel_promo_id = 0
+        self.sel_reward_id = 0
 
     def set_import_data_entry(self, csv_file_path):
         self.progress_count = 0
         self.progress_percent = 100
 
-        self.data_import_thread = MyDataImportThread(data_name='promo', csv_file_path=csv_file_path)
+        self.data_import_thread = MyDataImportThread(data_name='reward', csv_file_path=csv_file_path)
 
         self.data_import_thread.start()
     
-    def init_manage_data_entry(self, task, promo_name, promo_type, promo_percent, promo_desc):
-        if '' not in [promo_name, promo_type, promo_percent]:
-            if promo_percent.isdigit():
+    def init_manage_data_entry(self, task, reward_name, reward_unit, reward_points, reward_desc):
+        if '' not in [reward_name, reward_unit, reward_points]:
+            if reward_points.isdigit():
                 if task == 'add_data':
-                    schema.insert_promo_data(
-                        promo_name,
-                        promo_type,
-                        promo_percent,
-                        promo_desc,
+                    schema.insert_reward_data(
+                        reward_name,
+                        reward_unit,
+                        reward_points,
+                        reward_desc,
                     )
-                    QMessageBox.information(None, 'Success', 'Promo added.')
+                    QMessageBox.information(None, 'Success', 'Reward added.')
                     pass
                 elif task == 'edit_data':
-                    schema.update_promo_data(
-                        promo_name,
-                        promo_type,
-                        promo_percent,
-                        promo_desc,
-                        self.sel_promo_id
+                    schema.update_reward_data(
+                        reward_name,
+                        reward_unit,
+                        reward_points,
+                        reward_desc,
+                        self.sel_reward_id
                     )
-                    QMessageBox.information(None, 'Success', 'Promo edited.')
-                    self.sel_promo_id = 0
+                    QMessageBox.information(None, 'Success', 'Reward edited.')
+                    self.sel_reward_id = 0
                     pass
             else:
                 QMessageBox.critical(None, 'Error', 'Invalid numeric value.')
         else:
             QMessageBox.critical(None, 'Error', 'Please fill out all required fields.')
     pass
-class MyPromoView(MyWidget):
-    def __init__(self, model: MyPromoModel):
+class MyRewardView(MyWidget):
+    def __init__(self, model: MyRewardModel):
         super().__init__()
 
         self.m = model
 
-        self.set_promo_box()
+        self.set_reward_box()
 
-    def set_promo_box(self):
+    def set_reward_box(self):
         self.filter_field = MyLineEdit(object_name='filter_field')
         self.filter_button = MyPushButton(text='Filter')
         self.filter_box = MyGroupBox()
@@ -87,55 +87,55 @@ class MyPromoView(MyWidget):
         self.field_layout.addWidget(self.add_data_button)
         self.manage_data_box.setLayout(self.field_layout)
 
-        self.promo_act_box = MyGroupBox()
-        self.promo_act_layout = MyHBoxLayout()
-        self.promo_act_layout.addWidget(self.filter_box,0,Qt.AlignmentFlag.AlignLeft)
-        self.promo_act_layout.addWidget(self.manage_data_box,1,Qt.AlignmentFlag.AlignRight)
-        self.promo_act_box.setLayout(self.promo_act_layout)
+        self.reward_act_box = MyGroupBox()
+        self.reward_act_layout = MyHBoxLayout()
+        self.reward_act_layout.addWidget(self.filter_box,0,Qt.AlignmentFlag.AlignLeft)
+        self.reward_act_layout.addWidget(self.manage_data_box,1,Qt.AlignmentFlag.AlignRight)
+        self.reward_act_box.setLayout(self.reward_act_layout)
 
-        self.promo_overview_table = MyTableWidget(object_name='promo_overview_table')
-        self.promo_overview_prev_button = MyPushButton(text='Prev')
-        self.promo_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.promo_overview_next_button = MyPushButton(text='Next')
-        self.promo_overview_act_box = MyGroupBox()
-        self.promo_overview_act_layout = MyHBoxLayout()
-        self.promo_overview_act_layout.addWidget(self.promo_overview_prev_button)
-        self.promo_overview_act_layout.addWidget(self.promo_overview_page_label)
-        self.promo_overview_act_layout.addWidget(self.promo_overview_next_button)
-        self.promo_overview_act_box.setLayout(self.promo_overview_act_layout)
-        self.promo_overview_box = MyGroupBox()
-        self.promo_overview_layout = MyVBoxLayout()
-        self.promo_overview_layout.addWidget(self.promo_overview_table)
-        self.promo_overview_layout.addWidget(self.promo_overview_act_box,0,Qt.AlignmentFlag.AlignCenter)
-        self.promo_overview_box.setLayout(self.promo_overview_layout)
+        self.reward_overview_table = MyTableWidget(object_name='reward_overview_table')
+        self.reward_overview_prev_button = MyPushButton(text='Prev')
+        self.reward_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_page_number}")
+        self.reward_overview_next_button = MyPushButton(text='Next')
+        self.reward_overview_act_box = MyGroupBox()
+        self.reward_overview_act_layout = MyHBoxLayout()
+        self.reward_overview_act_layout.addWidget(self.reward_overview_prev_button)
+        self.reward_overview_act_layout.addWidget(self.reward_overview_page_label)
+        self.reward_overview_act_layout.addWidget(self.reward_overview_next_button)
+        self.reward_overview_act_box.setLayout(self.reward_overview_act_layout)
+        self.reward_overview_box = MyGroupBox()
+        self.reward_overview_layout = MyVBoxLayout()
+        self.reward_overview_layout.addWidget(self.reward_overview_table)
+        self.reward_overview_layout.addWidget(self.reward_overview_act_box,0,Qt.AlignmentFlag.AlignCenter)
+        self.reward_overview_box.setLayout(self.reward_overview_layout)
         
-        self.promo_sort_tab = MyTabWidget()
-        self.promo_sort_tab.addTab(self.promo_overview_box, 'Overview')
+        self.reward_sort_tab = MyTabWidget()
+        self.reward_sort_tab.addTab(self.reward_overview_box, 'Overview')
 
         self.main_layout = MyVBoxLayout()
-        self.main_layout.addWidget(self.promo_act_box)
-        self.main_layout.addWidget(self.promo_sort_tab)
+        self.main_layout.addWidget(self.reward_act_box)
+        self.main_layout.addWidget(self.reward_sort_tab)
         self.setLayout(self.main_layout)
 
     def set_manage_data_box(self):
-        self.promo_name_field = MyLineEdit(object_name='promo_name_field')
-        self.promo_name_label = MyLabel(text='Name')
-        self.promo_type_field = MyComboBox(object_name='promo_type_field')
-        self.promo_type_label = MyLabel(text='Type')
-        self.promo_percent_field = MyLineEdit(object_name='promo_percent_field')
-        self.promo_percent_label = MyLabel(text='Percent')
-        self.promo_desc_field = MyPlainTextEdit(object_name='promo_desc_field')
-        self.promo_desc_label = MyLabel(text='Description')
+        self.reward_name_field = MyLineEdit(object_name='reward_name_field')
+        self.reward_name_label = MyLabel(text='Name')
+        self.reward_unit_field = MyLineEdit(object_name='reward_unit_field')
+        self.reward_unit_label = MyLabel(text='Unit')
+        self.reward_points_field = MyLineEdit(object_name='reward_points_field')
+        self.reward_points_label = MyLabel(text='Points')
+        self.reward_desc_field = MyPlainTextEdit(object_name='reward_desc_field')
+        self.reward_desc_label = MyLabel(text='Description')
         self.field_box = MyGroupBox()
         self.field_layout = MyFormLayout()
-        self.field_layout.addRow(self.promo_name_label)
-        self.field_layout.addRow(self.promo_name_field)
-        self.field_layout.addRow(self.promo_type_label)
-        self.field_layout.addRow(self.promo_type_field)
-        self.field_layout.addRow(self.promo_percent_label)
-        self.field_layout.addRow(self.promo_percent_field)
-        self.field_layout.addRow(self.promo_desc_label)
-        self.field_layout.addRow(self.promo_desc_field)
+        self.field_layout.addRow(self.reward_name_label)
+        self.field_layout.addRow(self.reward_name_field)
+        self.field_layout.addRow(self.reward_unit_label)
+        self.field_layout.addRow(self.reward_unit_field)
+        self.field_layout.addRow(self.reward_points_label)
+        self.field_layout.addRow(self.reward_points_field)
+        self.field_layout.addRow(self.reward_desc_label)
+        self.field_layout.addRow(self.reward_desc_field)
         self.field_box.setLayout(self.field_layout)
         self.manage_data_scra = MyScrollArea()
         self.manage_data_scra.setWidget(self.field_box)
@@ -168,24 +168,24 @@ class MyPromoView(MyWidget):
         self.edit_data_button = MyPushButton(text='Edit')
         self.view_data_button = MyPushButton(text='View')
         self.delete_data_button = MyPushButton(text='Delete')
-        self.promo_overview_act_box = MyGroupBox()
-        self.promo_overview_act_layout = MyHBoxLayout()
-        self.promo_overview_act_layout.addWidget(self.edit_data_button)
-        self.promo_overview_act_layout.addWidget(self.view_data_button)
-        self.promo_overview_act_layout.addWidget(self.delete_data_button)
-        self.promo_overview_act_box.setLayout(self.promo_overview_act_layout)
+        self.reward_overview_act_box = MyGroupBox()
+        self.reward_overview_act_layout = MyHBoxLayout()
+        self.reward_overview_act_layout.addWidget(self.edit_data_button)
+        self.reward_overview_act_layout.addWidget(self.view_data_button)
+        self.reward_overview_act_layout.addWidget(self.delete_data_button)
+        self.reward_overview_act_box.setLayout(self.reward_overview_act_layout)
 
     def set_view_dialog(self):
-        self.promo_name_info = MyLabel(text=f"promo_name")
-        self.promo_type_info = MyLabel(text=f"promo_type")
-        self.promo_percent_info = MyLabel(text=f"promo_percent")
-        self.promo_desc_info = MyLabel(text=f"promo_desc")
+        self.reward_name_info = MyLabel(text=f"reward_name")
+        self.reward_unit_info = MyLabel(text=f"reward_unit")
+        self.reward_points_info = MyLabel(text=f"reward_points")
+        self.reward_desc_info = MyLabel(text=f"reward_desc")
         self.info_box = MyGroupBox()
         self.info_layout = MyFormLayout()
-        self.info_layout.addRow('Name:', self.promo_name_info)
-        self.info_layout.addRow('Type:', self.promo_type_info)
-        self.info_layout.addRow('Percent:', self.promo_percent_info)
-        self.info_layout.addRow('Description:', self.promo_desc_info)
+        self.info_layout.addRow('Name:', self.reward_name_info)
+        self.info_layout.addRow('Type:', self.reward_unit_info)
+        self.info_layout.addRow('Percent:', self.reward_points_info)
+        self.info_layout.addRow('Description:', self.reward_desc_info)
         self.info_box.setLayout(self.info_layout)
         self.view_data_scra = MyScrollArea()
         self.view_data_scra.setWidget(self.info_box)
@@ -202,21 +202,21 @@ class MyPromoView(MyWidget):
         self.view_data_layout.addWidget(self.view_data_scra)
         self.view_data_layout.addWidget(self.view_data_act_box)
         self.view_data_dialog.setLayout(self.view_data_layout)
-class MyPromoController:
-    def __init__(self, model: MyPromoModel, view: MyPromoView):
+class MyRewardController:
+    def __init__(self, model: MyRewardModel, view: MyRewardView):
         self.v = view
         self.m = model
 
-        self.set_promo_box_conn()
+        self.set_reward_box_conn()
         self.sync_ui()
 
-    def set_promo_box_conn(self):
+    def set_reward_box_conn(self):
         self.v.filter_field.returnPressed.connect(self.on_filter_button_clicked)
         self.v.filter_button.clicked.connect(self.on_filter_button_clicked)
         self.v.import_data_button.clicked.connect(self.on_import_data_button_clicked)
         self.v.add_data_button.clicked.connect(self.on_add_data_button_clicked)
-        self.v.promo_overview_prev_button.clicked.connect(self.on_overview_prev_button_clicked)
-        self.v.promo_overview_next_button.clicked.connect(self.on_overview_next_button_clicked)
+        self.v.reward_overview_prev_button.clicked.connect(self.on_overview_prev_button_clicked)
+        self.v.reward_overview_next_button.clicked.connect(self.on_overview_next_button_clicked)
         pass
     def on_filter_button_clicked(self): # IDEA: src
         text_filter = self.v.filter_field.text()
@@ -265,34 +265,34 @@ class MyPromoController:
 
     def on_add_data_button_clicked(self): # IDEA: src
         self.v.set_manage_data_box()
-        self.load_combo_box_data()
+        # self.load_combo_box_data() -- just in case
         self.set_manage_data_box_conn(task='add_data')
         self.v.manage_data_dialog.exec()
         pass
 
     def populate_overview_table(self, text='', page_number=1): # IDEA: src
-        self.v.promo_overview_prev_button.setEnabled(page_number > 1)
-        self.v.promo_overview_next_button.setEnabled(page_number < self.m.total_page_number)
-        self.v.promo_overview_page_label.setText(f"Page {page_number}/{self.m.total_page_number}")
+        self.v.reward_overview_prev_button.setEnabled(page_number > 1)
+        self.v.reward_overview_next_button.setEnabled(page_number < self.m.total_page_number)
+        self.v.reward_overview_page_label.setText(f"Page {page_number}/{self.m.total_page_number}")
 
-        promo_data = schema.select_data_as_display(text=text, page_number=page_number)
+        reward_data = schema.select_data_as_display(text=text, page_number=page_number)
 
-        self.v.promo_overview_table.setRowCount(len(promo_data))
+        self.v.reward_overview_table.setRowCount(len(reward_data))
 
-        for i, data in enumerate(promo_data):
+        for i, data in enumerate(reward_data):
             self.v.set_overview_table_act_box()
-            promo_name = QTableWidgetItem(f"{data[0]}")
-            promo_type = QTableWidgetItem(f"{data[1]}")
-            promo_percent = QTableWidgetItem(f"{data[2]}")
-            promo_desc = QTableWidgetItem(f"{data[3]}")
+            reward_name = QTableWidgetItem(f"{data[0]}")
+            reward_unit = QTableWidgetItem(f"{data[1]}")
+            reward_points = QTableWidgetItem(f"{data[2]}")
+            reward_desc = QTableWidgetItem(f"{data[3]}")
             datetime_created = QTableWidgetItem(f"{data[4]}")
 
-            self.v.promo_overview_table.setCellWidget(i, 0, self.v.promo_overview_act_box)
-            self.v.promo_overview_table.setItem(i, 1, promo_name)
-            self.v.promo_overview_table.setItem(i, 2, promo_type)
-            self.v.promo_overview_table.setItem(i, 3, promo_percent)
-            self.v.promo_overview_table.setItem(i, 4, promo_desc)
-            self.v.promo_overview_table.setItem(i, 5, datetime_created)
+            self.v.reward_overview_table.setCellWidget(i, 0, self.v.reward_overview_act_box)
+            self.v.reward_overview_table.setItem(i, 1, reward_name)
+            self.v.reward_overview_table.setItem(i, 2, reward_unit)
+            self.v.reward_overview_table.setItem(i, 3, reward_points)
+            self.v.reward_overview_table.setItem(i, 4, reward_desc)
+            self.v.reward_overview_table.setItem(i, 5, datetime_created)
 
             self.v.edit_data_button.clicked.connect(lambda _, data=data: self.on_edit_data_button_clicked(data))
             self.v.view_data_button.clicked.connect(lambda _, data=data: self.on_view_data_button_clicked(data))
@@ -300,16 +300,16 @@ class MyPromoController:
         pass
     def on_edit_data_button_clicked(self, data):
         self.v.set_manage_data_box()
-        self.load_combo_box_data()
+        # self.load_combo_box_data() -- just in case
         self.v.manage_data_dialog.setWindowTitle(f"{data[0]}")
-        sel_promo_data = schema.select_promo_data(data[0], data[1])
+        sel_reward_data = schema.select_reward_data(data[0], data[1])
 
-        for i, sel_data in enumerate(sel_promo_data):
-            self.v.promo_name_field.setText(str(sel_data[0]))
-            self.v.promo_type_field.setCurrentText(str(sel_data[1]))
-            self.v.promo_percent_field.setText(str(sel_data[2]))
-            self.v.promo_desc_field.setPlainText(str(sel_data[3]))
-            self.m.sel_promo_id = sel_data[4]
+        for i, sel_data in enumerate(sel_reward_data):
+            self.v.reward_name_field.setText(str(sel_data[0]))
+            self.v.reward_unit_field.setText(str(sel_data[1]))
+            self.v.reward_points_field.setText(str(sel_data[2]))
+            self.v.reward_desc_field.setPlainText(str(sel_data[3]))
+            self.m.sel_reward_id = sel_data[4]
             pass
         
         self.set_manage_data_box_conn(task='edit_data')
@@ -319,13 +319,13 @@ class MyPromoController:
         self.v.set_view_dialog()
         self.v.view_data_dialog.setWindowTitle(f"{data[0]}")
 
-        sel_promo_data = schema.select_promo_data(data[0], data[1])
+        sel_reward_data = schema.select_reward_data(data[0], data[1])
 
-        for i, sel_data in enumerate(sel_promo_data):
-            self.v.promo_name_info.setText(str(sel_data[0]))
-            self.v.promo_type_info.setText(str(sel_data[1]))
-            self.v.promo_percent_info.setText(str(sel_data[2]))
-            self.v.promo_desc_info.setText(str(sel_data[3]))
+        for i, sel_data in enumerate(sel_reward_data):
+            self.v.reward_name_info.setText(str(sel_data[0]))
+            self.v.reward_unit_info.setText(str(sel_data[1]))
+            self.v.reward_points_info.setText(str(sel_data[2]))
+            self.v.reward_desc_info.setText(str(sel_data[3]))
 
         self.set_view_data_box_conn()
         self.v.view_data_dialog.exec()
@@ -333,18 +333,18 @@ class MyPromoController:
     def set_view_data_box_conn(self):
         self.v.view_data_act_close_button.clicked.connect(lambda: self.close_dialog(self.v.view_data_dialog))
     def on_delete_data_button_clicked(self, data):
-        sel_promo_data = schema.select_promo_data(data[0], data[1])
+        sel_reward_data = schema.select_reward_data(data[0], data[1])
 
-        for i, sel_data in enumerate(sel_promo_data):
-            promo_name = sel_data[0]
-            promo_id = sel_data[4]
+        for i, sel_data in enumerate(sel_reward_data):
+            reward_name = sel_data[0]
+            reward_id = sel_data[4]
 
-        confirm = QMessageBox.warning(None, 'Confirm', f"Delete {promo_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirm = QMessageBox.warning(None, 'Confirm', f"Delete {reward_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm is QMessageBox.StandardButton.Yes:
-            schema.delete_promo_data(promo_id)
+            schema.delete_reward_data(reward_id)
 
-            QMessageBox.information(None, 'Success', f"{promo_name} has been deleted.")
+            QMessageBox.information(None, 'Success', f"{reward_name} has been deleted.")
 
         self.sync_ui()
         pass
@@ -353,14 +353,14 @@ class MyPromoController:
         if self.m.page_number > 1: 
             self.m.page_number -= 1
 
-            self.v.promo_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
+            self.v.reward_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         self.populate_overview_table(page_number=self.m.page_number)
         pass
     def on_overview_next_button_clicked(self):
         if self.m.page_number < self.m.total_page_number:
             self.m.page_number += 1
 
-            self.v.promo_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
+            self.v.reward_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         self.populate_overview_table(page_number=self.m.page_number)
         pass
 
@@ -369,37 +369,33 @@ class MyPromoController:
         self.v.save_data_button.clicked.connect(lambda: self.on_save_data_button_clicked(task))
         self.v.manage_data_act_close_button.clicked.connect(lambda: self.close_dialog(self.v.manage_data_dialog))
         pass
-    def load_combo_box_data(self):
-        self.v.set_manage_data_box()
+    # def load_combo_box_data(self): -- just in case
 
-        promo_type_data = schema.select_promo_type_for_combo_box()
-
-        for promo_type in promo_type_data: self.v.promo_type_field.addItems(promo_type)
     def on_save_data_button_clicked(self, task):
-        promo_name = self.v.promo_name_field.text()
-        promo_type = self.v.promo_type_field.currentText()
-        promo_percent = self.v.promo_percent_field.text()
-        promo_desc = self.v.promo_desc_field.toPlainText()
+        reward_name = self.v.reward_name_field.text()
+        reward_unit = self.v.reward_unit_field.text()
+        reward_points = self.v.reward_points_field.text()
+        reward_desc = self.v.reward_desc_field.toPlainText()
 
-        self.m.init_manage_data_entry(task, promo_name, promo_type, promo_percent, promo_desc)
+        self.m.init_manage_data_entry(task, reward_name, reward_unit, reward_points, reward_desc)
             
         self.v.manage_data_dialog.close()
 
         self.sync_ui()
 
     def sync_ui(self):
-        self.m.total_page_number = schema.select_promo_data_total_page_count()
+        self.m.total_page_number = schema.select_reward_data_total_page_count()
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
         self.populate_overview_table(page_number=self.m.page_number)
         pass
     def close_dialog(self, dialog: QDialog):
         dialog.close()
 
-class MyPromoWindow:
+class MyRewardWindow:
     def __init__(self, name='test', phone='test'):
-        self.model = MyPromoModel(name, phone)
-        self.view = MyPromoView(self.model)
-        self.controller = MyPromoController(self.model, self.view)
+        self.model = MyRewardModel(name, phone)
+        self.view = MyRewardView(self.model)
+        self.controller = MyRewardController(self.model, self.view)
 
     def run(self):
         self.view.show()
@@ -407,8 +403,8 @@ class MyPromoWindow:
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)
-    promo_window = MyPromoWindow()
+    reward_window = MyRewardWindow()
 
-    promo_window.run()
+    reward_window.run()
 
     app.exec()
