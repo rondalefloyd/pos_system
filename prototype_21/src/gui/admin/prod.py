@@ -514,7 +514,6 @@ class MyProdModel: # NOTE: entries
         pass
     # endregion: stock
 
-
     pass
 class MyProdView(MyGroupBox): # NOTE: layout
     def __init__(self, model: MyProdModel):
