@@ -35,31 +35,71 @@ class MyCustomerSchema:
             )
         """)
 
+        self.sales_cursor.execute(f"""
+            CREATE TABLE IF NOT EXISTS CustomerReward (
+                CustomerId INTEGER,
+                RewardId INTEGER,
+                Points INTEGER, 
+                UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        self.sales_cursor.execute(f"""
+            CREATE TABLE IF NOT EXISTS Reward (
+                RewardId INTEGER PRIMARY KEY AUTOINCREMENT,
+                Name TEXT,
+                Unit DECIMAL,
+                Points DECIMAL,
+                Description TEXT,
+                UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
         self.sales_conn.commit()
 
     def insert_customer_data(self, customer_name='', customer_address='', customer_barrio='', customer_town='', customer_phone='', customer_age=0, customer_gender='', customer_marstat=''):
         self.sales_cursor.execute(f"""
             INSERT INTO Customer (Name, Address, Barrio, Town, Phone, Age, Gender, MaritalStatus)
             SELECT 
-                '{customer_name}', 
-                '{customer_address}', 
-                '{customer_barrio}', 
-                '{customer_town}',
-                '{customer_phone}',
-                '{customer_age}',
-                '{customer_gender}',
-                '{customer_marstat}'
+                "{customer_name}", 
+                "{customer_address}", 
+                "{customer_barrio}", 
+                "{customer_town}",
+                "{customer_phone}",
+                {customer_age},
+                "{customer_gender}",
+                "{customer_marstat}"
             WHERE NOT EXISTS (
                 SELECT 1 FROM Customer
                 WHERE
-                    Name = '{customer_name}' AND
-                    Address = '{customer_address}' AND
-                    Barrio = '{customer_barrio}' AND
-                    Town = '{customer_town}' AND
-                    Phone = '{customer_phone}' AND
-                    Age = '{customer_age}' AND
-                    Gender = '{customer_gender}' AND
-                    MaritalStatus = '{customer_marstat}'
+                    Name = "{customer_name}" AND
+                    Address = "{customer_address}" AND
+                    Barrio = "{customer_barrio}" AND
+                    Town = "{customer_town}" AND
+                    Phone = "{customer_phone}" AND
+                    Age = {customer_age} AND
+                    Gender = "{customer_gender}" AND
+                    MaritalStatus = "{customer_marstat}"
+            )
+        """)
+
+        customer_id = self.select_customer_id(
+            customer_name,
+            customer_town,
+            customer_phone,
+            customer_age
+        )
+
+        self.sales_cursor.execute(f"""
+            INSERT INTO CustomerReward (CustomerId, RewardId, Points)
+            SELECT
+                {customer_id}, 0, 0
+            WHERE NOT EXISTS (
+                SELECT 1 FROM CustomerReward
+                WHERE
+                    CustomerId = {customer_id} AND
+                    RewardId = 0 AND
+                    Points = 0
             )
         """)
 
@@ -70,26 +110,29 @@ class MyCustomerSchema:
 
         self.sales_cursor.execute(f"""
             SELECT 
-                Name, 
-                Address, 
-                Barrio, 
-                Town,
-                Phone,
-                Age,
-                Gender,
-                MaritalStatus,
-                UpdateTs
+                Customer.Name, 
+                Customer.Address, 
+                Customer.Barrio, 
+                Customer.Town,
+                Customer.Phone,
+                Customer.Age,
+                Customer.Gender,
+                Customer.MaritalStatus,
+                CustomerReward.Points,
+                Customer.UpdateTs
             FROM Customer
+            LEFT JOIN CustomerReward ON Customer.CustomerId = CustomerReward.CustomerId
+            LEFT JOIN Reward ON CustomerReward.RewardId = Reward.RewardId
             WHERE
-                Name LIKE '%{text}%' OR
-                Address LIKE '%{text}%' OR
-                Barrio LIKE '%{text}%' OR
-                Town LIKE '%{text}%' OR
-                Phone LIKE '%{text}%' OR
-                Age LIKE '%{text}%' OR
-                Gender LIKE '%{text}%' OR
-                MaritalStatus LIKE '%{text}%'
-            ORDER BY CustomerId DESC, UpdateTs DESC
+                Customer.Name LIKE '%{text}%' OR
+                Customer.Address LIKE '%{text}%' OR
+                Customer.Barrio LIKE '%{text}%' OR
+                Customer.Town LIKE '%{text}%' OR
+                Customer.Phone LIKE '%{text}%' OR
+                Customer.Age LIKE '%{text}%' OR
+                Customer.Gender LIKE '%{text}%' OR
+                Customer.MaritalStatus LIKE '%{text}%'
+            ORDER BY Customer.CustomerId DESC, Customer.UpdateTs DESC
             LIMIT {page_size}
             OFFSET {offset}
         """)
@@ -101,22 +144,25 @@ class MyCustomerSchema:
     def select_customer_data(self, customer_name='', customer_town='', customer_phone='', customer_age=0):
         self.sales_cursor.execute(f"""
             SELECT
-                Name, 
-                Address, 
-                Barrio, 
-                Town,
-                Phone,
-                Age,
-                Gender,
-                MaritalStatus,
-                CustomerId
+                Customer.Name, 
+                Customer.Address, 
+                Customer.Barrio, 
+                Customer.Town,
+                Customer.Phone,
+                Customer.Age,
+                Customer.Gender,
+                Customer.MaritalStatus,
+                CustomerReward.Points,
+                Customer.CustomerId
             FROM Customer
+            LEFT JOIN CustomerReward ON Customer.CustomerId = CustomerReward.CustomerId
+            LEFT JOIN Reward ON CustomerReward.RewardId = Reward.RewardId
             WHERE
-                Name = '{customer_name}' AND
-                Town = '{customer_town}' AND
-                Phone = '{customer_phone}' AND
-                Age = '{customer_age}'
-            ORDER BY CustomerId DESC, UpdateTs DESC
+                Customer.Name = "{customer_name}" AND
+                Customer.Town = "{customer_town}" AND
+                Customer.Phone = "{customer_phone}" AND
+                Customer.Age = {customer_age}
+            ORDER BY Customer.CustomerId DESC, Customer.UpdateTs DESC
         """)
 
         customer_data = self.sales_cursor.fetchall()
@@ -151,20 +197,53 @@ class MyCustomerSchema:
         return customer_town
         pass
 
-    def update_customer_data(self, customer_name='', customer_address='', customer_barrio='', customer_town='', customer_phone='', customer_age=0, customer_gender='', customer_marstat='', customer_id=0):
+    def select_customer_id(self, customer_name, customer_town, customer_phone, customer_age):
+        customer_id = self.sales_cursor.execute(f"""
+            SELECT CustomerId FROM Customer
+            WHERE
+                Name = "{customer_name}" AND
+                Town = "{customer_town}" AND
+                Phone = "{customer_phone}" AND
+                Age = {customer_age}
+        """)
+
+        customer_id = self.sales_cursor.fetchone()[0]
+
+        return customer_id
+
+    def update_customer_data(
+            self, 
+            customer_name='', 
+            customer_address='', 
+            customer_barrio='', 
+            customer_town='', 
+            customer_phone='', 
+            customer_age=0, 
+            customer_gender='', 
+            customer_marstat='', 
+            customer_points='', 
+            customer_id=0
+    ):
         self.sales_cursor.execute(f"""
             UPDATE Customer
             SET
-                Name = '{customer_name}',
-                Address = '{customer_address}',
-                Barrio = '{customer_barrio}',
-                Town = '{customer_town}',
-                Phone = '{customer_phone}',
-                Age = '{customer_age}',
-                Gender = '{customer_gender}',
-                MaritalStatus = '{customer_marstat}'
+                Name = "{customer_name}",
+                Address = "{customer_address}",
+                Barrio = "{customer_barrio}",
+                Town = "{customer_town}",
+                Phone = "{customer_phone}",
+                Age = {customer_age},
+                Gender = "{customer_gender}",
+                MaritalStatus = "{customer_marstat}"
             WHERE CustomerId = {customer_id}
         """)
+
+        self.sales_cursor.execute(f"""
+            UPDATE CustomerReward
+            SET
+                Points = {customer_points},
+            WHERE CustomerId = {customer_id}
+        """)  
 
         self.sales_conn.commit()
 

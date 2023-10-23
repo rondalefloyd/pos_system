@@ -109,6 +109,18 @@ class MyProdSchema():
         );
         """)
         self.conn.commit()
+        
+        # promo
+        self.sales_cursor.execute(f"""
+            CREATE TABLE IF NOT EXISTS Promo (
+                PromoId INTEGER PRIMARY KEY AUTOINCREMENT,
+                Name TEXT,
+                PromoType TEXT,
+                DiscountPercent DECIMAL,
+                Description TEXT,
+                UpdateTs DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
 
         # stock
         self.cursor.execute(f"""

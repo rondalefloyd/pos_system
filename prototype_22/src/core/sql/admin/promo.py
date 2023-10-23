@@ -37,17 +37,17 @@ class MyPromoSchema:
         self.sales_cursor.execute(f"""
             INSERT INTO Promo (Name, PromoType, DiscountPercent, Description)
             SELECT 
-                '{promo_name}', 
-                '{promo_type}', 
+                "{promo_name}", 
+                "{promo_type}", 
                 {promo_percent}, 
-                '{promo_desc}'
+                "{promo_desc}"
             WHERE NOT EXISTS (
                 SELECT 1 FROM Promo
                 WHERE
-                    Name = '{promo_name}' AND
-                    PromoType = '{promo_type}' AND
+                    Name = "{promo_name}" AND
+                    PromoType = "{promo_type}" AND
                     DiscountPercent = {promo_percent} AND
-                    Description = '{promo_desc}'
+                    Description = "{promo_desc}"
             )
         """)
 
@@ -88,8 +88,8 @@ class MyPromoSchema:
                 PromoId
             FROM Promo
             WHERE
-                Name = '{promo_name}' AND
-                PromoType = '{promo_type}'
+                Name = "{promo_name}" AND
+                PromoType = "{promo_type}"
             ORDER BY PromoId DESC, UpdateTs DESC
         """)
 
@@ -117,10 +117,10 @@ class MyPromoSchema:
         self.sales_cursor.execute(f"""
             UPDATE Promo
             SET
-                Name = '{promo_name}',
-                PromoType = '{promo_type}',
+                Name = "{promo_name}",
+                PromoType = "{promo_type}",
                 DiscountPercent = {promo_percent},
-                Description = '{promo_desc}'
+                Description = "{promo_desc}"
             WHERE PromoId = {promo_id}
         """)
 

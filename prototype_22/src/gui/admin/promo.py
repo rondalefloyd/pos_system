@@ -34,9 +34,24 @@ class MyPromoModel:
 
         self.data_import_thread.start()
     
-    def init_manage_data_entry(self, task, promo_name, promo_type, promo_percent, promo_desc):
+    def init_manage_data_entry(
+            self, 
+            dialog, 
+            task, 
+            promo_name_label,
+            promo_type_label,
+            promo_percent_label,
+            promo_name, 
+            promo_type, 
+            promo_percent, 
+            promo_desc
+    ):
         if '' not in [promo_name, promo_type, promo_percent]:
-            if promo_percent.isdigit():
+            if promo_percent.replace('.', '', 1).isdigit():
+                promo_name_label.setText(f"Name")
+                promo_type_label.setText(f"Type")
+                promo_percent_label.setText(f"Percent")
+                
                 if task == 'add_data':
                     schema.insert_promo_data(
                         promo_name,
@@ -44,7 +59,8 @@ class MyPromoModel:
                         promo_percent,
                         promo_desc,
                     )
-                    QMessageBox.information(None, 'Success', 'Promo added.')
+                    QMessageBox.information(dialog, 'Success', 'Promo added.')
+                    dialog.close()
                     pass
                 elif task == 'edit_data':
                     schema.update_promo_data(
@@ -54,13 +70,22 @@ class MyPromoModel:
                         promo_desc,
                         self.sel_promo_id
                     )
-                    QMessageBox.information(None, 'Success', 'Promo edited.')
+                    QMessageBox.information(dialog, 'Success', 'Promo edited.')
+                    dialog.close()
                     self.sel_promo_id = 0
                     pass
             else:
-                QMessageBox.critical(None, 'Error', 'Invalid numeric value.')
+                promo_name_label.setText(f"Name")
+                promo_type_label.setText(f"Type")
+                promo_percent_label.setText(f"Percent {qss.inv_field_indicator}") if promo_percent.replace('.', '', 1).isdigit() is False else promo_percent_label.setText(f"Percent")
+
+                QMessageBox.critical(dialog, 'Error', 'Invalid numeric value.')
         else:
-            QMessageBox.critical(None, 'Error', 'Please fill out all required fields.')
+            promo_name_label.setText(f"Name {qss.req_field_indicator}") if promo_name == '' else promo_name_label.setText(f"Name")
+            promo_type_label.setText(f"Type {qss.req_field_indicator}") if promo_type == '' else promo_type_label.setText(f"Type")
+            promo_percent_label.setText(f"Percent {qss.inv_field_indicator}") if promo_percent.replace('.', '', 1).isdigit() is False else promo_percent_label.setText(f"Percent")
+
+            QMessageBox.critical(dialog, 'Error', 'Please fill out all required fields.')
     pass
 class MyPromoView(MyWidget):
     def __init__(self, model: MyPromoModel):
@@ -225,7 +250,7 @@ class MyPromoController:
         pass
     
     def on_import_data_button_clicked(self): # IDEA: src
-        csv_file_path, _ = QFileDialog.getOpenFileName(None, 'Open CSV', qss.csv_folder_path, 'CSV File (*csv)')
+        csv_file_path, _ = QFileDialog.getOpenFileName(self.v, 'Open CSV', qss.csv_folder_path, 'CSV File (*csv)')
 
         if csv_file_path:
             self.v.set_progress_dialog()
@@ -252,14 +277,14 @@ class MyPromoController:
         self.v.progress_label.setText(current_data)
         pass
     def on_data_import_thread_cancelled(self):
-        QMessageBox.information(None, 'Cancelled', 'Import cancelled.')
+        QMessageBox.information(self.v, 'Cancelled', 'Import cancelled.')
         pass
     def on_data_import_thread_finished(self):
-        QMessageBox.information(None, 'Success', 'Import complete.')
+        QMessageBox.information(self.v, 'Success', 'Import complete.')
         self.v.progress_dialog.close()
         pass
     def on_data_import_thread_invalid(self):
-        QMessageBox.critical(None, 'Error', 'An error occurred during import.')
+        QMessageBox.critical(self.v, 'Error', 'An error occurred during import.')
         self.v.progress_dialog.close()
         pass
 
@@ -339,12 +364,12 @@ class MyPromoController:
             promo_name = sel_data[0]
             promo_id = sel_data[4]
 
-        confirm = QMessageBox.warning(None, 'Confirm', f"Delete {promo_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirm = QMessageBox.warning(self.v, 'Confirm', f"Delete {promo_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm is QMessageBox.StandardButton.Yes:
             schema.delete_promo_data(promo_id)
 
-            QMessageBox.information(None, 'Success', f"{promo_name} has been deleted.")
+            QMessageBox.information(self.v, 'Success', f"{promo_name} has been deleted.")
 
         self.sync_ui()
         pass
@@ -381,9 +406,17 @@ class MyPromoController:
         promo_percent = self.v.promo_percent_field.text()
         promo_desc = self.v.promo_desc_field.toPlainText()
 
-        self.m.init_manage_data_entry(task, promo_name, promo_type, promo_percent, promo_desc)
-            
-        self.v.manage_data_dialog.close()
+        self.m.init_manage_data_entry(
+            self.v.manage_data_dialog, 
+            task, 
+            self.v.promo_name_label,
+            self.v.promo_type_label,
+            self.v.promo_percent_label,
+            promo_name, 
+            promo_type, 
+            promo_percent, 
+            promo_desc
+        )
 
         self.sync_ui()
 

@@ -37,17 +37,17 @@ class MyUserSchema:
         self.accounts_cursor.execute(f"""
             INSERT INTO User (Name, Password, AccessLevel, Phone)
             SELECT 
-                '{user_name}', 
-                '{user_password}', 
+                "{user_name}", 
+                "{user_password}", 
                 {user_level}, 
-                '{user_phone}'
+                "{user_phone}"
             WHERE NOT EXISTS (
                 SELECT 1 FROM User
                 WHERE
-                    Name = '{user_name}' AND
-                    Password = '{user_password}' AND
+                    Name = "{user_name}" AND
+                    Password = "{user_password}" AND
                     AccessLevel = {user_level} AND
-                    Phone = '{user_phone}'
+                    Phone = "{user_phone}"
             )
         """)
 
@@ -88,8 +88,8 @@ class MyUserSchema:
                 UserId
             FROM User
             WHERE
-                Name = '{user_name}' AND
-                Password = '{user_password}'
+                Name = "{user_name}" AND
+                Password = "{user_password}"
             ORDER BY UserId DESC, UpdateTs DESC
         """)
 
@@ -117,10 +117,10 @@ class MyUserSchema:
         self.accounts_cursor.execute(f"""
             UPDATE User
             SET
-                Name = '{user_name}',
-                Password = '{user_password}',
+                Name = "{user_name}",
+                Password = "{user_password}",
                 AccessLevel = {user_level},
-                Phone = '{user_phone}'
+                Phone = "{user_phone}"
             WHERE UserId = {user_id}
         """)
 

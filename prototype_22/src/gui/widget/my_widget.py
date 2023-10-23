@@ -47,6 +47,8 @@ class MyGroupBox(QGroupBox):
         super().__init__()
 
         self.object_name = object_name
+
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         pass
 
 class MyDialog(QDialog):
@@ -73,6 +75,7 @@ class MyTableWidget(QTableWidget):
         self.on_user_table()
         self.on_reward_table()
         self.on_customer_table()
+        self.on_product_table()
         pass
 
     def on_promo_table(self):
@@ -96,7 +99,16 @@ class MyTableWidget(QTableWidget):
     def on_customer_table(self):
         if self.object_name == 'customer_overview_table':
             self.setColumnCount(10)
-            self.setHorizontalHeaderLabels(['Action','Name','Address','Barrio','Town','Phone','Age','Gender','Marital status','Date/Time created'])
+            self.setHorizontalHeaderLabels(['Action','Name','Address','Barrio','Town','Phone','Age','Gender','Marital status','Points','Date/Time created'])
+
+    def on_product_table(self):
+        if self.object_name == 'product_overview_table':
+            self.setColumnCount(15)
+            self.setHorizontalHeaderLabels(['Action','Barcode','Product','Expire date','Type','Brand','Sales group','Supplier','Cost','Price','Effective date','Promo','Discount value','Inventory tracking','Date/Time created'])
+            pass
+        if self.object_name == 'product_stock_table':
+            self.setColumnCount(5)
+            self.setHorizontalHeaderLabels(['Action','Product','Available','On hand','Date/Time created'])
 
 class MyVBoxLayout(QVBoxLayout):
     def __init__(self, object_name=''):
@@ -109,6 +121,13 @@ class MyHBoxLayout(QHBoxLayout):
         super().__init__()
 
         self.object_name = object_name
+
+        self.on_global_hbox_layout()
+
+    def on_global_hbox_layout(self):
+        if self.object_name == 'product_overview_act_layout':
+            self.setContentsMargins(0,0,0,0)
+            self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         pass
 class MyGridLayout(QGridLayout):
     def __init__(self, object_name=''):
@@ -131,6 +150,10 @@ class MyLabel(QLabel):
 
         self.setObjectName(object_name)
         self.setText(text)
+
+    def on_customer_label(self):
+        if self.object_name == 'customer_points_label':
+            self.hide()
         pass
 
 class MyComboBox(QComboBox):
@@ -147,6 +170,9 @@ class MyComboBox(QComboBox):
             'promo_type_field',
             'customer_barrio_field',
             'customer_town_field',
+            'product_type_field',
+            'product_brand_field',
+            'product_supplier_field',
         ]:
             self.setEditable(True)
         pass
@@ -164,13 +190,25 @@ class MyLineEdit(QLineEdit):
         if self.object_name == 'barcode_scan_field':
             self.hide()
 
+        if self.object_name in [
+            'product_promo_type_field',
+            'product_promo_percent_field',
+            'product_disc_value_field',
+            'product_new_price_field',
+        ]:
+            self.setDisabled(True)
+
     def on_promo_line_edit(self):
         if self.object_name == 'filter_field':
             self.setMinimumWidth(500)
             pass
         if self.object_name == 'barcode_scan_field':
             self.setMinimumWidth(200)
-        pass
+    
+    def on_customer_line_edit(self):
+        if self.object_name == 'customer_points_field':
+            self.hide()
+    pass
 class MyPlainTextEdit(QPlainTextEdit):
     def __init__(self, object_name=''):
         super().__init__()
@@ -182,6 +220,9 @@ class MyDateEdit(QDateEdit):
         super().__init__()
 
         self.object_name = object_name
+
+        self.setCalendarPopup(True)
+        self.setMinimumDate(QDate().currentDate())
         pass
 class MyPushButton(QPushButton):
     def __init__(self, object_name='', text=''):
@@ -217,3 +258,17 @@ class MyProgressBar(QProgressBar):
         self.setObjectName(object_name)
         self.setTextVisible(False)
         self.setFixedHeight(20)
+
+class MyTableWidgetItem(QTableWidgetItem):
+    def __init__(self, text='', has_promo=False):
+        super().__init__() 
+        
+        self.setText(text)
+        self.has_promo = has_promo
+
+        self.on_product_table_widget_item()
+
+    def on_product_table_widget_item(self):
+        if self.has_promo is True:
+            self.setForeground(QColor(255,0,0))
+

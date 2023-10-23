@@ -34,33 +34,65 @@ class MyUserModel:
 
         self.data_import_thread.start()
     
-    def init_manage_data_entry(self, task, user_name, user_password, user_level, user_phone):
-        if '' not in [user_name, user_password, user_level]:
-            if user_level.isdigit():
-                if task == 'add_data':
-                    schema.insert_user_data(
-                        user_name,
-                        user_password,
-                        user_level,
-                        user_phone,
-                    )
-                    QMessageBox.information(None, 'Success', 'User added.')
-                    pass
-                elif task == 'edit_data':
-                    schema.update_user_data(
-                        user_name,
-                        user_password,
-                        user_level,
-                        user_phone,
-                        self.sel_user_id
-                    )
-                    QMessageBox.information(None, 'Success', 'User edited.')
-                    self.sel_user_id = 0
-                    pass
+    def init_manage_data_entry(
+            self, 
+            dialog, 
+            task, 
+            user_name_label, 
+            user_password_label, 
+            user_level_label, 
+            user_phone_label,
+            user_name, 
+            user_password, 
+            user_level, 
+            user_phone
+    ):
+        if '' not in [user_name, user_password, user_level, user_phone]:
+            if (user_level.isdigit() and user_phone.isdigit()):
+                if len(user_phone) == 11:
+                    user_name_label.setText(f"Name")
+                    user_password_label.setText(f"Password")
+                    user_level_label.setText(f"Level")
+                    user_phone_label.setText(f"Phone")
+
+                    if task == 'add_data':
+                        schema.insert_user_data(
+                            user_name,
+                            user_password,
+                            user_level,
+                            user_phone,
+                        )
+                        QMessageBox.information(dialog, 'Success', 'User added.')
+                        dialog.close()
+                        pass
+                    elif task == 'edit_data':
+                        schema.update_user_data(
+                            user_name,
+                            user_password,
+                            user_level,
+                            user_phone,
+                            self.sel_user_id
+                        )
+                        QMessageBox.information(dialog, 'Success', 'User edited.')
+                        dialog.close()
+                        self.sel_user_id = 0
+                        pass
+                else:
+                    QMessageBox.critical(dialog, 'Error', 'Invalid phone number.')
             else:
-                QMessageBox.critical(None, 'Error', 'Invalid numeric value.')
+                user_name_label.setText(f"Name")
+                user_password_label.setText(f"Password")
+                user_level_label.setText(f"Level {qss.inv_field_indicator}") if user_level.isdigit() is False else user_level_label.setText(f"Level")
+                user_phone_label.setText(f"Phone {qss.inv_field_indicator}") if user_phone.isdigit() is False else user_phone_label.setText(f"Phone")
+  
+                QMessageBox.critical(dialog, 'Error', 'Invalid numeric value.')
         else:
-            QMessageBox.critical(None, 'Error', 'Please fill out all required fields.')
+            user_name_label.setText(f"Name {qss.req_field_indicator}") if user_name == '' else user_name_label.setText(f"Name")
+            user_password_label.setText(f"Password {qss.req_field_indicator}") if user_password == '' else user_password_label.setText(f"Password")
+            user_level_label.setText(f"Level {qss.inv_field_indicator}") if user_level.isdigit() is False else user_level_label.setText(f"Level")
+            user_phone_label.setText(f"Phone {qss.inv_field_indicator}") if user_phone.isdigit() is False else user_phone_label.setText(f"Phone")
+
+            QMessageBox.critical(dialog, 'Error', 'Please fill out all required fields.')
     pass
 class MyUserView(MyWidget):
     def __init__(self, model: MyUserModel):
@@ -381,9 +413,18 @@ class MyUserController:
         user_level = self.v.user_level_field.currentText()
         user_phone = self.v.user_phone_field.text()
 
-        self.m.init_manage_data_entry(task, user_name, user_password, user_level, user_phone)
-            
-        self.v.manage_data_dialog.close()
+        self.m.init_manage_data_entry(
+            self.v.manage_data_dialog, 
+            task, 
+            self.v.user_name_label, 
+            self.v.user_password_label, 
+            self.v.user_level_label, 
+            self.v.user_phone_label,
+            user_name, 
+            user_password, 
+            user_level, 
+            user_phone
+        )
 
         self.sync_ui()
 

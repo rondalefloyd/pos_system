@@ -34,9 +34,24 @@ class MyRewardModel:
 
         self.data_import_thread.start()
     
-    def init_manage_data_entry(self, task, reward_name, reward_unit, reward_points, reward_desc):
+    def init_manage_data_entry(
+            self, 
+            dialog, 
+            task, 
+            reward_name_label, 
+            reward_unit_label, 
+            reward_points_label, 
+            reward_name, 
+            reward_unit, 
+            reward_points, 
+            reward_desc
+    ):
         if '' not in [reward_name, reward_unit, reward_points]:
-            if reward_points.isdigit():
+            if (reward_unit.replace('.', '', 1).isdigit() and reward_points.replace('.', '', 1).isdigit()):
+                reward_name_label.setText(f"Name")
+                reward_unit_label.setText(f"Unit")
+                reward_points_label.setText(f"Points")
+                                            
                 if task == 'add_data':
                     schema.insert_reward_data(
                         reward_name,
@@ -44,7 +59,8 @@ class MyRewardModel:
                         reward_points,
                         reward_desc,
                     )
-                    QMessageBox.information(None, 'Success', 'Reward added.')
+                    QMessageBox.information(dialog, 'Success', 'Reward added.')
+                    dialog.close()
                     pass
                 elif task == 'edit_data':
                     schema.update_reward_data(
@@ -54,13 +70,22 @@ class MyRewardModel:
                         reward_desc,
                         self.sel_reward_id
                     )
-                    QMessageBox.information(None, 'Success', 'Reward edited.')
+                    QMessageBox.information(dialog, 'Success', 'Reward edited.')
+                    dialog.close()
                     self.sel_reward_id = 0
                     pass
             else:
-                QMessageBox.critical(None, 'Error', 'Invalid numeric value.')
+                reward_name_label.setText(f"Name")
+                reward_unit_label.setText(f"Unit {qss.inv_field_indicator}") if reward_unit.replace('.', '', 1).isdigit() is False else reward_unit_label.setText(f"Unit")
+                reward_points_label.setText(f"Points {qss.inv_field_indicator}") if reward_points.replace('.', '', 1).isdigit() is False else reward_points_label.setText(f"Points")
+                
+                QMessageBox.critical(dialog, 'Error', 'Invalid numeric value.')
         else:
-            QMessageBox.critical(None, 'Error', 'Please fill out all required fields.')
+            reward_name_label.setText(f"Name {qss.req_field_indicator}") if reward_name == '' else reward_name_label.setText(f"Name")
+            reward_unit_label.setText(f"Unit {qss.inv_field_indicator}") if reward_unit.replace('.', '', 1).isdigit() is False else reward_unit_label.setText(f"Unit")
+            reward_points_label.setText(f"Points {qss.inv_field_indicator}") if reward_points.replace('.', '', 1).isdigit() is False else reward_points_label.setText(f"Points")
+
+            QMessageBox.critical(dialog, 'Error', 'Please fill out all required fields.')
     pass
 class MyRewardView(MyWidget):
     def __init__(self, model: MyRewardModel):
@@ -377,9 +402,17 @@ class MyRewardController:
         reward_points = self.v.reward_points_field.text()
         reward_desc = self.v.reward_desc_field.toPlainText()
 
-        self.m.init_manage_data_entry(task, reward_name, reward_unit, reward_points, reward_desc)
-            
-        self.v.manage_data_dialog.close()
+        self.m.init_manage_data_entry(
+            self.v.manage_data_dialog, 
+            task, 
+            self.v.reward_name_label,
+            self.v.reward_unit_label,
+            self.v.reward_points_label,
+            reward_name, 
+            reward_unit, 
+            reward_points, 
+            reward_desc
+        )
 
         self.sync_ui()
 

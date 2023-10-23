@@ -37,14 +37,14 @@ class MyRewardSchema:
         self.sales_cursor.execute(f"""
             INSERT INTO Reward (Name, Unit, Points, Description)
             SELECT 
-                '{reward_name}', 
+                "{reward_name}", 
                 '{reward_unit}', 
                 {reward_points}, 
                 '{reward_desc}'
             WHERE NOT EXISTS (
                 SELECT 1 FROM Reward
                 WHERE
-                    Name = '{reward_name}' AND
+                    Name = "{reward_name}" AND
                     Unit = '{reward_unit}' AND
                     Points = {reward_points} AND
                     Description = '{reward_desc}'
@@ -88,7 +88,7 @@ class MyRewardSchema:
                 RewardId
             FROM Reward
             WHERE
-                Name = '{reward_name}' AND
+                Name = "{reward_name}" AND
                 Unit = '{reward_unit}'
             ORDER BY RewardId DESC, UpdateTs DESC
         """)
@@ -117,7 +117,7 @@ class MyRewardSchema:
         self.sales_cursor.execute(f"""
             UPDATE Reward
             SET
-                Name = '{reward_name}',
+                Name = "{reward_name}",
                 Unit = '{reward_unit}',
                 Points = {reward_points},
                 Description = '{reward_desc}'

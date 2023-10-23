@@ -34,41 +34,88 @@ class MyCustomerModel:
 
         self.data_import_thread.start()
     
-    def init_manage_data_entry(self, task, customer_name, customer_address, customer_barrio, customer_town, customer_phone, customer_age, customer_gender, customer_marstat):
-        if '' not in [customer_name, customer_barrio, customer_town, customer_phone, customer_age, customer_gender]:
-            if customer_age.isdigit():
-                if task == 'add_data':
-                    schema.insert_customer_data(
-                        customer_name,
-                        customer_address,
-                        customer_barrio,
-                        customer_town,
-                        customer_phone,
-                        customer_age,
-                        customer_gender,
-                        customer_marstat,
-                    )
-                    QMessageBox.information(None, 'Success', 'Customer added.')
-                    pass
-                elif task == 'edit_data':
-                    schema.update_customer_data(
-                        customer_name,
-                        customer_address,
-                        customer_barrio,
-                        customer_town,
-                        customer_phone,
-                        customer_age,
-                        customer_gender,
-                        customer_marstat,
-                        self.sel_customer_id
-                    )
-                    QMessageBox.information(None, 'Success', 'Customer edited.')
-                    self.sel_customer_id = 0
-                    pass
+    def init_manage_data_entry(
+            self, 
+            dialog, 
+            task, 
+            customer_name_label, 
+            customer_barrio_label, 
+            customer_town_label, 
+            customer_phone_label, 
+            customer_age_label, 
+            customer_points_label, 
+            customer_name, 
+            customer_address, 
+            customer_barrio, 
+            customer_town, 
+            customer_phone, 
+            customer_age, 
+            customer_gender, 
+            customer_marstat,
+            customer_points
+    ):
+        print('customer_points:', customer_points)
+        if '' not in [customer_name, customer_barrio, customer_town, customer_phone, customer_age, customer_gender, customer_points]:
+            if (customer_phone.isdigit() and customer_age.isdigit() and customer_points.replace('.', '', 1).isdigit()):
+                if len(customer_phone) == 11:
+                    customer_name_label.setText(f"Name")
+                    customer_barrio_label.setText(f"Barrio")
+                    customer_town_label.setText(f"Town")
+                    customer_phone_label.setText(f"Phone")
+                    customer_age_label.setText(f"Age")
+                    customer_points_label.setText(f"Points")
+
+                    if task == 'add_data':
+                        schema.insert_customer_data(
+                            customer_name,
+                            customer_address,
+                            customer_barrio,
+                            customer_town,
+                            customer_phone,
+                            customer_age,
+                            customer_gender,
+                            customer_marstat,
+                        )
+                        QMessageBox.information(dialog, 'Success', 'Customer added.')
+                        dialog.close()
+                        pass
+                    elif task == 'edit_data':
+                        schema.update_customer_data(
+                            customer_name,
+                            customer_address,
+                            customer_barrio,
+                            customer_town,
+                            customer_phone,
+                            customer_age,
+                            customer_gender,
+                            customer_marstat,
+                            customer_points,
+                            self.sel_customer_id
+                        )
+                        QMessageBox.information(dialog, 'Success', 'Customer edited.')
+                        dialog.close()
+                        self.sel_customer_id = 0
+                        pass
+                else:
+                    QMessageBox.critical(dialog, 'Error', 'Invalid phone number.')
             else:
-                QMessageBox.critical(None, 'Error', 'Invalid numeric value.')
+                customer_name_label.setText(f"Name")
+                customer_barrio_label.setText(f"Barrio")
+                customer_town_label.setText(f"Town")
+                customer_phone_label.setText(f"Phone {qss.inv_field_indicator}") if customer_phone.isdigit() is False else customer_phone_label.setText(f"Phone")
+                customer_age_label.setText(f"Age {qss.inv_field_indicator}") if customer_age.isdigit() is False else customer_age_label.setText(f"Age")
+                customer_points_label.setText(f"Points {qss.inv_field_indicator}") if customer_points == '' else customer_points_label.setText(f"Points")
+
+                QMessageBox.critical(dialog, 'Error', 'Invalid numeric value.')
         else:
-            QMessageBox.critical(None, 'Error', 'Please fill out all required fields.')
+            customer_name_label.setText(f"Name {qss.req_field_indicator}") if customer_name == '' else customer_name_label.setText(f"Name")
+            customer_barrio_label.setText(f"Barrio {qss.req_field_indicator}") if customer_barrio == '' else customer_barrio_label.setText(f"Barrio")
+            customer_town_label.setText(f"Town {qss.req_field_indicator}") if customer_town == '' else customer_town_label.setText(f"Town")
+            customer_phone_label.setText(f"Phone {qss.inv_field_indicator}") if customer_phone.isdigit() is False else customer_phone_label.setText(f"Phone")
+            customer_age_label.setText(f"Age {qss.inv_field_indicator}") if customer_age.isdigit() is False else customer_age_label.setText(f"Age")
+            customer_points_label.setText(f"Points {qss.inv_field_indicator}") if customer_points == '' else customer_points_label.setText(f"Points")
+
+            QMessageBox.critical(dialog, 'Error', 'Please fill out all required fields.')
     pass
 class MyCustomerView(MyWidget):
     def __init__(self, model: MyCustomerModel):
@@ -142,6 +189,8 @@ class MyCustomerView(MyWidget):
         self.customer_gender_field = MyComboBox(object_name='customer_gender_field')
         self.customer_marstat_label = MyLabel(text='Town')
         self.customer_marstat_field = MyComboBox(object_name='customer_marstat_field')
+        self.customer_points_label = MyLabel(object_name='customer_points_label', text='Points')
+        self.customer_points_field = MyLineEdit(object_name='customer_points_field')
         self.field_box = MyGroupBox()
         self.field_layout = MyFormLayout()
         self.field_layout.addRow(self.customer_name_label)
@@ -160,6 +209,8 @@ class MyCustomerView(MyWidget):
         self.field_layout.addRow(self.customer_gender_field)
         self.field_layout.addRow(self.customer_marstat_label)
         self.field_layout.addRow(self.customer_marstat_field)
+        self.field_layout.addRow(self.customer_points_label)
+        self.field_layout.addRow(self.customer_points_field)
         self.field_box.setLayout(self.field_layout)
         self.manage_data_scra = MyScrollArea()
         self.manage_data_scra.setWidget(self.field_box)
@@ -257,7 +308,7 @@ class MyCustomerController:
         pass
     
     def on_import_data_button_clicked(self): # IDEA: src
-        csv_file_path, _ = QFileDialog.getOpenFileName(None, 'Open CSV', qss.csv_folder_path, 'CSV File (*csv)')
+        csv_file_path, _ = QFileDialog.getOpenFileName(self.v, 'Open CSV', qss.csv_folder_path, 'CSV File (*csv)')
 
         if csv_file_path:
             self.v.set_progress_dialog()
@@ -284,20 +335,25 @@ class MyCustomerController:
         self.v.progress_label.setText(current_data)
         pass
     def on_data_import_thread_cancelled(self):
-        QMessageBox.information(None, 'Cancelled', 'Import cancelled.')
+        QMessageBox.information(self.v, 'Cancelled', 'Import cancelled.')
         pass
     def on_data_import_thread_finished(self):
-        QMessageBox.information(None, 'Success', 'Import complete.')
+        QMessageBox.information(self.v, 'Success', 'Import complete.')
         self.v.progress_dialog.close()
         pass
     def on_data_import_thread_invalid(self):
-        QMessageBox.critical(None, 'Error', 'An error occurred during import.')
+        QMessageBox.critical(self.v, 'Error', 'An error occurred during import.')
         self.v.progress_dialog.close()
         pass
 
     def on_add_data_button_clicked(self): # IDEA: src
         self.v.set_manage_data_box()
         self.load_combo_box_data()
+        self.v.manage_data_dialog.setWindowTitle('Add customer')
+
+        self.v.customer_points_label.hide()
+        self.v.customer_points_field.hide()
+    
         self.set_manage_data_box_conn(task='add_data')
         self.v.manage_data_dialog.exec()
         pass
@@ -321,7 +377,8 @@ class MyCustomerController:
             customer_age = QTableWidgetItem(f"{data[5]}")
             customer_gender = QTableWidgetItem(f"{data[6]}")
             customer_marstat = QTableWidgetItem(f"{data[7]}")
-            datetime_created = QTableWidgetItem(f"{data[8]}")
+            customer_points = QTableWidgetItem(f"{data[8]}")
+            datetime_created = QTableWidgetItem(f"{data[9]}")
 
             self.v.customer_overview_table.setCellWidget(i, 0, self.v.customer_overview_act_box)
             self.v.customer_overview_table.setItem(i, 1, customer_name)
@@ -332,7 +389,8 @@ class MyCustomerController:
             self.v.customer_overview_table.setItem(i, 6, customer_age)
             self.v.customer_overview_table.setItem(i, 7, customer_gender)
             self.v.customer_overview_table.setItem(i, 8, customer_marstat)
-            self.v.customer_overview_table.setItem(i, 9, datetime_created)
+            self.v.customer_overview_table.setItem(i, 9, customer_points)
+            self.v.customer_overview_table.setItem(i, 10, datetime_created)
 
             self.v.edit_data_button.clicked.connect(lambda _, data=data: self.on_edit_data_button_clicked(data))
             self.v.view_data_button.clicked.connect(lambda _, data=data: self.on_view_data_button_clicked(data))
@@ -342,6 +400,10 @@ class MyCustomerController:
         self.v.set_manage_data_box()
         self.load_combo_box_data()
         self.v.manage_data_dialog.setWindowTitle(f"{data[0]}")
+
+        self.v.customer_points_label.show()
+        self.v.customer_points_field.show()
+
         sel_customer_data = schema.select_customer_data(data[0], data[3], data[4], data[5])
 
         for i, sel_data in enumerate(sel_customer_data):
@@ -353,7 +415,7 @@ class MyCustomerController:
             self.v.customer_age_field.setText(str(sel_data[5]))
             self.v.customer_gender_field.setCurrentText(str(sel_data[6]))
             self.v.customer_marstat_field.setCurrentText(str(sel_data[7]))
-            self.m.sel_customer_id = sel_data[8]
+            self.m.sel_customer_id = sel_data[9]
             pass
         
         self.set_manage_data_box_conn(task='edit_data')
@@ -385,14 +447,14 @@ class MyCustomerController:
 
         for i, sel_data in enumerate(sel_customer_data):
             customer_name = sel_data[0]
-            customer_id = sel_data[8]
+            customer_id = sel_data[9]
 
-        confirm = QMessageBox.warning(None, 'Confirm', f"Delete {customer_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirm = QMessageBox.warning(self.v, 'Confirm', f"Delete {customer_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm is QMessageBox.StandardButton.Yes:
             schema.delete_customer_data(customer_id)
 
-            QMessageBox.information(None, 'Success', f"{customer_name} has been deleted.")
+            QMessageBox.information(self.v, 'Success', f"{customer_name} has been deleted.")
 
         self.sync_ui()
         pass
@@ -442,9 +504,17 @@ class MyCustomerController:
         customer_age = self.v.customer_age_field.text()
         customer_gender = self.v.customer_town_field.currentText()
         customer_marstat =  self.v.customer_town_field.currentText()
+        customer_points = self.v.customer_points_field.text() if task == 'edit_data' else '0'
 
         self.m.init_manage_data_entry(
+            self.v.manage_data_dialog,
             task, 
+            self.v.customer_name_label,
+            self.v.customer_barrio_label,
+            self.v.customer_town_label,
+            self.v.customer_phone_label,
+            self.v.customer_age_label,
+            self.v.customer_points_label,
             customer_name, 
             customer_address, 
             customer_barrio, 
@@ -453,9 +523,9 @@ class MyCustomerController:
             customer_age,
             customer_gender,
             customer_marstat,
+            customer_points,
         )
             
-        self.v.manage_data_dialog.close()
 
         self.sync_ui()
 
