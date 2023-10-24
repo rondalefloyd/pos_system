@@ -51,6 +51,13 @@ class MyGroupBox(QGroupBox):
         self.object_name = object_name
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        self.on_pos_group_box()
+
+    def on_pos_group_box(self):
+        if self.object_name == 'manage_order_box':
+            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+            self.setFixedWidth(400)
         pass
 
 class MyDialog(QDialog):
@@ -112,9 +119,14 @@ class MyTableWidget(QTableWidget):
 
     def on_pos_table(self):
         if self.object_name == 'pos_overview_table':
-            self.setColumnCount(3)
-            self.setHorizontalHeaderLabels(['Action','Product','Date/Time created'])
+            self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setHidden(True)
+            self.verticalHeader().setHidden(True)
             pass
+        if self.object_name == 'order_table':
+            self.setColumnCount(4)
+            self.setHorizontalHeaderLabels(['Action','Qty','Product','Amount'])
 
 class MyVBoxLayout(QVBoxLayout):
     def __init__(self, object_name=''):
@@ -129,6 +141,7 @@ class MyHBoxLayout(QHBoxLayout):
         self.object_name = object_name
 
         self.on_global_hbox_layout()
+        
 
     def on_global_hbox_layout(self):
         if self.object_name in [
@@ -137,16 +150,18 @@ class MyHBoxLayout(QHBoxLayout):
             'reward_overview_act_layout',
             'customer_overview_act_layout',
             'product_overview_act_layout',
-            'product_stock_act_layout'
+            'product_stock_act_layout',
         ]:
             self.setContentsMargins(0,0,0,0)
             self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         pass
+
 class MyGridLayout(QGridLayout):
     def __init__(self, object_name=''):
         super().__init__()
 
         self.object_name = object_name
+
         pass
 class MyFormLayout(QFormLayout):
     def __init__(self, object_name=''):
@@ -164,11 +179,39 @@ class MyLabel(QLabel):
         self.setObjectName(object_name)
         self.setText(text)
 
+        self.on_customer_label()
+        self.on_pos_label()
+
     def on_customer_label(self):
         if self.object_name == 'customer_points_label':
             self.hide()
         pass
 
+    def on_pos_label(self):
+        if self.object_name == 'product_name_label':
+            self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 15px; font-weight: bold; }}")
+            pass
+        if self.object_name == 'product_barcode_label':
+            pass
+        if self.object_name == 'product_brand_label':
+            self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 13px; font-weight: bold; }}")
+            pass
+        if self.object_name == 'product_price_label':
+            pass
+        if self.object_name == 'product_disc_value_label':
+            pass
+        if self.object_name == 'product_effective_dt_label':
+            pass
+        if self.object_name == 'product_onhand_label':
+            pass
+
+        if self.object_name in [
+            'order_subtotal_display',
+            'order_discount_display',
+            'order_tax_display',
+            'order_total_display',
+        ]:
+            self.setAlignment(Qt.AlignmentFlag.AlignRight)
 class MyComboBox(QComboBox):
     def __init__(self, object_name=''):
         super().__init__()
@@ -213,7 +256,7 @@ class MyLineEdit(QLineEdit):
 
     def on_promo_line_edit(self):
         if self.object_name == 'filter_field':
-            self.setMinimumWidth(500)
+            self.setMinimumWidth(200)
             pass
         if self.object_name == 'barcode_scan_field':
             self.setMinimumWidth(200)
