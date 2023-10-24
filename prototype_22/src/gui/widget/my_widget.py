@@ -12,6 +12,8 @@ class MyStackedWidget(QStackedWidget):
         super().__init__()
 
         self.object_name = object_name
+        
+        self.setCurrentIndex(0)
         pass
 class MyScrollArea(QScrollArea):
     def __init__(self, object_name=''):
@@ -76,6 +78,8 @@ class MyTableWidget(QTableWidget):
         self.on_reward_table()
         self.on_customer_table()
         self.on_product_table()
+
+        self.on_pos_table()
         pass
 
     def on_promo_table(self):
@@ -83,32 +87,34 @@ class MyTableWidget(QTableWidget):
             self.setColumnCount(6)
             self.setHorizontalHeaderLabels(['Action','Name','Type','Percent','Description','Date/Time created'])
             pass
-
     def on_user_table(self):
         if self.object_name == 'user_overview_table':
             self.setColumnCount(6)
             self.setHorizontalHeaderLabels(['Action','Name','Password','Access level','Phone','Date/Time created'])
             pass
-
     def on_reward_table(self):
         if self.object_name == 'reward_overview_table':
             self.setColumnCount(6)
             self.setHorizontalHeaderLabels(['Action','Name','Unit','Points','Description','Date/Time created'])
-            pass
-        
+            pass 
     def on_customer_table(self):
         if self.object_name == 'customer_overview_table':
-            self.setColumnCount(10)
+            self.setColumnCount(11)
             self.setHorizontalHeaderLabels(['Action','Name','Address','Barrio','Town','Phone','Age','Gender','Marital status','Points','Date/Time created'])
-
     def on_product_table(self):
         if self.object_name == 'product_overview_table':
             self.setColumnCount(15)
             self.setHorizontalHeaderLabels(['Action','Barcode','Product','Expire date','Type','Brand','Sales group','Supplier','Cost','Price','Effective date','Promo','Discount value','Inventory tracking','Date/Time created'])
             pass
         if self.object_name == 'product_stock_table':
-            self.setColumnCount(5)
-            self.setHorizontalHeaderLabels(['Action','Product','Available','On hand','Date/Time created'])
+            self.setColumnCount(6)
+            self.setHorizontalHeaderLabels(['Action','Barcode','Product','Available','On hand','Date/Time created'])
+
+    def on_pos_table(self):
+        if self.object_name == 'pos_overview_table':
+            self.setColumnCount(3)
+            self.setHorizontalHeaderLabels(['Action','Product','Date/Time created'])
+            pass
 
 class MyVBoxLayout(QVBoxLayout):
     def __init__(self, object_name=''):
@@ -125,7 +131,14 @@ class MyHBoxLayout(QHBoxLayout):
         self.on_global_hbox_layout()
 
     def on_global_hbox_layout(self):
-        if self.object_name == 'product_overview_act_layout':
+        if self.object_name in [
+            'promo_overview_act_layout',
+            'user_overview_act_layout',
+            'reward_overview_act_layout',
+            'customer_overview_act_layout',
+            'product_overview_act_layout',
+            'product_stock_act_layout'
+        ]:
             self.setContentsMargins(0,0,0,0)
             self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         pass

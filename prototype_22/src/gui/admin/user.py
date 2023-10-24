@@ -129,6 +129,7 @@ class MyUserView(MyWidget):
         self.user_overview_prev_button = MyPushButton(text='Prev')
         self.user_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_page_number}")
         self.user_overview_next_button = MyPushButton(text='Next')
+
         self.user_overview_act_box = MyGroupBox()
         self.user_overview_act_layout = MyHBoxLayout()
         self.user_overview_act_layout.addWidget(self.user_overview_prev_button)
@@ -200,8 +201,8 @@ class MyUserView(MyWidget):
         self.edit_data_button = MyPushButton(text='Edit')
         self.view_data_button = MyPushButton(text='View')
         self.delete_data_button = MyPushButton(text='Delete')
-        self.user_overview_act_box = MyGroupBox()
-        self.user_overview_act_layout = MyHBoxLayout()
+        self.user_overview_act_box = MyGroupBox(object_name='user_overview_act_box')
+        self.user_overview_act_layout = MyHBoxLayout(object_name='user_overview_act_layout')
         self.user_overview_act_layout.addWidget(self.edit_data_button)
         self.user_overview_act_layout.addWidget(self.view_data_button)
         self.user_overview_act_layout.addWidget(self.delete_data_button)
@@ -212,12 +213,15 @@ class MyUserView(MyWidget):
         self.user_password_info = MyLabel(text=f"user_password")
         self.user_level_info = MyLabel(text=f"user_level")
         self.user_phone_info = MyLabel(text=f"user_phone")
+        self.datetime_created_info = MyLabel(text=f"datetime_created")
         self.info_box = MyGroupBox()
         self.info_layout = MyFormLayout()
         self.info_layout.addRow('Name:', self.user_name_info)
         self.info_layout.addRow('Type:', self.user_password_info)
         self.info_layout.addRow('Percent:', self.user_level_info)
         self.info_layout.addRow('Description:', self.user_phone_info)
+        self.info_layout.addRow(MyLabel(text='<hr>'))
+        self.info_layout.addRow('Date/Time created:', self.datetime_created_info)
         self.info_box.setLayout(self.info_layout)
         self.view_data_scra = MyScrollArea()
         self.view_data_scra.setWidget(self.info_box)
@@ -351,13 +355,11 @@ class MyUserController:
         self.v.set_view_dialog()
         self.v.view_data_dialog.setWindowTitle(f"{data[0]}")
 
-        sel_user_data = schema.select_user_data(data[0], data[1])
-
-        for i, sel_data in enumerate(sel_user_data):
-            self.v.user_name_info.setText(str(sel_data[0]))
-            self.v.user_password_info.setText(str(sel_data[1]))
-            self.v.user_level_info.setText(str(sel_data[2]))
-            self.v.user_phone_info.setText(str(sel_data[3]))
+        self.v.user_name_info.setText(str(data[0]))
+        self.v.user_password_info.setText(str(data[1]))
+        self.v.user_level_info.setText(str(data[2]))
+        self.v.user_phone_info.setText(str(data[3]))
+        self.v.datetime_created_info.setText(str(data[4]))
 
         self.set_view_data_box_conn()
         self.v.view_data_dialog.exec()
@@ -436,11 +438,17 @@ class MyUserController:
     def close_dialog(self, dialog: QDialog):
         dialog.close()
 
-class MyUserWindow:
+class MyUserWindow(MyGroupBox):
     def __init__(self, name='test', phone='test'):
+        super().__init__()
+
         self.model = MyUserModel(name, phone)
         self.view = MyUserView(self.model)
         self.controller = MyUserController(self.model, self.view)
+
+        layout = MyGridLayout()
+        layout.addWidget(self.view)
+        self.setLayout(layout)
 
     def run(self):
         self.view.show()

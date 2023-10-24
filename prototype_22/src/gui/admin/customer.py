@@ -243,8 +243,8 @@ class MyCustomerView(MyWidget):
         self.edit_data_button = MyPushButton(text='Edit')
         self.view_data_button = MyPushButton(text='View')
         self.delete_data_button = MyPushButton(text='Delete')
-        self.customer_overview_act_box = MyGroupBox()
-        self.customer_overview_act_layout = MyHBoxLayout()
+        self.customer_overview_act_box = MyGroupBox(object_name='customer_overview_act_box')
+        self.customer_overview_act_layout = MyHBoxLayout(object_name='customer_overview_act_layout')
         self.customer_overview_act_layout.addWidget(self.edit_data_button)
         self.customer_overview_act_layout.addWidget(self.view_data_button)
         self.customer_overview_act_layout.addWidget(self.delete_data_button)
@@ -259,16 +259,21 @@ class MyCustomerView(MyWidget):
         self.customer_age_info = MyLabel(text=f"customer_age")
         self.customer_gender_info = MyLabel(text=f"customer_gender")
         self.customer_marstat_info = MyLabel(text=f"customer_marstat")
+        self.datetime_created_info = MyLabel(text=f"datetime_created")
         self.info_box = MyGroupBox()
         self.info_layout = MyFormLayout()
         self.info_layout.addRow('Name:', self.customer_name_info)
+        self.info_layout.addRow(MyLabel(text='<hr>'))
         self.info_layout.addRow('Address:', self.customer_address_info)
         self.info_layout.addRow('Barrio:', self.customer_barrio_info)
         self.info_layout.addRow('Town:', self.customer_town_info)
+        self.info_layout.addRow(MyLabel(text='<hr>'))
         self.info_layout.addRow('Phone:', self.customer_phone_info)
         self.info_layout.addRow('Age:', self.customer_age_info)
         self.info_layout.addRow('Gender:', self.customer_gender_info)
         self.info_layout.addRow('Marital status:', self.customer_marstat_info)
+        self.info_layout.addRow(MyLabel(text='<hr>'))
+        self.info_layout.addRow('Date/Time created:', self.datetime_created_info)
         self.info_box.setLayout(self.info_layout)
         self.view_data_scra = MyScrollArea()
         self.view_data_scra.setWidget(self.info_box)
@@ -425,17 +430,15 @@ class MyCustomerController:
         self.v.set_view_dialog()
         self.v.view_data_dialog.setWindowTitle(f"{data[0]}")
 
-        sel_customer_data = schema.select_customer_data(data[0], data[3], data[4], data[5])
-
-        for i, sel_data in enumerate(sel_customer_data):
-            self.v.customer_name_info.setText(str(sel_data[0]))
-            self.v.customer_address_info.setText(str(sel_data[1]))
-            self.v.customer_barrio_info.setText(str(sel_data[2]))
-            self.v.customer_town_info.setText(str(sel_data[3]))
-            self.v.customer_phone_info.setText(str(sel_data[4]))
-            self.v.customer_age_info.setText(str(sel_data[5]))
-            self.v.customer_gender_info.setText(str(sel_data[6]))
-            self.v.customer_marstat_info.setText(str(sel_data[7]))
+        self.v.customer_name_info.setText(str(data[0]))
+        self.v.customer_address_info.setText(str(data[1]))
+        self.v.customer_barrio_info.setText(str(data[2]))
+        self.v.customer_town_info.setText(str(data[3]))
+        self.v.customer_phone_info.setText(str(data[4]))
+        self.v.customer_age_info.setText(str(data[5]))
+        self.v.customer_gender_info.setText(str(data[6]))
+        self.v.customer_marstat_info.setText(str(data[7]))
+        self.v.datetime_created_info.setText(str(data[9]))
 
         self.set_view_data_box_conn()
         self.v.view_data_dialog.exec()
@@ -537,11 +540,17 @@ class MyCustomerController:
     def close_dialog(self, dialog: QDialog):
         dialog.close()
 
-class MyCustomerWindow:
+class MyCustomerWindow(MyGroupBox):
     def __init__(self, name='test', phone='test'):
+        super().__init__()
+
         self.model = MyCustomerModel(name, phone)
         self.view = MyCustomerView(self.model)
         self.controller = MyCustomerController(self.model, self.view)
+
+        layout = MyGridLayout()
+        layout.addWidget(self.view)
+        self.setLayout(layout)
 
     def run(self):
         self.view.show()

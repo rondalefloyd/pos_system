@@ -136,23 +136,23 @@ class MyProductSchema:
             self,
             product_barcode='',
             product_name='',
-            product_expire_dt='',
+            product_expire_dt='9999-99-99',
 
             product_type='',
             product_brand='',
-            product_sales_group='',
+            product_sales_group='Retail',
             product_supplier='',
 
             product_cost='',
             product_price='',
-            product_effective_dt='',
-            product_promo_name='',
+            product_effective_dt=date.today(),
+            product_promo_name='No promo',
             product_promo_type='',
             product_disc_value=0,
             product_promo_percent=0,
             product_new_price=0,
-            product_start_dt='',
-            product_end_dt='',
+            product_start_dt=date.today(),
+            product_end_dt=date.today(),
 
             product_stock_tracking=False,
 
@@ -230,6 +230,7 @@ class MyProductSchema:
         """)
         product_id = self.sales_cursor.fetchone()[0]
 
+        print('product_promo_name:', product_promo_name)
         if product_promo_name == 'No promo':
             self.sales_cursor.execute(f"""
                 INSERT INTO ItemPrice (ItemId, EffectiveDt, Cost, SellPrice, PromoId, DiscountValue)
@@ -315,7 +316,7 @@ class MyProductSchema:
 
         self.sales_conn.commit()
 
-    def select_data_as_display(self, text='', page_number=1, page_size=30):
+    def select_product_data_as_display(self, text='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
         self.sales_cursor.execute(f"""
@@ -323,16 +324,20 @@ class MyProductSchema:
                 Item.Barcode, 
                 Item.Name, 
                 Item.ExpireDt, 
+                                  
                 ItemType.Name, 
                 Brand.Name, 
                 SalesGroup.Name, 
                 Supplier.Name, 
+                                  
                 ItemPrice.Cost, 
                 ItemPrice.SellPrice, 
                 ItemPrice.EffectiveDt, 
                 Promo.Name, 
                 ItemPrice.DiscountValue, 
-                Stock.StockId,  
+                        
+                CASE WHEN Stock.StockId > 0 THEN 'Enabled' ELSE 'Disabled' END AS StockStatus,
+                  
                 ItemPrice.UpdateTs
             FROM ItemPrice
                 LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
@@ -392,6 +397,7 @@ class MyProductSchema:
                 Item.Barcode = "{product_barcode}" AND
                 Item.Name = "{product_name}"
             ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
+            LIMIT 1
         """)
 
         product_data = self.sales_cursor.fetchall()
@@ -402,6 +408,66 @@ class MyProductSchema:
 
         total_product_data_count = self.sales_cursor.fetchone()[0]
         total_page_count = (total_product_data_count - 1) // page_size + 1
+
+        return total_page_count
+        pass
+    
+    def select_stock_data_as_display(self, text='', page_number=1, page_size=30):
+        offset = (page_number - 1) * page_size
+
+        self.sales_cursor.execute(f"""
+            SELECT 
+                Item.Barcode, 
+                Item.Name, 
+                Stock.Available,
+                Stock.OnHand,
+                Stock.UpdateTs,
+                                  
+                Stock.StockId,
+                Stock.ItemId
+            FROM Stock
+                LEFT JOIN Item ON Stock.ItemId = Item.ItemId
+                LEFT JOIN ItemPrice ON Item.ItemId = ItemPrice.ItemId
+            WHERE
+                Item.Barcode LIKE "%{text}%" OR
+                Item.Name LIKE "%{text}%" OR
+                Stock.Available LIKE "%{text}%" OR
+                Stock.OnHand LIKE "%{text}%" OR
+                Stock.UpdateTs LIKE "%{text}%"
+            ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
+            LIMIT {page_size}
+            OFFSET {offset}
+        """)
+
+        stock_data = self.sales_cursor.fetchall()
+
+        return stock_data
+        pass
+    def select_stock_data(self, stock_id=0, stock_product_id=0):
+        self.sales_cursor.execute(f"""
+            SELECT
+                Item.Barcode,
+                Item.Name,
+                Stock.Available,
+                Stock.OnHand,
+                                  
+                Stock.StockId,
+                Stock.ItemId
+            FROM Stock
+                LEFT JOIN Item ON Stock.ItemId = Item.ItemId
+            WHERE Stock.StockId = {stock_id} AND Stock.ItemId = {stock_product_id}
+            ORDER BY Stock.StockId DESC, Stock.UpdateTs DESC
+            LIMIT 1
+        """)
+
+        stock_data = self.sales_cursor.fetchall()
+
+        return stock_data
+    def select_stock_data_total_page_count(self, page_size=30):
+        self.sales_cursor.execute(f"SELECT COUNT(*) FROM Stock")
+
+        total_stock_data_count = self.sales_cursor.fetchone()[0]
+        total_page_count = (total_stock_data_count - 1) // page_size + 1
 
         return total_page_count
         pass
@@ -491,23 +557,23 @@ class MyProductSchema:
             self, 
             product_barcode='',
             product_name='',
-            product_expire_dt='',
+            product_expire_dt='9999-99-99',
 
             product_type='',
             product_brand='',
-            product_sales_group='',
+            product_sales_group='Retail',
             product_supplier='',
 
             product_cost='',
             product_price='',
-            product_effective_dt='',
-            product_promo_name='',
+            product_effective_dt=date.today(),
+            product_promo_name='No promo',
             product_promo_type='',
             product_disc_value=0,
             product_promo_percent=0,
             product_new_price=0,
-            product_start_dt='',
-            product_end_dt='',
+            product_start_dt=date.today(),
+            product_end_dt=date.today(),
 
             product_stock_tracking=False,
 
@@ -517,8 +583,6 @@ class MyProductSchema:
             product_promo_id=0,
     ):
         if product_promo_id <= 0 and product_promo_name == 'No promo':
-            print('product_effective_dt:', product_effective_dt)
-            print('went here a')
             self.sales_cursor.execute(f"""
                 UPDATE Item
                 SET
@@ -538,7 +602,6 @@ class MyProductSchema:
             """)
             pass  
         elif product_promo_id <= 0 and product_promo_name != 'No promo':
-            print('went here b')
             self.insert_product_data(
                 product_barcode,
                 product_name,
@@ -561,13 +624,27 @@ class MyProductSchema:
                 product_end_dt,
             )
             pass
+        elif product_promo_id > 0 and product_promo_name == 'No promo':
+            self.sales_cursor.execute(f"""
+                UPDATE Item
+                SET
+                    Barcode = "{product_barcode}",
+                    Name = "{product_name}",
+                    ExpireDt = "{product_expire_dt}"
+                WHERE ItemId = {product_id}
+            """)
 
-        print('product_promo_id:', product_promo_id)
-        print('product_stock_id:', product_stock_id)
-        print('product_stock_tracking:', product_stock_tracking)
+            self.sales_cursor.execute(f"""
+                UPDATE ItemPrice
+                SET
+                    Cost = {product_cost},
+                    SellPrice = {product_price},
+                    EffectiveDt = "{product_effective_dt}"
+                WHERE ItemPriceId = {product_price_id}
+            """)
+            pass  
 
         if product_stock_id <= 0 and product_stock_tracking is True:
-            print('a here')
             self.sales_cursor.execute(f"""
                 INSERT INTO Stock (ItemId, OnHand, Available)
                 SELECT {product_id}, 0, 0
@@ -577,18 +654,37 @@ class MyProductSchema:
                 )
             """)
         elif product_stock_id > 0 and product_stock_tracking is False:
-            print('b here')
             self.sales_cursor.execute(f"""
                 DELETE FROM Stock
                 WHERE StockId = {product_stock_id}
             """)
 
         self.sales_conn.commit()
-
-    def delete_product_data(self, product_price_id=0):
+    def update_stock_data(self, stock_available, stock_onhand, stock_id, product_id):
         self.sales_cursor.execute(f"""
-            DELETE FROM ItemPrice
-            WHERE ItemPriceId = {product_price_id} AND EffectiveDt > CURRENT_DATE # REVIEW!!!!
+            UPDATE Stock
+            SET
+                Available = {stock_available},
+                OnHand = {stock_onhand}
+            WHERE StockId = {stock_id} AND ItemId = {product_id}
         """)
 
         self.sales_conn.commit()
+        pass
+
+    def delete_product_data(self, product_price_id=0, product_effective_dt=date.today()):
+        self.sales_cursor.execute(f"""
+            DELETE FROM ItemPrice
+            WHERE ItemPriceId = {product_price_id} AND EffectiveDt > CURRENT_DATE
+        """)
+
+        self.sales_conn.commit()
+    def delete_stock_data(self, stock_id, stock_product_id):
+        self.sales_cursor.execute(f"""
+            DELETE FROM Stock
+            WHERE StockId = {stock_id} AND ItemId = {stock_product_id}
+        """)
+
+        self.sales_conn.commit()
+
+

@@ -65,7 +65,7 @@ class MyLoginView(MyDialog):
         self.reg_user_button = MyPushButton(text='Register')
         self.reg_user_table = MyTableWidget()
 
-        self.dev_dialog = MyWidget()
+        self.dev_dialog = MyDialog()
         self.dev_layout = MyGridLayout()
         self.dev_layout.addWidget(self.reg_user_name_label,0,0)
         self.dev_layout.addWidget(self.reg_user_name_field,1,0)

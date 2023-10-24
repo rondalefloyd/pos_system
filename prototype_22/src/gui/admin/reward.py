@@ -193,8 +193,8 @@ class MyRewardView(MyWidget):
         self.edit_data_button = MyPushButton(text='Edit')
         self.view_data_button = MyPushButton(text='View')
         self.delete_data_button = MyPushButton(text='Delete')
-        self.reward_overview_act_box = MyGroupBox()
-        self.reward_overview_act_layout = MyHBoxLayout()
+        self.reward_overview_act_box = MyGroupBox(object_name='reward_overview_act_box')
+        self.reward_overview_act_layout = MyHBoxLayout(object_name='reward_overview_act_layout')
         self.reward_overview_act_layout.addWidget(self.edit_data_button)
         self.reward_overview_act_layout.addWidget(self.view_data_button)
         self.reward_overview_act_layout.addWidget(self.delete_data_button)
@@ -205,12 +205,15 @@ class MyRewardView(MyWidget):
         self.reward_unit_info = MyLabel(text=f"reward_unit")
         self.reward_points_info = MyLabel(text=f"reward_points")
         self.reward_desc_info = MyLabel(text=f"reward_desc")
+        self.datetime_created_info = MyLabel(text=f"datetime_created")
         self.info_box = MyGroupBox()
         self.info_layout = MyFormLayout()
         self.info_layout.addRow('Name:', self.reward_name_info)
         self.info_layout.addRow('Type:', self.reward_unit_info)
         self.info_layout.addRow('Percent:', self.reward_points_info)
         self.info_layout.addRow('Description:', self.reward_desc_info)
+        self.info_layout.addRow(MyLabel(text='<hr>'))
+        self.info_layout.addRow('Date/Time created:', self.datetime_created_info)
         self.info_box.setLayout(self.info_layout)
         self.view_data_scra = MyScrollArea()
         self.view_data_scra.setWidget(self.info_box)
@@ -344,13 +347,11 @@ class MyRewardController:
         self.v.set_view_dialog()
         self.v.view_data_dialog.setWindowTitle(f"{data[0]}")
 
-        sel_reward_data = schema.select_reward_data(data[0], data[1])
-
-        for i, sel_data in enumerate(sel_reward_data):
-            self.v.reward_name_info.setText(str(sel_data[0]))
-            self.v.reward_unit_info.setText(str(sel_data[1]))
-            self.v.reward_points_info.setText(str(sel_data[2]))
-            self.v.reward_desc_info.setText(str(sel_data[3]))
+        self.v.reward_name_info.setText(str(data[0]))
+        self.v.reward_unit_info.setText(str(data[1]))
+        self.v.reward_points_info.setText(str(data[2]))
+        self.v.reward_desc_info.setText(str(data[3]))
+        self.v.datetime_created_info.setText(str(data[4]))
 
         self.set_view_data_box_conn()
         self.v.view_data_dialog.exec()
@@ -424,11 +425,17 @@ class MyRewardController:
     def close_dialog(self, dialog: QDialog):
         dialog.close()
 
-class MyRewardWindow:
+class MyRewardWindow(MyGroupBox):
     def __init__(self, name='test', phone='test'):
+        super().__init__()
+
         self.model = MyRewardModel(name, phone)
         self.view = MyRewardView(self.model)
         self.controller = MyRewardController(self.model, self.view)
+
+        layout = MyGridLayout()
+        layout.addWidget(self.view)
+        self.setLayout(layout)
 
     def run(self):
         self.view.show()

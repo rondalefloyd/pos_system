@@ -16,7 +16,7 @@ from template.qss.qss import MyQSSConfig
 qss = MyQSSConfig()
 schema = MyPromoSchema()
 
-class MyPromoModel:
+class MyTransactionModel:
     def __init__(self, name, phone):
         self.user_name = name
         self.user_phone = phone
@@ -87,8 +87,8 @@ class MyPromoModel:
 
             QMessageBox.critical(dialog, 'Error', 'Please fill out all required fields.')
     pass
-class MyPromoView(MyWidget):
-    def __init__(self, model: MyPromoModel):
+class MyTransactionView(MyWidget):
+    def __init__(self, model: MyTransactionModel):
         super().__init__()
 
         self.m = model
@@ -230,8 +230,8 @@ class MyPromoView(MyWidget):
         self.view_data_layout.addWidget(self.view_data_scra)
         self.view_data_layout.addWidget(self.view_data_act_box)
         self.view_data_dialog.setLayout(self.view_data_layout)
-class MyPromoController:
-    def __init__(self, model: MyPromoModel, view: MyPromoView):
+class MyTransactionController:
+    def __init__(self, model: MyTransactionModel, view: MyTransactionView):
         self.v = view
         self.m = model
 
@@ -429,13 +429,13 @@ class MyPromoController:
     def close_dialog(self, dialog: QDialog):
         dialog.close()
 
-class MyPromoWindow(MyGroupBox):
+class MyTransactionWindow(MyGroupBox):
     def __init__(self, name='test', phone='test'):
         super().__init__()
 
-        self.model = MyPromoModel(name, phone)
-        self.view = MyPromoView(self.model)
-        self.controller = MyPromoController(self.model, self.view)
+        self.model = MyTransactionModel(name, phone)
+        self.view = MyTransactionView(self.model)
+        self.controller = MyTransactionController(self.model, self.view)
 
         layout = MyGridLayout()
         layout.addWidget(self.view)
@@ -447,7 +447,7 @@ class MyPromoWindow(MyGroupBox):
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)
-    promo_window = MyPromoWindow()
+    promo_window = MyTransactionWindow()
 
     promo_window.run()
 

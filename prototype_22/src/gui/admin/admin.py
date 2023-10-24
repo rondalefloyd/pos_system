@@ -8,6 +8,11 @@ from PyQt6.QtGui import *
 
 sys.path.append(os.path.abspath(''))
 
+from src.gui.admin.product import MyProductWindow
+from src.gui.admin.promo import MyPromoWindow
+from src.gui.admin.reward import MyRewardWindow
+from src.gui.admin.customer import MyCustomerWindow
+from src.gui.admin.user import MyUserWindow
 from src.gui.widget.my_widget import *
 
 class MyAdminModel:
@@ -18,7 +23,7 @@ class MyAdminView(MyWidget):
     def __init__(self, model: MyAdminModel):
         super().__init__(window_title='Admin')
 
-        self.model = model
+        self.m = model
 
         self.set_main_window()
 
@@ -54,11 +59,11 @@ class MyAdminView(MyWidget):
         pass
     
     def set_page_stcw(self):
-        self.product_page_window = MyGroupBox()
-        self.promo_page_window = MyGroupBox()
-        self.reward_page_window = MyGroupBox()
-        self.customer_page_window = MyGroupBox()
-        self.cashier_page_window = MyGroupBox()
+        self.product_page_window = MyProductWindow(self.m.user)
+        self.promo_page_window = MyPromoWindow(self.m.user)
+        self.reward_page_window = MyRewardWindow(self.m.user)
+        self.customer_page_window = MyCustomerWindow(self.m.user)
+        self.cashier_page_window = MyUserWindow(self.m.user)
         self.settings_page_window = MyGroupBox()
         self.page_stcw = MyStackedWidget()
         self.page_stcw.addWidget(self.product_page_window)
@@ -69,7 +74,7 @@ class MyAdminView(MyWidget):
         self.page_stcw.addWidget(self.settings_page_window)
 
     def set_extra_info_box(self):
-        self.current_user_label = MyLabel(text=f"Current user: {self.model.user}")
+        self.current_user_label = MyLabel(text=f"Current user: {self.m.user}")
         self.extra_info_box = MyGroupBox()
         self.extra_info_layout = MyHBoxLayout()
         self.extra_info_layout.addWidget(self.current_user_label)
@@ -77,19 +82,20 @@ class MyAdminView(MyWidget):
         pass
 class MyAdminController:
     def __init__(self, model: MyAdminModel, view: MyAdminView):
-        self.view = view
-        self.model = model
+        self.v = view
+        self.m = model
 
         self.set_navbar_box_conn()
 
     def set_navbar_box_conn(self):
-        self.view.product_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=0))
-        self.view.promo_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=1))
-        self.view.reward_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=2))
-        self.view.customer_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=3))
-        self.view.cashier_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=4))
-        self.view.settings_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=5))
+        self.v.product_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=0))
+        self.v.promo_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=1))
+        self.v.reward_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=2))
+        self.v.customer_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=3))
+        self.v.cashier_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=4))
+        self.v.settings_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=5))
     def on_page_button_clicked(self, index):
+        self.v.page_stcw.setCurrentIndex(index)
         print(index)
 
 class MyAdminWindow:
