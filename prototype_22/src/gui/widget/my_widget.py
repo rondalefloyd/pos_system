@@ -28,6 +28,9 @@ class MyScrollArea(QScrollArea):
     def on_glboal_scra(self):
         if self.object_name == 'navbar_scra':
             self.setFixedWidth(150)
+            
+        if self.object_name == 'manage_data_scra':
+            self.setMinimumWidth(300)
     
     pass
 class MyTabWidget(QTabWidget):
@@ -76,6 +79,7 @@ class MyDialog(QDialog):
         self.on_login_dialog()
 
         self.on_pos_dialog()
+        self.on_transaction_dialog()
 
     def on_login_dialog(self):
         pass
@@ -86,7 +90,10 @@ class MyDialog(QDialog):
 
         if self.object_name == 'progress_dialog':
             self.setMinimumWidth(200)
-
+        pass
+    def on_transaction_dialog(self):
+        if self.object_name == 'manage_data_dialog':
+            self.setMinimumWidth(300)
 
 class MyTableWidget(QTableWidget):
     def __init__(self, object_name=''):
@@ -277,7 +284,6 @@ class MyComboBox(QComboBox):
             'product_brand_field',
             'product_supplier_field',
             
-            'reason_field',
         ]:
             self.setEditable(True)
         pass
@@ -319,6 +325,12 @@ class MyPlainTextEdit(QPlainTextEdit):
         super().__init__()
 
         self.object_name = object_name
+
+        self.on_transaction_plain_text_edit()
+
+    def on_transaction_plain_text_edit(self):
+        if self.object_name == 'other_reason_field':
+            self.hide()
         pass
 class MyDateEdit(QDateEdit):
     def __init__(self, object_name=''):

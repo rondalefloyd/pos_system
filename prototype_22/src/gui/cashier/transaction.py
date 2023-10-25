@@ -80,13 +80,13 @@ class MyTransactionView(MyWidget):
     def set_manage_data_box(self):
         self.reason_label = MyLabel(text='Reason')
         self.reason_field = MyComboBox(object_name='reason_field')
+        self.other_reason_field = MyPlainTextEdit(object_name='other_reason_field')
         self.field_box = MyGroupBox()
         self.field_layout = MyFormLayout()
         self.field_layout.addRow(self.reason_label)
         self.field_layout.addRow(self.reason_field)
+        self.field_layout.addRow(self.other_reason_field)
         self.field_box.setLayout(self.field_layout)
-        self.manage_data_scra = MyScrollArea()
-        self.manage_data_scra.setWidget(self.field_box)
 
         self.save_data_button = MyPushButton(text='Save')
         self.manage_data_act_close_button = MyPushButton(text='Close')
@@ -96,9 +96,9 @@ class MyTransactionView(MyWidget):
         self.manage_data_act_layout.addWidget(self.manage_data_act_close_button)
         self.manage_data_act_box.setLayout(self.manage_data_act_layout)
         
-        self.manage_data_dialog = MyDialog()
-        self.manage_data_layout = MyVBoxLayout()
-        self.manage_data_layout.addWidget(self.manage_data_scra)
+        self.manage_data_dialog = MyDialog(object_name='manage_data_dialog')
+        self.manage_data_layout = MyVBoxLayout(object_name='manage_data_layout')
+        self.manage_data_layout.addWidget(self.field_box,0,Qt.AlignmentFlag.AlignTop)
         self.manage_data_layout.addWidget(self.manage_data_act_box)
         self.manage_data_dialog.setLayout(self.manage_data_layout)
 
@@ -150,7 +150,7 @@ class MyTransactionController:
             reference_number = QTableWidgetItem(f"{data[7]}")
             datetime_created = QTableWidgetItem(f"{data[8]}")
 
-            self.v.void_data_button.hide() if data[5] > 0 else None
+            # self.v.void_data_button.hide() if data[5] > 0 else None
 
             self.v.item_sold_overview_table.setCellWidget(i, 0, self.v.item_sold_overview_act_box)
             self.v.item_sold_overview_table.setItem(i, 1, user_name)
@@ -192,22 +192,47 @@ class MyTransactionController:
         self.m.sel_user_id = data[12]
         self.m.sel_stock_id = data[13]
 
-        self.v.manage_data_dialog.exec()
-
         self.set_manage_data_box_conn()
+
+        self.v.manage_data_dialog.exec()
         pass
 
     def set_manage_data_box_conn(self):
+        self.v.reason_field.currentTextChanged.connect(self.on_reason_field_current_text_changed)
         self.v.save_data_button.clicked.connect(self.on_save_data_button_clicked)
         self.v.manage_data_act_close_button.clicked.connect(lambda: self.close_dialog(self.v.manage_data_dialog))
         pass
+    def on_reason_field_current_text_changed(self):
+        print('changed')
+        if self.v.reason_field.currentText() == 'Other (specify the reason)':
+            self.v.other_reason_field.show() 
+        else: 
+            self.v.other_reason_field.hide()
+
     def load_combo_box_data(self):
         self.v.set_manage_data_box()
 
-        self.v.reason_field.addItem('Returned')
+        self.v.reason_field.addItem('Customer Return')
+        self.v.reason_field.addItem('Damaged Item')
+        self.v.reason_field.addItem('Wrong Item')
+        self.v.reason_field.addItem('Price Discrepancy')
+        self.v.reason_field.addItem('Overcharge')
+        self.v.reason_field.addItem('Cancelled Order')
+        self.v.reason_field.addItem('Double Charged')
+        self.v.reason_field.addItem('Payment Issue')
+        self.v.reason_field.addItem('No Receipt')
+        self.v.reason_field.addItem('Store Policy')
+        self.v.reason_field.addItem('Expired Product')
+        self.v.reason_field.addItem('Unsatisfactory Quality')
+        self.v.reason_field.addItem('Gift Return')
+        self.v.reason_field.addItem('Excessive Quantity')
+        self.v.reason_field.addItem('Other (specify the reason)')
 
     def on_save_data_button_clicked(self):
-        reason = self.v.reason_field.text()
+        if self.v.reason_field.currentText() != 'Other (specify the reason)':
+            reason = self.v.reason_field.currentText()
+        else:
+            reason = self.v.other_reason_field.toPlainText()
 
         schema.update_selected_item_sold_void(
             self.m.sel_item_sold_id,
