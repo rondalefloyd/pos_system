@@ -168,8 +168,19 @@ class MyCustomerSchema:
         customer_data = self.sales_cursor.fetchall()
 
         return customer_data
-    def select_customer_data_total_page_count(self, page_size=30):
-        self.sales_cursor.execute(f"SELECT COUNT(*) FROM Customer")
+    def select_customer_data_total_page_count(self, text='', page_size=30):
+        self.sales_cursor.execute(f"""
+            SELECT COUNT(*) FROM Customer
+            WHERE
+                Customer.Name LIKE '%{text}%' OR
+                Customer.Address LIKE '%{text}%' OR
+                Customer.Barrio LIKE '%{text}%' OR
+                Customer.Town LIKE '%{text}%' OR
+                Customer.Phone LIKE '%{text}%' OR
+                Customer.Age LIKE '%{text}%' OR
+                Customer.Gender LIKE '%{text}%' OR
+                Customer.MaritalStatus LIKE '%{text}%'
+            """)
 
         total_customer_data_count = self.sales_cursor.fetchone()[0]
         total_page_count = (total_customer_data_count - 1) // page_size + 1

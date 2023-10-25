@@ -23,12 +23,13 @@ class MyScrollArea(QScrollArea):
 
         self.setWidgetResizable(True)
 
-        self.on_admin_window()
+        self.on_glboal_scra()
 
-    def on_admin_window(self):
+    def on_glboal_scra(self):
         if self.object_name == 'navbar_scra':
             self.setFixedWidth(150)
-        pass
+    
+    pass
 class MyTabWidget(QTabWidget):
     def __init__(self, object_name=''):
         super().__init__()
@@ -54,10 +55,13 @@ class MyGroupBox(QGroupBox):
 
         self.on_pos_group_box()
 
+    def on_cashier_group_box(self):
+        pass
+
     def on_pos_group_box(self):
         if self.object_name == 'manage_order_box':
             self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-            self.setFixedWidth(400)
+            self.setMaximumWidth(450)
         pass
 
 class MyDialog(QDialog):
@@ -71,8 +75,18 @@ class MyDialog(QDialog):
 
         self.on_login_dialog()
 
+        self.on_pos_dialog()
+
     def on_login_dialog(self):
         pass
+
+    def on_pos_dialog(self):
+        if self.object_name == 'transaction_complete_dialog':
+            self.setMinimumWidth(500)
+
+        if self.object_name == 'progress_dialog':
+            self.setMinimumWidth(200)
+
 
 class MyTableWidget(QTableWidget):
     def __init__(self, object_name=''):
@@ -87,6 +101,7 @@ class MyTableWidget(QTableWidget):
         self.on_product_table()
 
         self.on_pos_table()
+        self.on_transaction_table()
         pass
 
     def on_promo_table(self):
@@ -125,8 +140,26 @@ class MyTableWidget(QTableWidget):
             self.verticalHeader().setHidden(True)
             pass
         if self.object_name == 'order_table':
+            self.setColumnCount(5)
+            self.setHorizontalHeaderLabels(['Action','Qty','Product','Amount','Discount'])
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+            self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+            pass
+        if self.object_name == 'final_order_table':
             self.setColumnCount(4)
-            self.setHorizontalHeaderLabels(['Action','Qty','Product','Amount'])
+            self.setHorizontalHeaderLabels(['Qty','Product','Amount','Discount'])
+            self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+            pass
+    def on_transaction_table(self):
+        if self.object_name == 'item_sold_overview_table':
+            self.setColumnCount(10)
+            self.setHorizontalHeaderLabels(['Acion','Cashier','Customer','Product','Quantity','Total amount','Void','Reason','ReferenceNumber','Date/Time created'])
 
 class MyVBoxLayout(QVBoxLayout):
     def __init__(self, object_name=''):
@@ -151,6 +184,9 @@ class MyHBoxLayout(QHBoxLayout):
             'customer_overview_act_layout',
             'product_overview_act_layout',
             'product_stock_act_layout',
+
+            'order_table_act_layout',
+            'item_sold_overview_act_layout',
         ]:
             self.setContentsMargins(0,0,0,0)
             self.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -212,6 +248,17 @@ class MyLabel(QLabel):
             'order_total_display',
         ]:
             self.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+        if self.object_name in [
+            'transaction_payment_amount_display',
+            'transaction_order_total_amount_display',
+            'transaction_order_change_display',
+        ]:
+            self.setStyleSheet(f"""
+                QLabel#{self.object_name} {{ font-size: 25px; font-weight: bold; }}
+                QLabel#transaction_order_change_display {{ font-size: 35px; color: green }}
+            """)
+            self.setContentsMargins(0,0,0,20)
 class MyComboBox(QComboBox):
     def __init__(self, object_name=''):
         super().__init__()
@@ -229,6 +276,8 @@ class MyComboBox(QComboBox):
             'product_type_field',
             'product_brand_field',
             'product_supplier_field',
+            
+            'reason_field',
         ]:
             self.setEditable(True)
         pass
@@ -288,13 +337,53 @@ class MyPushButton(QPushButton):
 
         self.setObjectName(object_name)
         self.setText(text)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self.on_global_push_button()
+
+        self.on_pos_push_button()
 
     def on_global_push_button(self):
         if self.object_name == 'untoggle':
             self.hide()
         pass
+    
+    def on_pos_push_button(self):
+        if self.object_name in [
+            "drop_all_qty_button",
+            "drop_qty_button",
+            "add_qty_button",
+            "edit_qty_button",
+        ]:
+            self.setText(None)
+            self.setIconSize(QSize(13,13))
+            self.setFixedSize(QSize(25,25))
+            self.setStyleSheet(f"""
+                QPushButton#drop_all_qty_button {{ border: none; background-color: #cc2929; border-radius: 3px; }}
+                QPushButton#drop_qty_button,
+                QPushButton#add_qty_button,
+                QPushButton#edit_qty_button {{ border: none; background-color: #dddddd; border-radius: 3px; }}
+            """)
+
+        if self.object_name == "drop_all_qty_button":
+            self.setIcon(QIcon(os.path.abspath("template/icon/pos/drop_all_qty.png")))
+            pass
+        if self.object_name == "drop_qty_button":
+            self.setIcon(QIcon(os.path.abspath("template/icon/pos/drop_qty.png")))
+            pass
+        if self.object_name == "add_qty_button":
+            self.setIcon(QIcon(os.path.abspath("template/icon/pos/add_qty.png")))
+            pass
+        if self.object_name == "edit_qty_button":
+            self.setIcon(QIcon(os.path.abspath("template/icon/pos/edit_qty.png")))
+            pass
+
+        if self.object_name in [
+            'pay_cash_button',
+            'pay_points_button',
+        ]:
+            self.setDisabled(True)
+    pass
 class MyCheckBox(QCheckBox):
     def __init__(self, object_name='', text=''):
         super().__init__()

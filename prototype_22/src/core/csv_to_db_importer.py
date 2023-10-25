@@ -142,6 +142,9 @@ class MyDataImportThread(QThread):
 
         product_expire_dt = product_expire_dt or '9999-99-99'
 
+        if product_sales_group not in ['Retail', 'Wholesale']:
+            return # which means considered as error
+
         if product_stock_available > 0 or product_stock_onhand >0:
             product_stock_tracking = True
         else:

@@ -9,7 +9,7 @@ from PyQt6.QtGui import *
 sys.path.append(os.path.abspath(''))
 
 from src.gui.cashier.pos import MyPOSWindow
-from src.gui.cashier.transaction import MyTransactionWindow
+from src.gui.cashier.transaction import MyTXNWindow
 from src.gui.widget.my_widget import *
 
 class MyCashierModel:
@@ -37,14 +37,20 @@ class MyCashierView(MyWidget):
         self.setLayout(self.main_layout)
 
     def set_navbar_box(self):
+        self.hide_navbar_toggle_button = [
+            MyPushButton(object_name='toggle'),
+            MyPushButton(object_name='untoggle'),
+        ]
         self.pos_page_button = MyPushButton(text='POS')
         self.transaction_page_button = MyPushButton(text='Transaction')
         self.settings_page_button = MyPushButton(text='Settings')
         self.navbar_box = MyGroupBox()
-        self.navbar_layout = MyFormLayout()
-        self.navbar_layout.addRow(self.pos_page_button)
-        self.navbar_layout.addRow(self.transaction_page_button)
-        self.navbar_layout.addRow(self.settings_page_button)
+        self.navbar_layout = MyVBoxLayout()
+        self.navbar_layout.addWidget(self.hide_navbar_toggle_button[0],0,Qt.AlignmentFlag.AlignRight)
+        self.navbar_layout.addWidget(self.hide_navbar_toggle_button[1],0,Qt.AlignmentFlag.AlignRight)
+        self.navbar_layout.addWidget(self.pos_page_button)
+        self.navbar_layout.addWidget(self.transaction_page_button)
+        self.navbar_layout.addWidget(self.settings_page_button)
         self.navbar_box.setLayout(self.navbar_layout)
         self.navbar_scra = MyScrollArea(object_name='navbar_scra')
         self.navbar_scra.setWidget(self.navbar_box)
@@ -52,7 +58,7 @@ class MyCashierView(MyWidget):
     
     def set_page_stcw(self):
         self.pos_page_window = MyPOSWindow(self.m.user, self.m.phone)
-        self.transaction_page_window = MyTransactionWindow(self.m.user, self.m.phone)
+        self.transaction_page_window = MyTXNWindow(self.m.user, self.m.phone)
         self.settings_page_window = MyGroupBox()
         self.page_stcw = MyStackedWidget()
         self.page_stcw.addWidget(self.pos_page_window)
@@ -76,9 +82,26 @@ class MyCashierController:
         self.set_navbar_box_conn()
 
     def set_navbar_box_conn(self):
+        self.v.hide_navbar_toggle_button[0].clicked.connect(lambda: self.on_hide_navbar_button_clicked(hide=True))
+        self.v.hide_navbar_toggle_button[1].clicked.connect(lambda: self.on_hide_navbar_button_clicked(hide=False))
         self.v.pos_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=0))
         self.v.transaction_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=1))
         self.v.settings_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=2))
+
+    def on_hide_navbar_button_clicked(self, hide=False):
+        if hide is True:
+            self.v.hide_navbar_toggle_button[0].hide()
+            self.v.hide_navbar_toggle_button[1].show()
+            self.v.navbar_scra.setFixedWidth(60)
+        if hide is False:
+            self.v.hide_navbar_toggle_button[0].show()
+            self.v.hide_navbar_toggle_button[1].hide()
+            self.v.navbar_scra.setFixedWidth(150)
+        
+        self.v.pos_page_button.setHidden(hide)
+        self.v.transaction_page_button.setHidden(hide)
+        self.v.settings_page_button.setHidden(hide)        
+
     def on_page_button_clicked(self, index):
         self.v.page_stcw.setCurrentIndex(index)
         print(index)

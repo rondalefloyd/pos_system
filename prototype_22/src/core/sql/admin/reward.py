@@ -96,8 +96,15 @@ class MyRewardSchema:
         reward_data = self.sales_cursor.fetchall()
 
         return reward_data
-    def select_reward_data_total_page_count(self, page_size=30):
-        self.sales_cursor.execute(f"SELECT COUNT(*) FROM Reward")
+    def select_reward_data_total_page_count(self, text='', page_size=30):
+        self.sales_cursor.execute(f"""
+            SELECT COUNT(*) FROM Reward
+            WHERE
+                Name LIKE '%{text}%' OR
+                Unit LIKE '%{text}%' OR
+                Points LIKE '%{text}%' OR
+                Description LIKE '%{text}%'
+        """)
 
         total_reward_data_count = self.sales_cursor.fetchone()[0]
         total_page_count = (total_reward_data_count - 1) // page_size + 1

@@ -257,7 +257,14 @@ class MyUserController:
     def on_filter_button_clicked(self): # IDEA: src
         text_filter = self.v.filter_field.text()
         
-        self.populate_overview_table(text=text_filter, page_number=1)
+        self.m.total_page_number = schema.select_user_data_total_page_count(text=text_filter)
+        self.m.page_number = 1 if self.m.total_page_number > 0 else 0
+
+        print(self.m.total_page_number, self.m.page_number)
+
+        self.v.user_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
+        
+        self.populate_overview_table(text=text_filter, page_number=self.m.page_number)
         pass
     
     def on_import_data_button_clicked(self): # IDEA: src
@@ -311,7 +318,7 @@ class MyUserController:
         self.v.user_overview_next_button.setEnabled(page_number < self.m.total_page_number)
         self.v.user_overview_page_label.setText(f"Page {page_number}/{self.m.total_page_number}")
 
-        user_data = schema.select_data_as_display(text=text, page_number=page_number)
+        user_data = schema.select_user_data_as_display(text=text, page_number=page_number)
 
         self.v.user_overview_table.setRowCount(len(user_data))
 
@@ -388,14 +395,14 @@ class MyUserController:
             self.m.page_number -= 1
 
             self.v.user_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.populate_overview_table(page_number=self.m.page_number)
+        self.populate_overview_table(text=self.v.filter_field.text(), page_number=self.m.page_number)
         pass
     def on_overview_next_button_clicked(self):
         if self.m.page_number < self.m.total_page_number:
             self.m.page_number += 1
 
             self.v.user_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.populate_overview_table(page_number=self.m.page_number)
+        self.populate_overview_table(text=self.v.filter_field.text(), page_number=self.m.page_number)
         pass
 
     # IDEA: if the widget uses the same connection
@@ -431,7 +438,8 @@ class MyUserController:
         self.sync_ui()
 
     def sync_ui(self):
-        self.total_page_number = schema.select_user_data_total_page_count()
+        text_filter = self.v.filter_field.text()
+        self.total_page_number = schema.select_user_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
         self.populate_overview_table(page_number=self.m.page_number)
         pass

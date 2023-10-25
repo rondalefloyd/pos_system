@@ -96,8 +96,15 @@ class MyPromoSchema:
         promo_data = self.sales_cursor.fetchall()
 
         return promo_data
-    def select_promo_data_total_page_count(self, page_size=30):
-        self.sales_cursor.execute(f"SELECT COUNT(*) FROM Promo")
+    def select_promo_data_total_page_count(self, text='', page_size=30):
+        self.sales_cursor.execute(f"""
+            SELECT COUNT(*) FROM Promo
+            WHERE
+                Name LIKE '%{text}%' OR
+                PromoType LIKE '%{text}%' OR
+                DiscountPercent LIKE '%{text}%' OR
+                Description LIKE '%{text}%'
+        """)
 
         total_promo_data_count = self.sales_cursor.fetchone()[0]
         total_page_count = (total_promo_data_count - 1) // page_size + 1

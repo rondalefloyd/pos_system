@@ -360,7 +360,7 @@ class MyPOSSchema():
         )
 		SELECT 
             {item_price_id},
-            {cust_id},
+            {cust_id},  
             {stock_id},
             {user_id},
             {prod_qty},

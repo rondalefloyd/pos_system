@@ -249,7 +249,14 @@ class MyRewardController:
     def on_filter_button_clicked(self): # IDEA: src
         text_filter = self.v.filter_field.text()
         
-        self.populate_overview_table(text=text_filter, page_number=1)
+        self.m.total_page_number = schema.select_reward_data_total_page_count(text=text_filter)
+        self.m.page_number = 1 if self.m.total_page_number > 0 else 0
+
+        print(self.m.total_page_number, self.m.page_number)
+
+        self.v.reward_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
+        
+        self.populate_overview_table(text=text_filter, page_number=self.m.page_number)
         pass
     
     def on_import_data_button_clicked(self): # IDEA: src
@@ -380,14 +387,14 @@ class MyRewardController:
             self.m.page_number -= 1
 
             self.v.reward_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.populate_overview_table(page_number=self.m.page_number)
+        self.populate_overview_table(text=self.v.filter_field.text(), page_number=self.m.page_number)
         pass
     def on_overview_next_button_clicked(self):
         if self.m.page_number < self.m.total_page_number:
             self.m.page_number += 1
 
             self.v.reward_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.populate_overview_table(page_number=self.m.page_number)
+        self.populate_overview_table(text=self.v.filter_field.text(), page_number=self.m.page_number)
         pass
 
     # IDEA: if the widget uses the same connection
@@ -418,7 +425,8 @@ class MyRewardController:
         self.sync_ui()
 
     def sync_ui(self):
-        self.m.total_page_number = schema.select_reward_data_total_page_count()
+        text_filter = self.v.filter_field.text()
+        self.m.total_page_number = schema.select_reward_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
         self.populate_overview_table(page_number=self.m.page_number)
         pass

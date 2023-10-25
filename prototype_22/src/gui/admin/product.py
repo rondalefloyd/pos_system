@@ -23,7 +23,7 @@ class MyProductModel:
         self.user_phone = phone
 
         self.total_product_page_number = schema.select_product_data_total_page_count()
-        self.total_stock_page_number = schema.select_product_data_total_page_count()
+        self.total_stock_page_number = schema.select_stock_data_total_page_count()
         self.page_number = 1 if self.total_product_page_number > 0 or self.total_stock_page_number > 0 else 0
 
         self.sel_product_id = 0
@@ -517,8 +517,12 @@ class MyProductController:
     def on_filter_button_clicked(self): # IDEA: src
         text_filter = self.v.filter_field.text()
         
-        self.populate_overview_table(text=text_filter, page_number=1)
-        self.populate_stock_table(text=text_filter, page_number=1)
+        self.m.total_product_page_number = schema.select_product_data_total_page_count(text=text_filter)
+        self.m.total_stock_page_number = schema.select_stock_data_total_page_count(text=text_filter)
+        self.m.page_number = 1 if self.m.total_product_page_number > 0 or self.m.total_stock_page_number > 0 else 0
+
+        self.populate_overview_table(text=text_filter, page_number=self.m.page_number)
+        self.populate_stock_table(text=text_filter, page_number=self.m.page_number)
         pass
     
     def on_import_data_button_clicked(self): # IDEA: src
@@ -760,11 +764,16 @@ class MyProductController:
         self.v.set_manage_stock_data_box()
         self.v.manage_stock_data_dialog.setWindowTitle(f"{data[1]}")
 
+
         self.v.stock_available_field.setText(str(data[2]))
         self.v.stock_onhand_field.setText(str(data[3]))
 
-        self.sel_product_stock_id = data[5]
-        self.sel_product_id = data[6]
+        self.m.sel_product_stock_id = data[5]
+        self.m.sel_product_id = data[6]
+
+        print(data)
+        print('self.sel_product_stock_id :', self.m.sel_product_stock_id )
+        print('self.sel_product_id :', self.m.sel_product_id )
 
         self.set_manage_stock_data_conn()
 
@@ -813,8 +822,9 @@ class MyProductController:
 
             self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_product_page_number}")
             self.v.product_stock_page_label.setText(f"Page {self.m.page_number}/{self.m.total_stock_page_number}")
-        self.populate_overview_table(page_number=self.m.page_number)
-        self.populate_stock_table(page_number=self.m.page_number)
+
+        self.populate_overview_table(text=self.v.filter_field.text(), page_number=self.m.page_number)
+        self.populate_stock_table(text=self.v.filter_field.text(), page_number=self.m.page_number)
         pass
     def on_next_button_clicked(self):
         if self.m.page_number < self.m.total_product_page_number or self.m.page_number < self.m.total_stock_page_number:
@@ -822,8 +832,9 @@ class MyProductController:
 
             self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_product_page_number}")
             self.v.product_stock_page_label.setText(f"Page {self.m.page_number}/{self.m.total_stock_page_number}")
-        self.populate_overview_table(page_number=self.m.page_number)
-        self.populate_stock_table(page_number=self.m.page_number)
+        
+        self.populate_overview_table(text=self.v.filter_field.text(), page_number=self.m.page_number)
+        self.populate_stock_table(text=self.v.filter_field.text(), page_number=self.m.page_number)
         pass
 
     # IDEA: if the widget uses the same connection
@@ -980,8 +991,9 @@ class MyProductController:
         self.sync_ui()
 
     def sync_ui(self):
-        self.m.total_product_page_number = schema.select_product_data_total_page_count()
-        self.m.total_stock_page_number = schema.select_stock_data_total_page_count()
+        filter_text = self.v.filter_field.text()
+        self.m.total_product_page_number = schema.select_product_data_total_page_count(text=filter_text)
+        self.m.total_stock_page_number = schema.select_stock_data_total_page_count(text=filter_text)
         self.m.page_number = 1 if self.m.total_product_page_number > 0 or self.m.total_stock_page_number > 0 else 0
         self.populate_overview_table(page_number=self.m.page_number)
         self.populate_stock_table(page_number=self.m.page_number)

@@ -53,7 +53,7 @@ class MyUserSchema:
 
         self.accounts_conn.commit()
 
-    def select_data_as_display(self, text='', page_number=1, page_size=30):
+    def select_user_data_as_display(self, text='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
         self.accounts_cursor.execute(f"""
@@ -96,8 +96,15 @@ class MyUserSchema:
         user_data = self.accounts_cursor.fetchall()
 
         return user_data
-    def select_user_data_total_page_count(self, page_size=30):
-        self.accounts_cursor.execute(f"SELECT COUNT(*) FROM User")
+    def select_user_data_total_page_count(self, text='', page_size=30):
+        self.accounts_cursor.execute(f"""
+            SELECT COUNT(*) FROM User
+            WHERE
+                Name LIKE '%{text}%' OR
+                Password LIKE '%{text}%' OR
+                AccessLevel LIKE '%{text}%' OR
+                Phone LIKE '%{text}%'
+        """)
 
         total_user_data_count = self.accounts_cursor.fetchone()[0]
         total_page_count = (total_user_data_count - 1) // page_size + 1

@@ -266,7 +266,7 @@ class MyProductSchema:
                     {product_id},
                     "{product_start_dt}",
                     {product_cost},
-                    {product_price},    
+                    {product_new_price},    
                     {product_promo_id},
                     {product_disc_value}
                 WHERE NOT EXISTS (
@@ -275,7 +275,7 @@ class MyProductSchema:
                         ItemId = {product_id} AND 
                         EffectiveDt = "{product_start_dt}" AND 
                         Cost = {product_cost} AND 
-                        SellPrice = {product_price} AND 
+                        SellPrice = {product_new_price} AND 
                         PromoId = {product_promo_id} AND
                         DiscountValue = {product_disc_value}
                 )
@@ -340,13 +340,13 @@ class MyProductSchema:
                   
                 ItemPrice.UpdateTs
             FROM ItemPrice
-                LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
-                LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
-                LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
-                LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
-                LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
-                LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
-                LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
+            LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
+            LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
+            LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
+            LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
+            LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
+            LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
+            LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
             WHERE
                 Item.Barcode LIKE "%{text}%" OR
                 Item.Name LIKE "%{text}%" OR
@@ -404,8 +404,26 @@ class MyProductSchema:
         product_data = self.sales_cursor.fetchall()
 
         return product_data
-    def select_product_data_total_page_count(self, page_size=30):
-        self.sales_cursor.execute(f"SELECT COUNT(*) FROM ItemPrice")
+    def select_product_data_total_page_count(self, text='', page_size=30):
+        self.sales_cursor.execute(f"""
+            SELECT COUNT(*) FROM ItemPrice
+            LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
+            LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
+            LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
+            LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
+            LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
+            LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
+            LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
+            WHERE
+                Item.Barcode LIKE "%{text}%" OR
+                Item.Name LIKE "%{text}%" OR
+                Item.ExpireDt LIKE "%{text}%" OR
+                ItemType.Name LIKE "%{text}%" OR
+                Brand.Name LIKE "%{text}%" OR
+                SalesGroup.Name LIKE "%{text}%" OR
+                Supplier.Name LIKE "%{text}%" OR
+                ItemPrice.UpdateTs LIKE "%{text}%"
+        """)
 
         total_product_data_count = self.sales_cursor.fetchone()[0]
         total_page_count = (total_product_data_count - 1) // page_size + 1
@@ -427,8 +445,8 @@ class MyProductSchema:
                 Stock.StockId,
                 Stock.ItemId
             FROM Stock
-                LEFT JOIN Item ON Stock.ItemId = Item.ItemId
-                LEFT JOIN ItemPrice ON Item.ItemId = ItemPrice.ItemId
+            LEFT JOIN Item ON Stock.ItemId = Item.ItemId
+            LEFT JOIN ItemPrice ON Item.ItemId = ItemPrice.ItemId
             WHERE
                 Item.Barcode LIKE "%{text}%" OR
                 Item.Name LIKE "%{text}%" OR
@@ -464,8 +482,15 @@ class MyProductSchema:
         stock_data = self.sales_cursor.fetchall()
 
         return stock_data
-    def select_stock_data_total_page_count(self, page_size=30):
-        self.sales_cursor.execute(f"SELECT COUNT(*) FROM Stock")
+    def select_stock_data_total_page_count(self, text='', page_size=30):
+        self.sales_cursor.execute(f"""
+            SELECT COUNT(*) FROM Stock
+            LEFT JOIN Item ON Stock.ItemId = Item.ItemId
+            LEFT JOIN ItemPrice ON Item.ItemId = ItemPrice.ItemId
+            WHERE
+                Item.Barcode LIKE "%{text}%" OR
+                Item.Name LIKE "%{text}%"
+        """)
 
         total_stock_data_count = self.sales_cursor.fetchone()[0]
         total_page_count = (total_stock_data_count - 1) // page_size + 1
@@ -662,12 +687,18 @@ class MyProductSchema:
 
         self.sales_conn.commit()
     def update_stock_data(self, stock_available, stock_onhand, stock_id, product_id):
+        print('stock_id:', stock_id)
+        print('product_id:', product_id)
+
+        print('stock_available:', stock_available)
+        print('stock_onhand:', stock_onhand)
+
         self.sales_cursor.execute(f"""
             UPDATE Stock
             SET
                 Available = {stock_available},
                 OnHand = {stock_onhand}
-            WHERE StockId = {stock_id} AND ItemId = {product_id}
+            WHERE StockId = {stock_id} OR ItemId = {product_id}
         """)
 
         self.sales_conn.commit()
