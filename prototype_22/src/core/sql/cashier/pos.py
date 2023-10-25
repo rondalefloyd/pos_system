@@ -27,7 +27,7 @@ class MyPOSSchema:
         self.sales_cursor = self.sales_conn.cursor()
         pass
     def setup_txn_db_conn(self):
-        self.txn_file = os.path.abspath(qss.db_file_path + qss.txn_file_name)
+        self.txn_file = os.path.abspath(qss.db_file_path + qss.accounts_file_name)
         self.txn_conn = sqlite3.connect(database=self.txn_file)
         self.txn_cursor = self.txn_conn.cursor()
         pass
@@ -436,7 +436,7 @@ class MyPOSSchema:
 
         self.txn_conn.commit()
         pass
-    def update_customer_reward_points(self, customer_id, order_total):
+    def update_customer_reward_points_by_increment(self, customer_id, order_total):
         try:
             reward_points = self.sales_cursor.execute(f"""
             SELECT Points FROM Reward
@@ -451,6 +451,21 @@ class MyPOSSchema:
             UPDATE CustomerReward
             SET 
                 Points = Points + {reward_points},
+                UpdateTs = CURRENT_TIMESTAMP		
+            WHERE CustomerId = {customer_id}
+            """)
+
+            self.sales_conn.commit()
+        except Exception as e:
+            print(e)
+            pass
+        pass
+    def update_customer_reward_points_by_decrement(self, customer_id, order_total):
+        try:
+            self.sales_cursor.execute(f"""
+            UPDATE CustomerReward
+            SET 
+                Points = Points - {order_total},
                 UpdateTs = CURRENT_TIMESTAMP		
             WHERE CustomerId = {customer_id}
             """)
@@ -478,7 +493,6 @@ class MyPOSSchema:
         except Exception as e:
             print(e)
             pass
-
 
     def update_promo_data(self, promo_name='', promo_type='', promo_percent=0, promo_desc='', promo_id=0):
         self.sales_cursor.execute(f"""

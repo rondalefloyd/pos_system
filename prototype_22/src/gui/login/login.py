@@ -9,21 +9,15 @@ from PyQt6.QtGui import *
 sys.path.append(os.path.abspath(''))
 
 from src.gui.widget.my_widget import *
+from src.core.sql.login import *
+
+
+login_schema = MyLoginSchema
 
 class MyLoginModel:
     def __init__(self):
         pass
 
-    def get_login_field(
-        self, 
-        user_name_field: QComboBox, 
-        user_password_field: QLineEdit
-    ):
-        user_name_val = user_name_field.currentText()
-        user_password_val = user_password_field.text()
-
-        return user_name_val, user_password_val
-        pass
 class MyLoginView(MyDialog):
     def __init__(self, model: MyLoginModel):
         super().__init__(window_title='Login')
@@ -88,13 +82,23 @@ class MyLoginController:
         self.view.login_button.clicked.connect(self.on_login_button_clicked)
         pass
     def on_login_button_clicked(self):
-        user_name_val, user_password_val = self.model.get_login_field(self.view.user_name_field, self.view.user_password_field)
+        user_name_val = self.view.user_name_field.currentText()
+        user_password_val = self.view.user_password_field.text()
+
+        print('user_name:', user_name) # REVIEW!!!!
+        print('user_password:', user_password) # REVIEW!!!!
+
+        user_id = login_schema.verify_user(user_name_val, user_password_val)
+
+        print('user_id:', user_id)
 
         if user_name_val == 'dev' and user_password_val == 'dev@2023':
             self.clear_login_field()
 
             self.view.set_dev_dialog()
             self.view.dev_dialog.exec()
+
+        
         else:
             QMessageBox.critical(self.view, 'Error', 'User not found.')
         pass

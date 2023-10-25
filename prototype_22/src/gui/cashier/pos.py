@@ -144,8 +144,8 @@ class MyPOSModel:
 
             pos_schema.update_stock_on_hand(product_id, product_stock_id, product_qty)
 
-        pos_schema.update_customer_reward_points(customer_id, order_total)
-                    
+        pos_schema.update_customer_reward_points_by_increment(customer_id, order_total)
+
         self.final_order_summary = [order_subtotal, order_discount, order_tax, order_total, payment_amount, order_change] # FOR SUBTOTAL, DISCOUNT, TAX, TOTAL, PAID AMOUNT, CHANGE
         pass
     def generate_transaction_info_entry(self, sales_group_id, customer_id):
@@ -1035,12 +1035,13 @@ class MyPOSController:
             self.v.final_customer_name_display.setText(f"Name: <b>{customer_data[0]}</b>")
             self.v.final_customer_phone_display.setText(f"Phone: <b>{customer_data[1]}</b>")
 
-            if customer_data[2] >= float(self.v.final_order_total_display.text()):
+            self.final_customer_points_value = customer_data[2] # customer points stored in a new variable since final customer points display contains other strings or characters which complicates passing values
+            if self.final_customer_points_value >= float(self.v.final_order_total_display.text()):
                 self.v.pay_points_button.setDisabled(False)
-                self.v.final_customer_points_display.setText(f"Points: <b><font color=green>{customer_data[2]}</font></b>") 
+                self.v.final_customer_points_display.setText(f"Points: <b><font color=green>{self.final_customer_points_value}</font></b>") 
             else:
                 self.v.pay_points_button.setDisabled(True)
-                self.v.final_customer_points_display.setText(f"Points: <b><font color=red>{customer_data[2]}</font></b>")
+                self.v.final_customer_points_display.setText(f"Points: <b><font color=red>{self.final_customer_points_value}</font></b>")
         else:
             self.v.final_customer_info_box.hide()
             self.v.pay_points_button.hide()
@@ -1124,7 +1125,8 @@ class MyPOSController:
                     payment_amount = float(self.v.tender_amount_field.text())
                     pass
                 elif type == 'pay_points':
-                    payment_amount = float(self.v.final_customer_points_display.text())
+                    payment_amount = float(self.final_customer_points_value)
+                    pos_schema.update_customer_reward_points_by_decrement(customer_id, order_total)
                     pass
                 
                 order_change = payment_amount - order_total
