@@ -468,6 +468,19 @@ class MyPOSView(MyWidget):
         self.numpad_key_layout.addWidget(self.numpad_key_button[10],3,1)
         self.numpad_key_layout.addWidget(self.numpad_key_button[11],3,2)
         self.numpad_key_box.setLayout(self.numpad_key_layout)
+        self.payment_amount_compute_box = MyGroupBox()
+        self.payment_amount_compute_layout = MyFormLayout()
+        
+        self.cash_payment_compute_label = MyLabel(object_name='cash_payment_compute_label', text='Cash payment')
+        self.points_payment_compute_label = MyLabel(object_name='points_payment_compute_label', text='Points payment')
+        self.cash_points_payment_compute_label = MyLabel(object_name='cash_points_payment_compute_label', text='Cash + Points payment')
+        self.cash_payment_compute_display = MyLabel(object_name='cash_payment_compute_label', text='0.00')
+        self.points_payment_compute_display = MyLabel(object_name='points_payment_compute_label', text='0.00')
+        self.cash_points_payment_compute_display = MyLabel(object_name='cash_points_payment_compute_label', text='0.00')
+        self.payment_amount_compute_layout.addRow(self.cash_payment_compute_label, self.cash_payment_compute_display)
+        self.payment_amount_compute_layout.addRow(self.points_payment_compute_label, self.points_payment_compute_display)
+        self.payment_amount_compute_layout.addRow(self.cash_points_payment_compute_label, self.cash_points_payment_compute_display)
+        self.payment_amount_compute_box.setLayout(self.payment_amount_compute_layout)
         self.pay_order_b_box = MyGroupBox()
         self.payment_b_layout = MyGridLayout()
         self.payment_b_layout.addWidget(self.tender_amount_label,0,0)
@@ -475,6 +488,7 @@ class MyPOSView(MyWidget):
         self.payment_b_layout.addWidget(self.numpad_key_toggle_button[0],1,1)
         self.payment_b_layout.addWidget(self.numpad_key_toggle_button[1],1,1)
         self.payment_b_layout.addWidget(self.numpad_key_box,2,0,1,2)
+        self.payment_b_layout.addWidget(self.payment_amount_compute_box,3,0,1,2)
         self.pay_order_b_box.setLayout(self.payment_b_layout)
         
         self.final_customer_name_display = MyLabel(text=f"Name: {'test'}")
@@ -486,16 +500,18 @@ class MyPOSView(MyWidget):
         self.final_customer_info_layout.addWidget(self.final_customer_phone_display)
         self.final_customer_info_layout.addWidget(self.final_customer_points_display)
         self.final_customer_info_box.setLayout(self.final_customer_info_layout)
-        self.pay_cash_button = MyPushButton(object_name='pay_cash_button', text=f"Pay cash")
-        self.pay_points_button = MyPushButton(object_name='pay_points_button', text=f"Pay points")
-        self.payment_c_box = MyGroupBox()
+        self.pay_cash_button = MyPushButton(object_name='pay_cash_button', text=f"Cash")
+        self.pay_points_button = MyPushButton(object_name='pay_points_button', text=f"Points")
+        self.pay_cash_points_button = MyPushButton(object_name='pay_cash_points_button', text=f"Cash + Points")
+        self.payment_c_box = MyGroupBox() 
         self.payment_act_layout = MyHBoxLayout()
         self.payment_act_layout.addWidget(self.final_customer_info_box,0,Qt.AlignmentFlag.AlignLeft)
-        self.payment_act_layout.addWidget(self.pay_cash_button,1,Qt.AlignmentFlag.AlignRight)
-        self.payment_act_layout.addWidget(self.pay_points_button,0,Qt.AlignmentFlag.AlignRight)
+        self.payment_act_layout.addWidget(self.pay_cash_button,2,Qt.AlignmentFlag.AlignRight)
+        self.payment_act_layout.addWidget(self.pay_points_button)
+        self.payment_act_layout.addWidget(self.pay_cash_points_button)
         self.payment_c_box.setLayout(self.payment_act_layout)
 
-        self.pay_order_dialog = MyDialog()
+        self.pay_order_dialog = MyDialog(object_name='pay_order_dialog')
         self.pay_order_layout = MyGridLayout()
         self.pay_order_layout.addWidget(self.pay_order_a_box,0,0)
         self.pay_order_layout.addWidget(self.pay_order_b_box,0,1,Qt.AlignmentFlag.AlignTop)
@@ -1034,24 +1050,33 @@ class MyPOSController:
 
             self.v.final_customer_name_display.setText(f"Name: <b>{customer_data[0]}</b>")
             self.v.final_customer_phone_display.setText(f"Phone: <b>{customer_data[1]}</b>")
+            self.v.final_customer_points_display.setText(f"Points: <b>{customer_data[2]}</b>") 
 
-            self.final_customer_points_value = customer_data[2] # customer points stored in a new variable since final customer points display contains other strings or characters which complicates passing values
-            if self.final_customer_points_value >= float(self.v.final_order_total_display.text()):
-                self.v.pay_points_button.setDisabled(False)
-                self.v.final_customer_points_display.setText(f"Points: <b><font color=green>{self.final_customer_points_value}</font></b>") 
-            else:
-                self.v.pay_points_button.setDisabled(True)
-                self.v.final_customer_points_display.setText(f"Points: <b><font color=red>{self.final_customer_points_value}</font></b>")
+            self.v.pay_points_button.setDisabled(False) if float(customer_data[2]) >= float(self.v.final_order_total_display.text()) else self.v.pay_points_button.setDisabled(True)
+
+            self.compute_change_by_payment_amount_type(customer_data)
+                
         else:
+            self.v.points_payment_compute_label.hide()
+            self.v.cash_points_payment_compute_label.hide()
+            self.v.points_payment_compute_display.hide()
+            self.v.cash_points_payment_compute_display.hide()
+
             self.v.final_customer_info_box.hide()
             self.v.pay_points_button.hide()
+            self.v.pay_cash_points_button.hide()
+
+
+            self.compute_change_by_payment_amount_type()
+
 
         self.set_pay_order_dialog_conn()
 
         self.v.pay_order_dialog.exec()
         print('on_pay_order_button_clicked')
         pass
-
+    
+    # region > pay order dialog -----------------------------------------------------------------------------------------
     def set_pay_order_dialog_conn(self):
         self.v.tender_amount_field.textChanged.connect(self.on_tender_amount_field_text_changed)
         self.v.tender_amount_field.returnPressed.connect(lambda: self.on_pay_button_clicked(type='pay_cash'))
@@ -1075,11 +1100,13 @@ class MyPOSController:
         pass
     def on_tender_amount_field_text_changed(self):
         try:
-            current_amount_tendered = float(self.v.tender_amount_field.text())
-            final_order_total = float(self.v.final_order_total_display.text())
+            i = self.v.manage_order_tab.currentIndex()
+            customer_data = pos_schema.select_customer_data_with_customer_reward_data(customer_name=self.m.customer_name_fields[i].currentText())
 
-            self.v.pay_cash_button.setDisabled(False) if current_amount_tendered >= final_order_total else self.v.pay_cash_button.setDisabled(True)
+            self.compute_change_by_payment_amount_type(customer_data)
         except Exception as e:
+            self.compute_change_by_payment_amount_type()
+            print(e)
             pass
         pass
 
@@ -1170,6 +1197,7 @@ class MyPOSController:
             print(e)
 
         pass
+    # endregion
 
     def set_transaction_complete_dialog_conn(self): # IDEA: src
         self.v.print_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='print'))
@@ -1235,6 +1263,7 @@ class MyPOSController:
         self.v.print_receipt_button.setEnabled(True) if self.v.print_receipt_button.isEnabled() is not True else None
         self.v.save_receipt_button.setEnabled(True) if self.v.save_receipt_button.isEnabled() is not True else None
 
+        self.v.progress_dialog.close_signal.emit('finished')
         self.v.progress_dialog.close()
 
         if action == 'print':
@@ -1263,7 +1292,6 @@ class MyPOSController:
             self.v.customer_name_field.addItems(customer_name)
 
         pass
-
     def sync_ui(self):
         try:
             i = self.v.manage_order_tab.currentIndex()
@@ -1285,7 +1313,6 @@ class MyPOSController:
 
         self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         pass
-
     def discard_order(self):
         i = self.v.manage_order_tab.currentIndex()
 
@@ -1297,8 +1324,39 @@ class MyPOSController:
         self.v.add_order_button.setEnabled(self.v.manage_order_tab.count() < 10)
         
         self.sync_ui()
+    def compute_change_by_payment_amount_type(self, customer_data=['','',None]):
+        self.cash_payment_change = 0
+        self.points_payment_change = 0
+        self.cash_points_payment_change = 0
 
+        try:
+            final_order_total = float(self.v.final_order_total_display.text())
+            current_amount_tendered = float(self.v.tender_amount_field.text())
+            final_customer_points_value = float(customer_data[2]) # customer points stored in a new variable since final customer points display contains other strings or characters which complicates passing values
+            current_amount_tendered_with_points = current_amount_tendered + final_customer_points_value
 
+            self.v.pay_cash_button.setDisabled(False) if current_amount_tendered >= final_order_total else self.v.pay_cash_button.setDisabled(True)
+            self.v.pay_cash_points_button.setDisabled(False) if current_amount_tendered_with_points >= final_order_total else self.v.pay_cash_points_button.setDisabled(True)
+
+            self.cash_payment_change = current_amount_tendered - final_order_total
+            self.points_payment_change = final_customer_points_value - final_order_total
+            self.cash_points_payment_change = current_amount_tendered_with_points - final_order_total
+
+            self.v.cash_payment_compute_display.setText(f"<b><font color='red'>{self.cash_payment_change:.2f}</font></b>") if self.cash_payment_change <= 0 else self.v.cash_payment_compute_display.setText(f"<b><font color='green'>{self.cash_payment_change:.2f}</font></b>")
+            self.v.points_payment_compute_display.setText(f"<b><font color='red'>{self.points_payment_change:.2f}</font></b>") if self.points_payment_change <= 0 else self.v.points_payment_compute_display.setText(f"<b><font color='green'>{self.points_payment_change:.2f}</font></b>")
+            self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>{self.cash_points_payment_change:.2f}</font></b>") if self.cash_points_payment_change <= 0 else self.v.cash_points_payment_compute_display.setText(f"<b><font color='green'>{self.cash_points_payment_change:.2f}</font></b>")
+
+            print('WOW')
+
+        except IndexError as ie:
+            pass
+
+        except ValueError as ve:
+            self.v.cash_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>")
+            self.v.points_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>") # FIXME!!! NEEDS FIXING NEEDS FIXING NEEDS FIXING NEEDS FIXING NEEDS FIXING NEEDS FIXING NEEDS FIXING NEEDS FIXING
+            self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>")
+            pass
+        
     def close_dialog(self, dialog: QDialog):
         dialog.close()
 
@@ -1334,15 +1392,11 @@ class MyPOSController:
 
 class MyPOSWindow(MyGroupBox):
     def __init__(self, name='test', phone='test'):
-        super().__init__()
 
         self.model = MyPOSModel(name, phone)
         self.view = MyPOSView(self.model)
         self.controller = MyPOSController(self.model, self.view)
 
-        layout = MyGridLayout()
-        layout.addWidget(self.view)
-        self.setLayout(layout)
 
     def run(self):
         self.view.show()

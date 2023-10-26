@@ -281,7 +281,7 @@ class MyRewardController:
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
         print(self.m.progress_count)
-        self.m.progress_percent = int((self.m.progress_count / total_data_count) * 100)
+        self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count)
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
         self.v.progress_label.setText(current_data)
@@ -291,6 +291,7 @@ class MyRewardController:
         pass
     def on_data_import_thread_finished(self):
         QMessageBox.information(None, 'Success', 'Import complete.')
+        self.v.progress_dialog.close_signal.emit('finished')
         self.v.progress_dialog.close()
         pass
     def on_data_import_thread_invalid(self):

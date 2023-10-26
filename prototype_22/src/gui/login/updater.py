@@ -35,12 +35,12 @@ class MyUpdaterView(MyDialog):
 
     def set_progress_dialog(self):
         self.progress_bar = MyProgressBar()
-        self.progress_label = MyLabel(object_name='progress_label', text='Please wait...')
+        # self.progress_label = MyLabel(object_name='progress_label', text='Please wait...')
         self.other_label_a = MyLabel(object_name='other_label_a', text='Please wait while updating database')
         self.progress_dialog = MyDialog(object_name='updater_progress_dialog', window_title='99% complete')
         self.progress_layout = MyVBoxLayout()
         self.progress_layout.addWidget(self.progress_bar)
-        self.progress_layout.addWidget(self.progress_label)
+        # self.progress_layout.addWidget(self.progress_label)
         self.progress_layout.addWidget(self.other_label_a)
         self.progress_dialog.setLayout(self.progress_layout)
         pass
@@ -58,17 +58,18 @@ class MyUpdaterController:
         pass
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
-        print(self.m.progress_count)
-        self.m.progress_percent = int((self.m.progress_count / total_data_count) * 100)
+        self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count) + 1
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
-        self.v.progress_label.setText(current_data)
+        print(self.m.progress_percent)
         pass
     def on_data_import_thread_cancelled(self):
         QMessageBox.information(self.v, 'Cancelled', 'Import cancelled.')
+        self.v.progress_dialog.close()
         pass
     def on_data_import_thread_finished(self):
-        QMessageBox.information(self.v, 'Success', 'Import complete.')
+        self.v.other_label_a.setText("Update done.")
+        self.v.progress_dialog.close_signal.emit('finished')
         self.v.progress_dialog.close()
         pass
     def on_data_import_thread_invalid(self):

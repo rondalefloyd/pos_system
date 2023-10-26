@@ -5,13 +5,6 @@ sys.path.append(os.path.abspath(''))
 
 from src.gui.login.login import *
 
-if __name__ == ('__main__'):
-    login_app = QApplication(sys.argv)
+subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/login/updater.py'])
+subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/login/login.py'])
     
-    model = MyLoginModel()
-    view = MyLoginView(model)
-    controller = MyLoginController(model, view)
-    
-    view.show()
-
-    sys.exit(login_app.exec())

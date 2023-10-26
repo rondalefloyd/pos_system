@@ -230,7 +230,7 @@ class MyTransactionController:
         self.v.reason_field.addItem('Unsatisfactory Quality')
         self.v.reason_field.addItem('Excessive Quantity')
         self.v.reason_field.addItem('Other (specify the reason)')
-
+ 
     def on_save_data_button_clicked(self):
         confirm = QMessageBox.warning(self.v.manage_data_dialog, 'Confirm', 'Are you sure you want to void this transaction?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 

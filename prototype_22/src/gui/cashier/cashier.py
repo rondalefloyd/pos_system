@@ -108,11 +108,16 @@ class MyCashierController:
 
         self.v.pos_page_window.controller.sync_ui() if index == 0 else None
         self.v.transaction_page_window.controller.sync_ui() if index == 1 else None
+        
         print(index)
 
     def on_logout_button_clicked(self):
-        self.v.close()
-        print(os.path.abspath('src/gui/login/login.py'))
+        confirm = QMessageBox.question(self.v, 'Confirm', 'Are you sure you want to logout?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+        if confirm is QMessageBox.StandardButton.Yes:
+            self.v.close_signal.emit('logout')
+            self.v.close()
+            subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/login/login.py'])
 
 
 class MyCashierWindow:

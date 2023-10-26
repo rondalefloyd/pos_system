@@ -41,30 +41,39 @@ class MyTabWidget(QTabWidget):
         self.object_name = object_name
         pass
 class MyWidget(QWidget):
+    close_signal = pyqtSignal(str)
     def __init__(self, object_name='', parent=None, window_title=''):
         super().__init__()
 
         self.object_name = object_name
+        self.close_signal_value = ''
 
         self.setObjectName(object_name)
         self.setWindowTitle(window_title)
-        pass
 
+        self.close_signal.connect(self.on_close_signal)
+
+
+    def on_close_signal(self, text):
+        self.close_signal_value = text
+        
     def closeEvent(self, event: QKeyEvent):
+        print('CLOSE SIGNAL:', self.close_signal_value)
         if self.object_name in [
             'MyCashierView',
             'MyAdminView',
         ]:
-            confirm = QMessageBox.warning(self, 'Confirm', 'Are you sure you want to logout?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-
-            if confirm == QMessageBox.StandardButton.Yes:
-                self.close()
-                subprocess.run(['python', 'src/gui/login/updater.py'])
-                subprocess.run(['python', 'src/gui/login/login.py'])
-                self.destroy()
-            else:
-                event.ignore()
+            if self.close_signal_value == 'logout':
+                event.accept()
                 pass
+            else:
+                confirm = QMessageBox.warning(self, 'Confirm', 'Are you sure you want to close this application?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+                if confirm == QMessageBox.StandardButton.Yes:
+                    event.accept()
+                else:
+                    event.ignore()
+                    pass
             
         
         pass
@@ -88,48 +97,73 @@ class MyGroupBox(QGroupBox):
         pass
 
 class MyDialog(QDialog):
+    close_signal = pyqtSignal(str)
     def __init__(self, object_name='', parent=None, window_title=''):
         super().__init__()
 
         self.object_name = object_name
+        self.close_signal_value = ''
         
         self.setObjectName(object_name)
         self.setWindowTitle(window_title)
+
+        self.on_global_dialog()
 
         self.on_login_dialog()
 
         self.on_pos_dialog()
         self.on_transaction_dialog()
 
+        self.close_signal.connect(self.on_close_signal)
+
     def on_login_dialog(self):
         pass
 
-    def on_pos_dialog(self):
-        if self.object_name == 'transaction_complete_dialog':
-            self.setMinimumWidth(500)
+    def on_global_dialog(self):
+        if self.object_name == 'updater_progress_dialog':
+            self.setMinimumWidth(250)
 
         if self.object_name == 'progress_dialog':
             self.setMinimumWidth(200)
+        pass
+
+    def on_pos_dialog(self):
+        if self.object_name == 'pay_order_dialog':
+            self.setMinimumWidth(800)
+
+        if self.object_name == 'transaction_complete_dialog':
+            self.setMinimumWidth(500)
+
         pass
     def on_transaction_dialog(self):
         if self.object_name == 'manage_data_dialog':
             self.setMinimumWidth(300)
 
+    def on_close_signal(self, text):
+        self.close_signal_value = text
+
     def closeEvent(self, event: QKeyEvent):
+        print('CLOSE SIGNAL:', self.close_signal_value)
         if self.object_name == 'MyLoginView':
-            print('HEEERE!!!!')
-            self.close()
-            self.destroy()
+            event.accept()
 
-        if self.object_name == 'updater_progress_dialog':
-            confirm = QMessageBox.warning(self, 'Confirm', 'Are you sure you want to cancel this progress?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-
-            if confirm is QMessageBox.StandardButton.Yes:
-                self.close()
-                self.destroy()
-
+        elif self.object_name in [
+            'updater_progress_dialog',
+            'progress_dialog'
+        ]:
+            if self.close_signal_value == 'finished':
+                event.accept()
             else:
-                event.ignore()
+                confirm = QMessageBox.question(self, 'Confirm', 'Do you want to cancel this update and proceed?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+                if confirm == QMessageBox.StandardButton.Yes:
+                    event.accept()
+                else:
+                    event.ignore()
+                    pass
+                
+            pass
+
 
 class MyTableWidget(QTableWidget):
     def __init__(self, object_name=''):
@@ -309,6 +343,10 @@ class MyLabel(QLabel):
             'order_discount_display',
             'order_tax_display',
             'order_total_display',
+
+            'cash_payment_compute_label',
+            'points_payment_compute_label',
+            'cash_points_payment_compute_label',
         ]:
             self.setAlignment(Qt.AlignmentFlag.AlignRight)
 
@@ -347,10 +385,13 @@ class MyComboBox(QComboBox):
             self.setEditable(True)
         pass
 class MyLineEdit(QLineEdit):
-    def __init__(self, object_name='', push_button = None):
+    def __init__(self, object_name='', text='', push_button = None):
         super().__init__()
 
         self.object_name = object_name
+
+        self.setObjectName(object_name)
+        self.setText(text)
 
         self.on_global_line_edit()
 
@@ -378,6 +419,7 @@ class MyLineEdit(QLineEdit):
     def on_customer_line_edit(self):
         if self.object_name == 'customer_points_field':
             self.hide()
+    
     pass
 class MyPlainTextEdit(QPlainTextEdit):
     def __init__(self, object_name=''):
@@ -452,6 +494,7 @@ class MyPushButton(QPushButton):
         if self.object_name in [
             'pay_cash_button',
             'pay_points_button',
+            'pay_cash_points_button',
         ]:
             self.setDisabled(True)
     pass
