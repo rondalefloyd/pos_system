@@ -1,5 +1,6 @@
 
 import sys, os
+import subprocess
 from typing import *
 from PyQt6 import *
 from PyQt6.QtWidgets import *
@@ -19,7 +20,7 @@ class MyCashierModel:
         pass
 class MyCashierView(MyWidget):
     def __init__(self, model: MyCashierModel):
-        super().__init__(window_title='Cashier')
+        super().__init__(object_name='MyCashierView', window_title='Cashier')
 
         self.m = model
 
@@ -43,14 +44,14 @@ class MyCashierView(MyWidget):
         ]
         self.pos_page_button = MyPushButton(text='POS')
         self.transaction_page_button = MyPushButton(text='Transaction')
-        self.settings_page_button = MyPushButton(text='Settings')
+        self.logout_button = MyPushButton(text='Logout')
         self.navbar_box = MyGroupBox()
         self.navbar_layout = MyVBoxLayout()
         self.navbar_layout.addWidget(self.hide_navbar_toggle_button[0],0,Qt.AlignmentFlag.AlignRight)
         self.navbar_layout.addWidget(self.hide_navbar_toggle_button[1],0,Qt.AlignmentFlag.AlignRight)
         self.navbar_layout.addWidget(self.pos_page_button)
         self.navbar_layout.addWidget(self.transaction_page_button)
-        self.navbar_layout.addWidget(self.settings_page_button)
+        self.navbar_layout.addWidget(self.logout_button)
         self.navbar_box.setLayout(self.navbar_layout)
         self.navbar_scra = MyScrollArea(object_name='navbar_scra')
         self.navbar_scra.setWidget(self.navbar_box)
@@ -86,7 +87,7 @@ class MyCashierController:
         self.v.hide_navbar_toggle_button[1].clicked.connect(lambda: self.on_hide_navbar_button_clicked(hide=False))
         self.v.pos_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=0))
         self.v.transaction_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=1))
-        self.v.settings_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=2))
+        self.v.logout_button.clicked.connect(self.on_logout_button_clicked)
 
     def on_hide_navbar_button_clicked(self, hide=False):
         if hide is True:
@@ -100,11 +101,19 @@ class MyCashierController:
         
         self.v.pos_page_button.setHidden(hide)
         self.v.transaction_page_button.setHidden(hide)
-        self.v.settings_page_button.setHidden(hide)        
+        self.v.logout_button.setHidden(hide)        
 
     def on_page_button_clicked(self, index):
         self.v.page_stcw.setCurrentIndex(index)
+
+        self.v.pos_page_window.controller.sync_ui() if index == 0 else None
+        self.v.transaction_page_window.controller.sync_ui() if index == 1 else None
         print(index)
+
+    def on_logout_button_clicked(self):
+        self.v.close()
+        print(os.path.abspath('src/gui/login/login.py'))
+
 
 class MyCashierWindow:
     def __init__(self, user='test', phone='test'):
@@ -118,8 +127,8 @@ class MyCashierWindow:
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)
-    cashier_window = MyCashierWindow()
+    cashier_window = MyCashierWindow(user=sys.argv[1], phone=sys.argv[2])
 
     cashier_window.run()
 
-    app.exec()
+    sys.exit(app.exec())

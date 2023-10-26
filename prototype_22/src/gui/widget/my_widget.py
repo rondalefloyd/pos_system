@@ -1,4 +1,5 @@
 import os, sys
+import subprocess
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
@@ -48,6 +49,25 @@ class MyWidget(QWidget):
         self.setObjectName(object_name)
         self.setWindowTitle(window_title)
         pass
+
+    def closeEvent(self, event: QKeyEvent):
+        if self.object_name in [
+            'MyCashierView',
+            'MyAdminView',
+        ]:
+            confirm = QMessageBox.warning(self, 'Confirm', 'Are you sure you want to logout?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+            if confirm == QMessageBox.StandardButton.Yes:
+                self.close()
+                subprocess.run(['python', 'src/gui/login/updater.py'])
+                subprocess.run(['python', 'src/gui/login/login.py'])
+                self.destroy()
+            else:
+                event.ignore()
+                pass
+            
+        
+        pass
 class MyGroupBox(QGroupBox):
     def __init__(self, object_name=''):
         super().__init__()
@@ -95,11 +115,29 @@ class MyDialog(QDialog):
         if self.object_name == 'manage_data_dialog':
             self.setMinimumWidth(300)
 
+    def closeEvent(self, event: QKeyEvent):
+        if self.object_name == 'MyLoginView':
+            print('HEEERE!!!!')
+            self.close()
+            self.destroy()
+
+        if self.object_name == 'updater_progress_dialog':
+            confirm = QMessageBox.warning(self, 'Confirm', 'Are you sure you want to cancel this progress?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+            if confirm is QMessageBox.StandardButton.Yes:
+                self.close()
+                self.destroy()
+
+            else:
+                event.ignore()
+
 class MyTableWidget(QTableWidget):
     def __init__(self, object_name=''):
         super().__init__()
 
         self.object_name = object_name
+
+        self.on_login_table()
 
         self.on_promo_table()
         self.on_user_table()
@@ -110,6 +148,11 @@ class MyTableWidget(QTableWidget):
         self.on_pos_table()
         self.on_transaction_table()
         pass
+
+    def on_login_table(self):
+        if self.object_name == 'reg_user_table':
+            self.setColumnCount(4)
+            self.setHorizontalHeaderLabels(['Name','Password','Level','Phone'])
 
     def on_promo_table(self):
         if self.object_name == 'promo_overview_table':
@@ -222,8 +265,21 @@ class MyLabel(QLabel):
         self.setObjectName(object_name)
         self.setText(text)
 
+        self.on_global_label()
+
         self.on_customer_label()
+        
         self.on_pos_label()
+
+    def on_global_label(self):
+        if self.object_name in [
+            'progress_label', 
+            'other_label_a'
+        ]:
+            self.setStyleSheet(f"""
+                QLabel#progress_label,
+                QLabel#other_label_a {{ font-size: 10px; }}
+            """)
 
     def on_customer_label(self):
         if self.object_name == 'customer_points_label':
@@ -266,6 +322,7 @@ class MyLabel(QLabel):
                 QLabel#transaction_order_change_display {{ font-size: 35px; color: green }}
             """)
             self.setContentsMargins(0,0,0,20)
+    pass
 class MyComboBox(QComboBox):
     def __init__(self, object_name=''):
         super().__init__()
@@ -276,6 +333,8 @@ class MyComboBox(QComboBox):
 
     def on_global_combo_box(self):
         if self.object_name in [
+            'reg_user_name_field', # for login
+
             'user_name_field', 
             'promo_type_field',
             'customer_barrio_field',

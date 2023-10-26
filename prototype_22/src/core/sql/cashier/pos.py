@@ -27,7 +27,7 @@ class MyPOSSchema:
         self.sales_cursor = self.sales_conn.cursor()
         pass
     def setup_txn_db_conn(self):
-        self.txn_file = os.path.abspath(qss.db_file_path + qss.accounts_file_name)
+        self.txn_file = os.path.abspath(qss.db_file_path + qss.txn_file_name)
         self.txn_conn = sqlite3.connect(database=self.txn_file)
         self.txn_cursor = self.txn_conn.cursor()
         pass

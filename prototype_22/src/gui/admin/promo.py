@@ -182,7 +182,7 @@ class MyPromoView(MyWidget):
     def set_progress_dialog(self):
         self.progress_bar = MyProgressBar()
         self.progress_label = MyLabel(text='Please wait...')
-        self.progress_dialog = MyDialog(window_title='99% complete')
+        self.progress_dialog = MyDialog(object_name='progress_dialog', window_title='99% complete')
         self.progress_layout = MyVBoxLayout()
         self.progress_layout.addWidget(self.progress_bar)
         self.progress_layout.addWidget(self.progress_label)

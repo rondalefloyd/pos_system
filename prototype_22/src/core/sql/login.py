@@ -45,18 +45,61 @@ class MyLoginSchema:
         self.accounts_conn.commit()
 
     def verify_user(self, user_name='', user_password=''):
-        print('user_name:', user_name)
-        print('user_password:', user_password)
-
         try:
             self.accounts_cursor.execute(f"""
-                SELECT UserId FROM User
+                SELECT UserId, AccessLevel, Phone FROM User
                 WHERE Name = "{user_name}" AND Password = "{user_password}"
             """)
 
-            user_id = self.accounts_cursor.fetchone()[0]
+            user_data = self.accounts_cursor.fetchall()[0]
             pass
         except Exception as e:
-            user_id = 0
+            user_data = [(0,0,0)][0]
+            print(e)
 
-        return user_id
+        return user_data
+    def insert_user_data(self, user_name='', user_password='', user_level=0, user_phone=''):
+        self.accounts_cursor.execute(f"""
+            INSERT INTO User (Name, Password, AccessLevel, Phone)
+            SELECT 
+                "{user_name}", 
+                "{user_password}", 
+                {user_level}, 
+                "{user_phone}"
+            WHERE NOT EXISTS (
+                SELECT 1 FROM User
+                WHERE
+                    Name = "{user_name}" AND
+                    Password = "{user_password}" AND
+                    AccessLevel = {user_level} AND
+                    Phone = "{user_phone}"
+            )
+        """)
+
+        self.accounts_conn.commit()
+
+    def select_user_data_as_display(self):
+        self.accounts_cursor.execute(f"""
+            SELECT 
+                Name, 
+                Password, 
+                AccessLevel, 
+                Phone,
+                UpdateTs
+            FROM User
+            ORDER BY UserId DESC, UpdateTs DESC
+        """)
+
+        user_data = self.accounts_cursor.fetchall() 
+
+        return user_data
+    
+    def select_user_name_for_combo_box(self):
+        self.accounts_cursor.execute(f"""
+            SELECT Name FROM User
+            ORDER BY UserId DESC, UpdateTs DESC
+        """)
+
+        user_name = self.accounts_cursor.fetchall()
+
+        return user_name

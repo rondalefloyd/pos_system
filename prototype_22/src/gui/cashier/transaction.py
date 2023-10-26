@@ -30,6 +30,8 @@ class MyTransactionModel:
         self.sel_user_id = 0
         self.sel_stock_id = 0
 
+        self.sel_product_qty = 0
+
 
 class MyTransactionView(MyWidget):
     def __init__(self, model: MyTransactionModel):
@@ -192,6 +194,8 @@ class MyTransactionController:
         self.m.sel_user_id = data[12]
         self.m.sel_stock_id = data[13]
 
+        self.m.sel_product_qty = data[3]
+
         self.set_manage_data_box_conn()
 
         self.v.manage_data_dialog.exec()
@@ -212,7 +216,7 @@ class MyTransactionController:
     def load_combo_box_data(self):
         self.v.set_manage_data_box()
 
-        self.v.reason_field.addItem('Customer Return')
+        self.v.reason_field.addItem('Customer Return') # -- this options updates the stock
         self.v.reason_field.addItem('Damaged Item')
         self.v.reason_field.addItem('Wrong Item')
         self.v.reason_field.addItem('Price Discrepancy')
@@ -224,26 +228,34 @@ class MyTransactionController:
         self.v.reason_field.addItem('Store Policy')
         self.v.reason_field.addItem('Expired Product')
         self.v.reason_field.addItem('Unsatisfactory Quality')
-        self.v.reason_field.addItem('Gift Return')
         self.v.reason_field.addItem('Excessive Quantity')
         self.v.reason_field.addItem('Other (specify the reason)')
 
     def on_save_data_button_clicked(self):
-        if self.v.reason_field.currentText() != 'Other (specify the reason)':
-            reason = self.v.reason_field.currentText()
+        confirm = QMessageBox.warning(self.v.manage_data_dialog, 'Confirm', 'Are you sure you want to void this transaction?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+        if confirm is QMessageBox.StandardButton.Yes:
+            if self.v.reason_field.currentText() != 'Other (specify the reason)':
+                reason = self.v.reason_field.currentText()
+            else:
+                reason = self.v.other_reason_field.toPlainText()
+
+            schema.update_selected_item_sold_void(
+                item_sold_id=self.m.sel_item_sold_id,
+                product_price_id=self.m.sel_product_price_id,
+                customer_id=self.m.sel_customer_id,
+                user_id=self.m.sel_user_id,
+                stock_id=self.m.sel_stock_id, 
+                reason=reason,
+                product_qty=self.m.sel_product_qty
+            )
+
+            self.sync_ui()
+            self.v.manage_data_dialog.close()
+            QMessageBox.information(self.v, 'Success', 'Transaction voided.')
+            pass
         else:
-            reason = self.v.other_reason_field.toPlainText()
-
-        schema.update_selected_item_sold_void(
-            self.m.sel_item_sold_id,
-            self.m.sel_product_price_id,
-            self.m.sel_customer_id,
-            self.m.sel_user_id,
-            self.m.sel_stock_id, 
-            reason
-        )
-
-        self.sync_ui()
+            pass
 
     def sync_ui(self):
         self.m.total_page_number = schema.select_item_sold_data_total_page_count()

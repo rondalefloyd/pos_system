@@ -1346,7 +1346,7 @@ class MyPOSWindow(MyGroupBox):
 
     def run(self):
         self.view.show()
-    pass
+    pass    
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)

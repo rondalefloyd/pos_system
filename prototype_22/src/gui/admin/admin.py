@@ -16,12 +16,12 @@ from src.gui.admin.user import MyUserWindow
 from src.gui.widget.my_widget import *
 
 class MyAdminModel:
-    def __init__(self, user):
+    def __init__(self, user, phone):
         self.user = user
         pass
 class MyAdminView(MyWidget):
     def __init__(self, model: MyAdminModel):
-        super().__init__(window_title='Admin')
+        super().__init__(object_name='MyAdminView', window_title='Admin')
 
         self.m = model
 
@@ -44,7 +44,7 @@ class MyAdminView(MyWidget):
         self.reward_page_button = MyPushButton(text='Reward')
         self.customer_page_button = MyPushButton(text='Customer')
         self.cashier_page_button = MyPushButton(text='Cashier')
-        self.settings_page_button = MyPushButton(text='Settings')
+        self.logout_button = MyPushButton(text='Logout')
         self.navbar_box = MyGroupBox()
         self.navbar_layout = MyFormLayout()
         self.navbar_layout.addRow(self.product_page_button)
@@ -52,7 +52,7 @@ class MyAdminView(MyWidget):
         self.navbar_layout.addRow(self.reward_page_button)
         self.navbar_layout.addRow(self.customer_page_button)
         self.navbar_layout.addRow(self.cashier_page_button)
-        self.navbar_layout.addRow(self.settings_page_button)
+        self.navbar_layout.addRow(self.logout_button)
         self.navbar_box.setLayout(self.navbar_layout)
         self.navbar_scra = MyScrollArea(object_name='navbar_scra')
         self.navbar_scra.setWidget(self.navbar_box)
@@ -93,14 +93,27 @@ class MyAdminController:
         self.v.reward_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=2))
         self.v.customer_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=3))
         self.v.cashier_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=4))
-        self.v.settings_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=5))
+        self.v.logout_button.clicked.connect(self.on_logout_button_clicked)
+
     def on_page_button_clicked(self, index):
         self.v.page_stcw.setCurrentIndex(index)
+
+        self.v.product_page_window.controller.sync_ui() if index == 0 else None
+        self.v.promo_page_window.controller.sync_ui() if index == 1 else None
+        self.v.reward_page_window.controller.sync_ui() if index == 2 else None
+        self.v.customer_page_window.controller.sync_ui() if index == 3 else None
+        self.v.cashier_page_window.controller.sync_ui() if index == 4 else None
+
         print(index)
 
+    def on_logout_button_clicked(self):
+        self.v.close()
+        print(os.path.abspath('src/gui/login/login.py'))
+
+
 class MyAdminWindow:
-    def __init__(self, user='test'):
-        self.model = MyAdminModel(user)
+    def __init__(self, user='test', phone='test'):
+        self.model = MyAdminModel(user, phone)
         self.view = MyAdminView(self.model)
         self.controller = MyAdminController(self.model, self.view)
 
@@ -110,8 +123,8 @@ class MyAdminWindow:
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)
-    admin_window = MyAdminWindow()
+    cashier_window = MyAdminWindow(user=sys.argv[1], phone=sys.argv[2])
 
-    admin_window.run()
+    cashier_window.run()
 
-    app.exec()
+    sys.exit(app.exec())
