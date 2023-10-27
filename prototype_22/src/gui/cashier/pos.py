@@ -435,6 +435,7 @@ class MyPOSView(MyWidget):
 
         self.tender_amount_label = MyLabel(text='Amount tendered')
         self.tender_amount_field = MyLineEdit(object_name='tender_amount_field')
+        self.tender_amount_field.setValidator(QDoubleValidator(1, 9999999999))
         self.numpad_key_toggle_button = [
             MyPushButton(object_name='toggle', text='Off'),
             MyPushButton(object_name='untoggle', text='On'),
@@ -506,9 +507,9 @@ class MyPOSView(MyWidget):
         self.payment_c_box = MyGroupBox() 
         self.payment_act_layout = MyHBoxLayout()
         self.payment_act_layout.addWidget(self.final_customer_info_box,0,Qt.AlignmentFlag.AlignLeft)
-        self.payment_act_layout.addWidget(self.pay_cash_button,2,Qt.AlignmentFlag.AlignRight)
+        self.payment_act_layout.addWidget(self.pay_cash_points_button,2,Qt.AlignmentFlag.AlignRight)
         self.payment_act_layout.addWidget(self.pay_points_button)
-        self.payment_act_layout.addWidget(self.pay_cash_points_button)
+        self.payment_act_layout.addWidget(self.pay_cash_button)
         self.payment_c_box.setLayout(self.payment_act_layout)
 
         self.pay_order_dialog = MyDialog(object_name='pay_order_dialog')
@@ -1054,7 +1055,9 @@ class MyPOSController:
 
             self.v.pay_points_button.setDisabled(False) if float(customer_data[2]) >= float(self.v.final_order_total_display.text()) else self.v.pay_points_button.setDisabled(True)
 
-            self.compute_change_by_payment_amount_type(customer_data)
+            self.compute_change_by_payment_amount_type(customer_data, signal='on_pay_order_button_clicked')
+            self.compute_change_by_payment_amount_type(customer_data, signal='on_tender_amount_field_text_changed')
+
                 
         else:
             self.v.points_payment_compute_label.hide()
@@ -1067,7 +1070,7 @@ class MyPOSController:
             self.v.pay_cash_points_button.hide()
 
 
-            self.compute_change_by_payment_amount_type()
+            self.compute_change_by_payment_amount_type(signal='on_tender_amount_field_text_changed')
 
 
         self.set_pay_order_dialog_conn()
@@ -1103,9 +1106,10 @@ class MyPOSController:
             i = self.v.manage_order_tab.currentIndex()
             customer_data = pos_schema.select_customer_data_with_customer_reward_data(customer_name=self.m.customer_name_fields[i].currentText())
 
-            self.compute_change_by_payment_amount_type(customer_data)
+            self.compute_change_by_payment_amount_type(customer_data, signal='on_tender_amount_field_text_changed')
+            pass
         except Exception as e:
-            self.compute_change_by_payment_amount_type()
+            self.compute_change_by_payment_amount_type(signal='on_tender_amount_field_text_changed')
             print(e)
             pass
         pass
@@ -1324,39 +1328,44 @@ class MyPOSController:
         self.v.add_order_button.setEnabled(self.v.manage_order_tab.count() < 10)
         
         self.sync_ui()
-    def compute_change_by_payment_amount_type(self, customer_data=['','',None]):
-        self.cash_payment_change = 0
-        self.points_payment_change = 0
-        self.cash_points_payment_change = 0
-
-        try:
-            final_order_total = float(self.v.final_order_total_display.text())
-            current_amount_tendered = float(self.v.tender_amount_field.text())
-            final_customer_points_value = float(customer_data[2]) # customer points stored in a new variable since final customer points display contains other strings or characters which complicates passing values
-            current_amount_tendered_with_points = current_amount_tendered + final_customer_points_value
-
-            self.v.pay_cash_button.setDisabled(False) if current_amount_tendered >= final_order_total else self.v.pay_cash_button.setDisabled(True)
-            self.v.pay_cash_points_button.setDisabled(False) if current_amount_tendered_with_points >= final_order_total else self.v.pay_cash_points_button.setDisabled(True)
-
-            self.cash_payment_change = current_amount_tendered - final_order_total
-            self.points_payment_change = final_customer_points_value - final_order_total
-            self.cash_points_payment_change = current_amount_tendered_with_points - final_order_total
-
-            self.v.cash_payment_compute_display.setText(f"<b><font color='red'>{self.cash_payment_change:.2f}</font></b>") if self.cash_payment_change <= 0 else self.v.cash_payment_compute_display.setText(f"<b><font color='green'>{self.cash_payment_change:.2f}</font></b>")
-            self.v.points_payment_compute_display.setText(f"<b><font color='red'>{self.points_payment_change:.2f}</font></b>") if self.points_payment_change <= 0 else self.v.points_payment_compute_display.setText(f"<b><font color='green'>{self.points_payment_change:.2f}</font></b>")
-            self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>{self.cash_points_payment_change:.2f}</font></b>") if self.cash_points_payment_change <= 0 else self.v.cash_points_payment_compute_display.setText(f"<b><font color='green'>{self.cash_points_payment_change:.2f}</font></b>")
-
-            print('WOW')
-
-        except IndexError as ie:
-            pass
-
-        except ValueError as ve:
-            self.v.cash_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>")
-            self.v.points_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>") # FIXME!!! NEEDS FIXING NEEDS FIXING NEEDS FIXING NEEDS FIXING NEEDS FIXING NEEDS FIXING NEEDS FIXING NEEDS FIXING
-            self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>")
-            pass
+        pass
+    def compute_change_by_payment_amount_type(self, customer_data=['','',-1], signal=''):
+        cash_payment_change = 0
+        cash_points_payment_change = 0
+        current_amount_tendered = 0
+        current_amount_tendered_with_points = 0
         
+        if len(str(current_amount_tendered)) <= 10: # FIXME!!!!!!!!!!!!!!
+            if signal == 'on_tender_amount_field_text_changed':
+                try:
+                    final_order_total = float(self.v.final_order_total_display.text())
+                    final_customer_points_value = float(customer_data[2]) # customer points stored in a new variable since final customer points display contains other strings or characters which complicates passing values
+                    current_amount_tendered = float(self.v.tender_amount_field.text())
+                    current_amount_tendered_with_points = current_amount_tendered + final_customer_points_value
+
+                    self.v.pay_cash_button.setDisabled(False) if current_amount_tendered >= final_order_total else self.v.pay_cash_button.setDisabled(True)
+                    self.v.pay_cash_points_button.setDisabled(False) if current_amount_tendered_with_points >= final_order_total else self.v.pay_cash_points_button.setDisabled(True)
+
+                    cash_payment_change = current_amount_tendered - final_order_total
+                    cash_points_payment_change = current_amount_tendered_with_points - final_order_total
+
+                    self.v.cash_payment_compute_display.setText(f"<b><font color='red'>{cash_payment_change:.2f}</font></b>") if cash_payment_change <= 0 else self.v.cash_payment_compute_display.setText(f"<b><font color='green'>{cash_payment_change:.2f}</font></b>")
+                    self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>{cash_points_payment_change:.2f}</font></b>") if cash_points_payment_change <= 0 else self.v.cash_points_payment_compute_display.setText(f"<b><font color='green'>{cash_points_payment_change:.2f}</font></b>")
+
+
+                except ValueError as ve:
+                    self.v.pay_cash_button.setDisabled(False) if current_amount_tendered >= final_order_total else self.v.pay_cash_button.setDisabled(True)
+                    self.v.pay_cash_points_button.setDisabled(False) if current_amount_tendered_with_points >= final_order_total else self.v.pay_cash_points_button.setDisabled(True)
+
+                    self.v.cash_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>")
+                    self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>")
+                    pass
+            elif signal == 'on_pay_order_button_clicked':
+                final_order_total = float(self.v.final_order_total_display.text())
+                final_customer_points_value = float(customer_data[2]) # customer points stored in a new variable since final customer points display contains other strings or characters which complicates passing values
+                self.points_payment_change = final_customer_points_value - final_order_total
+                self.v.points_payment_compute_display.setText(f"<b><font color='red'>{self.points_payment_change:.2f}</font></b>") if self.points_payment_change <= 0 else self.v.points_payment_compute_display.setText(f"<b><font color='green'>{self.points_payment_change:.2f}</font></b>")
+
     def close_dialog(self, dialog: QDialog):
         dialog.close()
 
