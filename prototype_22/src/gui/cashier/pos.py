@@ -34,8 +34,7 @@ class MyPOSModel:
         self.order_number = 0
         self.sel_product_id = 0
 
-        self.new_qty = 0
-        self.new_amount = 0
+        self.final_customer_points_value = 0
 
         self.order_type_displays: List[MyLabel] = []
         self.customer_name_fields: List[MyComboBox] = []
@@ -879,6 +878,8 @@ class MyPOSController:
 
             customer_data = pos_schema.select_customer_data_with_customer_reward_data(customer_name=self.m.customer_name_fields[i].currentText())
 
+            self.m.final_customer_points_value = customer_data[2]
+
             self.v.final_customer_name_display.setText(f"Name: <b>{customer_data[0]}</b>")
             self.v.final_customer_phone_display.setText(f"Phone: <b>{customer_data[1]}</b>")
             self.v.final_customer_points_display.setText(f"Points: <b>{customer_data[2]}</b>") 
@@ -1194,12 +1195,13 @@ class MyPOSController:
                     payment_amount = float(self.v.tender_amount_field.text())
                     pass
                 elif type == 'pay_points':
-                    payment_amount = float(self.final_customer_points_value)
-                    pos_schema.update_customer_reward_points_by_decrement(customer_id, order_total)
+                    final_customer_points = float(self.m.final_customer_points_value)
+                    pos_schema.update_customer_reward_points_by_decrement(customer_id, final_customer_points)
                     pass
                 elif type == 'pay_cash_points':
-                    payment_amount = float(self.v.tender_amount_field.text()) + float(self.final_customer_points_value)
-                    pos_schema.update_customer_reward_points_by_decrement(customer_id, order_total)
+                    final_customer_points = float(self.m.final_customer_points_value)
+                    payment_amount = float(self.v.tender_amount_field.text()) + float(self.m.final_customer_points_value)
+                    pos_schema.update_customer_reward_points_by_decrement(customer_id, final_customer_points)
                 
                 order_change = payment_amount - order_total
 
