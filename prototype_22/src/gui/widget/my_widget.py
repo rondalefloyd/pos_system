@@ -7,6 +7,9 @@ from PyQt6 import *
 
 sys.path.append(os.path.abspath(''))
 
+from template.qss.qss import MyQSSConfig
+
+qss = MyQSSConfig()
 
 class MyStackedWidget(QStackedWidget):
     def __init__(self, object_name=''):
@@ -232,7 +235,7 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
             pass
-        if self.object_name == 'final_order_table':
+        if self.object_name == 'final_retail_order_table':
             self.setColumnCount(4)
             self.setHorizontalHeaderLabels(['Qty','Product','Amount','Discount'])
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
@@ -505,7 +508,7 @@ class MyPushButton(QPushButton):
         self.on_pos_push_button()
 
     def on_global_push_button(self):
-        if self.object_name == 'untoggle':
+        if self.object_name in ['untoggle','product_promo_indicator','out_of_stock_indicator']:
             self.hide()
         pass
     
@@ -527,16 +530,16 @@ class MyPushButton(QPushButton):
             """)
 
         if self.object_name == "drop_all_qty_button":
-            self.setIcon(QIcon(os.path.abspath("template/icon/pos/drop_all_qty.png")))
+            self.setIcon(QIcon(qss.drop_all_qty_icon))
             pass
         if self.object_name == "drop_qty_button":
-            self.setIcon(QIcon(os.path.abspath("template/icon/pos/drop_qty.png")))
+            self.setIcon(QIcon(qss.drop_qty_icon))
             pass
         if self.object_name == "add_qty_button":
-            self.setIcon(QIcon(os.path.abspath("template/icon/pos/add_qty.png")))
+            self.setIcon(QIcon(qss.add_qty_icon))
             pass
         if self.object_name == "edit_qty_button":
-            self.setIcon(QIcon(os.path.abspath("template/icon/pos/edit_qty.png")))
+            self.setIcon(QIcon(qss.edit_qty_icon))
             pass
 
         if self.object_name in [

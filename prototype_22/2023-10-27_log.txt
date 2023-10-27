@@ -298,3 +298,7 @@
 [2023-10-27 15:04:29.976211] ['MyDataImportThread' does not have a signal with the signature update(int,QString)] [G:/My Drive/csv/product.csv contains missing values in row 455]
 [2023-10-27 15:04:29.983435] ['MyDataImportThread' does not have a signal with the signature update(int,QString)] [G:/My Drive/csv/product.csv contains missing values in row 456]
 [2023-10-27 15:04:29.991435] ['MyDataImportThread' does not have a signal with the signature update(int,QString)] [G:/My Drive/csv/product.csv contains missing values in row 457]
+[2023-10-27 22:39:28.538874] [near ",": syntax error] [G:/My Drive/csv/product.csv contains missing values in row 408]
+[2023-10-27 22:39:28.571615] [near ",": syntax error] [G:/My Drive/csv/product.csv contains missing values in row 410]
+[2023-10-27 22:50:42.362237] [near ",": syntax error] [G:/My Drive/csv/product.csv contains missing values in row 408]
+[2023-10-27 22:50:42.377785] [near ",": syntax error] [G:/My Drive/csv/product.csv contains missing values in row 410]
