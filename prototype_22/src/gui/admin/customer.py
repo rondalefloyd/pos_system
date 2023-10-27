@@ -428,6 +428,7 @@ class MyCustomerController:
             self.v.customer_age_field.setText(str(sel_data[5]))
             self.v.customer_gender_field.setCurrentText(str(sel_data[6]))
             self.v.customer_marstat_field.setCurrentText(str(sel_data[7]))
+            self.v.customer_points_field.setText(str(sel_data[8]))
             self.m.sel_customer_id = sel_data[9]
             pass
         
@@ -551,11 +552,15 @@ class MyCustomerController:
 
 class MyCustomerWindow(MyGroupBox):
     def __init__(self, name='test', phone='test'):
-        super().__init__()
 
         self.model = MyCustomerModel(name, phone)
         self.view = MyCustomerView(self.model)
         self.controller = MyCustomerController(self.model, self.view)
+        
+        self.set_box() # NOTE: comment this out if will be tested individually
+
+    def set_box(self):
+        super().__init__()
 
         layout = MyGridLayout()
         layout.addWidget(self.view)

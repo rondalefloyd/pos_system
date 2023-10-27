@@ -435,7 +435,6 @@ class MyPOSView(MyWidget):
 
         self.tender_amount_label = MyLabel(text='Amount tendered')
         self.tender_amount_field = MyLineEdit(object_name='tender_amount_field')
-        self.tender_amount_field.setValidator(QDoubleValidator(1, 9999999999))
         self.numpad_key_toggle_button = [
             MyPushButton(object_name='toggle', text='Off'),
             MyPushButton(object_name='untoggle', text='On'),
@@ -645,7 +644,7 @@ class MyPOSController:
             self.v.view_data_button.clicked.connect(lambda _, data=data: self.on_view_data_button_clicked(data))
         pass
     def on_add_products_button_clicked(self, data):
-        proposed_qty, confirm = QInputDialog.getInt(self.v, f"{data[0]}", 'Set quantity:', 1, 1, 9999999)
+        proposed_qty, confirm = QInputDialog.getInt(self.v, f"{data[0]}", 'Set quantity:', 1, 1, 9999)
 
         if confirm is True:
             print(proposed_qty)
@@ -1406,6 +1405,14 @@ class MyPOSWindow(MyGroupBox):
         self.view = MyPOSView(self.model)
         self.controller = MyPOSController(self.model, self.view)
 
+        self.set_box() # NOTE: comment this out if will be tested individually
+
+    def set_box(self):
+        super().__init__()
+
+        layout = MyGridLayout()
+        layout.addWidget(self.view)
+        self.setLayout(layout)
 
     def run(self):
         self.view.show()

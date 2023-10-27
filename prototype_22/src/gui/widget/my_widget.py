@@ -409,6 +409,36 @@ class MyLineEdit(QLineEdit):
         ]:
             self.setDisabled(True)
 
+        if self.object_name in [
+            'product_cost_field',
+            'product_price_field',
+            'product_disc_value_field',
+            'product_new_price_field',
+
+            'reward_unit_field',
+            'reward_points_field',
+
+            'customer_points_field',
+
+            'tender_amount_field',
+            ''
+        ]:
+            self.setValidator(QRegularExpressionValidator(QRegularExpression(r'^\d{0,10}(\.\d{0,2})?$')))
+            
+        if self.object_name == 'customer_age_field':
+            self.setMaxLength(3)
+
+        if self.object_name == 'promo_percent_field':
+            self.setValidator(QRegularExpressionValidator(QRegularExpression(r'^\d{0,3}(\.\d{0,2})?$')))
+
+        if self.object_name in [
+            'customer_phone_field',
+            'user_phone_field',
+        ]:
+            self.setText("09")
+            self.setMaxLength(11) # always start with 0 not +63
+            self.textChanged.connect(self.on_text_changed)
+
     def on_promo_line_edit(self):
         if self.object_name == 'filter_field':
             self.setMinimumWidth(200)
@@ -420,6 +450,19 @@ class MyLineEdit(QLineEdit):
         if self.object_name == 'customer_points_field':
             self.hide()
     
+
+    def on_text_changed(self):
+        if self.object_name in [
+            'customer_phone_field',
+            'user_phone_field',
+        ]:
+            try:
+                if len(self.text()) <= 2:
+                    self.setText('09')
+            except ValueError as e:
+                self.setText('09')
+        pass
+
     pass
 class MyPlainTextEdit(QPlainTextEdit):
     def __init__(self, object_name=''):

@@ -232,7 +232,7 @@ class MyCustomerSchema:
             customer_age=0, 
             customer_gender='', 
             customer_marstat='', 
-            customer_points='', 
+            customer_points=0, 
             customer_id=0
     ):
         self.sales_cursor.execute(f"""
@@ -251,8 +251,7 @@ class MyCustomerSchema:
 
         self.sales_cursor.execute(f"""
             UPDATE CustomerReward
-            SET
-                Points = {customer_points},
+            SET Points = {customer_points}
             WHERE CustomerId = {customer_id}
         """)  
 

@@ -441,16 +441,20 @@ class MyPromoController:
 
 class MyPromoWindow(MyGroupBox):
     def __init__(self, name='test', phone='test'):
-        super().__init__()
 
         self.model = MyPromoModel(name, phone)
         self.view = MyPromoView(self.model)
         self.controller = MyPromoController(self.model, self.view)
 
+        self.set_box() # NOTE: comment this out if will be tested individually
+
+    def set_box(self):
+        super().__init__()
+
         layout = MyGridLayout()
         layout.addWidget(self.view)
         self.setLayout(layout)
-
+        
     def run(self):
         self.view.show()
     pass

@@ -449,16 +449,20 @@ class MyUserController:
 
 class MyUserWindow(MyGroupBox):
     def __init__(self, name='test', phone='test'):
-        super().__init__()
 
         self.model = MyUserModel(name, phone)
         self.view = MyUserView(self.model)
         self.controller = MyUserController(self.model, self.view)
 
+        self.set_box() # NOTE: comment this out if will be tested individually
+
+    def set_box(self):
+        super().__init__()
+
         layout = MyGridLayout()
         layout.addWidget(self.view)
         self.setLayout(layout)
-
+        
     def run(self):
         self.view.show()
     pass
