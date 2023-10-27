@@ -344,6 +344,11 @@ class MyLabel(QLabel):
             'order_tax_display',
             'order_total_display',
 
+            'final_order_subtotal_display',
+            'final_order_discount_display',
+            'final_order_tax_display',
+            'final_order_total_display',
+
             'cash_payment_compute_label',
             'points_payment_compute_label',
             'cash_points_payment_compute_label',

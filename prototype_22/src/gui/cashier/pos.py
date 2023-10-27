@@ -416,10 +416,10 @@ class MyPOSView(MyWidget):
     def set_pay_order_dialog(self):
         self.final_order_table = MyTableWidget(object_name='final_order_table')
         # TODO: init table populating entry
-        self.final_order_subtotal_display = MyLabel(text=f"{'test'}")
-        self.final_order_discount_display = MyLabel(text=f"{'test'}")
-        self.final_order_tax_display = MyLabel(text=f"{'test'}")
-        self.final_order_total_display = MyLabel(text=f"{'test'}")
+        self.final_order_subtotal_display = MyLabel(object_name='final_order_subtotal_display', text=f"{'test'}")
+        self.final_order_discount_display = MyLabel(object_name='final_order_discount_display', text=f"{'test'}")
+        self.final_order_tax_display = MyLabel(object_name='final_order_tax_display', text=f"{'test'}")
+        self.final_order_total_display = MyLabel(object_name='final_order_total_display', text=f"{'test'}")
         self.final_order_summary_box = MyGroupBox()
         self.final_order_summary_layout = MyFormLayout()
         self.final_order_summary_layout.addRow('Subtotal', self.final_order_subtotal_display)
@@ -1126,14 +1126,22 @@ class MyPOSController:
     def on_numpad_key_button_clicked(self, key_value):
         current_amount_tendered = self.v.tender_amount_field.text()
 
+        if key_value == '.' and '.' in current_amount_tendered:
+            return  # Do nothing if there's already a decimal point
+
         if key_value not in ['delete']:
-            current_amount_tendered = current_amount_tendered + key_value
-            self.v.tender_amount_field.setText(current_amount_tendered)
-            pass
+            temp_amount = current_amount_tendered + key_value
+            parts = temp_amount.split('.')
+            if len(parts[0]) > 10:  # More than 10 digits before decimal point
+                return
+            if len(parts) > 1 and len(parts[1]) > 2:  # More than 2 digits after decimal point
+                return
+            current_amount_tendered = temp_amount
+
         if key_value == 'delete':
             current_amount_tendered = current_amount_tendered[:-1]
-            self.v.tender_amount_field.setText(current_amount_tendered)
             pass
+        self.v.tender_amount_field.setText(current_amount_tendered)
 
     def on_pay_button_clicked(self, type):
         try:
