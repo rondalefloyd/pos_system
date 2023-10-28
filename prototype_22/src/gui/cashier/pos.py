@@ -107,7 +107,8 @@ class MyPOSModel:
             order_total, 
             payment_amount, 
             order_change, 
-            final_retail_order_table: QTableWidget, 
+            final_retail_order_table: QTableWidget,
+            final_wholesale_order_table: QTableWidget,
             current_date=QDate.currentDate().toString(Qt.DateFormat.ISODate)
     ):
         self.generate_transaction_info_entry(sales_group_id, 
@@ -115,12 +116,15 @@ class MyPOSModel:
         
         self.transaction_info = [self.transaction_date, self.ref, self.tin, self.min] # GENERATE STORE ADDRESS, TRANSACTION DATE, REF, TIN, MIN
 
-        self.final_retail_order_table = [] # PRODUCT ADDED TO THE TABLE
-        for row_v in range(final_retail_order_table.rowCount()):
+        # FIXME TO BE CONTINUED
+        self.final_retail_order_table = [] 
+        self.final_wholesale_order_table = []
+        
+        for row_v in range(final_order_table.rowCount()):
 
-            product_qty = final_retail_order_table.item(row_v, 0).text()
-            product_name = final_retail_order_table.item(row_v, 1).text()
-            product_amount = final_retail_order_table.item(row_v, 2).text()
+            product_qty = final_order_table.item(row_v, 0).text()
+            product_name = final_order_table.item(row_v, 1).text()
+            product_amount = final_order_table.item(row_v, 2).text()
 
             date_id = pos_schema.select_date_id_by_date_value(current_date)
             product_id = pos_schema.select_product_id_by_name(product_name)
@@ -418,8 +422,10 @@ class MyPOSView(MyWidget):
         self.order_table_act_box.setLayout(self.order_table_act_layout)
 
     def set_pay_order_dialog(self):
-        self.final_retail_order_table = MyTableWidget(object_name='final_retail_order_table')
-        self.final_wholesale_order_table = MyTableWidget(object_name='final_wholesale_order_table')
+        self.final_order_table = [
+            MyTableWidget(object_name='final_order_table'),
+            MyTableWidget(object_name='final_order_table')
+        ] # FIXME : MAKE THIS AN ARRAY
         self.final_order_tab = MyTabWidget(object_name='final_order_tab')
 
         self.final_order_subtotal_display = MyLabel(object_name='final_order_subtotal_display', text=f"{'test'}")
@@ -513,7 +519,7 @@ class MyPOSView(MyWidget):
         self.payment_act_layout = MyHBoxLayout()
         self.payment_act_layout.addWidget(self.final_customer_info_box,0,Qt.AlignmentFlag.AlignLeft)
         self.payment_act_layout.addWidget(self.pay_cash_points_button,2,Qt.AlignmentFlag.AlignRight)
-        self.payment_act_layout.addWidget(self.pay_points_button,1,Qt.AlignmentFlag.AlignRight)
+        self.payment_act_layout.addWidget(self.pay_points_button,0,Qt.AlignmentFlag.AlignRight)
         self.payment_act_layout.addWidget(self.pay_cash_button,0,Qt.AlignmentFlag.AlignRight)
         self.payment_c_box.setLayout(self.payment_act_layout)
 
@@ -576,8 +582,8 @@ class MyPOSController:
 
         self.set_pos_box_conn()
         self.set_order_box_conn()
-        self.load_combo_box_data(load='global')
-        self.sync_ui()
+        self.load_combo_box_data_handler(load='global')
+        self.sync_ui_handler()
 
     def set_pos_box_conn(self):
         self.v.filter_field.returnPressed.connect(self.on_filter_button_clicked)
@@ -677,7 +683,7 @@ class MyPOSController:
         self.v.view_data_dialog.exec()
         pass
     def set_view_data_box_conn(self):
-        self.v.view_data_act_close_button.clicked.connect(lambda: self.close_dialog(self.v.view_data_dialog))
+        self.v.view_data_act_close_button.clicked.connect(lambda: self.close_dialog_handler(self.v.view_data_dialog))
 
     def on_overview_prev_button_clicked(self):
         i = self.v.manage_order_tab.currentIndex()
@@ -705,7 +711,19 @@ class MyPOSController:
         self.v.manage_order_tab.currentChanged.connect(self.on_manage_order_tab_current_changed)
         pass
     def on_manage_order_tab_current_changed(self):
-        self.sync_ui()
+        try:
+            i = self.v.manage_order_tab.currentIndex()
+
+            order_tab_name = self.v.manage_order_tab.tabText(i)
+
+            for tab_i in range(self.v.manage_order_tab.count()):
+                if self.v.manage_order_tab.tabText(tab_i) == order_tab_name:
+                    self.m.customer_name_fields[i].setCurrentText(self.m.customer_name_fields[tab_i].currentText())
+        except Exception as e:
+            pass
+                
+                
+        self.sync_ui_handler()
 
         pass
     def on_add_order_button_clicked(self):
@@ -718,46 +736,10 @@ class MyPOSController:
             self.add_order_handler(order_type_display='Wholesale')
 
         self.v.order_type_field.setCurrentIndex(0)
-        self.sync_ui()
+        self.sync_ui_handler()
         # self.test_prints()
         pass
-
-    def add_order_handler(self, order_type_display=''):
-        self.v.set_order_box()
-        self.load_combo_box_data(load='order_box')
-        self.set_order_tab_content_conn()
-
-        current_i = 0        
-
-        if self.v.order_type_field.currentText() == 'Retail':
-            self.v.order_type_display.setText('Retail')
-            current_i = self.v.manage_order_tab.addTab(self.v.order_box, QIcon(qss.retail_icon), f"Order {self.m.order_number}") 
-        elif self.v.order_type_field.currentText() == 'Wholesale':
-            self.v.order_type_display.setText('Wholesale')
-            current_i = self.v.manage_order_tab.addTab(self.v.order_box, QIcon(qss.wholesale_icon), f"Order {self.m.order_number}")
-        elif self.v.order_type_field.currentText() == 'Dual':
-            self.v.order_type_display.setText(order_type_display)
-            current_i = self.v.manage_order_tab.addTab(self.v.order_box, QIcon(qss.dual_icon), f"Order {self.m.order_number}")
-
-        self.m.append_order_tab_content_to_container(
-            self.v.order_type_display,
-            self.v.customer_name_field,
-            self.v.clear_order_table_button,
-            self.v.order_table,
-            self.v.order_subtotal_display,
-            self.v.order_discount_display,
-            self.v.order_tax_display,
-            self.v.order_total_display,
-            self.v.discard_order_button,
-            self.v.lock_order_toggle_button,
-            self.v.pay_order_button,
-        )
-        
-        self.v.manage_order_tab.setCurrentIndex(current_i)
-
-        self.v.add_order_button.setDisabled(self.v.manage_order_tab.count() >= 10)
-        self.v.order_index_label.setText(f"{self.v.manage_order_tab.tabText(current_i)}")
-    
+   
     def set_order_tab_content_conn(self):
         self.v.clear_order_table_button.clicked.connect(self.on_clear_order_table_button_clicked)
         self.v.discard_order_button.clicked.connect(self.on_discard_order_button_clicked)
@@ -797,7 +779,7 @@ class MyPOSController:
         confirm = QMessageBox.warning(self.v, 'Confirm', "Discard this order?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         
         if confirm is QMessageBox.StandardButton.Yes:
-            self.discard_order()
+            self.discard_order_handler()
 
         # self.test_prints()
         
@@ -828,49 +810,82 @@ class MyPOSController:
         pass
     
     def on_pay_order_button_clicked(self): # IDEA: src
-        # FIX: ongoing....
+        # FIX: ongoing starting here - - - - - - - - - - - - - - - -
         i = self.v.manage_order_tab.currentIndex()
+
+        self.v.set_pay_order_dialog()
 
         order_tab_name = self.v.manage_order_tab.tabText(i)
         print('\n')
 
-        for i in range(self.v.manage_order_tab.count()):
-            if self.v.manage_order_tab.tabText(i) == order_tab_name:
-                print('this is the tab index:', i)
+        final_order_subtotal_value = 0
+        final_order_discount_value = 0
+        final_order_tax_value = 0
+        final_order_total_value = 0
 
+        for tab_i in range(self.v.manage_order_tab.count()):
+            if self.v.manage_order_tab.tabText(tab_i) == order_tab_name:
+                if self.m.order_type_displays[tab_i].text() == 'Retail':
+                    self.v.final_order_tab.addTab(self.v.final_order_table[0], 'Retail') 
 
-        self.v.set_pay_order_dialog()
+                    self.v.final_order_type_display = self.m.order_type_displays[tab_i].text()
+                    self.v.final_customer_name_field = self.m.customer_name_fields[tab_i].currentText()
 
-        self.v.final_order_tab.addTab(self.v.final_retail_order_table, 'Retail') 
-        self.v.final_order_tab.addTab(self.v.final_wholesale_order_table, 'Wholesale')       
+                    for row_v in range(self.m.order_tables[tab_i].rowCount()):
+                        row_i = self.v.final_order_table[0].rowCount()
+                        self.v.final_order_table[0].insertRow(row_i)
 
+                        product_qty = self.m.order_tables[tab_i].item(row_v, 1).text()
+                        product_name = self.m.order_tables[tab_i].item(row_v, 2).text()
+                        product_amount = self.m.order_tables[tab_i].item(row_v, 3).text()
+                        product_disc_value = self.m.order_tables[tab_i].item(row_v, 4).text()
+                        
+                        final_product_qty = MyTableWidgetItem(text=f"{product_qty}")
+                        final_product_name = MyTableWidgetItem(text=f"{product_name}")
+                        final_product_amount = MyTableWidgetItem(text=f"{product_amount}")
+                        final_product_disc_value = MyTableWidgetItem(text=f"{product_disc_value}")
 
-        self.v.final_order_type_display = self.m.order_type_displays[i].text()
-        self.v.final_customer_name_field = self.m.customer_name_fields[i].currentText()
+                        self.v.final_order_table[0].setItem(row_i, 0, final_product_qty)
+                        self.v.final_order_table[0].setItem(row_i, 1, final_product_name)
+                        self.v.final_order_table[0].setItem(row_i, 2, final_product_amount)
+                        self.v.final_order_table[0].setItem(row_i, 3, final_product_disc_value)
+                    
+                elif self.m.order_type_displays[tab_i].text() == 'Wholesale':
+                    self.v.final_order_tab.addTab(self.v.final_order_table[1], 'Wholesale') 
 
-        for row_v in range(self.m.order_tables[i].rowCount()):
-            row_i = self.v.final_retail_order_table.rowCount()
-            self.v.final_retail_order_table.insertRow(row_i)
+                    self.v.final_order_type_display = self.m.order_type_displays[tab_i].text()
+                    self.v.final_customer_name_field = self.m.customer_name_fields[tab_i].currentText()
 
-            product_qty = self.m.order_tables[i].item(row_v, 1).text()
-            product_name = self.m.order_tables[i].item(row_v, 2).text()
-            product_amount = self.m.order_tables[i].item(row_v, 3).text()
-            product_disc_value = self.m.order_tables[i].item(row_v, 4).text()
-            
-            final_product_qty = MyTableWidgetItem(text=f"{product_qty}")
-            final_product_name = MyTableWidgetItem(text=f"{product_name}")
-            final_product_amount = MyTableWidgetItem(text=f"{product_amount}")
-            final_product_disc_value = MyTableWidgetItem(text=f"{product_disc_value}")
+                    for row_v in range(self.m.order_tables[tab_i].rowCount()):
+                        row_i = self.v.final_order_table[1].rowCount()
+                        self.v.final_order_table[1].insertRow(row_i)
 
-            self.v.final_retail_order_table.setItem(row_i, 0, final_product_qty)
-            self.v.final_retail_order_table.setItem(row_i, 1, final_product_name)
-            self.v.final_retail_order_table.setItem(row_i, 2, final_product_amount)
-            self.v.final_retail_order_table.setItem(row_i, 3, final_product_disc_value)
+                        product_qty = self.m.order_tables[tab_i].item(row_v, 1).text()
+                        product_name = self.m.order_tables[tab_i].item(row_v, 2).text()
+                        product_amount = self.m.order_tables[tab_i].item(row_v, 3).text()
+                        product_disc_value = self.m.order_tables[tab_i].item(row_v, 4).text()
+                        
+                        final_product_qty = MyTableWidgetItem(text=f"{product_qty}")
+                        final_product_name = MyTableWidgetItem(text=f"{product_name}")
+                        final_product_amount = MyTableWidgetItem(text=f"{product_amount}")
+                        final_product_disc_value = MyTableWidgetItem(text=f"{product_disc_value}")
 
-        self.v.final_order_subtotal_display.setText(f"{self.m.order_subtotal_displays[i].text()}")
-        self.v.final_order_discount_display.setText(f"{self.m.order_discount_displays[i].text()}")
-        self.v.final_order_tax_display.setText(f"{self.m.order_tax_displays[i].text()}")
-        self.v.final_order_total_display.setText(f"{self.m.order_total_displays[i].text()}")
+                        self.v.final_order_table[1].setItem(row_i, 0, final_product_qty)
+                        self.v.final_order_table[1].setItem(row_i, 1, final_product_name)
+                        self.v.final_order_table[1].setItem(row_i, 2, final_product_amount)
+                        self.v.final_order_table[1].setItem(row_i, 3, final_product_disc_value)
+
+                final_order_subtotal_value += float(self.m.order_subtotal_displays[tab_i].text())
+                final_order_discount_value += float(self.m.order_discount_displays[tab_i].text())
+                final_order_tax_value += float(self.m.order_tax_displays[tab_i].text())
+                final_order_total_value += float(self.m.order_total_displays[tab_i].text())
+
+        self.v.final_order_subtotal_display.setText(f"{final_order_subtotal_value}")
+        self.v.final_order_discount_display.setText(f"{final_order_discount_value}")
+        self.v.final_order_tax_display.setText(f"{final_order_tax_value}")
+        self.v.final_order_total_display.setText(f"{final_order_total_value}")
+
+        # FIX: ongoing until here - - - - - - - - - - - - - - - - -
 
         if self.m.customer_name_fields[i].currentText() != 'Guest':
             self.v.final_customer_info_box.show()
@@ -886,8 +901,8 @@ class MyPOSController:
 
             self.v.pay_points_button.setDisabled(False) if float(customer_data[2]) >= float(self.v.final_order_total_display.text()) else self.v.pay_points_button.setDisabled(True)
 
-            self.compute_change_by_payment_amount_type(customer_data, signal='on_pay_order_button_clicked')
-            self.compute_change_by_payment_amount_type(customer_data, signal='on_tender_amount_field_text_changed')
+            self.compute_change_by_payment_amount_type_handler(customer_data, signal='on_pay_order_button_clicked')
+            self.compute_change_by_payment_amount_type_handler(customer_data, signal='on_tender_amount_field_text_changed')
 
                 
         else:
@@ -901,7 +916,7 @@ class MyPOSController:
             self.v.pay_cash_points_button.hide()
 
 
-            self.compute_change_by_payment_amount_type(signal='on_tender_amount_field_text_changed')
+            self.compute_change_by_payment_amount_type_handler(signal='on_tender_amount_field_text_changed')
 
 
         self.set_pay_order_dialog_conn()
@@ -1139,10 +1154,10 @@ class MyPOSController:
             i = self.v.manage_order_tab.currentIndex()
             customer_data = pos_schema.select_customer_data_with_customer_reward_data(customer_name=self.m.customer_name_fields[i].currentText())
 
-            self.compute_change_by_payment_amount_type(customer_data, signal='on_tender_amount_field_text_changed')
+            self.compute_change_by_payment_amount_type_handler(customer_data, signal='on_tender_amount_field_text_changed')
             pass
         except Exception as e:
-            self.compute_change_by_payment_amount_type(signal='on_tender_amount_field_text_changed')
+            self.compute_change_by_payment_amount_type_handler(signal='on_tender_amount_field_text_changed')
             pass
         pass
 
@@ -1205,7 +1220,10 @@ class MyPOSController:
                 
                 order_change = payment_amount - order_total
 
-                final_retail_order_table = self.v.final_retail_order_table
+                # FIX: ongoing starting here - - - - - - - - - - - - - - - -
+
+                final_retail_order_table = self.v.final_order_table[0]
+                final_wholesale_order_table = self.v.final_order_table[1]
                 # TODO: APPEND FOR RECEIPT
 
                 self.m.append_final_order_info_for_receipt(
@@ -1218,7 +1236,8 @@ class MyPOSController:
                     order_total, 
                     payment_amount, 
                     order_change, 
-                    final_retail_order_table
+                    final_retail_order_table,
+                    final_wholesale_order_table
                 )
                 # TODO: PERFORM TRANSACTION INSERTION
 
@@ -1235,7 +1254,7 @@ class MyPOSController:
 
                 self.v.transaction_complete_dialog.exec()
 
-                self.discard_order()
+                self.discard_order_handler()
 
             else:
                 pass
@@ -1250,7 +1269,7 @@ class MyPOSController:
         self.v.print_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='print'))
         self.v.save_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='save'))
         self.v.add_new_order_button.clicked.connect(self.on_add_new_order_button_clicked)
-        self.v.transaction_complete_close_button.clicked.connect(lambda: self.close_dialog(self.v.transaction_complete_dialog))
+        self.v.transaction_complete_close_button.clicked.connect(lambda: self.close_dialog_handler(self.v.transaction_complete_dialog))
         pass
     def on_add_new_order_button_clicked(self):
         self.v.transaction_complete_dialog.close()
@@ -1319,7 +1338,7 @@ class MyPOSController:
 
 
     # IDEA: if the widget uses the same connection
-    def load_combo_box_data(self, load=''):
+    def load_combo_box_data_handler(self, load=''):
         self.v.set_order_box()
 
         if load == 'global':
@@ -1337,7 +1356,7 @@ class MyPOSController:
                 self.v.customer_name_field.addItems(customer_name)
 
         pass
-    def sync_ui(self):
+    def sync_ui_handler(self):
         try:
             i = self.v.manage_order_tab.currentIndex()
 
@@ -1357,7 +1376,7 @@ class MyPOSController:
 
         self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         pass
-    def discard_order(self):
+    def discard_order_handler(self):
         i = self.v.manage_order_tab.currentIndex()
 
         self.v.manage_order_tab.removeTab(i)
@@ -1367,46 +1386,79 @@ class MyPOSController:
         self.v.order_index_label.setText(f"{self.v.manage_order_tab.tabText(i)}") if self.v.manage_order_tab.count() > 0 else self.v.order_index_label.setText(f"No order")
         self.v.add_order_button.setEnabled(self.v.manage_order_tab.count() < 10)
         
-        self.sync_ui()
+        self.sync_ui_handler()
         pass
-    def compute_change_by_payment_amount_type(self, customer_data=['','',-1], signal=''):
+    def compute_change_by_payment_amount_type_handler(self, customer_data=['','',-1], signal=''):
         cash_payment_change = 0
         cash_points_payment_change = 0
         current_amount_tendered = 0
         current_amount_tendered_with_points = 0
-        
-        if len(str(current_amount_tendered)) <= 10: # FIXME!!!!!!!!!!!!!!
-            if signal == 'on_tender_amount_field_text_changed':
-                try:
-                    final_order_total = float(self.v.final_order_total_display.text())
-                    final_customer_points_value = float(customer_data[2]) # customer points stored in a new variable since final customer points display contains other strings or characters which complicates passing values
-                    current_amount_tendered = float(self.v.tender_amount_field.text())
-                    current_amount_tendered_with_points = current_amount_tendered + final_customer_points_value
-
-                    self.v.pay_cash_button.setDisabled(False) if current_amount_tendered >= final_order_total else self.v.pay_cash_button.setDisabled(True)
-                    self.v.pay_cash_points_button.setDisabled(False) if current_amount_tendered_with_points >= final_order_total else self.v.pay_cash_points_button.setDisabled(True)
-
-                    cash_payment_change = current_amount_tendered - final_order_total
-                    cash_points_payment_change = current_amount_tendered_with_points - final_order_total
-
-                    self.v.cash_payment_compute_display.setText(f"<b><font color='red'>{cash_payment_change:.2f}</font></b>") if cash_payment_change < 0 else self.v.cash_payment_compute_display.setText(f"<b><font color='green'>{cash_payment_change:.2f}</font></b>")
-                    self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>{cash_points_payment_change:.2f}</font></b>") if cash_points_payment_change < 0 else self.v.cash_points_payment_compute_display.setText(f"<b><font color='green'>{cash_points_payment_change:.2f}</font></b>")
-
-
-                except ValueError as ve:
-                    self.v.pay_cash_button.setDisabled(False) if current_amount_tendered >= final_order_total else self.v.pay_cash_button.setDisabled(True)
-                    self.v.pay_cash_points_button.setDisabled(False) if current_amount_tendered_with_points >= final_order_total else self.v.pay_cash_points_button.setDisabled(True)
-
-                    self.v.cash_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>")
-                    self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>")
-                    pass
-            elif signal == 'on_pay_order_button_clicked':
+    
+        if signal == 'on_tender_amount_field_text_changed':
+            try:
                 final_order_total = float(self.v.final_order_total_display.text())
                 final_customer_points_value = float(customer_data[2]) # customer points stored in a new variable since final customer points display contains other strings or characters which complicates passing values
-                self.points_payment_change = final_customer_points_value - final_order_total
-                self.v.points_payment_compute_display.setText(f"<b><font color='red'>{self.points_payment_change:.2f}</font></b>") if self.points_payment_change < 0 else self.v.points_payment_compute_display.setText(f"<b><font color='green'>{self.points_payment_change:.2f}</font></b>")
+                current_amount_tendered = float(self.v.tender_amount_field.text())
+                current_amount_tendered_with_points = current_amount_tendered + final_customer_points_value
 
-    def close_dialog(self, dialog: QDialog):
+                self.v.pay_cash_button.setDisabled(False) if current_amount_tendered >= final_order_total else self.v.pay_cash_button.setDisabled(True)
+                self.v.pay_cash_points_button.setDisabled(False) if current_amount_tendered_with_points >= final_order_total else self.v.pay_cash_points_button.setDisabled(True)
+
+                cash_payment_change = current_amount_tendered - final_order_total
+                cash_points_payment_change = current_amount_tendered_with_points - final_order_total
+
+                self.v.cash_payment_compute_display.setText(f"<b><font color='red'>{cash_payment_change:.2f}</font></b>") if cash_payment_change < 0 else self.v.cash_payment_compute_display.setText(f"<b><font color='green'>{cash_payment_change:.2f}</font></b>")
+                self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>{cash_points_payment_change:.2f}</font></b>") if cash_points_payment_change < 0 else self.v.cash_points_payment_compute_display.setText(f"<b><font color='green'>{cash_points_payment_change:.2f}</font></b>")
+
+
+            except ValueError as ve:
+                self.v.pay_cash_button.setDisabled(False) if current_amount_tendered >= final_order_total else self.v.pay_cash_button.setDisabled(True)
+                self.v.pay_cash_points_button.setDisabled(False) if current_amount_tendered_with_points >= final_order_total else self.v.pay_cash_points_button.setDisabled(True)
+
+                self.v.cash_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>")
+                self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>Error</font></b>")
+                pass
+        elif signal == 'on_pay_order_button_clicked':
+            final_order_total = float(self.v.final_order_total_display.text())
+            final_customer_points_value = float(customer_data[2]) # customer points stored in a new variable since final customer points display contains other strings or characters which complicates passing values
+            self.points_payment_change = final_customer_points_value - final_order_total
+            self.v.points_payment_compute_display.setText(f"<b><font color='red'>{self.points_payment_change:.2f}</font></b>") if self.points_payment_change < 0 else self.v.points_payment_compute_display.setText(f"<b><font color='green'>{self.points_payment_change:.2f}</font></b>")
+    def add_order_handler(self, order_type_display=''):
+        self.v.set_order_box()
+        self.load_combo_box_data_handler(load='order_box')
+        self.set_order_tab_content_conn()
+
+        current_i = 0        
+
+        if self.v.order_type_field.currentText() == 'Retail':
+            self.v.order_type_display.setText('Retail')
+            current_i = self.v.manage_order_tab.addTab(self.v.order_box, QIcon(qss.retail_icon), f"Order {self.m.order_number}") 
+        elif self.v.order_type_field.currentText() == 'Wholesale':
+            self.v.order_type_display.setText('Wholesale')
+            current_i = self.v.manage_order_tab.addTab(self.v.order_box, QIcon(qss.wholesale_icon), f"Order {self.m.order_number}")
+        elif self.v.order_type_field.currentText() == 'Dual':
+            self.v.order_type_display.setText(order_type_display)
+            current_i = self.v.manage_order_tab.addTab(self.v.order_box, QIcon(qss.dual_icon), f"Order {self.m.order_number}")
+
+        self.m.append_order_tab_content_to_container(
+            self.v.order_type_display,
+            self.v.customer_name_field,
+            self.v.clear_order_table_button,
+            self.v.order_table,
+            self.v.order_subtotal_display,
+            self.v.order_discount_display,
+            self.v.order_tax_display,
+            self.v.order_total_display,
+            self.v.discard_order_button,
+            self.v.lock_order_toggle_button,
+            self.v.pay_order_button,
+        )
+        
+        self.v.manage_order_tab.setCurrentIndex(current_i)
+
+        self.v.add_order_button.setDisabled(self.v.manage_order_tab.count() >= 10)
+        self.v.order_index_label.setText(f"{self.v.manage_order_tab.tabText(current_i)}")
+    def close_dialog_handler(self, dialog: QDialog):
         dialog.close()
 
     def test_prints(self):

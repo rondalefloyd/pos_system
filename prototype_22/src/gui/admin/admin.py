@@ -112,7 +112,6 @@ class MyAdminController:
         if confirm is QMessageBox.StandardButton.Yes:
             self.v.close_signal.emit('logout')
             self.v.close()
-            subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/login/login.py'])
 
 
 class MyAdminWindow:

@@ -120,12 +120,10 @@ class MyLoginController:
             if user_id > 0 and user_level == 1:
                 self.view.close()
                 subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/cashier/cashier.py', str(user_name), str(user_phone)])
-                self.view.destroy()
                 pass
             elif user_id > 0 and user_level == 2:
                 self.view.close()
                 subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/admin/admin.py', str(user_name), str(user_phone)])
-                self.view.destroy()
                 pass
             else:
                 QMessageBox.critical(self.view, 'Error', 'User not found.')

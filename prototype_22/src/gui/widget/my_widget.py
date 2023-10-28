@@ -235,7 +235,7 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
             pass
-        if self.object_name == 'final_retail_order_table':
+        if self.object_name == 'final_order_table':
             self.setColumnCount(4)
             self.setHorizontalHeaderLabels(['Qty','Product','Amount','Discount'])
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
