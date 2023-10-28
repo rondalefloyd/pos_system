@@ -131,8 +131,8 @@ class MyCashierWindow:
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)
-    # cashier_window = MyCashierWindow(user=sys.argv[1], phone=sys.argv[2])
-    cashier_window = MyCashierWindow(user='test', phone='test') # for testing only
+    cashier_window = MyCashierWindow(user=sys.argv[1], phone=sys.argv[2])
+    # cashier_window = MyCashierWindow(user='test', phone='test') # for testing only
 
     cashier_window.run()
     print('IS IT SHOWING??')

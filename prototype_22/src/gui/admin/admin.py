@@ -125,8 +125,8 @@ class MyAdminWindow:
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)
-    # cashier_window = MyAdminWindow(user=sys.argv[1], phone=sys.argv[2])
-    cashier_window = MyAdminWindow(user='test', phone='test') # for testing only
+    cashier_window = MyAdminWindow(user=sys.argv[1], phone=sys.argv[2])
+    # cashier_window = MyAdminWindow(user='test', phone='test') # for testing only
 
     cashier_window.run()
 

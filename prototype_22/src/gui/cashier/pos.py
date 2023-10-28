@@ -148,7 +148,9 @@ class MyPOSModel:
 
                 pos_schema.update_stock_on_hand(product_id, product_stock_id, product_qty)
 
-        if final_wholesale_order_table.rowCount() > 0:
+                print('inserted twice!!!')
+
+        elif final_wholesale_order_table.rowCount() > 0:
             print('wholesale table appendices')
             for row_v in range(final_wholesale_order_table.rowCount()):
 
