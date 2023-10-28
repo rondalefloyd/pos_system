@@ -106,7 +106,7 @@ class MyCashierController:
     def on_page_button_clicked(self, index):
         self.v.page_stcw.setCurrentIndex(index)
 
-        self.v.pos_page_window.controller.sync_ui() if index == 0 else None
+        self.v.pos_page_window.controller.sync_ui_handler() if index == 0 else None
         self.v.transaction_page_window.controller.sync_ui() if index == 1 else None
         
         print(index)
@@ -117,6 +117,7 @@ class MyCashierController:
         if confirm is QMessageBox.StandardButton.Yes:
             self.v.close_signal.emit('logout')
             self.v.close()
+            return
 
 
 class MyCashierWindow:

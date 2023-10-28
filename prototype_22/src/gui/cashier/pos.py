@@ -111,41 +111,72 @@ class MyPOSModel:
             final_wholesale_order_table: QTableWidget,
             current_date=QDate.currentDate().toString(Qt.DateFormat.ISODate)
     ):
-        self.generate_transaction_info_entry(sales_group_id, 
-        customer_id)
+        # FIXME TO BE CONTINUED
+        self.generate_transaction_info_entry(sales_group_id, customer_id)
         
         self.transaction_info = [self.transaction_date, self.ref, self.tin, self.min] # GENERATE STORE ADDRESS, TRANSACTION DATE, REF, TIN, MIN
 
-        # FIXME TO BE CONTINUED
         self.final_retail_order_table = [] 
         self.final_wholesale_order_table = []
         
-        for row_v in range(final_order_table.rowCount()):
+        if final_retail_order_table.rowCount() > 0:
+            print('retail table appendices')
+            for row_v in range(final_retail_order_table.rowCount()):
 
-            product_qty = final_order_table.item(row_v, 0).text()
-            product_name = final_order_table.item(row_v, 1).text()
-            product_amount = final_order_table.item(row_v, 2).text()
+                product_qty = final_retail_order_table.item(row_v, 0).text()
+                product_name = final_retail_order_table.item(row_v, 1).text()
+                product_amount = final_retail_order_table.item(row_v, 2).text()
 
-            date_id = pos_schema.select_date_id_by_date_value(current_date)
-            product_id = pos_schema.select_product_id_by_name(product_name)
-            product_price_id = pos_schema.select_product_price_id_by_product_id(product_id)
-            product_stock_id = pos_schema.select_stock_id_by_item_id(product_id)
-            user_id = pos_schema.select_user_id_by_name(self.cashier_info[0])
+                date_id = pos_schema.select_date_id_by_date_value(current_date)
+                product_id = pos_schema.select_product_id_by_name(product_name)
+                product_price_id = pos_schema.select_product_price_id_by_product_id(product_id)
+                product_stock_id = pos_schema.select_stock_id_by_item_id(product_id)
+                user_id = pos_schema.select_user_id_by_name(self.cashier_info[0])
 
-            self.final_retail_order_table.append((product_qty, product_name, product_amount))
+                self.final_retail_order_table.append((product_qty, product_name, product_amount))
 
-            pos_schema.insert_item_sold_data(
-                date_id=date_id,
-                customer_id=customer_id,
-                product_price_id=product_price_id,
-                product_stock_id=product_stock_id,
-                user_id=user_id,
-                product_qty=product_qty,
-                product_amount=product_amount,
-                reference_number=self.ref,
-            )
+                pos_schema.insert_item_sold_data(
+                    date_id=date_id,
+                    customer_id=customer_id,
+                    product_price_id=product_price_id,
+                    product_stock_id=product_stock_id,
+                    user_id=user_id,
+                    product_qty=product_qty,
+                    product_amount=product_amount,
+                    reference_number=self.ref,
+                )
 
-            pos_schema.update_stock_on_hand(product_id, product_stock_id, product_qty)
+                pos_schema.update_stock_on_hand(product_id, product_stock_id, product_qty)
+
+        if final_wholesale_order_table.rowCount() > 0:
+            print('wholesale table appendices')
+            for row_v in range(final_wholesale_order_table.rowCount()):
+
+                product_qty = final_wholesale_order_table.item(row_v, 0).text()
+                product_name = final_wholesale_order_table.item(row_v, 1).text()
+                product_amount = final_wholesale_order_table.item(row_v, 2).text()
+
+                date_id = pos_schema.select_date_id_by_date_value(current_date)
+                product_id = pos_schema.select_product_id_by_name(product_name)
+                product_price_id = pos_schema.select_product_price_id_by_product_id(product_id)
+                product_stock_id = pos_schema.select_stock_id_by_item_id(product_id)
+                user_id = pos_schema.select_user_id_by_name(self.cashier_info[0])
+
+                self.final_wholesale_order_table.append((product_qty, product_name, product_amount))
+
+                pos_schema.insert_item_sold_data(
+                    date_id=date_id,
+                    customer_id=customer_id,
+                    product_price_id=product_price_id,
+                    product_stock_id=product_stock_id,
+                    user_id=user_id,
+                    product_qty=product_qty,
+                    product_amount=product_amount,
+                    reference_number=self.ref,
+                )
+
+                pos_schema.update_stock_on_hand(product_id, product_stock_id, product_qty)
+
 
         pos_schema.update_customer_reward_points_by_increment(customer_id, order_total)
 
@@ -775,11 +806,12 @@ class MyPOSController:
     
     def on_discard_order_button_clicked(self):
         i = self.v.manage_order_tab.currentIndex()
+        order_tab_name = self.v.manage_order_tab.tabText(i)
         
         confirm = QMessageBox.warning(self.v, 'Confirm', "Discard this order?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         
         if confirm is QMessageBox.StandardButton.Yes:
-            self.discard_order_handler()
+            self.discard_order_handler(order_tab_name=order_tab_name)
 
         # self.test_prints()
         
@@ -1192,10 +1224,18 @@ class MyPOSController:
         self.v.tender_amount_field.setText(current_amount_tendered)
 
     def on_pay_button_clicked(self, type):
+        # FIX: ongoing starting here - - - - - - - - - - - - - - - -
         try:
             i = self.v.manage_order_tab.currentIndex()
 
-            sales_group_id = pos_schema.select_sales_group_id_by_name(sales_group_name=self.m.order_type_displays[i].text())
+            order_tab_name = self.v.manage_order_tab.tabText(i)
+            sales_group_id = 0
+
+            for tab_i in range(self.v.manage_order_tab.count()):
+                if self.v.manage_order_tab.tabText(tab_i) == order_tab_name:
+                    sales_group_id += pos_schema.select_sales_group_id_by_name(sales_group_name=self.m.order_type_displays[tab_i].text())
+                    
+            print('sales_group_id:', sales_group_id)
             customer_id = pos_schema.select_customer_id_by_name(customer_name=self.m.customer_name_fields[i].currentText())
             
             order_subtotal = float(self.v.final_order_subtotal_display.text())
@@ -1220,7 +1260,6 @@ class MyPOSController:
                 
                 order_change = payment_amount - order_total
 
-                # FIX: ongoing starting here - - - - - - - - - - - - - - - -
 
                 final_retail_order_table = self.v.final_order_table[0]
                 final_wholesale_order_table = self.v.final_order_table[1]
@@ -1254,7 +1293,9 @@ class MyPOSController:
 
                 self.v.transaction_complete_dialog.exec()
 
-                self.discard_order_handler()
+
+                print('order_tab_name:', order_tab_name)
+                self.discard_order_handler(order_tab_name=order_tab_name)
 
             else:
                 pass
@@ -1376,16 +1417,18 @@ class MyPOSController:
 
         self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         pass
-    def discard_order_handler(self):
-        i = self.v.manage_order_tab.currentIndex()
+    def discard_order_handler(self, order_tab_name=''):
+        print('order_tab_name:', order_tab_name)
+        for _ in range(self.v.manage_order_tab.count()):
+            i = self.v.manage_order_tab.currentIndex()
 
-        self.v.manage_order_tab.removeTab(i)
+            if self.v.manage_order_tab.tabText(i) == order_tab_name:
+                self.v.manage_order_tab.removeTab(i)
+                self.m.remove_order_tab_content_from_container(i)
 
-        self.m.remove_order_tab_content_from_container(i)
-
-        self.v.order_index_label.setText(f"{self.v.manage_order_tab.tabText(i)}") if self.v.manage_order_tab.count() > 0 else self.v.order_index_label.setText(f"No order")
+            self.v.order_index_label.setText(f"{self.v.manage_order_tab.tabText(i)}") if self.v.manage_order_tab.count() > 0 else self.v.order_index_label.setText(f"No order")
         self.v.add_order_button.setEnabled(self.v.manage_order_tab.count() < 10)
-        
+            
         self.sync_ui_handler()
         pass
     def compute_change_by_payment_amount_type_handler(self, customer_data=['','',-1], signal=''):
