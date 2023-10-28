@@ -113,7 +113,6 @@ class MyAdminController:
             self.v.close_signal.emit('logout')
             self.v.close()
 
-
 class MyAdminWindow:
     def __init__(self, user='test', phone='test'):
         self.model = MyAdminModel(user, phone)
@@ -126,7 +125,8 @@ class MyAdminWindow:
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)
-    cashier_window = MyAdminWindow(user=sys.argv[1], phone=sys.argv[2])
+    # cashier_window = MyAdminWindow(user=sys.argv[1], phone=sys.argv[2])
+    cashier_window = MyAdminWindow(user='test', phone='test') # for testing only
 
     cashier_window.run()
 

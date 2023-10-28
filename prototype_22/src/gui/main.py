@@ -9,7 +9,3 @@ subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/login/updater.py'])
 
 while True:
     login = subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/login/login.py'])
-    if login == False:
-        break
-
-    print('STATUS:', login)

@@ -912,10 +912,10 @@ class MyPOSController:
                 final_order_tax_value += float(self.m.order_tax_displays[tab_i].text())
                 final_order_total_value += float(self.m.order_total_displays[tab_i].text())
 
-        self.v.final_order_subtotal_display.setText(f"{final_order_subtotal_value}")
-        self.v.final_order_discount_display.setText(f"{final_order_discount_value}")
-        self.v.final_order_tax_display.setText(f"{final_order_tax_value}")
-        self.v.final_order_total_display.setText(f"{final_order_total_value}")
+        self.v.final_order_subtotal_display.setText(f"{final_order_subtotal_value:.2f}")
+        self.v.final_order_discount_display.setText(f"{final_order_discount_value:.2f}")
+        self.v.final_order_tax_display.setText(f"{final_order_tax_value:.2f}")
+        self.v.final_order_total_display.setText(f"{final_order_total_value:.2f}")
 
         # FIX: ongoing until here - - - - - - - - - - - - - - - - -
 
@@ -926,10 +926,10 @@ class MyPOSController:
             customer_data = pos_schema.select_customer_data_with_customer_reward_data(customer_name=self.m.customer_name_fields[i].currentText())
 
             self.m.final_customer_points_value = customer_data[2]
-
+            print('final_customer_points_value:', self.m.final_customer_points_value)
             self.v.final_customer_name_display.setText(f"Name: <b>{customer_data[0]}</b>")
             self.v.final_customer_phone_display.setText(f"Phone: <b>{customer_data[1]}</b>")
-            self.v.final_customer_points_display.setText(f"Points: <b>{customer_data[2]}</b>") 
+            self.v.final_customer_points_display.setText(f"Points: <b>{customer_data[2]:.2f}</b>") 
 
             self.v.pay_points_button.setDisabled(False) if float(customer_data[2]) >= float(self.v.final_order_total_display.text()) else self.v.pay_points_button.setDisabled(True)
 
@@ -1225,90 +1225,112 @@ class MyPOSController:
 
     def on_pay_button_clicked(self, type):
         # FIX: ongoing starting here - - - - - - - - - - - - - - - -
-        try:
-            i = self.v.manage_order_tab.currentIndex()
+        # try:
+        i = self.v.manage_order_tab.currentIndex()
 
-            order_tab_name = self.v.manage_order_tab.tabText(i)
-            sales_group_id = 0
+        order_tab_name = self.v.manage_order_tab.tabText(i)
+        sales_group_id = 0
+        payment_amount = 0
 
-            for tab_i in range(self.v.manage_order_tab.count()):
-                if self.v.manage_order_tab.tabText(tab_i) == order_tab_name:
-                    sales_group_id += pos_schema.select_sales_group_id_by_name(sales_group_name=self.m.order_type_displays[tab_i].text())
-                    
-            print('sales_group_id:', sales_group_id)
-            customer_id = pos_schema.select_customer_id_by_name(customer_name=self.m.customer_name_fields[i].currentText())
-            
-            order_subtotal = float(self.v.final_order_subtotal_display.text())
-            order_discount = float(self.v.final_order_discount_display.text())
-            order_tax = float(self.v.final_order_tax_display.text())
-            order_total = float(self.v.final_order_total_display.text())
-
-            confirm = QMessageBox.warning(self.v.pay_order_dialog, 'Confirm', 'Proceed payment?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-
-            if confirm is QMessageBox.StandardButton.Yes:
-                if type == 'pay_cash':
-                    payment_amount = float(self.v.tender_amount_field.text())
-                    pass
-                elif type == 'pay_points':
-                    final_customer_points = float(self.m.final_customer_points_value)
-                    pos_schema.update_customer_reward_points_by_decrement(customer_id, final_customer_points)
-                    pass
-                elif type == 'pay_cash_points':
-                    final_customer_points = float(self.m.final_customer_points_value)
-                    payment_amount = float(self.v.tender_amount_field.text()) + float(self.m.final_customer_points_value)
-                    pos_schema.update_customer_reward_points_by_decrement(customer_id, final_customer_points)
+        for tab_i in range(self.v.manage_order_tab.count()):
+            if self.v.manage_order_tab.tabText(tab_i) == order_tab_name:
+                sales_group_id += pos_schema.select_sales_group_id_by_name(sales_group_name=self.m.order_type_displays[tab_i].text())
                 
+        print('sales_group_id:', sales_group_id)
+        customer_id = pos_schema.select_customer_id_by_name(customer_name=self.m.customer_name_fields[i].currentText())
+        
+        order_subtotal = float(self.v.final_order_subtotal_display.text())
+        order_discount = float(self.v.final_order_discount_display.text())
+        order_tax = float(self.v.final_order_tax_display.text())
+        order_total = float(self.v.final_order_total_display.text())
+
+        confirm = QMessageBox.warning(self.v.pay_order_dialog, 'Confirm', 'Proceed payment?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+        print('before final_customer_points_value', self.m.final_customer_points_value)
+        print('beofre payment_amount:', payment_amount)
+        if confirm is QMessageBox.StandardButton.Yes:
+            if type == 'pay_cash':
+                payment_amount = float(self.v.tender_amount_field.text())
                 order_change = payment_amount - order_total
-
-
-                final_retail_order_table = self.v.final_order_table[0]
-                final_wholesale_order_table = self.v.final_order_table[1]
-                # TODO: APPEND FOR RECEIPT
-
-                self.m.append_final_order_info_for_receipt(
-                    sales_group_id, 
-                    customer_id, 
-
-                    order_subtotal, 
-                    order_discount, 
-                    order_tax, 
-                    order_total, 
-                    payment_amount, 
-                    order_change, 
-                    final_retail_order_table,
-                    final_wholesale_order_table
-                )
-                # TODO: PERFORM TRANSACTION INSERTION
-
-
-                self.v.pay_order_dialog.close()
-
-                self.v.setup_transaction_complete_dialog()
-
-                self.v.transaction_order_total_amount_display.setText(f"{order_total:.2f}")
-                self.v.transaction_payment_amount_display.setText(f"{payment_amount:.2f}")
-                self.v.transaction_order_change_display.setText(f"{order_change:.2f}")
-
-                self.set_transaction_complete_dialog_conn()
-
-                self.v.transaction_complete_dialog.exec()
-
-
-                print('order_tab_name:', order_tab_name)
-                self.discard_order_handler(order_tab_name=order_tab_name)
-
-            else:
                 pass
-            
-        except Exception as e:
-            QMessageBox.critical(self.v, 'Error', f"An error occured. <br> Error: {e}")
+            elif type == 'pay_points':
+                payment_amount = float(self.m.final_customer_points_value)
+                order_change = payment_amount - order_total
+                pos_schema.update_customer_reward_points_by_decrement(customer_id, order_total)
+                pass
+            elif type == 'pay_cash_points':
+                final_customer_points = float(self.m.final_customer_points_value)
+                payment_amount = float(self.v.tender_amount_field.text()) + final_customer_points
+                order_change = payment_amount - order_total
+                pos_schema.update_customer_reward_points_by_decrement(customer_id, (order_total - float(self.v.tender_amount_field.text())))
 
-        pass
+            
+            
+            print('after payment_amount:', payment_amount)
+
+
+            final_retail_order_table = self.v.final_order_table[0]
+            final_wholesale_order_table = self.v.final_order_table[1]
+            # TODO: APPEND FOR RECEIPT
+
+            self.m.append_final_order_info_for_receipt(
+                sales_group_id, 
+                customer_id, 
+
+                order_subtotal, 
+                order_discount, 
+                order_tax, 
+                order_total, 
+                payment_amount, 
+                order_change, 
+                final_retail_order_table,
+                final_wholesale_order_table
+            )
+            # TODO: PERFORM TRANSACTION INSERTION
+
+
+            self.v.pay_order_dialog.close()
+
+            self.v.setup_transaction_complete_dialog()
+
+            if type == 'pay_cash':
+                self.v.transaction_order_change_display.show()
+                self.v.transaction_order_change_label.show()
+            elif type == 'pay_points':
+                self.v.transaction_order_change_display.hide()
+                self.v.transaction_order_change_label.hide()
+            elif type == 'pay_cash_points':
+                self.v.transaction_order_change_display.show()
+                self.v.transaction_order_change_label.show()
+
+
+            self.v.transaction_order_total_amount_display.setText(f"{order_total:.2f}")
+            self.v.transaction_payment_amount_display.setText(f"{payment_amount:.2f}")
+            self.v.transaction_order_change_display.setText(f"{order_change:.2f}")
+
+            self.set_transaction_complete_dialog_conn(sales_group_id=sales_group_id)
+
+            self.v.transaction_complete_dialog.exec()
+
+
+            print('order_tab_name:', order_tab_name)
+            self.discard_order_handler(order_tab_name=order_tab_name)
+
+            self.m.final_customer_points_value = 0
+            print('after final_customer_points_value', self.m.final_customer_points_value)
+
+        else:
+            pass
+        
+        # except Exception as e:
+        #     QMessageBox.critical(self.v.pay_order_dialog, 'Error', f"An error occured. <br> Error: {e}")
+
+        # pass
     # endregion
 
-    def set_transaction_complete_dialog_conn(self): # IDEA: src
-        self.v.print_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='print'))
-        self.v.save_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='save'))
+    def set_transaction_complete_dialog_conn(self, sales_group_id=0): # IDEA: src
+        self.v.print_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='print', sales_group_id=sales_group_id))
+        self.v.save_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='save', sales_group_id=sales_group_id))
         self.v.add_new_order_button.clicked.connect(self.on_add_new_order_button_clicked)
         self.v.transaction_complete_close_button.clicked.connect(lambda: self.close_dialog_handler(self.v.transaction_complete_dialog))
         pass
@@ -1317,15 +1339,17 @@ class MyPOSController:
         self.on_add_order_button_clicked()
         pass
 
-    def on_receipt_button_clicked(self, action): # IDEA: src
+    def on_receipt_button_clicked(self, action, sales_group_id): # IDEA: src
         if action == 'print':
             self.v.print_receipt_button.setDisabled(True)
             
             self.v.set_progress_dialog()
 
             self.receipt_printer = ReceiptGenerator(
+                sales_group_id,
                 self.m.transaction_info,
                 self.m.final_retail_order_table,
+                self.m.final_wholesale_order_table,
                 self.m.final_order_summary,
                 self.m.cashier_info,
                 action,
@@ -1343,8 +1367,10 @@ class MyPOSController:
             self.v.set_progress_dialog()
 
             self.receipt_printer = ReceiptGenerator(
+                sales_group_id,
                 self.m.transaction_info,
                 self.m.final_retail_order_table,
+                self.m.final_wholesale_order_table,
                 self.m.final_order_summary,
                 self.m.cashier_info,
                 action,
@@ -1444,14 +1470,17 @@ class MyPOSController:
                 current_amount_tendered = float(self.v.tender_amount_field.text())
                 current_amount_tendered_with_points = current_amount_tendered + final_customer_points_value
 
-                self.v.pay_cash_button.setDisabled(False) if current_amount_tendered >= final_order_total else self.v.pay_cash_button.setDisabled(True)
-                self.v.pay_cash_points_button.setDisabled(False) if current_amount_tendered_with_points >= final_order_total else self.v.pay_cash_points_button.setDisabled(True)
-
                 cash_payment_change = current_amount_tendered - final_order_total
                 cash_points_payment_change = current_amount_tendered_with_points - final_order_total
 
                 self.v.cash_payment_compute_display.setText(f"<b><font color='red'>{cash_payment_change:.2f}</font></b>") if cash_payment_change < 0 else self.v.cash_payment_compute_display.setText(f"<b><font color='green'>{cash_payment_change:.2f}</font></b>")
                 self.v.cash_points_payment_compute_display.setText(f"<b><font color='red'>{cash_points_payment_change:.2f}</font></b>") if cash_points_payment_change < 0 else self.v.cash_points_payment_compute_display.setText(f"<b><font color='green'>{cash_points_payment_change:.2f}</font></b>")
+                
+                self.v.pay_cash_button.setDisabled(True) if cash_payment_change < 0 else self.v.pay_cash_button.setDisabled(False) 
+                self.v.pay_cash_points_button.setDisabled(True) if cash_points_payment_change < 0 else self.v.pay_cash_points_button.setDisabled(False) 
+
+                self.v.pay_cash_points_button.setDisabled(True) if current_amount_tendered >= final_order_total or current_amount_tendered_with_points < final_order_total else self.v.pay_cash_points_button.setDisabled(False) 
+                self.v.pay_points_button.setDisabled(True) if current_amount_tendered >= final_order_total or final_customer_points_value < final_order_total else self.v.pay_points_button.setDisabled(False) 
 
 
             except ValueError as ve:
@@ -1466,6 +1495,7 @@ class MyPOSController:
             final_customer_points_value = float(customer_data[2]) # customer points stored in a new variable since final customer points display contains other strings or characters which complicates passing values
             self.points_payment_change = final_customer_points_value - final_order_total
             self.v.points_payment_compute_display.setText(f"<b><font color='red'>{self.points_payment_change:.2f}</font></b>") if self.points_payment_change < 0 else self.v.points_payment_compute_display.setText(f"<b><font color='green'>{self.points_payment_change:.2f}</font></b>")
+            
     def add_order_handler(self, order_type_display=''):
         self.v.set_order_box()
         self.load_combo_box_data_handler(load='order_box')

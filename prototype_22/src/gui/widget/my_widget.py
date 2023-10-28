@@ -429,14 +429,16 @@ class MyLineEdit(QLineEdit):
             'customer_points_field',
 
             'tender_amount_field',
-            ''
         ]:
+            self.setText('0')
             self.setValidator(QRegularExpressionValidator(QRegularExpression(r'^\d{0,10}(\.\d{0,2})?$')))
             
         if self.object_name == 'customer_age_field':
+            self.setText('1')
             self.setMaxLength(3)
 
         if self.object_name == 'promo_percent_field':
+            self.setText('0.0')
             self.setValidator(QRegularExpressionValidator(QRegularExpression(r'^\d{0,3}(\.\d{0,2})?$')))
 
         if self.object_name in [

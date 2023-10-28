@@ -117,7 +117,6 @@ class MyCashierController:
         if confirm is QMessageBox.StandardButton.Yes:
             self.v.close_signal.emit('logout')
             self.v.close()
-            return
 
 
 class MyCashierWindow:
@@ -136,5 +135,6 @@ if __name__ == ('__main__'):
     cashier_window = MyCashierWindow(user='test', phone='test') # for testing only
 
     cashier_window.run()
+    print('IS IT SHOWING??')
 
     sys.exit(app.exec())
