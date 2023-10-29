@@ -5,7 +5,7 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22')
 
 from template.qss.qss import MyQSSConfig
 
@@ -73,7 +73,7 @@ class MyWidget(QWidget):
                 confirm = QMessageBox.warning(self, 'Confirm', 'Are you sure you want to close this application?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
                 if confirm == QMessageBox.StandardButton.Yes:
-                    open('exit.flag', 'w').close()
+                    os.remove('app_running.flag')
                 else:
                     event.ignore()
                     pass
@@ -148,7 +148,8 @@ class MyDialog(QDialog):
     def closeEvent(self, event: QKeyEvent):
         print('CLOSE SIGNAL:', self.close_signal_value)
         if self.object_name == 'MyLoginView':
-            open('exit.flag', 'w').close()
+            os.remove('login_running.flag')
+            os.remove('app_running.flag')
 
         elif self.object_name in [
             'updater_progress_dialog',

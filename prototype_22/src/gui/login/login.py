@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.admin.admin import MyAdminWindow, MyAdminView
 from src.gui.cashier.cashier import MyCashierWindow, MyCashierView
@@ -184,6 +184,7 @@ class MyLoginWindow:
         self.controller = MyLoginController(self.model, self.view)
 
     def run(self):
+        open('login_running.flag', 'w').close()
         self.view.show()
     pass
 

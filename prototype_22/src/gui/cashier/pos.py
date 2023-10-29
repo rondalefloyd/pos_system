@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.widget.my_widget import *
 from src.core.sql.cashier.pos import MyPOSSchema
