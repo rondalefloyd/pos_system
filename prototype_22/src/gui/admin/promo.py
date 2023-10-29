@@ -434,7 +434,7 @@ class MyPromoController:
 
         self.m.total_page_number = schema.select_promo_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
-        self.populate_overview_table(page_number=self.m.page_number)
+        self.populate_overview_table(text=text_filter, page_number=self.m.page_number)
         pass
     def close_dialog(self, dialog: QDialog):
         dialog.close()

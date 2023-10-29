@@ -992,12 +992,12 @@ class MyProductController:
         self.sync_ui()
 
     def sync_ui(self):
-        filter_text = self.v.filter_field.text()
-        self.m.total_product_page_number = schema.select_product_data_total_page_count(text=filter_text)
-        self.m.total_stock_page_number = schema.select_stock_data_total_page_count(text=filter_text)
+        text_filter = self.v.filter_field.text()
+        self.m.total_product_page_number = schema.select_product_data_total_page_count(text=text_filter)
+        self.m.total_stock_page_number = schema.select_stock_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_product_page_number > 0 or self.m.total_stock_page_number > 0 else 0
-        self.populate_overview_table(page_number=self.m.page_number)
-        self.populate_stock_table(page_number=self.m.page_number)
+        self.populate_overview_table(text=text_filter, page_number=self.m.page_number)
+        self.populate_stock_table(text=text_filter, page_number=self.m.page_number)
         pass
     def close_dialog(self, dialog: QDialog):
         dialog.close()

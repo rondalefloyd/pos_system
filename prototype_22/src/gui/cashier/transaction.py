@@ -31,8 +31,6 @@ class MyTransactionModel:
         self.sel_stock_id = 0
 
         self.sel_product_qty = 0
-
-
 class MyTransactionView(MyWidget):
     def __init__(self, model: MyTransactionModel):
         super().__init__()
@@ -110,7 +108,6 @@ class MyTransactionView(MyWidget):
         self.item_sold_overview_act_layout = MyHBoxLayout(object_name='item_sold_overview_act_layout')
         self.item_sold_overview_act_layout.addWidget(self.void_data_button)
         self.item_sold_overview_act_box.setLayout(self.item_sold_overview_act_layout)
-
 class MyTransactionController:
     def __init__(self, model: MyTransactionModel, view: MyTransactionView):
         self.v = view
@@ -128,6 +125,13 @@ class MyTransactionController:
     def on_filter_button_clicked(self): # IDEA: src
         text_filter = self.v.filter_field.text()
         
+        self.m.total_page_number = schema.select_item_sold_data_total_page_count(text=text_filter)
+        self.m.page_number = 1 if self.m.total_page_number > 0 else 0
+
+        print(self.m.total_page_number, self.m.page_number)
+
+        self.v.item_sold_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
+
         self.populate_overview_table(text=text_filter, page_number=1)
         pass
     
@@ -258,9 +262,10 @@ class MyTransactionController:
             pass
 
     def sync_ui(self):
-        self.m.total_page_number = schema.select_item_sold_data_total_page_count()
+        text_filter = self.v.filter_field.text()
+        self.m.total_page_number = schema.select_item_sold_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
-        self.populate_overview_table(page_number=self.m.page_number)
+        self.populate_overview_table(text=text_filter, page_number=self.m.page_number)
         pass
     def close_dialog(self, dialog: QDialog):
         dialog.close()

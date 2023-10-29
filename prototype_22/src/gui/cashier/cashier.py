@@ -42,7 +42,7 @@ class MyCashierView(MyWidget):
             MyPushButton(object_name='toggle'),
             MyPushButton(object_name='untoggle'),
         ]
-        self.pos_page_button = MyPushButton(text='POS')
+        self.pos_page_button = MyPushButton(text='POS', disabled=True)
         self.transaction_page_button = MyPushButton(text='Transaction')
         self.logout_button = MyPushButton(text='Logout')
         self.navbar_box = MyGroupBox()
@@ -108,7 +108,10 @@ class MyCashierController:
 
         self.v.pos_page_window.controller.sync_ui_handler() if index == 0 else None
         self.v.transaction_page_window.controller.sync_ui() if index == 1 else None
-        
+
+        self.v.pos_page_button.setDisabled(index == 0)
+        self.v.transaction_page_button.setDisabled(index == 1)
+                
         print(index)
 
     def on_logout_button_clicked(self):
@@ -117,7 +120,6 @@ class MyCashierController:
         if confirm is QMessageBox.StandardButton.Yes:
             self.v.close_signal.emit('logout')
             self.v.close()
-
 
 class MyCashierWindow:
     def __init__(self, user='test', phone='test'):

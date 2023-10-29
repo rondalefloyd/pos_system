@@ -111,7 +111,6 @@ class MyPOSModel:
             final_wholesale_order_table: QTableWidget,
             current_date=QDate.currentDate().toString(Qt.DateFormat.ISODate)
     ):
-        # FIXME TO BE CONTINUED
         self.generate_transaction_info_entry(sales_group_id, customer_id)
         
         self.transaction_info = [self.transaction_date, self.ref, self.tin, self.min] # GENERATE STORE ADDRESS, TRANSACTION DATE, REF, TIN, MIN
@@ -120,7 +119,6 @@ class MyPOSModel:
         self.final_wholesale_order_table = []
         
         if final_retail_order_table.rowCount() > 0:
-            print('retail table appendices')
             for row_v in range(final_retail_order_table.rowCount()):
 
                 product_qty = final_retail_order_table.item(row_v, 0).text()
@@ -134,6 +132,7 @@ class MyPOSModel:
                 user_id = pos_schema.select_user_id_by_name(self.cashier_info[0])
 
                 self.final_retail_order_table.append((product_qty, product_name, product_amount))
+                print('self.final_retail_order_table:', self.final_retail_order_table)
 
                 pos_schema.insert_item_sold_data(
                     date_id=date_id,
@@ -148,10 +147,8 @@ class MyPOSModel:
 
                 pos_schema.update_stock_on_hand(product_id, product_stock_id, product_qty)
 
-                print('inserted twice!!!')
 
-        elif final_wholesale_order_table.rowCount() > 0:
-            print('wholesale table appendices')
+        if final_wholesale_order_table.rowCount() > 0:
             for row_v in range(final_wholesale_order_table.rowCount()):
 
                 product_qty = final_wholesale_order_table.item(row_v, 0).text()
@@ -165,6 +162,7 @@ class MyPOSModel:
                 user_id = pos_schema.select_user_id_by_name(self.cashier_info[0])
 
                 self.final_wholesale_order_table.append((product_qty, product_name, product_amount))
+                print('self.final_wholesale_order_table:', self.final_wholesale_order_table)
 
                 pos_schema.insert_item_sold_data(
                     date_id=date_id,
@@ -235,16 +233,16 @@ class MyPOSView(MyWidget):
         self.product_overview_prev_button = MyPushButton(text='Prev')
         self.product_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_page_number}")
         self.product_overview_next_button = MyPushButton(text='Next')
-        self.product_overview_act_box = MyGroupBox()
-        self.product_overview_act_layout = MyHBoxLayout()
-        self.product_overview_act_layout.addWidget(self.product_overview_prev_button)
-        self.product_overview_act_layout.addWidget(self.product_overview_page_label)
-        self.product_overview_act_layout.addWidget(self.product_overview_next_button)
-        self.product_overview_act_box.setLayout(self.product_overview_act_layout)
+        self.product_display_box = MyGroupBox()
+        self.product_display_layout = MyHBoxLayout()
+        self.product_display_layout.addWidget(self.product_overview_prev_button)
+        self.product_display_layout.addWidget(self.product_overview_page_label)
+        self.product_display_layout.addWidget(self.product_overview_next_button)
+        self.product_display_box.setLayout(self.product_display_layout)
         self.product_overview_box = MyGroupBox()
         self.product_overview_layout = MyVBoxLayout()
         self.product_overview_layout.addWidget(self.product_overview_table)
-        self.product_overview_layout.addWidget(self.product_overview_act_box,0,Qt.AlignmentFlag.AlignCenter)
+        self.product_overview_layout.addWidget(self.product_display_box,0,Qt.AlignmentFlag.AlignCenter)
         self.product_overview_box.setLayout(self.product_overview_layout)
         
         self.pos_sort_tab = MyTabWidget()
@@ -320,17 +318,17 @@ class MyPOSView(MyWidget):
 
         self.add_products_button = MyPushButton(text='Add')
         self.view_data_button = MyPushButton(text='View')
-        self.product_display_act_box = MyGroupBox(object_name='product_display_act_box')
-        self.product_display_act_layout = MyHBoxLayout(object_name='product_display_act_layout')
-        self.product_display_act_layout.addWidget(self.add_products_button)
-        self.product_display_act_layout.addWidget(self.view_data_button,1,Qt.AlignmentFlag.AlignLeft)
-        self.product_display_act_box.setLayout(self.product_display_act_layout)
+        self.product_cell_display_act_box = MyGroupBox(object_name='product_cell_display_act_box')
+        self.product_cell_display_act_layout = MyHBoxLayout(object_name='product_cell_display_act_layout')
+        self.product_cell_display_act_layout.addWidget(self.add_products_button)
+        self.product_cell_display_act_layout.addWidget(self.view_data_button,1,Qt.AlignmentFlag.AlignLeft)
+        self.product_cell_display_act_box.setLayout(self.product_cell_display_act_layout)
 
-        self.product_overview_act_box = MyGroupBox(object_name='pos_overview_act_box')
-        self.product_overview_act_layout = MyVBoxLayout(object_name='pos_overview_act_layout')
-        self.product_overview_act_layout.addWidget(self.product_info_box)
-        self.product_overview_act_layout.addWidget(self.product_display_act_box)
-        self.product_overview_act_box.setLayout(self.product_overview_act_layout)
+        self.product_cell_display_box = MyGroupBox(object_name='pos_overview_act_box')
+        self.product_cell_display_layout = MyVBoxLayout(object_name='pos_overview_act_layout')
+        self.product_cell_display_layout.addWidget(self.product_info_box)
+        self.product_cell_display_layout.addWidget(self.product_cell_display_act_box)
+        self.product_cell_display_box.setLayout(self.product_cell_display_layout)
 
     def set_view_dialog(self, data):
         self.product_barcode_info = MyLabel(text=f"{data[0]}")
@@ -458,7 +456,7 @@ class MyPOSView(MyWidget):
         self.final_order_table = [
             MyTableWidget(object_name='final_order_table'),
             MyTableWidget(object_name='final_order_table')
-        ] # FIXME : MAKE THIS AN ARRAY
+        ]
         self.final_order_tab = MyTabWidget(object_name='final_order_tab')
 
         self.final_order_subtotal_display = MyLabel(object_name='final_order_subtotal_display', text=f"{'test'}")
@@ -630,18 +628,21 @@ class MyPOSController:
         self.v.product_overview_next_button.clicked.connect(self.on_overview_next_button_clicked)
         pass
     def on_filter_button_clicked(self): # IDEA: src
-        i = self.v.manage_order_tab.currentIndex()
+        try:
+            i = self.v.manage_order_tab.currentIndex()
 
-        text_filter = self.v.filter_field.text()
-        order_type = self.m.order_type_displays[i].text()
-        
-        self.m.total_page_number = pos_schema.select_product_data_total_page_count(text=text_filter, order_type=order_type)
-        self.m.page_number = 1 if self.m.total_page_number > 0 else 0
+            text_filter = self.v.filter_field.text()
+            order_type = self.m.order_type_displays[i].text()
+            
+            self.m.total_page_number = pos_schema.select_product_data_total_page_count(text=text_filter, order_type=order_type)
+            self.m.page_number = 1 if self.m.total_page_number > 0 else 0
 
-
-        self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
-        
-        self.populate_overview_table(text=text_filter, order_type=order_type, page_number=self.m.page_number)
+            self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
+            
+            self.populate_overview_table(text=text_filter, order_type=order_type, page_number=self.m.page_number)
+        except Exception as e:
+            # self.populate_overview_table(page_number=self.m.page_number)
+            pass
         pass
     def on_barcode_scanner_toggle_button_clicked(self, flag):
         if flag is True:
@@ -668,18 +669,20 @@ class MyPOSController:
         
         self.v.barcode_scanner_field.clear()
         
+    # FIXME NEEDS TO GETS FIXED
     def populate_overview_table(self, text='', order_type='', page_number=1): # IDEA: src
         self.v.product_overview_prev_button.setEnabled(page_number > 1)
         self.v.product_overview_next_button.setEnabled(page_number < self.m.total_page_number)
+        self.v.product_overview_page_label.setText(f"Page {page_number}/{self.m.total_page_number}")
 
-        product_data = pos_schema.select_product_data_as_display(text=text, order_type=order_type, page_number=page_number)
+        product_data = pos_schema.select_product_data_as_display(text=text, order_type=order_type, page_number=page_number) # FIX: DOESNT RETURN VALUES
 
         self.v.product_overview_table.setColumnCount(1)
         self.v.product_overview_table.setRowCount(len(product_data))
+        print('len(product_data):', len(product_data))
 
         for i, data in enumerate(product_data):
             self.v.set_overview_table_product_display_box(data)
-
 
             if data[11] is not None:
                 self.v.product_promo_indicator.show()
@@ -691,7 +694,8 @@ class MyPOSController:
                 self.v.out_of_stock_indicator.show()
                 
 
-            self.v.product_overview_table.setCellWidget(i, 0, self.v.product_overview_act_box)
+            self.v.product_overview_table.setCellWidget(i, 0, self.v.product_cell_display_box)
+            self.v.product_overview_table.setItem(i, 0, MyTableWidgetItem(text='')) # NOTE: this is a temporary fix. might find other solution to fix product_overview_table display bug
 
             self.v.add_products_button.clicked.connect(lambda _, data=data: self.on_add_products_button_clicked(data))
             self.v.view_data_button.clicked.connect(lambda _, data=data: self.on_view_data_button_clicked(data))
@@ -744,6 +748,7 @@ class MyPOSController:
         self.v.manage_order_tab.currentChanged.connect(self.on_manage_order_tab_current_changed)
         pass
     def on_manage_order_tab_current_changed(self):
+        print('on_manage_order_tab_current_changed ')
         try:
             i = self.v.manage_order_tab.currentIndex()
 
@@ -755,8 +760,8 @@ class MyPOSController:
         except Exception as e:
             pass
                 
-                
         self.sync_ui_handler()
+                
 
         pass
     def on_add_order_button_clicked(self):
@@ -844,13 +849,11 @@ class MyPOSController:
         pass
     
     def on_pay_order_button_clicked(self): # IDEA: src
-        # FIX: ongoing starting here - - - - - - - - - - - - - - - -
         i = self.v.manage_order_tab.currentIndex()
 
         self.v.set_pay_order_dialog()
 
         order_tab_name = self.v.manage_order_tab.tabText(i)
-        print('\n')
 
         final_order_subtotal_value = 0
         final_order_discount_value = 0
@@ -919,7 +922,6 @@ class MyPOSController:
         self.v.final_order_tax_display.setText(f"{final_order_tax_value:.2f}")
         self.v.final_order_total_display.setText(f"{final_order_total_value:.2f}")
 
-        # FIX: ongoing until here - - - - - - - - - - - - - - - - -
 
         if self.m.customer_name_fields[i].currentText() != 'Guest':
             self.v.final_customer_info_box.show()
@@ -928,7 +930,6 @@ class MyPOSController:
             customer_data = pos_schema.select_customer_data_with_customer_reward_data(customer_name=self.m.customer_name_fields[i].currentText())
 
             self.m.final_customer_points_value = customer_data[2]
-            print('final_customer_points_value:', self.m.final_customer_points_value)
             self.v.final_customer_name_display.setText(f"Name: <b>{customer_data[0]}</b>")
             self.v.final_customer_phone_display.setText(f"Phone: <b>{customer_data[1]}</b>")
             self.v.final_customer_points_display.setText(f"Points: <b>{customer_data[2]:.2f}</b>") 
@@ -1226,7 +1227,6 @@ class MyPOSController:
         self.v.tender_amount_field.setText(current_amount_tendered)
 
     def on_pay_button_clicked(self, type):
-        # FIX: ongoing starting here - - - - - - - - - - - - - - - -
         # try:
         i = self.v.manage_order_tab.currentIndex()
 
@@ -1238,7 +1238,6 @@ class MyPOSController:
             if self.v.manage_order_tab.tabText(tab_i) == order_tab_name:
                 sales_group_id += pos_schema.select_sales_group_id_by_name(sales_group_name=self.m.order_type_displays[tab_i].text())
                 
-        print('sales_group_id:', sales_group_id)
         customer_id = pos_schema.select_customer_id_by_name(customer_name=self.m.customer_name_fields[i].currentText())
         
         order_subtotal = float(self.v.final_order_subtotal_display.text())
@@ -1248,8 +1247,6 @@ class MyPOSController:
 
         confirm = QMessageBox.warning(self.v.pay_order_dialog, 'Confirm', 'Proceed payment?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
-        print('before final_customer_points_value', self.m.final_customer_points_value)
-        print('beofre payment_amount:', payment_amount)
         if confirm is QMessageBox.StandardButton.Yes:
             if type == 'pay_cash':
                 payment_amount = float(self.v.tender_amount_field.text())
@@ -1266,27 +1263,25 @@ class MyPOSController:
                 order_change = payment_amount - order_total
                 pos_schema.update_customer_reward_points_by_decrement(customer_id, (order_total - float(self.v.tender_amount_field.text())))
 
-            
-            
-            print('after payment_amount:', payment_amount)
-
 
             final_retail_order_table = self.v.final_order_table[0]
+            print('final_retail_order_table:', final_retail_order_table)
             final_wholesale_order_table = self.v.final_order_table[1]
+            print('final_wholesale_order_table:', final_wholesale_order_table)
             # TODO: APPEND FOR RECEIPT
 
             self.m.append_final_order_info_for_receipt(
-                sales_group_id, 
-                customer_id, 
+                sales_group_id=sales_group_id, 
+                customer_id=customer_id, 
 
-                order_subtotal, 
-                order_discount, 
-                order_tax, 
-                order_total, 
-                payment_amount, 
-                order_change, 
-                final_retail_order_table,
-                final_wholesale_order_table
+                order_subtotal=order_subtotal, 
+                order_discount=order_discount, 
+                order_tax=order_tax, 
+                order_total=order_total, 
+                payment_amount=payment_amount, 
+                order_change=order_change, 
+                final_retail_order_table=final_retail_order_table,
+                final_wholesale_order_table=final_wholesale_order_table
             )
             # TODO: PERFORM TRANSACTION INSERTION
 
@@ -1310,16 +1305,13 @@ class MyPOSController:
             self.v.transaction_payment_amount_display.setText(f"{payment_amount:.2f}")
             self.v.transaction_order_change_display.setText(f"{order_change:.2f}")
 
-            self.set_transaction_complete_dialog_conn(sales_group_id=sales_group_id)
+            self.set_transaction_complete_dialog_conn(sales_group_id=sales_group_id, order_tab_name=order_tab_name)
 
             self.v.transaction_complete_dialog.exec()
 
-
-            print('order_tab_name:', order_tab_name)
             self.discard_order_handler(order_tab_name=order_tab_name)
 
             self.m.final_customer_points_value = 0
-            print('after final_customer_points_value', self.m.final_customer_points_value)
 
         else:
             pass
@@ -1330,14 +1322,15 @@ class MyPOSController:
         # pass
     # endregion
 
-    def set_transaction_complete_dialog_conn(self, sales_group_id=0): # IDEA: src
+    def set_transaction_complete_dialog_conn(self, sales_group_id=0, order_tab_name=''): # IDEA: src
         self.v.print_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='print', sales_group_id=sales_group_id))
         self.v.save_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='save', sales_group_id=sales_group_id))
-        self.v.add_new_order_button.clicked.connect(self.on_add_new_order_button_clicked)
+        self.v.add_new_order_button.clicked.connect(lambda: self.on_add_new_order_button_clicked(order_tab_name=order_tab_name))
         self.v.transaction_complete_close_button.clicked.connect(lambda: self.close_dialog_handler(self.v.transaction_complete_dialog))
         pass
-    def on_add_new_order_button_clicked(self):
+    def on_add_new_order_button_clicked(self, order_tab_name):
         self.v.transaction_complete_dialog.close()
+        self.discard_order_handler(order_tab_name=order_tab_name)
         self.on_add_order_button_clicked()
         pass
 
@@ -1348,6 +1341,7 @@ class MyPOSController:
             self.v.set_progress_dialog()
 
             self.receipt_printer = ReceiptGenerator(
+                self.v.transaction_complete_dialog,
                 sales_group_id,
                 self.m.transaction_info,
                 self.m.final_retail_order_table,
@@ -1369,6 +1363,7 @@ class MyPOSController:
             self.v.set_progress_dialog()
 
             self.receipt_printer = ReceiptGenerator(
+                self.v.transaction_complete_dialog,
                 sales_group_id,
                 self.m.transaction_info,
                 self.m.final_retail_order_table,
@@ -1426,27 +1421,24 @@ class MyPOSController:
 
         pass
     def sync_ui_handler(self):
+        text_filter = self.v.filter_field.text()
         try:
+            print('try')
             i = self.v.manage_order_tab.currentIndex()
 
             order_type = self.m.order_type_displays[i].text()
 
-            self.m.total_page_number = pos_schema.select_product_data_total_page_count(order_type=order_type)
+            self.m.total_page_number = pos_schema.select_product_data_total_page_count(text=text_filter, order_type=order_type)
             self.m.page_number = 1 if self.m.total_page_number > 0 else 0
 
             self.v.order_index_label.setText(f"{self.v.manage_order_tab.tabText(i)}")
 
-            self.populate_overview_table(order_type=order_type, page_number=self.m.page_number)
+            self.populate_overview_table(text=text_filter, order_type=order_type, page_number=self.m.page_number)
         except Exception as e:
-            self.m.total_page_number = pos_schema.select_product_data_total_page_count()
-            self.m.page_number = 1 if self.m.total_page_number > 0 else 0
-            
-            self.populate_overview_table()
-
+            pass
         self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         pass
     def discard_order_handler(self, order_tab_name=''):
-        print('order_tab_name:', order_tab_name)
         for _ in range(self.v.manage_order_tab.count()):
             i = self.v.manage_order_tab.currentIndex()
 

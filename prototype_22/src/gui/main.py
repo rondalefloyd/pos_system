@@ -9,3 +9,8 @@ subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/login/updater.py'])
 
 while True:
     login = subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/login/login.py'])
+
+    if os.path.exists('exit.flag'):
+        os.remove('exit.flag')
+        break
+    print('login:', login)

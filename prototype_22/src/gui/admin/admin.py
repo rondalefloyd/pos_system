@@ -39,7 +39,7 @@ class MyAdminView(MyWidget):
         self.setLayout(self.main_layout)
 
     def set_navbar_box(self):
-        self.product_page_button = MyPushButton(text='Product')
+        self.product_page_button = MyPushButton(text='Product', disabled=True)
         self.promo_page_button = MyPushButton(text='Promo')
         self.reward_page_button = MyPushButton(text='Reward')
         self.customer_page_button = MyPushButton(text='Customer')
@@ -103,6 +103,12 @@ class MyAdminController:
         self.v.reward_page_window.controller.sync_ui() if index == 2 else None
         self.v.customer_page_window.controller.sync_ui() if index == 3 else None
         self.v.cashier_page_window.controller.sync_ui() if index == 4 else None
+
+        self.v.product_page_button.setDisabled(index == 0)
+        self.v.promo_page_button.setDisabled(index == 1)
+        self.v.reward_page_button.setDisabled(index == 2)
+        self.v.customer_page_button.setDisabled(index == 3)
+        self.v.cashier_page_button.setDisabled(index == 4)
 
         print(index)
  

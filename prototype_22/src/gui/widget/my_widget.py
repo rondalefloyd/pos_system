@@ -73,7 +73,7 @@ class MyWidget(QWidget):
                 confirm = QMessageBox.warning(self, 'Confirm', 'Are you sure you want to close this application?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
                 if confirm == QMessageBox.StandardButton.Yes:
-                    event.accept()
+                    open('exit.flag', 'w').close()
                 else:
                     event.ignore()
                     pass
@@ -148,7 +148,7 @@ class MyDialog(QDialog):
     def closeEvent(self, event: QKeyEvent):
         print('CLOSE SIGNAL:', self.close_signal_value)
         if self.object_name == 'MyLoginView':
-            event.accept()
+            open('exit.flag', 'w').close()
 
         elif self.object_name in [
             'updater_progress_dialog',
@@ -223,8 +223,8 @@ class MyTableWidget(QTableWidget):
         if self.object_name == 'pos_overview_table':
             self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
-            self.horizontalHeader().setHidden(True)
-            self.verticalHeader().setHidden(True)
+            # self.horizontalHeader().setHidden(True)
+            # self.verticalHeader().setHidden(True)
             pass
         if self.object_name == 'order_table':
             self.setColumnCount(5)
@@ -496,7 +496,7 @@ class MyDateEdit(QDateEdit):
         self.setMinimumDate(QDate().currentDate())
         pass
 class MyPushButton(QPushButton):
-    def __init__(self, object_name='', text=''):
+    def __init__(self, object_name='', text='', disabled=False):
         super().__init__()
 
         self.object_name = object_name
@@ -504,6 +504,7 @@ class MyPushButton(QPushButton):
         self.setObjectName(object_name)
         self.setText(text)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setDisabled(disabled)
 
         self.on_global_push_button()
 

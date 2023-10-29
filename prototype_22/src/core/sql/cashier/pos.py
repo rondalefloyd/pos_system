@@ -150,6 +150,7 @@ class MyPOSSchema:
 
         product_data = self.sales_cursor.fetchall()
 
+
         return product_data
         pass
     def select_product_data_for_view_dialog(self, product_name, product_barcode):

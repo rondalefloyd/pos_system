@@ -18,6 +18,7 @@ class ReceiptGenerator(QThread):
 
     def __init__(
             self,
+            transaction_complete_dialog,
             sales_group_id,
             transaction_info,
             final_retail_order_table,
@@ -28,6 +29,7 @@ class ReceiptGenerator(QThread):
     ):
         super().__init__()
 
+        self.transaction_complete_dialog = transaction_complete_dialog
         self.sales_group_id = sales_group_id
         self.transaction_info = transaction_info
         self.final_retail_order_table = final_retail_order_table
@@ -58,6 +60,7 @@ class ReceiptGenerator(QThread):
         ref_number = self.transaction_info[1]
 
         if self.sales_group_id <= 2:
+            print('self.sales_group_id:', self.sales_group_id)
             self.process_table_a()
             self.process_table_b()
             self.process_table_c()
@@ -65,25 +68,23 @@ class ReceiptGenerator(QThread):
             self.process_table_e()
 
         elif self.sales_group_id == 3:
+            print('self.sales_group_id:', self.sales_group_id)
             self.process_table_a()
             self.process_dual_table()
             self.process_table_c()
             self.process_table_d()
             self.process_table_e()
             
-        # Save the modified document
-        self.doc.SaveAs(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.docx'))  # Save with the same file path to overwrite the original
-
-        # Specify the path to the DOCX file
-        self.updated_docx_file = os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.docx')
-
-        # Open the DOCX file
-        self.updated_doc = word.Documents.Open(self.updated_docx_file)
+        # NOTE: can be used just in case
+        # self.doc.Protect(Password='123', NoReset=True, Type=3)
+        # self.doc.SaveAs(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.docx'))  # Save with the same file path to overwrite the original
         
+        self.doc.ExportAsFixedFormat(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.pdf'), 17)  # 17 represents PDF format
+
         if self.action == 'print':
-            print('IM PRINTING!!!!!')
             # Print the document
             # self.updated_doc.PrintOut()
+            pass
 
         word.Quit()
 
@@ -97,13 +98,11 @@ class ReceiptGenerator(QThread):
         pdf_file = self.updated_docx_file.replace('.docx','.pdf')
         convert(self.updated_docx_file, pdf_file)
 
-        print('IM SAVVIIINGGG')
 
         if os.path.exists(self.updated_docx_file): 
             os.remove(self.updated_docx_file)
 
 
-        print('CONVERTED!')
 
     def process_table_a(self):
         # Access the first table in the document (assuming it's the only table)
@@ -187,6 +186,8 @@ class ReceiptGenerator(QThread):
             final_product = [item[1] for item in final_order_table[i]]
             final_total_amount = [item[2] for item in final_order_table[i]] # remove '₱' from
 
+            print(f'final_order_table[{i}]:', final_order_table[i])
+
             # Access the second table (Table B) in the document
             table_b = self.doc.Tables[table_index]  # Assuming Table B is the second table in the document
 
@@ -248,6 +249,7 @@ class ReceiptGenerator(QThread):
                         cell.Range.Text = '₱' + cell.Range.Text.replace(placeholder, value).replace('\r', '').replace('\n', '')
 
         self.update.emit(3)
+
 
         pass
     def process_table_d(self):
@@ -326,7 +328,6 @@ class ReceiptGenerator(QThread):
 #             pass
 
 #     def show_tin(self):
-#         print('TIN:', self.receipt_generator.tin)
 #         self.receipt_generator.convert_receipt_to_pdf()
 
 # if __name__ == ('__main__'):

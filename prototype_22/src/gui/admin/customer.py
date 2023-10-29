@@ -187,7 +187,7 @@ class MyCustomerView(MyWidget):
         self.customer_age_field = MyLineEdit(object_name='customer_age_field')
         self.customer_gender_label = MyLabel(text='Town')
         self.customer_gender_field = MyComboBox(object_name='customer_gender_field')
-        self.customer_marstat_label = MyLabel(text='Town')
+        self.customer_marstat_label = MyLabel(text='Points')
         self.customer_marstat_field = MyComboBox(object_name='customer_marstat_field')
         self.customer_points_label = MyLabel(object_name='customer_points_label', text='Points')
         self.customer_points_field = MyLineEdit(object_name='customer_points_field')
@@ -545,7 +545,7 @@ class MyCustomerController:
         text_filter = self.v.filter_field.text()
         self.m.total_page_number = schema.select_customer_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
-        self.populate_overview_table(page_number=self.m.page_number)
+        self.populate_overview_table(text=text_filter, page_number=self.m.page_number)
         pass
     def close_dialog(self, dialog: QDialog):
         dialog.close()
