@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.admin.product import MyProductWindow
 from src.gui.admin.promo import MyPromoWindow
@@ -126,6 +126,7 @@ class MyAdminWindow:
         self.controller = MyAdminController(self.model, self.view)
 
     def run(self):
+        open('app_running.flag', 'w').close()
         self.view.show()
     pass
 

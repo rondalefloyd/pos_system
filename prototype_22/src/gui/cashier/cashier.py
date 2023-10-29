@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.cashier.pos import MyPOSWindow
 from src.gui.cashier.transaction import MyTXNWindow
@@ -128,6 +128,7 @@ class MyCashierWindow:
         self.controller = MyCashierController(self.model, self.view)
 
     def run(self):
+        open('app_running.flag', 'w').close()
         self.view.show()
     pass
 
@@ -137,6 +138,5 @@ if __name__ == ('__main__'):
     # cashier_window = MyCashierWindow(user='test', phone='test') # for testing only
 
     cashier_window.run()
-    print('IS IT SHOWING??')
 
     sys.exit(app.exec())
