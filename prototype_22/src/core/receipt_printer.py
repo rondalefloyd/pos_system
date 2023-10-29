@@ -41,18 +41,15 @@ class ReceiptGenerator(QThread):
     def run(self):
         self.print_receipt()
         
-        if self.action == 'save':
-            self.convert_receipt_to_pdf()
-
         self.finished.emit()
 
     def print_receipt(self):
         pythoncom.CoInitialize()
 
         if self.sales_group_id <= 2:
-            docx_file = os.path.abspath('G:' + '/My Drive/receipt/receipt.docx')
+            docx_file = os.path.abspath('G:/My Drive/receipt/receipt.docx')
         elif self.sales_group_id == 3:
-            docx_file = os.path.abspath('G:' + '/My Drive/receipt/dual_receipt.docx')
+            docx_file = os.path.abspath('G:/My Drive/receipt/dual_receipt.docx')
             
         word = win32com.client.Dispatch('Word.Application')
         self.doc = word.Documents.Open(docx_file)
@@ -76,10 +73,10 @@ class ReceiptGenerator(QThread):
             self.process_table_e()
             
         # NOTE: can be used just in case
-        # self.doc.Protect(Password='123', NoReset=True, Type=3)
-        # self.doc.SaveAs(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.docx'))  # Save with the same file path to overwrite the original
+        self.doc.Protect(Password='123', NoReset=True, Type=3)
+        self.doc.SaveAs(os.path.abspath(f'G:/My Drive/receipt/saved/{ref_number}.docx'))  # Save with the same file path to overwrite the original
         
-        self.doc.ExportAsFixedFormat(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.pdf'), 17)  # 17 represents PDF format
+        # self.doc.ExportAsFixedFormat(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.pdf'), 17)  # 17 represents PDF format
 
         if self.action == 'print':
             # Print the document
@@ -92,17 +89,6 @@ class ReceiptGenerator(QThread):
 
         pythoncom.CoInitialize()
 
-    def convert_receipt_to_pdf(self):
-        self.update.emit(7)
-        
-        pdf_file = self.updated_docx_file.replace('.docx','.pdf')
-        convert(self.updated_docx_file, pdf_file)
-
-
-        if os.path.exists(self.updated_docx_file): 
-            os.remove(self.updated_docx_file)
-
-
 
     def process_table_a(self):
         # Access the first table in the document (assuming it's the only table)
@@ -111,7 +97,9 @@ class ReceiptGenerator(QThread):
         tin_number = self.transaction_info[2]
         min_number = self.transaction_info[3]
 
-        table_a = self.doc.tables[0] 
+        table_a = self.doc.tables[0]
+        print('b4 table a', table_a)
+        print('after table a', table_a)
 
         # Define placeholders and values
         table_a_placeholders = {

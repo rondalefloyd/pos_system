@@ -144,13 +144,13 @@ class MyTXNSchema:
                 UserId = {user_id} AND
                 StockId = {stock_id}
         """)
-            
-        # REVIEW: execute depending on the specific reason?
-        self.txn_cursor.execute(f"""
-            UPDATE Stock
-            SET OnHand = Onhand + {product_qty}
-            WHERE StockId = {stock_id}
-        """)
+        
+        if stock_id is not None or stock_id > 0:
+            # REVIEW: execute depending on the specific reason?
+            self.txn_cursor.execute(f"""
+                UPDATE Stock
+                SET OnHand = Onhand + {product_qty}
+                WHERE StockId = {stock_id}
+            """)
 
-        self.txn_conn.commit()
-        pass
+            self.txn_conn.commit()

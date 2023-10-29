@@ -192,12 +192,13 @@ class MyTransactionController:
         self.v.set_manage_data_box()
         self.load_combo_box_data()
 
+        print('b4 data[13]:', data[13])
+
         self.m.sel_item_sold_id = data[9]
         self.m.sel_product_price_id = data[10]
         self.m.sel_customer_id = data[11]
         self.m.sel_user_id = data[12]
-        self.m.sel_stock_id = data[13]
-
+        self.m.sel_stock_id = 0 if data[13] is None else data[13]
         self.m.sel_product_qty = data[3]
 
         self.set_manage_data_box_conn()

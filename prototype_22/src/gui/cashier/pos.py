@@ -1435,6 +1435,10 @@ class MyPOSController:
 
             self.populate_overview_table(text=text_filter, order_type=order_type, page_number=self.m.page_number)
         except Exception as e:
+            self.m.total_page_number = pos_schema.select_product_data_total_page_count()
+            self.m.page_number = 1 if self.m.total_page_number > 0 else 0
+
+            self.populate_overview_table(page_number=self.m.page_number)
             pass
         self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         pass
