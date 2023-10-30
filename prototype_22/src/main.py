@@ -4,8 +4,9 @@ import shutil
 from PyQt6.QtCore import *
 
 
+print('about to be done?')
 subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/gui/login/updater.py'])
-
+print('done?')
 open('app_running.flag', 'w').close()
 while True:
     login = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/gui/login/login.py'])

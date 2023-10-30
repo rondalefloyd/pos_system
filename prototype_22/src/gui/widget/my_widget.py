@@ -398,8 +398,6 @@ class MyComboBox(QComboBox):
 
     def on_global_combo_box(self):
         if self.object_name in [
-            'reg_user_name_field', # for login
-
             'user_name_field', 
             'promo_type_field',
             'customer_barrio_field',
@@ -530,7 +528,12 @@ class MyPushButton(QPushButton):
         self.on_pos_push_button()
 
     def on_global_push_button(self):
-        if self.object_name in ['untoggle','product_promo_indicator','out_of_stock_indicator']:
+        if self.object_name in [
+            'untoggle',
+            'product_promo_indicator',
+            'out_of_stock_indicator',
+            'delete_data_button', # unavailable for now 
+        ]:
             self.hide()
         pass
     

@@ -39,7 +39,7 @@ class MyLoginView(MyDialog):
         self.login_box = MyGroupBox()
         self.login_layout = MyVBoxLayout()
         self.user_name_label = MyLabel(text='Username')
-        self.user_name_field = MyComboBox(object_name='user_name_field')
+        self.user_name_field = MyLineEdit(object_name='user_name_field')
         self.user_password_label = MyLabel(text='Password')
         self.user_password_field = MyLineEdit(object_name='user_password_field')
         self.login_button = MyPushButton(text='Login')

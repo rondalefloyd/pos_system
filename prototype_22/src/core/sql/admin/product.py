@@ -230,7 +230,6 @@ class MyProductSchema:
         """)
         product_id = self.sales_cursor.fetchone()[0]
 
-        print('product_promo_name:', product_promo_name)
         if product_promo_name == 'No promo':
             self.sales_cursor.execute(f"""
                 INSERT INTO ItemPrice (ItemId, EffectiveDt, Cost, SellPrice, PromoId, DiscountValue)
