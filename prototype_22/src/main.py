@@ -1,5 +1,6 @@
 import sys, os
 import subprocess
+import shutil
 from PyQt6.QtCore import *
 
 
@@ -14,3 +15,8 @@ while True:
 
 
     print('login:', login)
+
+shutil.copyfile('G:/My Drive/live_db/sales.db', 'G:/My Drive/reports_db/sales.db')
+shutil.copyfile('G:/My Drive/live_db/txn.db', 'G:/My Drive/reports_db/txn.db')
+shutil.copyfile('G:/My Drive/live_db/syslib.db', 'G:/My Drive/reports_db/syslib.db')
+shutil.copyfile('G:/My Drive/live_db/accounts.db', 'G:/My Drive/reports_db/accounts.db')

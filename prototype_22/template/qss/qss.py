@@ -1,7 +1,7 @@
 import os, sys
 
 class MyQSSConfig:
-    db_file_path = 'G:/My Drive/database/'
+    db_file_path = 'G:/My Drive/live_db/'
 
     csv_folder_path = 'G:/My Drive/csv/'    
 

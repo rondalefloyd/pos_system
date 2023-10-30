@@ -71,8 +71,8 @@ class MyCashierView(MyWidget):
         self.current_phone_label = MyLabel(text=f"Phone: {self.m.phone}")
         self.extra_info_box = MyGroupBox()
         self.extra_info_layout = MyHBoxLayout()
-        self.extra_info_layout.addWidget(self.current_cashier_label)
-        self.extra_info_layout.addWidget(self.current_phone_label)
+        self.extra_info_layout.addWidget(self.current_cashier_label,0,Qt.AlignmentFlag.AlignLeft)
+        self.extra_info_layout.addWidget(self.current_phone_label,1,Qt.AlignmentFlag.AlignLeft)
         self.extra_info_box.setLayout(self.extra_info_layout)
         pass
 class MyCashierController:

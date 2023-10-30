@@ -32,7 +32,7 @@ class MyDataImportThread(QThread):
         
         self.data_name = data_name
         self.csv_file_path = csv_file_path
-        self.data_frame = pd.read_csv(self.csv_file_path, encoding='utf-8-sig', keep_default_na=False, header=None)
+        self.data_frame = pd.read_csv(self.csv_file_path, encoding='utf-8-sig', keep_default_na=False, header=None, skiprows=1)
         self.data_row = 1
 
     def run(self):
@@ -137,8 +137,9 @@ class MyDataImportThread(QThread):
         product_supplier,
         product_cost,
         product_price,
+        product_effective_dt,
         product_stock_available,
-        product_stock_onhand) = row_v[:11]
+        product_stock_onhand) = row_v[:12]
 
         product_expire_dt = product_expire_dt or '9999-99-99'
 
@@ -162,6 +163,7 @@ class MyDataImportThread(QThread):
 
             product_cost=product_cost,
             product_price=product_price,
+            product_effective_dt=product_effective_dt,
 
             product_stock_tracking=product_stock_tracking,
             product_stock_available=product_stock_available,

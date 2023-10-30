@@ -320,45 +320,50 @@ class MyProductSchema:
         offset = (page_number - 1) * page_size
 
         self.sales_cursor.execute(f"""
-            SELECT 
-                Item.Barcode, 
-                Item.Name, 
-                Item.ExpireDt, 
-                                  
-                ItemType.Name, 
-                Brand.Name, 
-                SalesGroup.Name, 
-                Supplier.Name, 
-                                  
-                ItemPrice.Cost, 
-                ItemPrice.SellPrice, 
-                ItemPrice.EffectiveDt, 
-                Promo.Name, 
-                ItemPrice.DiscountValue, 
-                        
-                CASE WHEN Stock.StockId > 0 THEN 'Enabled' ELSE 'Disabled' END AS StockStatus,
-                  
-                ItemPrice.UpdateTs
-            FROM ItemPrice
-            LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
-            LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
-            LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
-            LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
-            LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
-            LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
-            LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
-            WHERE
-                Item.Barcode LIKE "%{text}%" OR
-                Item.Name LIKE "%{text}%" OR
-                Item.ExpireDt LIKE "%{text}%" OR
-                ItemType.Name LIKE "%{text}%" OR
-                Brand.Name LIKE "%{text}%" OR
-                SalesGroup.Name LIKE "%{text}%" OR
-                Supplier.Name LIKE "%{text}%" OR
-                ItemPrice.UpdateTs LIKE "%{text}%"
-            ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
-            LIMIT {page_size}
-            OFFSET {offset}
+            WITH RankedProduct AS (
+                SELECT 
+                    Item.Barcode, 
+                    Item.Name, 
+                    Item.ExpireDt, 
+                                            
+                    ItemType.Name AS ItemTypeName, 
+                    Brand.Name AS BrandName, 
+                    SalesGroup.Name AS SalesGroupName, 
+                    Supplier.Name AS SupplierName, 
+                                            
+                    ItemPrice.Cost, 
+                    ItemPrice.SellPrice, 
+                    ItemPrice.EffectiveDt, 
+                    Promo.Name AS PromoName, 
+                    ItemPrice.DiscountValue, 
+                                    
+                    CASE WHEN Stock.StockId > 0 THEN 'Enabled' ELSE 'Disabled' END AS StockStatus,
+                            
+                    ItemPrice.UpdateTs,
+                    
+                    ROW_NUMBER() OVER (PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                FROM ItemPrice
+                LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
+                LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
+                LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
+                LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
+                LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
+                LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
+                LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
+                WHERE
+                    Item.Barcode LIKE "%{text}%" OR
+                    Item.Name LIKE "%{text}%" OR
+                    Item.ExpireDt LIKE "%{text}%" OR
+                    ItemType.Name LIKE "%{text}%" OR
+                    Brand.Name LIKE "%{text}%" OR
+                    SalesGroup.Name LIKE "%{text}%" OR
+                    Supplier.Name LIKE "%{text}%" OR
+                    ItemPrice.UpdateTs LIKE "%{text}%"
+                ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
+            )
+            SELECT * FROM RankedProduct 
+            WHERE RowNumber <= 2 
+            LIMIT {page_size} OFFSET {offset}
         """)
 
         product_data = self.sales_cursor.fetchall()
@@ -406,23 +411,48 @@ class MyProductSchema:
         return product_data
     def select_product_data_total_page_count(self, text='', page_size=30):
         self.sales_cursor.execute(f"""
-            SELECT COUNT(*) FROM ItemPrice
-            LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
-            LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
-            LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
-            LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
-            LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
-            LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
-            LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
-            WHERE
-                Item.Barcode LIKE "%{text}%" OR
-                Item.Name LIKE "%{text}%" OR
-                Item.ExpireDt LIKE "%{text}%" OR
-                ItemType.Name LIKE "%{text}%" OR
-                Brand.Name LIKE "%{text}%" OR
-                SalesGroup.Name LIKE "%{text}%" OR
-                Supplier.Name LIKE "%{text}%" OR
-                ItemPrice.UpdateTs LIKE "%{text}%"
+            WITH RankedProduct AS (
+                SELECT 
+                    Item.Barcode, 
+                    Item.Name, 
+                    Item.ExpireDt, 
+                                            
+                    ItemType.Name AS ItemTypeName, 
+                    Brand.Name AS BrandName, 
+                    SalesGroup.Name AS SalesGroupName, 
+                    Supplier.Name AS SupplierName, 
+                                            
+                    ItemPrice.Cost, 
+                    ItemPrice.SellPrice, 
+                    ItemPrice.EffectiveDt, 
+                    Promo.Name AS PromoName, 
+                    ItemPrice.DiscountValue, 
+                                    
+                    CASE WHEN Stock.StockId > 0 THEN 'Enabled' ELSE 'Disabled' END AS StockStatus,
+                            
+                    ItemPrice.UpdateTs,
+                    
+                    ROW_NUMBER() OVER (PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                FROM ItemPrice
+                LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
+                LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
+                LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
+                LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
+                LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
+                LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
+                LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
+                WHERE
+                    Item.Barcode LIKE "%{text}%" OR
+                    Item.Name LIKE "%{text}%" OR
+                    Item.ExpireDt LIKE "%{text}%" OR
+                    ItemType.Name LIKE "%{text}%" OR
+                    Brand.Name LIKE "%{text}%" OR
+                    SalesGroup.Name LIKE "%{text}%" OR
+                    Supplier.Name LIKE "%{text}%" OR
+                    ItemPrice.UpdateTs LIKE "%{text}%"
+            )
+            SELECT COUNT(*) FROM RankedProduct 
+            WHERE RowNumber <= 2 
         """)
 
         total_product_data_count = self.sales_cursor.fetchone()[0]
@@ -707,7 +737,8 @@ class MyProductSchema:
     def delete_product_data(self, product_price_id=0, product_effective_dt=date.today()):
         self.sales_cursor.execute(f"""
             DELETE FROM ItemPrice
-            WHERE ItemPriceId = {product_price_id} AND EffectiveDt > CURRENT_DATE
+            -- WHERE ItemPriceId = {product_price_id} AND EffectiveDt > CURRENT_DATE
+            WHERE ItemPriceId <= 0
         """)
 
         self.sales_conn.commit()

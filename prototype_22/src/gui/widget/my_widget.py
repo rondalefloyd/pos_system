@@ -98,7 +98,6 @@ class MyGroupBox(QGroupBox):
             self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             self.setMaximumWidth(450)
         pass
-
 class MyDialog(QDialog):
     close_signal = pyqtSignal(str)
     def __init__(self, object_name='', parent=None, window_title=''):
@@ -167,7 +166,6 @@ class MyDialog(QDialog):
                     pass
                 
             pass
-
 
 class MyTableWidget(QTableWidget):
     def __init__(self, object_name=''):
@@ -254,6 +252,12 @@ class MyVBoxLayout(QVBoxLayout):
         super().__init__()
 
         self.object_name = object_name
+
+        self.on_global_vbox_layout()
+
+    def on_global_vbox_layout(self):
+        self.setContentsMargins(0,0,0,0)
+        self.setSpacing(0)
         pass
 class MyHBoxLayout(QHBoxLayout):
     def __init__(self, object_name=''):
@@ -265,6 +269,9 @@ class MyHBoxLayout(QHBoxLayout):
         
 
     def on_global_hbox_layout(self):
+        self.setContentsMargins(0,0,0,0)
+        self.setSpacing(0)
+
         if self.object_name in [
             'promo_overview_act_layout',
             'user_overview_act_layout',
@@ -276,22 +283,33 @@ class MyHBoxLayout(QHBoxLayout):
             'order_table_act_layout',
             'item_sold_overview_act_layout',
         ]:
-            self.setContentsMargins(0,0,0,0)
             self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         pass
-
 class MyGridLayout(QGridLayout):
     def __init__(self, object_name=''):
         super().__init__()
 
         self.object_name = object_name
 
+        self.on_global_hbox_layout()
+        
+
+    def on_global_hbox_layout(self):
+        self.setContentsMargins(0,0,0,0)
+        self.setSpacing(0)
         pass
 class MyFormLayout(QFormLayout):
     def __init__(self, object_name=''):
         super().__init__()
 
         self.object_name = object_name
+
+        self.on_global_hbox_layout()
+        
+
+    def on_global_hbox_layout(self):
+        self.setContentsMargins(0,0,0,0)
+        self.setSpacing(0)
         pass
 
 class MyLabel(QLabel):

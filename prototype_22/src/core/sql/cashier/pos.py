@@ -253,6 +253,7 @@ class MyPOSSchema:
                         ItemPrice.EffectiveDt <= CURRENT_DATE
                 )
                 SELECT COUNT(*) FROM RankedProduct 
+                WHERE RowNumber = 1 
             """)
 
             total_product_data_count = self.sales_cursor.fetchone()[0]

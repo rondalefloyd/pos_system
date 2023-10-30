@@ -103,7 +103,7 @@ class MyTransactionView(MyWidget):
         self.manage_data_dialog.setLayout(self.manage_data_layout)
 
     def set_overview_table_act_box(self):
-        self.void_data_button = MyPushButton(text='Void')
+        self.void_data_button = MyPushButton(object_name='void_data_button', text='Void')
         self.item_sold_overview_act_box = MyGroupBox(object_name='item_sold_overview_act_box')
         self.item_sold_overview_act_layout = MyHBoxLayout(object_name='item_sold_overview_act_layout')
         self.item_sold_overview_act_layout.addWidget(self.void_data_button)

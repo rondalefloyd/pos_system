@@ -362,12 +362,12 @@ class MyProductView(MyWidget):
         self.manage_product_data_scra.setWidget(self.field_box)
 
         self.product_stock_tracking_field = MyCheckBox(object_name='product_stock_tracking_field', text='Track inventory?')
-        self.save_product_data_button = MyPushButton(text='Save')
+        self.save_data_button = MyPushButton(text='Save')
         self.manage_product_data_act_close_button = MyPushButton(text='Close')
         self.manage_product_data_act_box = MyGroupBox()
         self.manage_product_data_act_layout = MyHBoxLayout()
         self.manage_product_data_act_layout.addWidget(self.product_stock_tracking_field)
-        self.manage_product_data_act_layout.addWidget(self.save_product_data_button,1,Qt.AlignmentFlag.AlignRight)
+        self.manage_product_data_act_layout.addWidget(self.save_data_button,1,Qt.AlignmentFlag.AlignRight)
         self.manage_product_data_act_layout.addWidget(self.manage_product_data_act_close_button)
         self.manage_product_data_act_box.setLayout(self.manage_product_data_act_layout)
         
@@ -417,14 +417,14 @@ class MyProductView(MyWidget):
         pass
 
     def set_overview_table_act_box(self):
-        self.edit_product_data_button = MyPushButton(text='Edit')
-        self.view_product_data_button = MyPushButton(text='View')
-        self.delete_product_data_button = MyPushButton(text='Delete')
+        self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
+        self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
+        self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete')
         self.product_overview_act_box = MyGroupBox(object_name='product_overview_act_box')
         self.product_overview_act_layout = MyHBoxLayout(object_name='product_overview_act_layout')
-        self.product_overview_act_layout.addWidget(self.edit_product_data_button)
-        self.product_overview_act_layout.addWidget(self.view_product_data_button)
-        self.product_overview_act_layout.addWidget(self.delete_product_data_button)
+        self.product_overview_act_layout.addWidget(self.edit_data_button)
+        self.product_overview_act_layout.addWidget(self.view_data_button)
+        self.product_overview_act_layout.addWidget(self.delete_data_button)
         self.product_overview_act_box.setLayout(self.product_overview_act_layout)
     def set_stock_table_act_box(self):
         self.edit_stock_data_button = MyPushButton(text='Edit')
@@ -592,14 +592,12 @@ class MyProductController:
         for i, data in enumerate(product_data):
             self.v.set_overview_table_act_box()
 
-            if datetime.strptime(str(data[9]), "%Y-%m-%d") <= datetime.today(): # REVIEW
-                self.v.delete_product_data_button.hide()
+            if datetime.strptime(str(data[9]), "%Y-%m-%d") <= datetime.today(): 
+                self.v.edit_data_button.hide()
+                # self.v.delete_data_button.hide() # NOTE: temporarily unavailable
 
-            if data[10] is not None: # REVIEW
-                flag = True 
-                self.v.edit_product_data_button.hide()
-            else:
-                flag = False 
+            flag = True  if data[10] is not None else False # if has promo, set flag (to make the item's foreground red)
+
 
             product_barcode = MyTableWidgetItem(text=f"{data[0]}", has_promo=flag)
             product_name = MyTableWidgetItem(text=f"{data[1]}", has_promo=flag)
@@ -640,11 +638,11 @@ class MyProductController:
 
             self.v.product_overview_table.setItem(i, 14, datetime_created)
 
-            self.v.edit_product_data_button.clicked.connect(lambda _, data=data: self.on_edit_product_data_button_clicked(data))
-            self.v.view_product_data_button.clicked.connect(lambda _, data=data: self.on_view_product_data_button_clicked(data))
-            self.v.delete_product_data_button.clicked.connect(lambda _, data=data: self.on_delete_product_data_button_clicked(data))
+            self.v.edit_data_button.clicked.connect(lambda _, data=data: self.on_edit_data_button_clicked(data))
+            self.v.view_data_button.clicked.connect(lambda _, data=data: self.on_view_data_button_clicked(data))
+            self.v.delete_data_button.clicked.connect(lambda _, data=data: self.on_delete_data_button_clicked(data))
         pass
-    def on_edit_product_data_button_clicked(self, data):
+    def on_edit_data_button_clicked(self, data):
         self.v.set_manage_product_data_box()
         self.load_combo_box_data()
         self.v.manage_product_data_dialog.setWindowTitle(f"{data[1]}")
@@ -685,7 +683,7 @@ class MyProductController:
         self.set_manage_product_data_box_conn(task='edit_data')
         self.v.manage_product_data_dialog.exec()
         pass
-    def on_view_product_data_button_clicked(self, data):
+    def on_view_data_button_clicked(self, data):
         self.v.set_view_dialog()
         self.v.view_data_dialog.setWindowTitle(f"{data[1]}")
 
@@ -711,7 +709,7 @@ class MyProductController:
         pass
     def set_view_product_data_box_conn(self):
         self.v.view_data_act_close_button.clicked.connect(lambda: self.close_dialog(self.v.view_data_dialog))
-    def on_delete_product_data_button_clicked(self, data):
+    def on_delete_data_button_clicked(self, data):
         sel_product_data = schema.select_product_data(data[0], data[1])
         print(sel_product_data)
 
@@ -843,7 +841,7 @@ class MyProductController:
         self.v.product_price_field.textChanged.connect(self.on_product_price_field_text_changed)
         self.v.product_promo_name_field.currentTextChanged.connect(self.on_product_promo_name_field_current_text_changed)
 
-        self.v.save_product_data_button.clicked.connect(lambda: self.on_save_product_data_button_clicked(task))
+        self.v.save_data_button.clicked.connect(lambda: self.on_save_data_button_clicked(task))
         self.v.manage_product_data_act_close_button.clicked.connect(lambda: self.close_dialog(self.v.manage_product_data_dialog))
         pass
     def load_combo_box_data(self):
@@ -931,7 +929,7 @@ class MyProductController:
         self.v.product_start_dt_field.setHidden(hidden)
         self.v.product_end_dt_field.setHidden(hidden)
         pass
-    def on_save_product_data_button_clicked(self, task):
+    def on_save_data_button_clicked(self, task):
         product_barcode = self.v.product_barcode_field.text()
         product_name = self.v.product_name_field.text()
         product_expire_dt = self.v.product_expire_dt_field.date().toString(Qt.DateFormat.ISODate)

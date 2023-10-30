@@ -675,10 +675,13 @@ class MyPOSController:
         self.v.product_overview_next_button.setEnabled(page_number < self.m.total_page_number)
         self.v.product_overview_page_label.setText(f"Page {page_number}/{self.m.total_page_number}")
 
-        product_data = pos_schema.select_product_data_as_display(text=text, order_type=order_type, page_number=page_number) # FIX: DOESNT RETURN VALUES
+        product_data = pos_schema.select_product_data_as_display(text=text, order_type=order_type, page_number=page_number)
 
-        self.v.product_overview_table.setColumnCount(1)
-        self.v.product_overview_table.setRowCount(len(product_data))
+        num_columns = 3
+        num_rows = len(product_data) // num_columns
+
+        self.v.product_overview_table.setColumnCount(num_columns)
+        self.v.product_overview_table.setRowCount(num_rows)
         print('len(product_data):', len(product_data))
 
         for i, data in enumerate(product_data):
@@ -693,9 +696,11 @@ class MyPOSController:
             if data[6] is not None and data[6] <= 0:
                 self.v.out_of_stock_indicator.show()
                 
+            column = i % num_columns  # Determine the column based on the index
+            row = i // num_columns  # Determine the row based on the index
 
-            self.v.product_overview_table.setCellWidget(i, 0, self.v.product_cell_display_box)
-            self.v.product_overview_table.setItem(i, 0, MyTableWidgetItem(text='')) # NOTE: this is a temporary fix. might find other solution to fix product_overview_table display bug
+            self.v.product_overview_table.setCellWidget(row, column, self.v.product_cell_display_box)
+            self.v.product_overview_table.setItem(row, column, MyTableWidgetItem(text='')) # NOTE: this is a temporary fix. might find other solution to fix product_overview_table display bug
 
             self.v.add_products_button.clicked.connect(lambda _, data=data: self.on_add_products_button_clicked(data))
             self.v.view_data_button.clicked.connect(lambda _, data=data: self.on_view_data_button_clicked(data))

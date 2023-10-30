@@ -198,9 +198,9 @@ class MyUserView(MyWidget):
         pass
 
     def set_overview_table_act_box(self):
-        self.edit_data_button = MyPushButton(text='Edit')
-        self.view_data_button = MyPushButton(text='View')
-        self.delete_data_button = MyPushButton(text='Delete')
+        self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
+        self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
+        self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete')
         self.user_overview_act_box = MyGroupBox(object_name='user_overview_act_box')
         self.user_overview_act_layout = MyHBoxLayout(object_name='user_overview_act_layout')
         self.user_overview_act_layout.addWidget(self.edit_data_button)
