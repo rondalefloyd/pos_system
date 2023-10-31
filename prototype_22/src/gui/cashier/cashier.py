@@ -38,17 +38,11 @@ class MyCashierView(MyWidget):
         self.setLayout(self.main_layout)
 
     def set_navbar_box(self):
-        self.hide_navbar_toggle_button = [
-            MyPushButton(object_name='toggle'),
-            MyPushButton(object_name='untoggle'),
-        ]
-        self.pos_page_button = MyPushButton(text='POS', disabled=True)
-        self.transaction_page_button = MyPushButton(text='Transaction')
-        self.logout_button = MyPushButton(text='Logout')
-        self.navbar_box = MyGroupBox()
-        self.navbar_layout = MyVBoxLayout()
-        self.navbar_layout.addWidget(self.hide_navbar_toggle_button[0],0,Qt.AlignmentFlag.AlignRight)
-        self.navbar_layout.addWidget(self.hide_navbar_toggle_button[1],0,Qt.AlignmentFlag.AlignRight)
+        self.pos_page_button = MyPushButton(object_name='pos_page_button', text='  POS', disabled=True)
+        self.transaction_page_button = MyPushButton(object_name='transaction_page_button', text='  Transaction')
+        self.logout_button = MyPushButton(object_name='logout_button', text='  Logout')
+        self.navbar_box = MyGroupBox(object_name='navbar_box')
+        self.navbar_layout = MyVBoxLayout(object_name='navbar_layout')
         self.navbar_layout.addWidget(self.pos_page_button)
         self.navbar_layout.addWidget(self.transaction_page_button)
         self.navbar_layout.addWidget(self.logout_button)
@@ -69,8 +63,8 @@ class MyCashierView(MyWidget):
     def set_extra_info_box(self):
         self.current_cashier_label = MyLabel(text=f"Cashier: {self.m.user}")
         self.current_phone_label = MyLabel(text=f"Phone: {self.m.phone}")
-        self.extra_info_box = MyGroupBox()
-        self.extra_info_layout = MyHBoxLayout()
+        self.extra_info_box = MyGroupBox(object_name='extra_info_box')
+        self.extra_info_layout = MyHBoxLayout(object_name='extra_info_layout')
         self.extra_info_layout.addWidget(self.current_cashier_label,0,Qt.AlignmentFlag.AlignLeft)
         self.extra_info_layout.addWidget(self.current_phone_label,1,Qt.AlignmentFlag.AlignLeft)
         self.extra_info_box.setLayout(self.extra_info_layout)
@@ -83,25 +77,9 @@ class MyCashierController:
         self.set_navbar_box_conn()
 
     def set_navbar_box_conn(self):
-        self.v.hide_navbar_toggle_button[0].clicked.connect(lambda: self.on_hide_navbar_button_clicked(hide=True))
-        self.v.hide_navbar_toggle_button[1].clicked.connect(lambda: self.on_hide_navbar_button_clicked(hide=False))
         self.v.pos_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=0))
         self.v.transaction_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=1))
         self.v.logout_button.clicked.connect(self.on_logout_button_clicked)
-
-    def on_hide_navbar_button_clicked(self, hide=False):
-        if hide is True:
-            self.v.hide_navbar_toggle_button[0].hide()
-            self.v.hide_navbar_toggle_button[1].show()
-            self.v.navbar_scra.setFixedWidth(60)
-        if hide is False:
-            self.v.hide_navbar_toggle_button[0].show()
-            self.v.hide_navbar_toggle_button[1].hide()
-            self.v.navbar_scra.setFixedWidth(150)
-        
-        self.v.pos_page_button.setHidden(hide)
-        self.v.transaction_page_button.setHidden(hide)
-        self.v.logout_button.setHidden(hide)        
 
     def on_page_button_clicked(self, index):
         self.v.page_stcw.setCurrentIndex(index)

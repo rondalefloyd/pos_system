@@ -39,19 +39,19 @@ class MyAdminView(MyWidget):
         self.setLayout(self.main_layout)
 
     def set_navbar_box(self):
-        self.product_page_button = MyPushButton(text='Product', disabled=True)
-        self.promo_page_button = MyPushButton(text='Promo')
-        self.reward_page_button = MyPushButton(text='Reward')
-        self.customer_page_button = MyPushButton(text='Customer')
-        self.cashier_page_button = MyPushButton(text='Cashier')
-        self.logout_button = MyPushButton(text='Logout')
-        self.navbar_box = MyGroupBox()
-        self.navbar_layout = MyFormLayout()
+        self.product_page_button = MyPushButton(object_name='product_page_button', text='  Product', disabled=True)
+        self.promo_page_button = MyPushButton(object_name='promo_page_button', text='  Promo')
+        self.reward_page_button = MyPushButton(object_name='reward_page_button', text='  Reward')
+        self.customer_page_button = MyPushButton(object_name='customer_page_button', text='  Customer')
+        self.user_page_button = MyPushButton(object_name='user_page_button', text='  User')
+        self.logout_button = MyPushButton(object_name='logout_button', text='  Logout')
+        self.navbar_box = MyGroupBox(object_name='navbar_box')
+        self.navbar_layout = MyFormLayout(object_name='navbar_layout')
         self.navbar_layout.addRow(self.product_page_button)
         self.navbar_layout.addRow(self.promo_page_button)
         self.navbar_layout.addRow(self.reward_page_button)
         self.navbar_layout.addRow(self.customer_page_button)
-        self.navbar_layout.addRow(self.cashier_page_button)
+        self.navbar_layout.addRow(self.user_page_button)
         self.navbar_layout.addRow(self.logout_button)
         self.navbar_box.setLayout(self.navbar_layout)
         self.navbar_scra = MyScrollArea(object_name='navbar_scra')
@@ -63,20 +63,20 @@ class MyAdminView(MyWidget):
         self.promo_page_window = MyPromoWindow(self.m.user)
         self.reward_page_window = MyRewardWindow(self.m.user)
         self.customer_page_window = MyCustomerWindow(self.m.user)
-        self.cashier_page_window = MyUserWindow(self.m.user)
+        self.user_page_window = MyUserWindow(self.m.user)
         self.settings_page_window = MyGroupBox()
         self.page_stcw = MyStackedWidget()
         self.page_stcw.addWidget(self.product_page_window)
         self.page_stcw.addWidget(self.promo_page_window)
         self.page_stcw.addWidget(self.reward_page_window)
         self.page_stcw.addWidget(self.customer_page_window)
-        self.page_stcw.addWidget(self.cashier_page_window)
+        self.page_stcw.addWidget(self.user_page_window)
         self.page_stcw.addWidget(self.settings_page_window)
 
     def set_extra_info_box(self):
         self.current_user_label = MyLabel(text=f"Current user: {self.m.user}")
-        self.extra_info_box = MyGroupBox()
-        self.extra_info_layout = MyHBoxLayout()
+        self.extra_info_box = MyGroupBox(object_name='extra_info_box')
+        self.extra_info_layout = MyHBoxLayout(object_name='extra_info_layout')
         self.extra_info_layout.addWidget(self.current_user_label)
         self.extra_info_box.setLayout(self.extra_info_layout)
         pass
@@ -92,7 +92,7 @@ class MyAdminController:
         self.v.promo_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=1))
         self.v.reward_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=2))
         self.v.customer_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=3))
-        self.v.cashier_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=4))
+        self.v.user_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=4))
         self.v.logout_button.clicked.connect(self.on_logout_button_clicked)
 
     def on_page_button_clicked(self, index):
@@ -102,13 +102,13 @@ class MyAdminController:
         self.v.promo_page_window.controller.sync_ui() if index == 1 else None
         self.v.reward_page_window.controller.sync_ui() if index == 2 else None
         self.v.customer_page_window.controller.sync_ui() if index == 3 else None
-        self.v.cashier_page_window.controller.sync_ui() if index == 4 else None
+        self.v.user_page_window.controller.sync_ui() if index == 4 else None
 
         self.v.product_page_button.setDisabled(index == 0)
         self.v.promo_page_button.setDisabled(index == 1)
         self.v.reward_page_button.setDisabled(index == 2)
         self.v.customer_page_button.setDisabled(index == 3)
-        self.v.cashier_page_button.setDisabled(index == 4)
+        self.v.user_page_button.setDisabled(index == 4)
 
         print(index)
  

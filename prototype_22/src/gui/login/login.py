@@ -52,7 +52,7 @@ class MyLoginView(MyDialog):
 
     def set_dev_dialog(self):
         self.reg_user_name_label = MyLabel(text='Name')
-        self.reg_user_name_field = MyComboBox(object_name='reg_user_name_field')
+        self.reg_user_name_field = MyLineEdit(object_name='reg_user_name_field')
         self.reg_user_password_label = MyLabel(text='Password')
         self.reg_user_password_field = MyLineEdit(object_name='reg_user_password_field')
         self.reg_user_access_level_label = MyLabel(text='Access level')
@@ -87,7 +87,7 @@ class MyLoginController:
         self.view.login_button.clicked.connect(self.on_login_button_clicked)
         pass
     def on_login_button_clicked(self):
-        user_name = self.view.user_name_field.currentText()
+        user_name = self.view.user_name_field.text()
         user_password = self.view.user_password_field.text()
 
         print('user_name:', user_name) # REVIEW!!!!
@@ -129,7 +129,7 @@ class MyLoginController:
                 QMessageBox.critical(self.view, 'Error', 'User not found.')
             pass
     def on_reg_user_button_clicked(self):
-        user_name = self.view.reg_user_name_field.currentText()
+        user_name = self.view.reg_user_name_field.text()
         user_password = self.view.reg_user_password_field.text()
         user_level = self.view.reg_user_access_level_field.currentText()
         user_phone = self.view.reg_user_phone_field.text()
@@ -173,7 +173,7 @@ class MyLoginController:
         pass
 
     def clear_login_field(self):
-        self.view.user_name_field.clearEditText()
+        self.view.user_name_field.clear()
         self.view.user_password_field.clear()
 
 class MyLoginWindow:

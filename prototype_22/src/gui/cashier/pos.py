@@ -196,7 +196,7 @@ class MyPOSModel:
     pass
 class MyPOSView(MyWidget):
     def __init__(self, model: MyPOSModel):
-        super().__init__()
+        super().__init__(object_name='MyPOSView')
 
         self.m = model
 
@@ -204,37 +204,37 @@ class MyPOSView(MyWidget):
 
     def set_pos_box(self):
         self.filter_field = MyLineEdit(object_name='filter_field')
-        self.filter_button = MyPushButton(text='Filter')
-        self.filter_box = MyGroupBox()
-        self.filter_layout = MyHBoxLayout()
+        self.filter_button = MyPushButton(object_name='filter_button', text='Filter')
+        self.filter_box = MyGroupBox(object_name='filter_box')
+        self.filter_layout = MyHBoxLayout(object_name='filter_layout')
         self.filter_layout.addWidget(self.filter_field)
         self.filter_layout.addWidget(self.filter_button)
         self.filter_box.setLayout(self.filter_layout)
 
         self.barcode_scanner_field = MyLineEdit()
         self.barcode_scanner_toggle_button = [
-            MyPushButton(object_name='toggle', text='Off'),
-            MyPushButton(object_name='untoggle', text='On')
+            MyPushButton(object_name='toggle_barcode_scanner', text='On'),
+            MyPushButton(object_name='untoggle_barcode_scanner', text='Off')
         ]
-        self.barcode_scanner_box = MyGroupBox()
-        self.barcode_scanner_layout = MyHBoxLayout()
+        self.barcode_scanner_box = MyGroupBox(object_name='barcode_scanner_box')
+        self.barcode_scanner_layout = MyHBoxLayout(object_name='barcode_scanner_layout')
         self.barcode_scanner_layout.addWidget(self.barcode_scanner_field)
         self.barcode_scanner_layout.addWidget(self.barcode_scanner_toggle_button[0])
         self.barcode_scanner_layout.addWidget(self.barcode_scanner_toggle_button[1])
         self.barcode_scanner_box.setLayout(self.barcode_scanner_layout)
 
-        self.pos_act_box = MyGroupBox()
-        self.pos_act_layout = MyHBoxLayout()
+        self.pos_act_box = MyGroupBox(object_name='pos_act_box')
+        self.pos_act_layout = MyHBoxLayout(object_name='pos_act_layout')
         self.pos_act_layout.addWidget(self.filter_box,0,Qt.AlignmentFlag.AlignLeft)
         self.pos_act_layout.addWidget(self.barcode_scanner_box,1,Qt.AlignmentFlag.AlignRight)
         self.pos_act_box.setLayout(self.pos_act_layout)
 
         self.product_overview_table = MyTableWidget(object_name='pos_overview_table')
-        self.product_overview_prev_button = MyPushButton(text='Prev')
-        self.product_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.product_overview_next_button = MyPushButton(text='Next')
-        self.product_display_box = MyGroupBox()
-        self.product_display_layout = MyHBoxLayout()
+        self.product_overview_prev_button = MyPushButton(object_name='overview_prev_button', text='Prev')
+        self.product_overview_page_label = MyLabel(object_name='overview_page_label', text=f"Page {self.m.page_number}/{self.m.total_page_number}")
+        self.product_overview_next_button = MyPushButton(object_name='overview_next_button', text='Next')
+        self.product_display_box = MyGroupBox(object_name='overview_act_box')
+        self.product_display_layout = MyHBoxLayout(object_name='overview_act_layout')
         self.product_display_layout.addWidget(self.product_overview_prev_button)
         self.product_display_layout.addWidget(self.product_overview_page_label)
         self.product_display_layout.addWidget(self.product_overview_next_button)
@@ -300,31 +300,31 @@ class MyPOSView(MyWidget):
         self.product_brand_label = MyLabel(object_name='product_brand_label', text=f"{data[1]}")
         self.product_barcode_label = MyLabel(object_name='product_barcode_label', text=f"{data[2]}")
 
-        self.product_price_label = MyLabel(object_name='product_price_label', text=f"Price: {data[3]}")
-        self.product_disc_value_label = MyLabel(object_name='product_disc_value_label', text=f"Discount: {data[4]}")
+        self.product_price_label = MyLabel(object_name='product_price_label', text=f"Price: ₱{data[3]}")
+        self.product_disc_value_label = MyLabel(object_name='product_disc_value_label', text=f"Discount: ₱{data[4]}")
         self.product_onhand_label = MyLabel(object_name='product_onhand_label', text=f"Stock: {data[6]}")
-        self.product_pricing_layout = MyHBoxLayout()
+        self.product_pricing_layout = MyVBoxLayout()
         self.product_pricing_layout.addWidget(self.product_price_label)
         self.product_pricing_layout.addWidget(self.product_disc_value_label)
-        self.product_pricing_layout.addWidget(self.product_onhand_label,1,Qt.AlignmentFlag.AlignLeft)
+        self.product_pricing_layout.addWidget(self.product_onhand_label)
 
-        self.product_info_box = MyGroupBox()
-        self.product_info_layout = MyVBoxLayout()
+        self.product_info_box = MyGroupBox(object_name='product_info_box')
+        self.product_info_layout = MyVBoxLayout(object_name='product_info_layout')
         self.product_info_layout.addLayout(self.product_name_layout)
         self.product_info_layout.addWidget(self.product_brand_label)
         self.product_info_layout.addWidget(self.product_barcode_label)
         self.product_info_layout.addLayout(self.product_pricing_layout)
         self.product_info_box.setLayout(self.product_info_layout)
 
-        self.add_products_button = MyPushButton(text='Add')
-        self.view_data_button = MyPushButton(text='View')
+        self.add_products_button = MyPushButton(object_name='add_products_button', text='Add')
+        self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
         self.product_cell_display_act_box = MyGroupBox(object_name='product_cell_display_act_box')
         self.product_cell_display_act_layout = MyHBoxLayout(object_name='product_cell_display_act_layout')
-        self.product_cell_display_act_layout.addWidget(self.add_products_button)
-        self.product_cell_display_act_layout.addWidget(self.view_data_button,1,Qt.AlignmentFlag.AlignLeft)
+        self.product_cell_display_act_layout.addWidget(self.add_products_button,1,Qt.AlignmentFlag.AlignRight)
+        self.product_cell_display_act_layout.addWidget(self.view_data_button)
         self.product_cell_display_act_box.setLayout(self.product_cell_display_act_layout)
 
-        self.product_cell_display_box = MyGroupBox(object_name='pos_overview_act_box')
+        self.product_cell_display_box = MyGroupBox(object_name='product_cell_display_box')
         self.product_cell_display_layout = MyVBoxLayout(object_name='pos_overview_act_layout')
         self.product_cell_display_layout.addWidget(self.product_info_box)
         self.product_cell_display_layout.addWidget(self.product_cell_display_act_box)
@@ -415,8 +415,8 @@ class MyPOSView(MyWidget):
 
         self.discard_order_button = MyPushButton(text='Discard')
         self.lock_order_toggle_button = [
-            MyPushButton(object_name='toggle', text='Lock'),
-            MyPushButton(object_name='untoggle', text='Unlock')
+            MyPushButton(object_name='toggle_lock_order', text='Lock'),
+            MyPushButton(object_name='untoggle_lock_order', text='Unlock')
         ]
         self.extra_order_act_b_layout = MyHBoxLayout()
         self.extra_order_act_b_layout.addWidget(self.discard_order_button)
@@ -479,8 +479,8 @@ class MyPOSView(MyWidget):
         self.tender_amount_label = MyLabel(text='Amount tendered')
         self.tender_amount_field = MyLineEdit(object_name='tender_amount_field')
         self.numpad_key_toggle_button = [
-            MyPushButton(object_name='toggle', text='Off'),
-            MyPushButton(object_name='untoggle', text='On'),
+            MyPushButton(object_name='toggle_numpad_key', text='Off'),
+            MyPushButton(object_name='untoggle_numpad_key', text='On'),
         ]
         self.numpad_key_button = [
             MyPushButton(text='1'),
@@ -676,12 +676,17 @@ class MyPOSController:
         self.v.product_overview_page_label.setText(f"Page {page_number}/{self.m.total_page_number}")
 
         product_data = pos_schema.select_product_data_as_display(text=text, order_type=order_type, page_number=page_number)
-
-        num_columns = 3
-        num_rows = len(product_data) // num_columns
-
-        self.v.product_overview_table.setColumnCount(num_columns)
+        
+        if len(product_data) > 0:
+            num_columns = min(3, len(product_data))  # Set num_columns to 3 or less if there are fewer items in product_data
+            num_rows = -(-len(product_data) // num_columns)  # Equivalent to math.ceil(len(product_data) / num_columns)
+        else:
+            num_columns = 0
+            num_rows = 0
+            
+        self.v.product_overview_table.setColumnCount(3) if num_columns < 3 else self.v.product_overview_table.setColumnCount(num_columns)
         self.v.product_overview_table.setRowCount(num_rows)
+
         print('len(product_data):', len(product_data))
 
         for i, data in enumerate(product_data):

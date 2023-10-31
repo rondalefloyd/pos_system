@@ -28,7 +28,7 @@ def export_gsheet_as_csv():
         file_path = r"C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/core/smpos-403608-aa14a49badc1.json"
 
         google_console = gspread.service_account(filename=file_path)
-        spreadsheet = google_console.open('test_product_lists')
+        spreadsheet = google_console.open('test_product_list')
         worksheet = spreadsheet.get_worksheet(0) 
         data = worksheet.get_all_records()
 
@@ -39,7 +39,7 @@ def export_gsheet_as_csv():
     pass
 def run_pos_app():
     try:
-        subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/gui/login/updater.py'])
+        # subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/gui/login/updater.py']) # for loading database
 
         open('app_running.flag', 'w').close()
         while True:
@@ -62,6 +62,6 @@ def copy_live_db_to_reports_db():
         error_tracer(error_exception)
     pass
 
-export_gsheet_as_csv()
+# export_gsheet_as_csv()
 run_pos_app()
 copy_live_db_to_reports_db()
