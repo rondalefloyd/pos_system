@@ -111,7 +111,11 @@ class MyGroupBox(QGroupBox):
             QGroupBox#extra_info_box {{ background-color: {qss.main_color}; }}
             QGroupBox#extra_info_box > QLabel {{ color: {qss.main_text_color}; }}
 
+            QGroupBox#MyPOSView {{ background-color: {qss.secondary_color}}}
+
             QGroupBox#product_cell_display_box {{ background-color: #eee; border: 1px solid #eee; border-radius: 3px; margin: 10px; padding: 5px }}
+
+            QGroupBox#manage_order_box {{ background-color: {qss.main_color} }}
         """)
 
         if self.object_name in [
@@ -132,6 +136,9 @@ class MyGroupBox(QGroupBox):
         pass
 
     def on_pos_group_box(self):
+        if self.object_name == 'MyPOSView':
+            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+            pass
         if self.object_name == 'product_cell_display_box':
             pass
 
@@ -435,7 +442,11 @@ class MyHBoxLayout(QHBoxLayout):
 
             'pos_act_layout',
             'item_sold_act_layout',
+            
+            'manage_order_act_layout',
+
         ]:
+            self.setSpacing(5)
             self.setContentsMargins(10,10,10,10)
 
         if self.object_name in [
@@ -446,8 +457,10 @@ class MyHBoxLayout(QHBoxLayout):
             'product_overview_act_layout',
             'product_stock_act_layout',
 
-            'order_table_act_layout',
             'item_sold_overview_act_layout',
+
+            'order_table_act_layout',
+            
         ]:
             self.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.setContentsMargins(20,0,20,0)
@@ -461,7 +474,15 @@ class MyHBoxLayout(QHBoxLayout):
         if self.object_name == 'product_cell_display_act_layout':
             self.setContentsMargins(5,5,5,5)
             self.setSpacing(5)
+
+        if self.object_name in [
+            'extra_order_act_b_layout',
+        ]:
+            self.setContentsMargins(5,5,5,5)
+            self.setSpacing(5)
         pass
+
+
 class MyGridLayout(QGridLayout):
     def __init__(self, object_name=''):
         super().__init__()
@@ -480,6 +501,7 @@ class MyFormLayout(QFormLayout):
         super().__init__()
 
         self.object_name = object_name
+        self.setObjectName(object_name)
 
         self.on_global_hbox_layout()
         
@@ -487,6 +509,10 @@ class MyFormLayout(QFormLayout):
     def on_global_hbox_layout(self):
         self.setContentsMargins(0,0,0,0)
         self.setSpacing(0)
+
+        if self.object_name == 'order_summary_layout':
+            self.setContentsMargins(15,15,15,15)
+            self.setSpacing(10)
         pass
 
 class MyLabel(QLabel):
@@ -520,6 +546,9 @@ class MyLabel(QLabel):
         pass
 
     def on_pos_label(self):
+        self.setStyleSheet(f"""
+            QLabel#order_index_label {{ color: #fff }}
+        """)
         if self.object_name == 'product_name_label':
             self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 15px; font-weight: bold; }}")
             pass
@@ -706,6 +735,9 @@ class MyPushButton(QPushButton):
     def on_global_push_button(self):
         if self.object_name in [
             'untoggle_barcode_scanner',
+            'untoggle_barcode_scanner',
+            'untoggle_lock_order',
+            'untoggle_numpad_key',
             'product_promo_indicator',
             'out_of_stock_indicator',
             'product_delete_data_button', # unavailable for now 
@@ -755,6 +787,8 @@ class MyPushButton(QPushButton):
 
             'overview_prev_button',
             'overview_next_button',
+
+            'add_order_button',
         ]:
             self.setStyleSheet(f"""
                 QPushButton#{self.object_name} {{ background-color: {qss.act_btn_bg_color}; border: none; border-radius: 3px; color: {qss.act_btn_txt_color}; font-size: 10px; text-align: center; padding: 5px }}
@@ -784,6 +818,9 @@ class MyPushButton(QPushButton):
                 QPushButton#add_products_button {{ background-color: {qss.act_pos_bg_color}; border: none; border-radius: 3px; color: {qss.act_pos_txt_color}; font-size: 10px; text-align: center; padding: 5px }}
                 QPushButton#add_products_button:hover {{ background-color: {qss.act_pos_bg_color_alt} }}
 
+                QPushButton#add_order_button {{ background-color: {qss.act_pas_bg_color}; border: none; border-radius: 3px; color: {qss.act_pas_txt_color}; font-size: 10px; text-align: center; padding: 5px }}
+                QPushButton#add_order_button:hover {{ background-color: {qss.act_pas_bg_color_alt} }}
+
             """)
             if self.object_name == 'filter_button': self.setIcon(QIcon(qss.filter_icon))
             if self.object_name == 'add_data_button': self.setIcon(QIcon(qss.add_data_icon))
@@ -798,6 +835,7 @@ class MyPushButton(QPushButton):
             if self.object_name == 'void_data_button': self.setIcon(QIcon(qss.act_void_icon))
 
             if self.object_name == 'add_products_button': self.setIcon(QIcon(qss.add_products_icon))
+            if self.object_name == 'add_order_button': self.setIcon(QIcon(qss.add_order_icon))
 
     def on_pos_push_button(self):
         if self.object_name in [

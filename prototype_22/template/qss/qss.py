@@ -55,6 +55,10 @@ class MyQSSConfig:
         self.act_pos_bg_color = '#32a852'
         self.act_pos_bg_color_alt = '#dd32a852'
 
+        self.act_pas_txt_color = '#fff'
+        self.act_pas_bg_color = '#ff6c54'
+        self.act_pas_bg_color_alt = '#33000000'
+
     def nav_icon(self):
         self.nav_product_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/nav/nav_product.png"
         self.nav_promo_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/nav/nav_promo.png"
@@ -82,8 +86,9 @@ class MyQSSConfig:
         self.toggle_barcode_scanner_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/untoggled_barcode_scan.png"
         self.untoggle_barcode_scanner_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/toggled_barcode_scan.png"
 
-        self.add_products_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/add_products.png"
+        self.add_order_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/add_order.png"
 
+        self.add_products_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/add_products.png"
 
         self.product_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/product.png"
         self.promo_indicator_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/promo_indicator.png"

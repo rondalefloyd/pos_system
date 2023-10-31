@@ -194,7 +194,7 @@ class MyPOSModel:
 
         pass
     pass
-class MyPOSView(MyWidget):
+class MyPOSView(MyGroupBox):
     def __init__(self, model: MyPOSModel):
         super().__init__(object_name='MyPOSView')
 
@@ -248,25 +248,25 @@ class MyPOSView(MyWidget):
         self.pos_sort_tab = MyTabWidget()
         self.pos_sort_tab.addTab(self.product_overview_box, 'Overview')
 
-        self.order_index_label = MyLabel(text='No order')
-        self.order_type_field = MyComboBox()
-        self.add_order_button = MyPushButton(text='Add')
-        self.manage_order_act_box = MyGroupBox()
-        self.manage_order_act_layout = MyHBoxLayout()
-        self.manage_order_act_layout.addWidget(self.order_index_label)
-        self.manage_order_act_layout.addWidget(self.order_type_field)
-        self.manage_order_act_layout.addWidget(self.add_order_button)
+        self.order_index_label = MyLabel(object_name='order_index_label', text='No order')
+        self.order_type_field = MyComboBox(object_name='order_type_field')
+        self.add_order_button = MyPushButton(object_name='add_order_button', text='Add order')
+        self.manage_order_act_box = MyGroupBox(object_name='manage_order_act_box')
+        self.manage_order_act_layout = MyHBoxLayout(object_name='manage_order_act_layout')
+        self.manage_order_act_layout.addWidget(self.order_index_label,0,Qt.AlignmentFlag.AlignLeft)
+        self.manage_order_act_layout.addWidget(self.order_type_field,1,Qt.AlignmentFlag.AlignRight)
+        self.manage_order_act_layout.addWidget(self.add_order_button,0,Qt.AlignmentFlag.AlignRight)
         self.manage_order_act_box.setLayout(self.manage_order_act_layout)
 
-        self.manage_order_tab = MyTabWidget()
+        self.manage_order_tab = MyTabWidget(object_name='manage_order_tab')
 
-        self.manage_order_box = MyGroupBox('manage_order_box')
-        self.manage_order_layout = MyVBoxLayout()
+        self.manage_order_box = MyGroupBox(object_name='manage_order_box')
+        self.manage_order_layout = MyVBoxLayout(object_name='manage_order_layout')
         self.manage_order_layout.addWidget(self.manage_order_act_box)
         self.manage_order_layout.addWidget(self.manage_order_tab)
         self.manage_order_box.setLayout(self.manage_order_layout)
 
-        self.main_layout = MyGridLayout()
+        self.main_layout = MyGridLayout(object_name='main_layout')
         self.main_layout.addWidget(self.pos_act_box,0,0)
         self.main_layout.addWidget(self.pos_sort_tab,1,0)
         self.main_layout.addWidget(self.manage_order_box,0,1,2,1)
@@ -389,11 +389,11 @@ class MyPOSView(MyWidget):
         pass
     
     def set_order_box(self):
-        self.order_type_display = MyLabel()
-        self.customer_name_field = MyComboBox()
-        self.clear_order_table_button = MyPushButton(text='Clear')
-        self.order_act_a_box = MyGroupBox()
-        self.order_act_a_layout = MyHBoxLayout()
+        self.order_type_display = MyLabel(object_name='order_type_display')
+        self.customer_name_field = MyComboBox(object_name='customer_name_field')
+        self.clear_order_table_button = MyPushButton(object_name='clear_order_table_button', text='Clear')
+        self.order_act_a_box = MyGroupBox(object_name='order_act_a_box')
+        self.order_act_a_layout = MyHBoxLayout(object_name='order_act_a_layout')
         self.order_act_a_layout.addWidget(self.order_type_display)
         self.order_act_a_layout.addWidget(self.customer_name_field)
         self.order_act_a_layout.addWidget(self.clear_order_table_button)
@@ -405,33 +405,33 @@ class MyPOSView(MyWidget):
         self.order_discount_display = MyLabel(object_name='order_discount_display', text=f"0.00")
         self.order_tax_display = MyLabel(object_name='order_tax_display', text=f"0.00")
         self.order_total_display = MyLabel(object_name='order_total_display', text=f"0.00")
-        self.order_summary_box = MyGroupBox()
-        self.order_summary_layout = MyFormLayout()
+        self.order_summary_box = MyGroupBox(object_name='order_summary_box')
+        self.order_summary_layout = MyFormLayout(object_name='order_summary_layout')
         self.order_summary_layout.addRow('Subtotal', self.order_subtotal_display)
         self.order_summary_layout.addRow('Discount', self.order_discount_display)
         self.order_summary_layout.addRow('Tax', self.order_tax_display)
         self.order_summary_layout.addRow('Total', self.order_total_display)
         self.order_summary_box.setLayout(self.order_summary_layout)
 
-        self.discard_order_button = MyPushButton(text='Discard')
+        self.discard_order_button = MyPushButton(object_name='discard_order_button', text='Discard')
         self.lock_order_toggle_button = [
             MyPushButton(object_name='toggle_lock_order', text='Lock'),
             MyPushButton(object_name='untoggle_lock_order', text='Unlock')
         ]
-        self.extra_order_act_b_layout = MyHBoxLayout()
+        self.extra_order_act_b_layout = MyHBoxLayout(object_name='extra_order_act_b_layout')
         self.extra_order_act_b_layout.addWidget(self.discard_order_button)
         self.extra_order_act_b_layout.addWidget(self.lock_order_toggle_button[0],1,Qt.AlignmentFlag.AlignLeft)
         self.extra_order_act_b_layout.addWidget(self.lock_order_toggle_button[1],1,Qt.AlignmentFlag.AlignLeft)
 
-        self.pay_order_button = MyPushButton(text=f"Pay {self.order_total_display.text()}")
-        self.order_act_b_box = MyGroupBox()
-        self.order_act_b_layout = MyVBoxLayout()
+        self.pay_order_button = MyPushButton(object_name='pay_order_button', text=f"Pay {self.order_total_display.text()}")
+        self.order_act_b_box = MyGroupBox(object_name='order_act_b_box')
+        self.order_act_b_layout = MyVBoxLayout(object_name='order_act_b_layout')
         self.order_act_b_layout.addLayout(self.extra_order_act_b_layout)
         self.order_act_b_layout.addWidget(self.pay_order_button)
         self.order_act_b_box.setLayout(self.order_act_b_layout)
 
-        self.order_box = MyGroupBox()
-        self.order_layout = MyVBoxLayout()
+        self.order_box = MyGroupBox(object_name='order_box')
+        self.order_layout = MyVBoxLayout(object_name='order_layout')
         self.order_layout.addWidget(self.order_act_a_box)
         self.order_layout.addWidget(self.order_table)
         self.order_layout.addWidget(self.order_summary_box)
