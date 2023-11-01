@@ -290,9 +290,7 @@ class MyPOSView(MyGroupBox):
         self.product_name_label = MyLabel(object_name='product_name_label', text=f"{data[0]}")
         self.product_promo_indicator = MyPushButton(object_name='product_promo_indicator')
         self.out_of_stock_indicator = MyPushButton(object_name='out_of_stock_indicator')
-        self.product_promo_indicator.setIcon(QIcon(qss.promo_indicator_icon))
-        self.out_of_stock_indicator.setIcon(QIcon(qss.out_of_stock_indicator_icon))
-        self.product_name_layout = MyHBoxLayout()
+        self.product_name_layout = MyHBoxLayout(object_name='product_name_layout')
         self.product_name_layout.addWidget(self.product_name_label,0,Qt.AlignmentFlag.AlignLeft)
         self.product_name_layout.addWidget(self.product_promo_indicator,1,Qt.AlignmentFlag.AlignLeft)
         self.product_name_layout.addWidget(self.out_of_stock_indicator,2,Qt.AlignmentFlag.AlignLeft)
@@ -300,7 +298,7 @@ class MyPOSView(MyGroupBox):
         self.product_brand_label = MyLabel(object_name='product_brand_label', text=f"{data[1]}")
         self.product_barcode_label = MyLabel(object_name='product_barcode_label', text=f"{data[2]}")
 
-        self.product_price_label = MyLabel(object_name='product_price_label', text=f"Price: ₱{data[3]}")
+        self.product_price_label = MyLabel(object_name='product_price_label', text=f"₱{data[3]}")
         self.product_disc_value_label = MyLabel(object_name='product_disc_value_label', text=f"Discount: ₱{data[4]}")
         self.product_onhand_label = MyLabel(object_name='product_onhand_label', text=f"Stock: {data[6]}")
         self.product_pricing_layout = MyVBoxLayout()
@@ -350,8 +348,8 @@ class MyPOSView(MyGroupBox):
 
         self.product_datetime_created_info = MyLabel(text=f"{data[13]}")
 
-        self.info_box = MyGroupBox()
-        self.info_layout = MyFormLayout()
+        self.info_box = MyGroupBox(object_name='info_box')
+        self.info_layout = MyFormLayout(object_name='info_layout')
         self.info_layout.addRow('Barcode:', self.product_barcode_info)
         self.info_layout.addRow('Name:', self.product_name_info)
         self.info_layout.addRow('Expire date:', self.product_expire_dt_info)
@@ -375,9 +373,9 @@ class MyPOSView(MyGroupBox):
         self.view_data_scra = MyScrollArea()
         self.view_data_scra.setWidget(self.info_box)
 
-        self.view_data_act_close_button = MyPushButton(text='Close')
-        self.view_data_act_box = MyGroupBox()
-        self.view_data_act_layout = MyHBoxLayout()
+        self.view_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.view_data_act_box = MyGroupBox(object_name='view_data_act_box')
+        self.view_data_act_layout = MyHBoxLayout(object_name='view_data_act_layout')
         self.view_data_act_layout.addWidget(self.view_data_act_close_button,0,Qt.AlignmentFlag.AlignRight)
         self.view_data_act_box.setLayout(self.view_data_act_layout)
 

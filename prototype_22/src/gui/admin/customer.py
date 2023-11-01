@@ -260,8 +260,8 @@ class MyCustomerView(MyWidget):
         self.customer_gender_info = MyLabel(text=f"customer_gender")
         self.customer_marstat_info = MyLabel(text=f"customer_marstat")
         self.datetime_created_info = MyLabel(text=f"datetime_created")
-        self.info_box = MyGroupBox()
-        self.info_layout = MyFormLayout()
+        self.info_box = MyGroupBox(object_name='info_box')
+        self.info_layout = MyFormLayout(object_name='info_layout')
         self.info_layout.addRow('Name:', self.customer_name_info)
         self.info_layout.addRow(MyLabel(text='<hr>'))
         self.info_layout.addRow('Address:', self.customer_address_info)
@@ -279,9 +279,9 @@ class MyCustomerView(MyWidget):
         self.view_data_scra.setWidget(self.info_box)
 
 
-        self.view_data_act_close_button = MyPushButton(text='Close')
-        self.view_data_act_box = MyGroupBox()
-        self.view_data_act_layout = MyHBoxLayout()
+        self.view_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.view_data_act_box = MyGroupBox(object_name='view_data_act_box')
+        self.view_data_act_layout = MyHBoxLayout(object_name='view_data_act_layout')
         self.view_data_act_layout.addWidget(self.view_data_act_close_button,0,Qt.AlignmentFlag.AlignRight)
         self.view_data_act_box.setLayout(self.view_data_act_layout)
 

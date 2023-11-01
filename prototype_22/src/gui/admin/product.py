@@ -463,8 +463,8 @@ class MyProductView(MyWidget):
 
         self.product_datetime_created_info = MyLabel(text=f"product_datetime_created")
 
-        self.info_box = MyGroupBox()
-        self.info_layout = MyFormLayout()
+        self.info_box = MyGroupBox(object_name='info_box')
+        self.info_layout = MyFormLayout(object_name='info_layout')
         self.info_layout.addRow('Barcode:', self.product_barcode_info)
         self.info_layout.addRow('Name:', self.product_name_info)
         self.info_layout.addRow('Expire date:', self.product_expire_dt_info)
@@ -488,9 +488,9 @@ class MyProductView(MyWidget):
         self.view_data_scra = MyScrollArea()
         self.view_data_scra.setWidget(self.info_box)
 
-        self.view_data_act_close_button = MyPushButton(text='Close')
-        self.view_data_act_box = MyGroupBox()
-        self.view_data_act_layout = MyHBoxLayout()
+        self.view_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.view_data_act_box = MyGroupBox(object_name='view_data_act_box')
+        self.view_data_act_layout = MyHBoxLayout(object_name='view_data_act_layout')
         self.view_data_act_layout.addWidget(self.view_data_act_close_button,0,Qt.AlignmentFlag.AlignRight)
         self.view_data_act_box.setLayout(self.view_data_act_layout)
 

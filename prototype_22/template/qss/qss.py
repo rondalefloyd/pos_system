@@ -112,7 +112,7 @@ class MyQSSConfig:
         self.pay_order_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/pay_order.png"
 
         self.product_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/product.png"
-        self.promo_indicator_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/promo_indicator.png"
+        self.product_promo_indicator_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/promo_indicator.png"
         self.out_of_stock_indicator_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/out_of_stock_indicator.png"
 
         self.retail_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/retail.png"

@@ -32,7 +32,8 @@ class MyScrollArea(QScrollArea):
 
     def on_glboal_scra(self):
         self.setStyleSheet(f"""
-            QScrollArea#navbar_scra {{ background-color: {qss.navbar_bg_color}; border: none;}}
+            QScrollArea {{ border: none;}}
+            QScrollArea#navbar_scra {{ background-color: {qss.navbar_bg_color};}}
         """)
 
         if self.object_name == 'navbar_scra':
@@ -120,6 +121,7 @@ class MyGroupBox(QGroupBox):
 
             QGroupBox#manage_data_act_box,
             QGroupBox#payment_c_box,
+            QGroupBox#view_data_act_box,
             QGroupBox#transaction_complete_act_b_box {{ background-color: {qss.default_panel_color}; border-top: 1px solid {qss.default_hr_color} }}
 
             QGroupBox#txn_complete_summary_box {{ padding: 20px }}
@@ -480,9 +482,10 @@ class MyHBoxLayout(QHBoxLayout):
             'payment_act_layout',
             'transaction_complete_act_b_layout',
             'manage_data_act_layout',
+            'view_data_act_layout',
         ]:
-            self.setSpacing(5)
             self.setContentsMargins(10,10,10,10)
+            self.setSpacing(5)
 
         if self.object_name in [
             'promo_overview_act_layout',
@@ -509,7 +512,10 @@ class MyHBoxLayout(QHBoxLayout):
         if self.object_name == 'final_customer_info_layout':
             self.setSpacing(20)
 
-        if self.object_name == 'manage_receipt_layout':
+        if self.object_name in [
+            'manage_receipt_layout',
+            'product_name_layout'
+        ]:
             self.setSpacing(5)
 
     def on_pos_hbox_layout(self):
@@ -519,6 +525,7 @@ class MyHBoxLayout(QHBoxLayout):
 
         if self.object_name in [
             'extra_order_act_b_layout',
+            'product_status_indicator_layout', 
         ]:
             self.setSpacing(5)
         pass
@@ -577,7 +584,7 @@ class MyFormLayout(QFormLayout):
             self.setContentsMargins(0,15,0,0)
             self.setSpacing(10)
             
-        if self.object_name == 'field_layout':
+        if self.object_name in ['field_layout','info_layout']:
             self.setContentsMargins(10,10,10,10)
             self.setSpacing(5)
 
@@ -601,7 +608,8 @@ class MyLabel(QLabel):
     def on_global_label(self):
         if self.object_name in [
             'progress_label', 
-            'other_label_a'
+            'other_label_a',
+            'product_price_label',
         ]:
             self.setStyleSheet(f"""
                 QLabel#progress_label,
@@ -620,7 +628,7 @@ class MyLabel(QLabel):
             QLabel#order_index_label {{ color: #fff }}
         """)
         if self.object_name == 'product_name_label':
-            self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 15px; font-weight: bold; }}")
+            self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 15px; font-weight: bold;}}")
             pass
         if self.object_name == 'product_barcode_label':
             pass
@@ -628,6 +636,7 @@ class MyLabel(QLabel):
             self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 13px; font-weight: bold; }}")
             pass
         if self.object_name == 'product_price_label':
+            self.setStyleSheet(f"QLabel#{self.object_name} {{ color: {qss.act_pos_bg_color}; font-weight: bold; font-size: 15px; }}")
             pass
         if self.object_name == 'product_disc_value_label':
             pass
@@ -827,8 +836,6 @@ class MyPushButton(QPushButton):
             'untoggle_barcode_scanner',
             'untoggle_lock_order',
             'untoggle_numpad_key',
-            'product_promo_indicator',
-            'out_of_stock_indicator',
             'product_delete_data_button', # unavailable for now 
         ]:
             self.hide()
@@ -1057,6 +1064,17 @@ class MyPushButton(QPushButton):
                 QPushButton#{self.object_name} {{ background-color: {qss.main_color}; border: none; border-radius: 3px; color: {qss.main_txt_color}; font-size: 13px; font-weight: bold; padding: 10px; }}
                 QPushButton#{self.object_name}:hover {{ background-color: {qss.main_color_alt};}}
             """)
+
+        if self.object_name in ['product_promo_indicator','out_of_stock_indicator']:
+            self.hide()
+            self.setStyleSheet(f"""
+                QPushButton#{self.object_name} {{ background-color: none; border: none; }}
+            """)
+            self.setIconSize(QSize(20,20))
+            self.setFixedSize(20,20)
+            self.setCursor(Qt.CursorShape.ArrowCursor)
+            if self.object_name == 'product_promo_indicator': self.setIcon(QIcon(qss.product_promo_indicator_icon))
+            if self.object_name == 'out_of_stock_indicator': self.setIcon(QIcon(qss.out_of_stock_indicator_icon))
 
     pass
 class MyCheckBox(QCheckBox):
