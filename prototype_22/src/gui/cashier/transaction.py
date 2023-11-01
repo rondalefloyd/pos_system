@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.widget.my_widget import *
 from src.core.csv_to_db_importer import MyDataImportThread
@@ -41,30 +41,30 @@ class MyTransactionView(MyWidget):
 
     def set_item_sold_box(self):
         self.filter_field = MyLineEdit(object_name='filter_field')
-        self.filter_button = MyPushButton(text='Filter')
-        self.filter_box = MyGroupBox()
-        self.filter_layout = MyHBoxLayout()
+        self.filter_button = MyPushButton(object_name='filter_button', text='Filter')
+        self.filter_box = MyGroupBox(object_name='filter_box')
+        self.filter_layout = MyHBoxLayout(object_name='filter_layout')
         self.filter_layout.addWidget(self.filter_field)
         self.filter_layout.addWidget(self.filter_button)
         self.filter_box.setLayout(self.filter_layout)
 
-        self.item_sold_act_box = MyGroupBox()
-        self.item_sold_act_layout = MyHBoxLayout()
+        self.item_sold_act_box = MyGroupBox(object_name='item_sold_act_box')
+        self.item_sold_act_layout = MyHBoxLayout(object_name='item_sold_act_layout')
         self.item_sold_act_layout.addWidget(self.filter_box,0,Qt.AlignmentFlag.AlignLeft)
         self.item_sold_act_box.setLayout(self.item_sold_act_layout)
 
         self.item_sold_overview_table = MyTableWidget(object_name='item_sold_overview_table')
-        self.item_sold_overview_prev_button = MyPushButton(text='Prev')
-        self.item_sold_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.item_sold_overview_next_button = MyPushButton(text='Next')
-        self.item_sold_overview_act_box = MyGroupBox()
-        self.item_sold_overview_act_layout = MyHBoxLayout()
+        self.item_sold_overview_prev_button = MyPushButton(object_name='overview_prev_button', text='Prev')
+        self.item_sold_overview_page_label = MyLabel(object_name='overview_page_label', text=f"Page {self.m.page_number}/{self.m.total_page_number}")
+        self.item_sold_overview_next_button = MyPushButton(object_name='overview_next_button', text='Next')
+        self.item_sold_overview_act_box = MyGroupBox(object_name='overview_act_box')
+        self.item_sold_overview_act_layout = MyHBoxLayout(object_name='overview_act_layout')
         self.item_sold_overview_act_layout.addWidget(self.item_sold_overview_prev_button)
         self.item_sold_overview_act_layout.addWidget(self.item_sold_overview_page_label)
         self.item_sold_overview_act_layout.addWidget(self.item_sold_overview_next_button)
         self.item_sold_overview_act_box.setLayout(self.item_sold_overview_act_layout)
-        self.item_sold_overview_box = MyGroupBox()
-        self.item_sold_overview_layout = MyVBoxLayout()
+        self.item_sold_overview_box = MyGroupBox(object_name='item_sold_overview_box')
+        self.item_sold_overview_layout = MyVBoxLayout(object_name='item_sold_overview_layout')
         self.item_sold_overview_layout.addWidget(self.item_sold_overview_table)
         self.item_sold_overview_layout.addWidget(self.item_sold_overview_act_box,0,Qt.AlignmentFlag.AlignCenter)
         self.item_sold_overview_box.setLayout(self.item_sold_overview_layout)
@@ -81,17 +81,17 @@ class MyTransactionView(MyWidget):
         self.reason_label = MyLabel(text='Reason')
         self.reason_field = MyComboBox(object_name='reason_field')
         self.other_reason_field = MyPlainTextEdit(object_name='other_reason_field')
-        self.field_box = MyGroupBox()
-        self.field_layout = MyFormLayout()
+        self.field_box = MyGroupBox(object_name='field_box')
+        self.field_layout = MyFormLayout(object_name='field_layout')
         self.field_layout.addRow(self.reason_label)
         self.field_layout.addRow(self.reason_field)
         self.field_layout.addRow(self.other_reason_field)
         self.field_box.setLayout(self.field_layout)
 
-        self.save_data_button = MyPushButton(text='Save')
-        self.manage_data_act_close_button = MyPushButton(text='Close')
-        self.manage_data_act_box = MyGroupBox()
-        self.manage_data_act_layout = MyHBoxLayout()
+        self.save_data_button = MyPushButton(object_name='save_button', text='Save')
+        self.manage_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.manage_data_act_box = MyGroupBox(object_name='manage_data_act_box')
+        self.manage_data_act_layout = MyHBoxLayout(object_name='manage_data_act_layout')
         self.manage_data_act_layout.addWidget(self.save_data_button,1,Qt.AlignmentFlag.AlignRight)
         self.manage_data_act_layout.addWidget(self.manage_data_act_close_button)
         self.manage_data_act_box.setLayout(self.manage_data_act_layout)
@@ -103,7 +103,7 @@ class MyTransactionView(MyWidget):
         self.manage_data_dialog.setLayout(self.manage_data_layout)
 
     def set_overview_table_act_box(self):
-        self.void_data_button = MyPushButton(text='Void')
+        self.void_data_button = MyPushButton(object_name='void_data_button', text='Void')
         self.item_sold_overview_act_box = MyGroupBox(object_name='item_sold_overview_act_box')
         self.item_sold_overview_act_layout = MyHBoxLayout(object_name='item_sold_overview_act_layout')
         self.item_sold_overview_act_layout.addWidget(self.void_data_button)
@@ -192,12 +192,13 @@ class MyTransactionController:
         self.v.set_manage_data_box()
         self.load_combo_box_data()
 
+        print('b4 data[13]:', data[13])
+
         self.m.sel_item_sold_id = data[9]
         self.m.sel_product_price_id = data[10]
         self.m.sel_customer_id = data[11]
         self.m.sel_user_id = data[12]
-        self.m.sel_stock_id = data[13]
-
+        self.m.sel_stock_id = 0 if data[13] is None else data[13]
         self.m.sel_product_qty = data[3]
 
         self.set_manage_data_box_conn()

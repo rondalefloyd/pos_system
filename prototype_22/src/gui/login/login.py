@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.admin.admin import MyAdminWindow, MyAdminView
 from src.gui.cashier.cashier import MyCashierWindow, MyCashierView
@@ -19,41 +19,31 @@ login_schema = MyLoginSchema()
 class MyLoginModel:
     def __init__(self):
         pass
-
 class MyLoginView(MyDialog):
     def __init__(self, model: MyLoginModel):
         super().__init__(object_name='MyLoginView', window_title='Login')
 
         self.model = model
 
-        self.set_main_dialog()
-
-    def set_main_dialog(self):
-        self.main_layout = MyVBoxLayout()
-        
         self.set_login_box()
 
-        self.main_layout.addWidget(self.login_box)
-        self.setLayout(self.main_layout)
-
     def set_login_box(self):
-        self.login_box = MyGroupBox()
-        self.login_layout = MyVBoxLayout()
         self.user_name_label = MyLabel(text='Username')
-        self.user_name_field = MyComboBox(object_name='user_name_field')
+        self.user_name_field = MyLineEdit(object_name='user_name_field')
         self.user_password_label = MyLabel(text='Password')
         self.user_password_field = MyLineEdit(object_name='user_password_field')
-        self.login_button = MyPushButton(text='Login')
+        self.login_button = MyPushButton(object_name='login_button', text='Login')
+        self.login_layout = MyVBoxLayout(object_name='login_layout')
         self.login_layout.addWidget(self.user_name_label)
         self.login_layout.addWidget(self.user_name_field)
         self.login_layout.addWidget(self.user_password_label)
-        self.login_layout.addWidget(self.user_password_field,4,Qt.AlignmentFlag.AlignTop)
+        self.login_layout.addWidget(self.user_password_field,3,Qt.AlignmentFlag.AlignTop)
         self.login_layout.addWidget(self.login_button,0,Qt.AlignmentFlag.AlignBottom)
-        self.login_box.setLayout(self.login_layout)
+        self.setLayout(self.login_layout)
 
     def set_dev_dialog(self):
         self.reg_user_name_label = MyLabel(text='Name')
-        self.reg_user_name_field = MyComboBox(object_name='reg_user_name_field')
+        self.reg_user_name_field = MyLineEdit(object_name='reg_user_name_field')
         self.reg_user_password_label = MyLabel(text='Password')
         self.reg_user_password_field = MyLineEdit(object_name='reg_user_password_field')
         self.reg_user_access_level_label = MyLabel(text='Access level')
@@ -88,7 +78,7 @@ class MyLoginController:
         self.view.login_button.clicked.connect(self.on_login_button_clicked)
         pass
     def on_login_button_clicked(self):
-        user_name = self.view.user_name_field.currentText()
+        user_name = self.view.user_name_field.text()
         user_password = self.view.user_password_field.text()
 
         print('user_name:', user_name) # REVIEW!!!!
@@ -119,18 +109,18 @@ class MyLoginController:
 
             if user_id > 0 and user_level == 1:
                 self.view.close()
-                cashier_window_process = subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/cashier/cashier.py', str(user_name), str(user_phone)])
+                cashier_window_process = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/gui/cashier/cashier.py', str(user_name), str(user_phone)])
                 return True
                 pass
             elif user_id > 0 and user_level == 2:
                 self.view.close()
-                admin_window_process = subprocess.run(['python', '-Xfrozen_modules=off', 'src/gui/admin/admin.py', str(user_name), str(user_phone)])
+                admin_window_process = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/gui/admin/admin.py', str(user_name), str(user_phone)])
                 pass
             else:
                 QMessageBox.critical(self.view, 'Error', 'User not found.')
             pass
     def on_reg_user_button_clicked(self):
-        user_name = self.view.reg_user_name_field.currentText()
+        user_name = self.view.reg_user_name_field.text()
         user_password = self.view.reg_user_password_field.text()
         user_level = self.view.reg_user_access_level_field.currentText()
         user_phone = self.view.reg_user_phone_field.text()
@@ -174,7 +164,7 @@ class MyLoginController:
         pass
 
     def clear_login_field(self):
-        self.view.user_name_field.clearEditText()
+        self.view.user_name_field.clear()
         self.view.user_password_field.clear()
 
 class MyLoginWindow:
@@ -184,6 +174,7 @@ class MyLoginWindow:
         self.controller = MyLoginController(self.model, self.view)
 
     def run(self):
+        open('login_running.flag', 'w').close()
         self.view.show()
     pass
 

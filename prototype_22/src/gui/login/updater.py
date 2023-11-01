@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from src.core.csv_to_db_importer import MyDataImportThread
 from src.gui.widget.my_widget import *
@@ -38,7 +38,7 @@ class MyUpdaterView(MyDialog):
         # self.progress_label = MyLabel(object_name='progress_label', text='Please wait...')
         self.other_label_a = MyLabel(object_name='other_label_a', text='Please wait while updating database')
         self.progress_dialog = MyDialog(object_name='updater_progress_dialog', window_title='99% complete')
-        self.progress_layout = MyVBoxLayout()
+        self.progress_layout = MyVBoxLayout(object_name='progress_layout')
         self.progress_layout.addWidget(self.progress_bar)
         # self.progress_layout.addWidget(self.progress_label)
         self.progress_layout.addWidget(self.other_label_a)

@@ -1,0 +1,70 @@
+TIME_STAMP: Tue-Oct-31-2023-12:58AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-01:02AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-01:06AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-08:58AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-08:59AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-09:00AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-09:05AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-09:05AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-09:06AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-09:08AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-09:13AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-09:14AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-09:17AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Tue-Oct-31-2023-09:18AM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
