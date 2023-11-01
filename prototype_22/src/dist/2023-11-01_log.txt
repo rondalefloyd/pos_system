@@ -1,4 +1,0 @@
-[2023-11-01 21:46:35.696273] [near ",": syntax error] [G:/My Drive/csv/product.csv contains missing values in row 408]
-[2023-11-01 21:46:35.702277] [near ",": syntax error] [G:/My Drive/csv/product.csv contains missing values in row 410]
-[2023-11-01 21:46:39.282047] [near ",": syntax error] [G:/My Drive/csv/product.csv contains missing values in row 2144]
-[2023-11-01 21:46:41.224403] [near ",": syntax error] [G:/My Drive/csv/product.csv contains missing values in row 2965]
