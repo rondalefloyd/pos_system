@@ -62,6 +62,6 @@ def copy_live_db_to_reports_db():
         error_tracer(error_exception)
     pass
 
-# export_gsheet_as_csv()
+export_gsheet_as_csv()
 run_pos_app()
 copy_live_db_to_reports_db()

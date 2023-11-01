@@ -1,68 +1,79 @@
-import gspread
-import pandas as pd
-
-# Path to your local Google Sheets file
-file_path = r"C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/core/smpos-403608-aa14a49badc1.json"
-
-# Authenticate with your Google account (Make sure you have gspread OAuth2 credentials set up)
-gc = gspread.service_account(filename=file_path)
-
-# Open the local Google Sheets file by its title or URL
-# Replace 'My Spreadsheet' with the actual title or URL of your Google Sheets file
-spreadsheet = gc.open('test_product_list')
-
-# Select a specific worksheet
-worksheet = spreadsheet.get_worksheet(0)  # Replace 0 with the index of your desired worksheet
-
-# Get the worksheet data as a list of dictionaries
-data = worksheet.get_all_records()
-
-# Export the data to a CSV file using pandas
-df = pd.DataFrame(data)
-df.to_csv('G:/My Drive/csv/product.csv', index=False)
-
-
-# import os
-# import pygsheets
-# from google.oauth2.service_account import Credentials
-
-
-# # Authenticate using the local Google Sheets file
-# credentials = Credentials.from_service_account_file(r"G:/My Drive/sito/test_product_list.gsheet")
-# gc = pygsheets.authorize(custom_credentials=credentials)
-
-# # Open the local Google Sheets file
-# spreadsheet = gc.open_by_key('1NzDOaFMnEoKNILh6yDjFUjalj3stZxi0mZ7QjvVooXY')
-
-# # Select a specific worksheet
-# worksheet = spreadsheet.product  # Replace 'product' with the name of your worksheet
-
-# # Export the worksheet as a Pandas DataFrame
-# df = worksheet.get_as_df()
-
-# # Export the DataFrame to a CSV file
-# df.to_csv('output.csv', index=False)
-
-
-
-# import gspread
-# import pygsheets
-# import pandas as pd
-
-# # Authenticate with your service account JSON key
-# gc = pygsheets.authorize(service_file='C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/core/smpos-403608-aa14a49badc1.json')
-
-# # Open the Google Sheets file by its title or URL
-# # Replace 'My Spreadsheet' with the actual title or URL of your Google Sheets file
-# spreadsheet = gc.open('G:/My Drive/scan-it-to-office/test_product_list.gsheet')
-
-# # Select a specific worksheet
-# worksheet = spreadsheet.test_product_list  # Replace 'sheet1' with the name of your worksheet
-
-# # Export the worksheet as a Pandas DataFrame
-# df = worksheet.get_as_df()
-
-# # Export the DataFrame to a CSV file
-# df.to_csv('output.csv', index=False)
-
-# print('sucess')
+pip install altgraph                  0.17.3
+pip install appdirs                   1.4.4
+pip install argcomplete               3.1.1
+pip install cachetools                5.3.2
+pip install certifi                   2023.7.22
+pip install charset-normalizer        3.3.1
+pip install click                     8.1.7
+pip install colorama                  0.4.6
+pip install docx2pdf                  0.1.8
+pip install google-api-core           2.12.0
+pip install google-api-python-client  2.105.0
+pip install google-auth               2.23.3
+pip install google-auth-httplib2      0.1.1
+pip install google-auth-oauthlib      1.1.0
+pip install googleapis-common-protos  1.61.0
+pip install gspread                   5.12.0
+pip install httplib2                  0.22.0
+pip install idna                      3.4
+pip install lxml                      4.9.3
+pip install numpy                     1.25.2
+pip install oauth2client              4.1.3
+pip install oauthlib                  3.2.2
+pip install pandas                    2.1.0
+pip install pefile                    2023.2.7
+pip install Pillow                    10.0.0
+pip install pip                       23.2.1
+pip install protobuf                  4.24.4
+pip install py-machineid              0.4.4
+pip install py2exe                    0.13.0.1
+pip install pyasn1                    0.5.0
+pip install pyasn1-modules            0.3.0
+pip install pygsheets                 2.0.6
+pip install pyinstaller               5.13.0
+pip install pyinstaller-hooks-contrib 2023.6
+pip install PyMuPDF                   1.23.3
+pip install PyMuPDFb                  1.23.3
+pip install pyparsing                 3.1.1
+pip install PyPDF2                    3.0.1
+pip install pypng                     0.20220715.0
+pip install PyQt5                     5.15.9
+pip install PyQt5-Qt5                 5.15.2
+pip install PyQt5-sip                 12.12.2
+pip install PyQt6                     6.4.2
+pip install pyqt6-plugins             6.4.2.2.3
+pip install PyQt6-Qt6                 6.4.3
+pip install PyQt6-sip                 13.5.2
+pip install pyqt6-tools               6.4.2.3.3
+pip install PyQt6-WebEngine           6.5.0
+pip install PyQt6-WebEngine-Qt6       6.5.2
+pip install PyQtWebEngine             5.15.6
+pip install PyQtWebEngine-Qt5         5.15.2
+pip install pyserial                  3.5
+pip install python-barcode            0.15.1
+pip install python-dateutil           2.8.2
+pip install python-docx               0.8.11
+pip install python-dotenv             1.0.0
+pip install python-escpos             2.2.0
+pip install pytz                      2023.3.post1
+pip install pyusb                     1.2.1
+pip install pywin32                   306
+pip install pywin32-ctypes            0.2.2
+pip install PyYAML                    6.0.1
+pip install qrcode                    7.4.2
+pip install qt6-applications          6.4.3.2.3
+pip install qt6-tools                 6.4.3.1.3
+pip install reportlab                 4.0.4
+pip install requests                  2.31.0
+pip install requests-oauthlib         1.3.1
+pip install rsa                       4.9
+pip install schedule                  1.2.0
+pip install setuptools                65.5.0
+pip install six                       1.16.0
+pip install tqdm                      4.66.1
+pip install typing_extensions         4.7.1
+pip install tzdata                    2023.3
+pip install uritemplate               4.1.1
+pip install urllib3                   2.0.7
+pip install wheel                     0.41.0
+pip install winregistry               1.1.1
