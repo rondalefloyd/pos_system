@@ -91,7 +91,7 @@ class ReceiptGenerator(QThread):
             
         # NOTE: can be used just in case
         self.doc.Protect(Password='123', NoReset=True, Type=3)
-        self.doc.SaveAs(os.path.abspath(f'G:/My Drive/receipt/saved/{ref_number}.docx'))  # Save with the same file path to overwrite the original
+        self.doc.Save(os.path.abspath(f'G:/My Drive/receipt/saved/{ref_number}.docx'))  # Save with the same file path to overwrite the original
         
         # self.doc.ExportAsFixedFormat(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.pdf'), 17)  # 17 represents PDF format
 
