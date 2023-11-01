@@ -22,6 +22,7 @@ class MyAdminModel:
 class MyAdminView(MyWidget):
     def __init__(self, model: MyAdminModel):
         super().__init__(object_name='MyAdminView', window_title='Admin')
+        self.setWindowState(Qt.WindowState.WindowMaximized)
 
         self.m = model
 

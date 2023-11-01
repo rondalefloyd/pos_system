@@ -25,30 +25,21 @@ class MyLoginView(MyDialog):
 
         self.model = model
 
-        self.set_main_dialog()
-
-    def set_main_dialog(self):
-        self.main_layout = MyVBoxLayout()
-        
         self.set_login_box()
 
-        self.main_layout.addWidget(self.login_box)
-        self.setLayout(self.main_layout)
-
     def set_login_box(self):
-        self.login_box = MyGroupBox()
-        self.login_layout = MyVBoxLayout()
         self.user_name_label = MyLabel(text='Username')
         self.user_name_field = MyLineEdit(object_name='user_name_field')
         self.user_password_label = MyLabel(text='Password')
         self.user_password_field = MyLineEdit(object_name='user_password_field')
-        self.login_button = MyPushButton(text='Login')
+        self.login_button = MyPushButton(object_name='login_button', text='Login')
+        self.login_layout = MyVBoxLayout(object_name='login_layout')
         self.login_layout.addWidget(self.user_name_label)
         self.login_layout.addWidget(self.user_name_field)
         self.login_layout.addWidget(self.user_password_label)
-        self.login_layout.addWidget(self.user_password_field,4,Qt.AlignmentFlag.AlignTop)
+        self.login_layout.addWidget(self.user_password_field,3,Qt.AlignmentFlag.AlignTop)
         self.login_layout.addWidget(self.login_button,0,Qt.AlignmentFlag.AlignBottom)
-        self.login_box.setLayout(self.login_layout)
+        self.setLayout(self.login_layout)
 
     def set_dev_dialog(self):
         self.reg_user_name_label = MyLabel(text='Name')

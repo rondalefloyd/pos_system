@@ -21,6 +21,7 @@ class MyCashierModel:
 class MyCashierView(MyWidget):
     def __init__(self, model: MyCashierModel):
         super().__init__(object_name='MyCashierView', window_title='Cashier')
+        self.setWindowState(Qt.WindowState.WindowMaximized)
 
         self.m = model
 

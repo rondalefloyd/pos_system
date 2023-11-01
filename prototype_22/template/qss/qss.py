@@ -7,6 +7,7 @@ class MyQSSConfig:
         self.file_names()
         self.field_indicator()
         self.color_scheme()
+        self.main_icon()
         self.nav_icon()
         self.act_icon()
         self.pos_icon()
@@ -32,12 +33,15 @@ class MyQSSConfig:
         self.valid_points_indicator = "<font color='red'>required</font>"
 
     def color_scheme(self):
-        self.main_color = '#ee4e34'
-        self.main_color_alt = '#ddee4e34'
-        self.secondary_color = '#fcedda'
-        self.secondary_color_alt = '#ddfcedda'
-        self.main_text_color = '#fff'
+        self.main_color = '#AA96DA'
+        self.main_color_alt = '#ddAA96DA'
+        self.secondary_color = '#FFFFD2'
+        self.secondary_color_alt = '#ddFFFFD2'
+        self.main_txt_color = '#fff'
+        self.default_panel_color = '#fff'
+        self.default_hr_color = '#ddd'
         self.secondary_text_color = '#222'
+        self.disabled_bg_color = '#aaa'
 
         self.navbar_bg_color = '#222'
         self.navbar_btn_txt_color = '#fff'
@@ -48,16 +52,27 @@ class MyQSSConfig:
         self.act_btn_bg_color_alt = '#33000000'
 
         self.act_neg_txt_color = '#fff'
-        self.act_neg_bg_color = '#eb4034'
-        self.act_neg_bg_color_alt = '#ddeb4034'
+        self.act_neg_bg_color = '#e60000'
+        self.act_neg_bg_color_alt = '#aae60000'
 
         self.act_pos_txt_color = '#fff'
         self.act_pos_bg_color = '#32a852'
         self.act_pos_bg_color_alt = '#dd32a852'
 
         self.act_pas_txt_color = '#fff'
-        self.act_pas_bg_color = '#ff6c54'
+        self.act_pas_bg_color = '#33ffffff'
         self.act_pas_bg_color_alt = '#33000000'
+
+        self.act_sm_neg_txt_color = '#fff'
+        self.act_sm_neg_bg_color = '#eb9e34'
+        self.act_sm_neg_bg_color_alt = '#aaeb9e34'
+
+        self.act_clr_txt_color = '#fff'
+        self.act_clr_bg_color = '#cf9500'
+        self.act_clr_bg_color_alt = '#aacf9500'
+
+    def main_icon(self):
+        self.app_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/app.png"
 
     def nav_icon(self):
         self.nav_product_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/nav/nav_product.png"
@@ -90,6 +105,12 @@ class MyQSSConfig:
 
         self.add_products_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/add_products.png"
 
+        self.clear_table_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/clear_table.png"
+
+        self.locked_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/locked.png"
+        self.unlocked_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/unlocked.png"
+        self.pay_order_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/pay_order.png"
+
         self.product_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/product.png"
         self.promo_indicator_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/promo_indicator.png"
         self.out_of_stock_indicator_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/out_of_stock_indicator.png"
@@ -102,3 +123,11 @@ class MyQSSConfig:
         self.drop_qty_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/drop_qty.png"
         self.add_qty_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/add_qty.png"
         self.edit_qty_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/edit_qty.png"
+
+        self.toggle_numpad_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/toggled_numpad.png"
+        self.untoggle_numpad_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/untoggled_numpad.png"
+
+        self.pay_cash_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/pay_cash.png"
+        self.pay_points_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/pos/pay_points.png"
+
+        self.print_receipt_icon = "C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/template/icon/act/print_receipt.png"
