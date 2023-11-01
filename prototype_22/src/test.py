@@ -1,79 +1,79 @@
-pip install altgraph                  0.17.3
-pip install appdirs                   1.4.4
-pip install argcomplete               3.1.1
-pip install cachetools                5.3.2
-pip install certifi                   2023.7.22
-pip install charset-normalizer        3.3.1
-pip install click                     8.1.7
-pip install colorama                  0.4.6
-pip install docx2pdf                  0.1.8
-pip install google-api-core           2.12.0
-pip install google-api-python-client  2.105.0
-pip install google-auth               2.23.3
-pip install google-auth-httplib2      0.1.1
-pip install google-auth-oauthlib      1.1.0
-pip install googleapis-common-protos  1.61.0
-pip install gspread                   5.12.0
-pip install httplib2                  0.22.0
-pip install idna                      3.4
-pip install lxml                      4.9.3
-pip install numpy                     1.25.2
-pip install oauth2client              4.1.3
-pip install oauthlib                  3.2.2
-pip install pandas                    2.1.0
-pip install pefile                    2023.2.7
-pip install Pillow                    10.0.0
-pip install pip                       23.2.1
-pip install protobuf                  4.24.4
-pip install py-machineid              0.4.4
-pip install py2exe                    0.13.0.1
-pip install pyasn1                    0.5.0
-pip install pyasn1-modules            0.3.0
-pip install pygsheets                 2.0.6
-pip install pyinstaller               5.13.0
-pip install pyinstaller-hooks-contrib 2023.6
-pip install PyMuPDF                   1.23.3
-pip install PyMuPDFb                  1.23.3
-pip install pyparsing                 3.1.1
-pip install PyPDF2                    3.0.1
-pip install pypng                     0.20220715.0
-pip install PyQt5                     5.15.9
-pip install PyQt5-Qt5                 5.15.2
-pip install PyQt5-sip                 12.12.2
-pip install PyQt6                     6.4.2
-pip install pyqt6-plugins             6.4.2.2.3
-pip install PyQt6-Qt6                 6.4.3
-pip install PyQt6-sip                 13.5.2
-pip install pyqt6-tools               6.4.2.3.3
-pip install PyQt6-WebEngine           6.5.0
-pip install PyQt6-WebEngine-Qt6       6.5.2
-pip install PyQtWebEngine             5.15.6
-pip install PyQtWebEngine-Qt5         5.15.2
-pip install pyserial                  3.5
-pip install python-barcode            0.15.1
-pip install python-dateutil           2.8.2
-pip install python-docx               0.8.11
-pip install python-dotenv             1.0.0
-pip install python-escpos             2.2.0
-pip install pytz                      2023.3.post1
-pip install pyusb                     1.2.1
-pip install pywin32                   306
-pip install pywin32-ctypes            0.2.2
-pip install PyYAML                    6.0.1
-pip install qrcode                    7.4.2
-pip install qt6-applications          6.4.3.2.3
-pip install qt6-tools                 6.4.3.1.3
-pip install reportlab                 4.0.4
-pip install requests                  2.31.0
-pip install requests-oauthlib         1.3.1
-pip install rsa                       4.9
-pip install schedule                  1.2.0
-pip install setuptools                65.5.0
-pip install six                       1.16.0
-pip install tqdm                      4.66.1
-pip install typing_extensions         4.7.1
-pip install tzdata                    2023.3
-pip install uritemplate               4.1.1
-pip install urllib3                   2.0.7
-pip install wheel                     0.41.0
-pip install winregistry               1.1.1
+pip install altgraph          
+pip install appdirs
+pip install argcomplete
+pip install cachetools
+pip install certifi
+pip install charset-normalizer
+pip install click
+pip install colorama
+pip install docx2pdf
+pip install google-api-core
+pip install google-api-python-client
+pip install google-auth
+pip install google-auth-httplib2
+pip install google-auth-oauthlib
+pip install googleapis-common-protos
+pip install gspread
+pip install httplib2
+pip install idna
+pip install lxml
+pip install numpy
+pip install oauth2client
+pip install oauthlib
+pip install pandas
+pip install pefile
+pip install Pillow
+pip install pip
+pip install protobuf
+pip install py-machineid
+pip install py2exe
+pip install pyasn1
+pip install pyasn1-modules
+pip install pygsheets
+pip install pyinstaller
+pip install pyinstaller-hooks-
+pip install PyMuPDF
+pip install PyMuPDFb
+pip install pyparsing
+pip install PyPDF2
+pip install pypng
+pip install PyQt5
+pip install PyQt5-Qt5
+pip install PyQt5-sip
+pip install PyQt6
+pip install pyqt6-plugins
+pip install PyQt6-Qt6
+pip install PyQt6-sip
+pip install pyqt6-tools
+pip install PyQt6-WebEngine
+pip install PyQt6-WebEngine-Qt6
+pip install PyQtWebEngine
+pip install PyQtWebEngine-Qt5
+pip install pyserial
+pip install python-barcode
+pip install python-dateutil
+pip install python-docx
+pip install python-dotenv
+pip install python-escpos
+pip install pytz
+pip install pyusb
+pip install pywin32
+pip install pywin32-ctypes
+pip install PyYAML
+pip install qrcode
+pip install qt6-applications
+pip install qt6-tools
+pip install reportlab
+pip install requests
+pip install requests-oauthlib
+pip install rsa
+pip install schedule
+pip install setuptools
+pip install six
+pip install tqdm
+pip install typing_extensions
+pip install tzdata
+pip install uritemplate
+pip install urllib3
+pip install wheel
+pip install winregistry
