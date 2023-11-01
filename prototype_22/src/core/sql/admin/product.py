@@ -320,7 +320,7 @@ class MyProductSchema:
 
         self.sales_cursor.execute(f"""
             WITH RankedProduct AS (
-                SELECT 
+                SELECT DISTINCT
                     Item.Barcode, 
                     Item.Name, 
                     Item.ExpireDt, 

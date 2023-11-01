@@ -197,7 +197,7 @@ class MyPromoView(MyWidget):
         self.promo_overview_act_layout = MyHBoxLayout(object_name='promo_overview_act_layout')
         self.promo_overview_act_layout.addWidget(self.edit_data_button)
         self.promo_overview_act_layout.addWidget(self.view_data_button)
-        self.promo_overview_act_layout.addWidget(self.delete_data_button)
+        # self.promo_overview_act_layout.addWidget(self.delete_data_button)
         self.promo_overview_act_box.setLayout(self.promo_overview_act_layout)
 
     def set_view_dialog(self):

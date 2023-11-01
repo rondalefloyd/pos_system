@@ -204,7 +204,7 @@ class MyUserView(MyWidget):
         self.user_overview_act_layout = MyHBoxLayout(object_name='user_overview_act_layout')
         self.user_overview_act_layout.addWidget(self.edit_data_button)
         self.user_overview_act_layout.addWidget(self.view_data_button)
-        self.user_overview_act_layout.addWidget(self.delete_data_button)
+        # self.user_overview_act_layout.addWidget(self.delete_data_button)
         self.user_overview_act_box.setLayout(self.user_overview_act_layout)
 
     def set_view_dialog(self):

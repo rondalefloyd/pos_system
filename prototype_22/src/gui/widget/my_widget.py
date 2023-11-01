@@ -267,7 +267,7 @@ class MyTableWidget(QTableWidget):
             'item_sold_overview_table',
         ]:
             self.setShowGrid(False)
-            self.setWordWrap(False)
+            self.setWordWrap(True)
             self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
             self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -275,7 +275,7 @@ class MyTableWidget(QTableWidget):
             self.verticalHeader().setSectionsClickable(False)
             self.horizontalHeader().setSectionsClickable(False)
             self.setStyleSheet(f"""
-                QTableWidget#{self.object_name} {{ font-size: 10px; border: none; border-bottom: 1px solid #ddd}}
+                QTableWidget#{self.object_name} {{ border: none; border-bottom: 1px solid #ddd}}
                 QTableWidget#{self.object_name}::item {{ border-bottom: 1px solid #ddd; }}
                 QTableWidget#{self.object_name}::item:selected {{ background-color: #eee; }}
             """)
