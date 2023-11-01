@@ -1,7 +1,7 @@
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 import os, sys
 
-sys.path.append(r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22')
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from template.qss.qss import MyQSSConfig
 
