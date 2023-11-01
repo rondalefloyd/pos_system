@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22')
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.cashier.pos import MyPOSWindow
 from src.gui.cashier.transaction import MyTXNWindow

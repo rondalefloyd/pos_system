@@ -5,7 +5,7 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
 
-sys.path.append(r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22')
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from template.qss.qss import MyQSSConfig
 

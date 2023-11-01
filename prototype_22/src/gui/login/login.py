@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22')
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.admin.admin import MyAdminWindow, MyAdminView
 from src.gui.cashier.cashier import MyCashierWindow, MyCashierView
@@ -109,12 +109,12 @@ class MyLoginController:
 
             if user_id > 0 and user_level == 1:
                 self.view.close()
-                cashier_window_process = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/gui/cashier/cashier.py', str(user_name), str(user_phone)])
+                cashier_window_process = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/gui/cashier/cashier.py', str(user_name), str(user_phone)])
                 return True
                 pass
             elif user_id > 0 and user_level == 2:
                 self.view.close()
-                admin_window_process = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/gui/admin/admin.py', str(user_name), str(user_phone)])
+                admin_window_process = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/gui/admin/admin.py', str(user_name), str(user_phone)])
                 pass
             else:
                 QMessageBox.critical(self.view, 'Error', 'User not found.')
