@@ -425,6 +425,10 @@ class MyVBoxLayout(QVBoxLayout):
         self.setContentsMargins(0,0,0,0)
         self.setSpacing(0)
 
+        if self.object_name == 'progress_layout':
+            self.setContentsMargins(10,10,10,10)
+            self.setSpacing(5)
+
         if self.object_name == 'login_layout':
             
             self.setContentsMargins(20,20,20,20)

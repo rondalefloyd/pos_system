@@ -4,13 +4,30 @@ import time as tm
 import pythoncom
 import uuid
 import machineid
+import traceback
+import inspect
+import textwrap
+import win32com.client
 from datetime import *
 from docx2pdf import *
-import win32com.client
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
+
+def error_tracer(error_exception):
+    error_traceback = traceback.format_exc().splitlines()[-1]
+    error_line_number = inspect.currentframe().f_lineno
+    timestamp = datetime.today().strftime("%a-%b-%d-%Y-%I:%M%p")
+    error_layout = textwrap.dedent(f"""\
+        TIME_STAMP: {timestamp}, 
+        ERROR_LINE_NO: {error_line_number}, 
+        EXCEPTION: {error_exception}, 
+        ERROR_TRACEBACK: {error_traceback}
+
+    """)
+    with open(f"receipt_printer_{date.today()}_error_log.txt", 'a') as file: 
+        file.write(error_layout)
 
 class ReceiptGenerator(QThread):
     update = pyqtSignal(int)
@@ -78,9 +95,12 @@ class ReceiptGenerator(QThread):
         
         # self.doc.ExportAsFixedFormat(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.pdf'), 17)  # 17 represents PDF format
 
-        if self.action == 'print':
+        try:
             # Print the document
-            # self.updated_doc.PrintOut()
+            self.doc.PrintOut()
+        except Exception as error_exception:
+            print('print error')
+            error_tracer(error_exception)
             pass
 
         word.Quit()

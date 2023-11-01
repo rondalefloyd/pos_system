@@ -39,7 +39,7 @@ def export_gsheet_as_csv():
     pass
 def run_pos_app():
     try:
-        # subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/gui/login/updater.py']) # for loading database
+        subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/gui/login/updater.py']) # for loading database
 
         open('app_running.flag', 'w').close()
         while True:
