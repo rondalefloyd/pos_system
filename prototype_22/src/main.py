@@ -25,7 +25,7 @@ def error_tracer(error_exception):
 
 def export_gsheet_as_csv():
     try:
-        file_path = r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/core/smpos-403608-aa14a49badc1.json'
+        file_path = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/core/smpos-403608-aa14a49badc1.json'
 
         google_console = gspread.service_account(filename=file_path)
         spreadsheet = google_console.open('test_product_list')
@@ -39,11 +39,11 @@ def export_gsheet_as_csv():
     pass
 def run_pos_app():
     try:
-        subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/gui/login/updater.py']) # for loading database
+        subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/gui/login/updater.py']) # for loading database
 
         open('app_running.flag', 'w').close()
         while True:
-            login = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/gui/login/login.py'])
+            login = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/gui/login/login.py'])
 
             if not os.path.exists('login_running.flag') and not os.path.exists('app_running.flag'):
                 break
