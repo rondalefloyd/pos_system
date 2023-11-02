@@ -369,7 +369,6 @@ class MyProductSchema:
 
         return product_data
         pass
-    
     def select_product_data(self, product_barcode='', product_name=''):
         self.sales_cursor.execute(f"""
             SELECT

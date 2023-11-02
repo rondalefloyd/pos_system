@@ -13,8 +13,10 @@ class MyQSSConfig:
         self.nav_icon()
         self.act_icon()
         self.pos_icon()
+        self.font_family()
 
-
+    def font_family(self):
+        self.global_font = 'Bahnschrift'
 
     def file_paths(self):
         self.db_file_path = 'G:/My Drive/live_db/'

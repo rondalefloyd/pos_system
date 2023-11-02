@@ -184,9 +184,9 @@ class MyCustomerView(MyWidget):
         self.customer_phone_field = MyLineEdit(object_name='customer_phone_field')
         self.customer_age_label = MyLabel(text='Age')
         self.customer_age_field = MyLineEdit(object_name='customer_age_field')
-        self.customer_gender_label = MyLabel(text='Town')
+        self.customer_gender_label = MyLabel(text='Gender')
         self.customer_gender_field = MyComboBox(object_name='customer_gender_field')
-        self.customer_marstat_label = MyLabel(text='Points')
+        self.customer_marstat_label = MyLabel(text='Marital status')
         self.customer_marstat_field = MyComboBox(object_name='customer_marstat_field')
         self.customer_points_label = MyLabel(object_name='customer_points_label', text='Points')
         self.customer_points_field = MyLineEdit(object_name='customer_points_field')
@@ -513,8 +513,8 @@ class MyCustomerController:
         customer_town = self.v.customer_town_field.currentText()
         customer_phone = self.v.customer_phone_field.text()
         customer_age = self.v.customer_age_field.text()
-        customer_gender = self.v.customer_town_field.currentText()
-        customer_marstat =  self.v.customer_town_field.currentText()
+        customer_gender = self.v.customer_gender_field.currentText()
+        customer_marstat =  self.v.customer_marstat_field.currentText()
         customer_points = self.v.customer_points_field.text() if task == 'edit_data' else '0'
 
         self.m.init_manage_data_entry(

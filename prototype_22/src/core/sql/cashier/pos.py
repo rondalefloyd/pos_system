@@ -86,7 +86,7 @@ class MyPOSSchema:
         #         Promo.PromoId, 
         #         Stock.StockId,
                                 
-        #         ROW_NUMBER() OVER(PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+        #         ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
         #     FROM ItemPrice
         #     LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
         #     LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -108,7 +108,7 @@ class MyPOSSchema:
 
         self.sales_cursor.execute(f"""
             WITH RankedProduct AS (
-                SELECT 
+                SELECT DISTINCT
                     Item.Name, 
                     Brand.Name,     
                     Item.Barcode, 
@@ -124,7 +124,7 @@ class MyPOSSchema:
                     Promo.PromoId, 
                     Stock.StockId,
                                   
-                    ROW_NUMBER() OVER(PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                    ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
                 FROM ItemPrice
                 LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                 LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -235,7 +235,7 @@ class MyPOSSchema:
                         ItemPrice.ItemId,   
                         Promo.PromoId, 
                         Stock.StockId,
-                        ROW_NUMBER() OVER(PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                        ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
                     FROM ItemPrice
                     LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                     LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -267,15 +267,18 @@ class MyPOSSchema:
         pass
 
     def select_customer_data_with_customer_reward_data(self, customer_name):
-        self.sales_cursor.execute(f"""
-            SELECT Customer.Name, Customer.Phone, CustomerReward.Points FROM Customer
-            LEFT JOIN CustomerReward ON Customer.CustomerId = CustomerReward.CustomerId
-            WHERE Customer.Name = "{customer_name}"
-        """)
+        try:
+            self.sales_cursor.execute(f"""
+                SELECT Customer.Name, Customer.Phone, CustomerReward.Points FROM Customer
+                LEFT JOIN CustomerReward ON Customer.CustomerId = CustomerReward.CustomerId
+                WHERE Customer.Name = "{customer_name}"
+            """)
 
-        customer_data = self.sales_cursor.fetchall()
+            customer_data = self.sales_cursor.fetchall()
 
-        return customer_data[0]
+            return customer_data[0]
+        except Exception as e:
+            return ['N/A','N/A',0]
         pass
     def select_customer_name_for_combo_box(self):
         self.sales_cursor.execute(f"""

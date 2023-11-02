@@ -48,7 +48,15 @@ class MyTabWidget(QTabWidget):
         super().__init__()
 
         self.object_name = object_name
+        self.setObjectName(object_name)
+        self.setFont(QFont(qss.global_font))
+
+    def on_global_tab_widget(self):
+        self.setStyleSheet(f"""
+            QTabBar::tab {{ padding: 5px }}
+        """)
         pass
+
 class MyWidget(QWidget):
     close_signal = pyqtSignal(str)
     def __init__(self, object_name='', parent=None, window_title=''):
@@ -60,6 +68,7 @@ class MyWidget(QWidget):
         self.setObjectName(object_name)
         self.setWindowTitle(window_title)
         self.setWindowIcon(QIcon(qss.app_icon))
+        self.setFont(QFont(qss.global_font))
 
         self.on_global_widget()
         
@@ -172,6 +181,7 @@ class MyDialog(QDialog):
         self.setObjectName(object_name)
         self.setWindowTitle(window_title)
         self.setWindowIcon(QIcon(qss.app_icon))
+        self.setFont(QFont(qss.global_font))
 
         self.on_global_dialog()
 
@@ -237,6 +247,9 @@ class MyTableWidget(QTableWidget):
 
         self.object_name = object_name
         self.setObjectName(object_name)
+        self.setFont(QFont(qss.global_font))
+        self.horizontalHeader().setFont(QFont(qss.global_font))
+        self.verticalHeader().setFont(QFont(qss.global_font))
 
         self.on_global_table()
 
@@ -534,7 +547,6 @@ class MyHBoxLayout(QHBoxLayout):
             self.setSpacing(5)
         pass
 
-
 class MyGridLayout(QGridLayout):
     def __init__(self, object_name=''):
         super().__init__()
@@ -602,6 +614,7 @@ class MyLabel(QLabel):
 
         self.setObjectName(object_name)
         self.setText(text)
+        self.setFont(QFont(qss.global_font))
 
         self.on_global_label()
 
@@ -610,27 +623,23 @@ class MyLabel(QLabel):
         self.on_pos_label()
 
     def on_global_label(self):
-        if self.object_name in [
-            'progress_label', 
-            'other_label_a',
-            'product_price_label',
-        ]:
-            self.setStyleSheet(f"""
-                QLabel#progress_label,
-                QLabel#other_label_a {{ }}
-
-                QLabel#order_index_label {{ font-size: 15px; font-weight: bold; }}
-            """)
+        self.setStyleSheet(f"""
+            QLabel#tender_amount_label {{ font-size: 14px }}
+        """)
+        pass
 
     def on_customer_label(self):
-        if self.object_name == 'customer_points_label':
+        if self.object_name in ['customer_points_label', 'customer_points_display']:
             self.hide()
         pass
 
     def on_pos_label(self):
         self.setStyleSheet(f"""
-            QLabel#order_index_label {{ color: #fff }}
+            QLabel#order_index_label {{ color: #fff; font-size: 15px; font-weight: bold; }}
         """)
+        if self.object_name == 'order_type_display': 
+            self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 14px; font-weight: bold; padding: 0px 10px 0px 0px;}}")
+
         if self.object_name == 'product_name_label':
             self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 15px; font-weight: bold;}}")
             self.setWordWrap(True)
@@ -666,6 +675,18 @@ class MyLabel(QLabel):
             'cash_points_payment_compute_label',
         ]:
             self.setAlignment(Qt.AlignmentFlag.AlignRight)
+            self.setStyleSheet(f"""
+                QLabel#{self.object_name} {{ font-size: 14px }}
+            """)
+
+
+            if self.object_name in [
+                'order_total_display',
+                'final_order_total_display',
+            ]:
+                self.setStyleSheet(f"""
+                    QLabel#{self.object_name} {{ font-weight: bold; font-size: 18px }}
+                """)
 
         if self.object_name in [
             'transaction_payment_amount_display',
@@ -687,6 +708,9 @@ class MyComboBox(QComboBox):
         self.on_global_combo_box()
 
     def on_global_combo_box(self):
+        self.setStyleSheet(f"""
+            QComboBox {{ padding: 5px }}
+        """)
         if self.object_name in [
             'user_name_field', 
             'promo_type_field',
@@ -694,7 +718,8 @@ class MyComboBox(QComboBox):
             'customer_town_field',
             'product_type_field',
             'product_brand_field',
-            'product_supplier_field',
+            'product_supplier_field',   
+            'customer_name_field',
             
         ]:
             self.setEditable(True)
@@ -713,6 +738,9 @@ class MyLineEdit(QLineEdit):
         self.on_promo_line_edit()
 
     def on_global_line_edit(self):
+        self.setStyleSheet(f"""
+            QLineEdit {{ padding: 5px }}
+        """)
         if self.object_name == 'user_password_field':
             self.setEchoMode(QLineEdit.EchoMode.Password)
             pass
@@ -742,6 +770,10 @@ class MyLineEdit(QLineEdit):
         ]:
             self.setText('0')
             self.setValidator(QRegularExpressionValidator(QRegularExpression(r'^\d{0,10}(\.\d{0,2})?$')))
+            if self.object_name == 'tender_amount_field':
+                self.setStyleSheet(f"""
+                    QLineEdit#{self.object_name} {{ font-size: 17px; padding: 10px; }}
+                """)
             
         if self.object_name == 'customer_age_field':
             self.setText('1')
@@ -804,8 +836,13 @@ class MyPlainTextEdit(QPlainTextEdit):
         super().__init__()
 
         self.object_name = object_name
-
+        self.setObjectName(object_name)
         self.on_transaction_plain_text_edit()
+
+    def on_global_plain_text_edit(self):
+        self.setStyleSheet(f"""
+            QPlainTextEdit {{ padding: 5px }}
+        """)
 
     def on_transaction_plain_text_edit(self):
         if self.object_name == 'other_reason_field':
@@ -816,9 +853,15 @@ class MyDateEdit(QDateEdit):
         super().__init__()
 
         self.object_name = object_name
-
+        self.setObjectName(object_name)
         self.setCalendarPopup(True)
         self.setMinimumDate(QDate().currentDate())
+        self.on_global_date_edit()
+
+    def on_global_date_edit(self):
+        self.setStyleSheet(f"""
+            QDateEdit {{ padding: 5px }}
+        """)
         pass
 class MyPushButton(QPushButton):
     def __init__(self, object_name='', text='', disabled=False):
@@ -828,6 +871,7 @@ class MyPushButton(QPushButton):
 
         self.setObjectName(object_name)
         self.setText(text)
+        self.setFont(QFont(qss.global_font))
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setDisabled(disabled)
 
@@ -1065,6 +1109,7 @@ class MyPushButton(QPushButton):
             self.setFixedWidth(100)
 
         if self.object_name == 'numpad_key_button':
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             self.setStyleSheet(f"""
                 QPushButton#{self.object_name} {{ background-color: {qss.main_color}; border: none; border-radius: 3px; color: {qss.main_txt_color}; font-size: 13px; font-weight: bold; padding: 10px; }}
                 QPushButton#{self.object_name}:hover {{ background-color: {qss.main_color_alt};}}

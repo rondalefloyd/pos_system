@@ -188,6 +188,7 @@ class ReceiptGenerator(QThread):
         ]
 
         table_index = 1  # Assuming Table B is the second table in the document
+        table_row = 1
         for i in range(2):
             # sample data
             final_qty = [item[0] for item in final_order_table[i]] # remove 'x' from quantities
@@ -221,11 +222,12 @@ class ReceiptGenerator(QThread):
                 row.Cells[0].Range.Text = qty
                 row.Cells[1].Range.Text = item_name
                 row.Cells[2].Range.Text = price
-
-            table_b.Rows[1].Delete()
             
             table_index += 1  # Assuming Table B is the second table in the document
 
+            table_b.Rows[table_row].Delete()
+            
+            table_row -= 1
 
         self.update.emit(2)
 
@@ -254,7 +256,7 @@ class ReceiptGenerator(QThread):
             for cell in row.Cells:
                 for placeholder, value in table_c_placeholders.items():
                     if placeholder in cell.Range.Text:
-                        cell.Range.Text = '₱' + cell.Range.Text.replace(placeholder, value).replace('\r', '').replace('\n', '')
+                        cell.Range.Text = cell.Range.Text.replace(placeholder, value).replace('\r', '').replace('\n', '')
 
         self.update.emit(3)
 
@@ -279,7 +281,7 @@ class ReceiptGenerator(QThread):
             for cell in row.Cells:
                 for placeholder, value in table_d_placeholders.items():
                     if placeholder in cell.Range.Text:
-                        cell.Range.Text = '₱' + cell.Range.Text.replace(placeholder, value).replace('\r', '').replace('\n', '')
+                        cell.Range.Text = cell.Range.Text.replace(placeholder, value).replace('\r', '').replace('\n', '')
 
         self.update.emit(4)
 
