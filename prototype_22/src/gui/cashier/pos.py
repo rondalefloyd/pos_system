@@ -784,6 +784,7 @@ class MyPOSController:
 
         pass
     def on_add_order_button_clicked(self):
+        self.v.barcode_scanner_field.setFocus()
         if self.v.order_type_field.currentText() in ['Retail','Wholesale']:
             self.m.order_number += 1
             self.add_order_handler()
@@ -885,6 +886,7 @@ class MyPOSController:
         
         if self.m.order_tables[i].rowCount() > 0:
             self.v.set_pay_order_dialog()
+            self.v.tender_amount_field.setFocus()
 
             order_tab_name = self.v.manage_order_tab.tabText(i)
 
@@ -1274,91 +1276,94 @@ class MyPOSController:
         # try:
         i = self.v.manage_order_tab.currentIndex()
 
-        order_tab_name = self.v.manage_order_tab.tabText(i)
-        sales_group_id = 0
-        payment_amount = 0
+        if float(self.v.tender_amount_field.text()) >= float(self.m.order_total_displays[i].text()):
+            order_tab_name = self.v.manage_order_tab.tabText(i)
+            sales_group_id = 0
+            payment_amount = 0
 
-        for tab_i in range(self.v.manage_order_tab.count()):
-            if self.v.manage_order_tab.tabText(tab_i) == order_tab_name:
-                sales_group_id += pos_schema.select_sales_group_id_by_name(sales_group_name=self.m.order_type_displays[tab_i].text())
-                
-        customer_id = pos_schema.select_customer_id_by_name(customer_name=self.m.customer_name_fields[i].currentText())
-        
-        order_subtotal = float(self.v.final_order_subtotal_display.text())
-        order_discount = float(self.v.final_order_discount_display.text())
-        order_tax = float(self.v.final_order_tax_display.text())
-        order_total = float(self.v.final_order_total_display.text())
+            for tab_i in range(self.v.manage_order_tab.count()):
+                if self.v.manage_order_tab.tabText(tab_i) == order_tab_name:
+                    sales_group_id += pos_schema.select_sales_group_id_by_name(sales_group_name=self.m.order_type_displays[tab_i].text())
+                    
+            customer_id = pos_schema.select_customer_id_by_name(customer_name=self.m.customer_name_fields[i].currentText())
+            
+            order_subtotal = float(self.v.final_order_subtotal_display.text())
+            order_discount = float(self.v.final_order_discount_display.text())
+            order_tax = float(self.v.final_order_tax_display.text())
+            order_total = float(self.v.final_order_total_display.text())
 
-        confirm = QMessageBox.warning(self.v.pay_order_dialog, 'Confirm', 'Proceed payment?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            confirm = QMessageBox.warning(self.v.pay_order_dialog, 'Confirm', 'Proceed payment?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
-        if confirm is QMessageBox.StandardButton.Yes:
-            if type == 'pay_cash':
-                payment_amount = float(self.v.tender_amount_field.text())
-                order_change = payment_amount - order_total
+            if confirm is QMessageBox.StandardButton.Yes:
+                if type == 'pay_cash':
+                    payment_amount = float(self.v.tender_amount_field.text())
+                    order_change = payment_amount - order_total
+                    pass
+                elif type == 'pay_points':
+                    payment_amount = float(self.m.final_customer_points_value)
+                    order_change = payment_amount - order_total
+                    pos_schema.update_customer_reward_points_by_decrement(customer_id, order_total)
+                    pass
+                elif type == 'pay_cash_points':
+                    final_customer_points = float(self.m.final_customer_points_value)
+                    payment_amount = float(self.v.tender_amount_field.text()) + final_customer_points
+                    order_change = payment_amount - order_total
+                    pos_schema.update_customer_reward_points_by_decrement(customer_id, (order_total - float(self.v.tender_amount_field.text())))
+
+
+                final_retail_order_table = self.v.final_order_table[0]
+                print('final_retail_order_table:', final_retail_order_table)
+                final_wholesale_order_table = self.v.final_order_table[1]
+                print('final_wholesale_order_table:', final_wholesale_order_table)
+                # TODO: APPEND FOR RECEIPT
+
+                self.m.append_final_order_info_for_receipt(
+                    sales_group_id=sales_group_id, 
+                    customer_id=customer_id, 
+
+                    order_subtotal=order_subtotal, 
+                    order_discount=order_discount, 
+                    order_tax=order_tax, 
+                    order_total=order_total, 
+                    payment_amount=payment_amount, 
+                    order_change=order_change, 
+                    final_retail_order_table=final_retail_order_table,
+                    final_wholesale_order_table=final_wholesale_order_table
+                )
+                # TODO: PERFORM TRANSACTION INSERTION
+
+
+                self.v.pay_order_dialog.close()
+
+                self.v.setup_transaction_complete_dialog()
+
+                if type == 'pay_cash':
+                    self.v.transaction_order_change_display.show()
+                    self.v.transaction_order_change_label.show()
+                elif type == 'pay_points':
+                    self.v.transaction_order_change_display.hide()
+                    self.v.transaction_order_change_label.hide()
+                elif type == 'pay_cash_points':
+                    self.v.transaction_order_change_display.show()
+                    self.v.transaction_order_change_label.show()
+
+
+                self.v.transaction_payment_amount_display.setText(f"₱{payment_amount:.2f}")
+                self.v.transaction_order_total_amount_display.setText(f"₱{order_total:.2f}")
+                self.v.transaction_order_change_display.setText(f"₱{order_change:.2f}")
+
+                self.set_transaction_complete_dialog_conn(sales_group_id=sales_group_id, order_tab_name=order_tab_name)
+
+                self.v.transaction_complete_dialog.exec()
+
+                self.discard_order_handler(order_tab_name=order_tab_name)
+
+                self.m.final_customer_points_value = 0
+
+            else:
                 pass
-            elif type == 'pay_points':
-                payment_amount = float(self.m.final_customer_points_value)
-                order_change = payment_amount - order_total
-                pos_schema.update_customer_reward_points_by_decrement(customer_id, order_total)
-                pass
-            elif type == 'pay_cash_points':
-                final_customer_points = float(self.m.final_customer_points_value)
-                payment_amount = float(self.v.tender_amount_field.text()) + final_customer_points
-                order_change = payment_amount - order_total
-                pos_schema.update_customer_reward_points_by_decrement(customer_id, (order_total - float(self.v.tender_amount_field.text())))
-
-
-            final_retail_order_table = self.v.final_order_table[0]
-            print('final_retail_order_table:', final_retail_order_table)
-            final_wholesale_order_table = self.v.final_order_table[1]
-            print('final_wholesale_order_table:', final_wholesale_order_table)
-            # TODO: APPEND FOR RECEIPT
-
-            self.m.append_final_order_info_for_receipt(
-                sales_group_id=sales_group_id, 
-                customer_id=customer_id, 
-
-                order_subtotal=order_subtotal, 
-                order_discount=order_discount, 
-                order_tax=order_tax, 
-                order_total=order_total, 
-                payment_amount=payment_amount, 
-                order_change=order_change, 
-                final_retail_order_table=final_retail_order_table,
-                final_wholesale_order_table=final_wholesale_order_table
-            )
-            # TODO: PERFORM TRANSACTION INSERTION
-
-
-            self.v.pay_order_dialog.close()
-
-            self.v.setup_transaction_complete_dialog()
-
-            if type == 'pay_cash':
-                self.v.transaction_order_change_display.show()
-                self.v.transaction_order_change_label.show()
-            elif type == 'pay_points':
-                self.v.transaction_order_change_display.hide()
-                self.v.transaction_order_change_label.hide()
-            elif type == 'pay_cash_points':
-                self.v.transaction_order_change_display.show()
-                self.v.transaction_order_change_label.show()
-
-
-            self.v.transaction_payment_amount_display.setText(f"₱{payment_amount:.2f}")
-            self.v.transaction_order_total_amount_display.setText(f"₱{order_total:.2f}")
-            self.v.transaction_order_change_display.setText(f"₱{order_change:.2f}")
-
-            self.set_transaction_complete_dialog_conn(sales_group_id=sales_group_id, order_tab_name=order_tab_name)
-
-            self.v.transaction_complete_dialog.exec()
-
-            self.discard_order_handler(order_tab_name=order_tab_name)
-
-            self.m.final_customer_points_value = 0
-
         else:
-            pass
+            QMessageBox.critical(self.v.pay_order_dialog, 'Error', 'Insufficient fund.')
         
         # except Exception as e:
         #     QMessageBox.critical(self.v.pay_order_dialog, 'Error', f"An error occured. <br> Error: {e}")

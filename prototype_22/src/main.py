@@ -6,8 +6,11 @@ import pandas as pd
 import traceback
 import inspect
 import textwrap
+import ctypes
 from datetime import *
 from PyQt6.QtCore import *
+
+ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
 
 def error_tracer(error_exception):
     error_traceback = traceback.format_exc().splitlines()[-1]

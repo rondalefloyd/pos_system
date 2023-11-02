@@ -641,7 +641,7 @@ class MyLabel(QLabel):
             self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 13px; font-weight: bold; }}")
             pass
         if self.object_name == 'product_price_label':
-            self.setStyleSheet(f"QLabel#{self.object_name} {{ color: {qss.act_pos_bg_color}; font-weight: bold; font-size: 15px; }}")
+            self.setStyleSheet(f"QLabel#{self.object_name} {{ color: {qss.main_color}; font-weight: bold; font-size: 15px; }}")
             pass
         if self.object_name == 'product_disc_value_label':
             pass

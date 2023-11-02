@@ -35,10 +35,10 @@ class MyQSSConfig:
         self.valid_points_indicator = "<font color='red'>required</font>"
 
     def color_scheme(self):
-        self.main_color = '#AA96DA'
-        self.main_color_alt = '#ddAA96DA'
-        self.secondary_color = '#FFFFD2'
-        self.secondary_color_alt = '#ddFFFFD2'
+        self.main_color = '#035efc'
+        self.main_color_alt = '#dd035efc'
+        self.secondary_color = '#96bdff'
+        self.secondary_color_alt = '#dd96bdff'
         self.main_txt_color = '#fff'
         self.default_panel_color = '#fff'
         self.default_hr_color = '#ddd'

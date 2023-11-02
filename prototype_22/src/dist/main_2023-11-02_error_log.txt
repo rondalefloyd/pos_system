@@ -1,5 +1,0 @@
-TIME_STAMP: Thu-Nov-02-2023-10:10AM, 
-ERROR_LINE_NO: 14, 
-EXCEPTION: [Errno 2] No such file or directory: 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/core/smpos-403608-aa14a49badc1.json', 
-ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22/src/core/smpos-403608-aa14a49badc1.json'
-

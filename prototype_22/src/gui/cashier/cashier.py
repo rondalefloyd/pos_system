@@ -108,7 +108,7 @@ class MyCashierWindow:
 
     def run(self):
         open('app_running.flag', 'w').close()
-        self.view.show()
+        self.view.showFullScreen()
     pass
 
 if __name__ == ('__main__'):
