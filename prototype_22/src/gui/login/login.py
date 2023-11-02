@@ -13,7 +13,6 @@ from src.gui.cashier.cashier import MyCashierWindow, MyCashierView
 from src.gui.widget.my_widget import *
 from src.core.sql.login import *
 
-
 login_schema = MyLoginSchema()
 
 class MyLoginModel:

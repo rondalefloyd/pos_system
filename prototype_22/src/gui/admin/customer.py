@@ -7,7 +7,6 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
 sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
-
 from src.gui.widget.my_widget import *
 from src.core.csv_to_db_importer import MyDataImportThread
 from src.core.sql.admin.customer import MyCustomerSchema

@@ -633,6 +633,7 @@ class MyLabel(QLabel):
         """)
         if self.object_name == 'product_name_label':
             self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 15px; font-weight: bold;}}")
+            self.setWordWrap(True)
             pass
         if self.object_name == 'product_barcode_label':
             pass

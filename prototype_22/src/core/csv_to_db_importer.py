@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(r'C:/Users/Janjan/Documents/GitHub/pos_system/prototype_22')
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
  
 from src.core.sql.admin.promo import *
 from src.core.sql.admin.user import *
@@ -75,12 +75,12 @@ class MyDataImportThread(QThread):
                         return
                 except Exception as e: 
                     specific_error = f"{self.csv_file_path} contains missing values in row {self.data_row}"
-                    with open(f"{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}] [{specific_error}]\n")
+                    with open(f"import_{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}] [{specific_error}]\n")
                 
             self.finished.emit()
 
         except Exception as e:
-            with open(f"{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}]\n")
+            with open(f"import_{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}]\n")
             self.invalid.emit()
         pass
 
