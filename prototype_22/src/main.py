@@ -43,7 +43,7 @@ def run_pos_app():
 
         open('app_running.flag', 'w').close()
         while True:
-            login = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/gui/login/login.py'])
+            login = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/gui/login/login.py'])
 
             if not os.path.exists('login_running.flag') and not os.path.exists('app_running.flag'):
                 break
