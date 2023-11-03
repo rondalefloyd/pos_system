@@ -78,6 +78,11 @@ class MyDataImportThread(QThread):
                     with open(f"import_{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}] [{specific_error}]\n")
                 
             self.finished.emit()
+            if self.data_name == 'promo': self.promo_schema.sales_conn.close()
+            elif self.data_name == 'user': self.user_schema.accounts_conn.close()
+            elif self.data_name == 'reward': self.reward_schema.sales_conn.close()
+            elif self.data_name == 'customer': self.customer_schema.sales_conn.close()
+            elif self.data_name == 'product': self.product_schema.sales_conn.close()
 
         except Exception as e:
             with open(f"import_{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}]\n")

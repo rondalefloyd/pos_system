@@ -50,11 +50,20 @@ class MyTabWidget(QTabWidget):
         self.object_name = object_name
         self.setObjectName(object_name)
         self.setFont(QFont(qss.global_font))
+        self.on_global_tab_widget()
 
     def on_global_tab_widget(self):
         self.setStyleSheet(f"""
-            QTabBar::tab {{ padding: 5px }}
+            QTabWidget::pane {{ background-color: {qss.default_panel_color}; border: None}}
+            QTabWidget > QTabBar::tab {{ background-color: {qss.default_panel_color}; height: 40px; width: 100px; font-size: 14px; padding: 0px 10px }}
+            QTabWidget > QTabBar::tab:selected {{ background-color: {qss.default_panel_color}; border-right: 1px solid {qss.default_line_color};     font-weight: bold }}
+            QTabWidget > QTabBar::tab:!selected {{ background-color: none; border-right: 1px solid {qss.default_line_color}; }}
+
+            QTabWidget#manage_order_tab {{ background-color: {qss.default_panel_color} }}
+            QTabWidget#manage_order_tab > QTabBar::tab {{ background-color: {qss.default_panel_color}; height: 30px; font-size: 13px; padding: 0px 10px }}
+            QTabWidget#manage_order_tab > QTabBar::tab:!selected {{ background-color: {qss.main_color}; border-right: 1px solid {qss.default_line_color}; color: {qss.main_txt_color} }}
         """)
+        self.tabBar().setCursor(Qt.CursorShape.PointingHandCursor)
         pass
 
 class MyWidget(QWidget):
@@ -123,10 +132,17 @@ class MyGroupBox(QGroupBox):
             
 
             QGroupBox#MyPOSView {{ background-color: {qss.secondary_color}}}
+    
+            QGroupBox#product_cell_display_box {{ 
+                background-color: #eee; 
+                border: none; 
+                border-top: 3px solid {qss.main_color}; 
+                border-bottom-left-radius: 3px;
+                border-bottom-right-radius: 3px;
+                margin: 10px; 
+                padding: 5px }}
 
-            QGroupBox#product_cell_display_box {{ background-color: #eee; border: 1px solid #eee; border-radius: 3px; margin: 10px; padding: 5px }}
-
-            QGroupBox#manage_order_box {{ background-color: {qss.main_color} }}
+            QGroupBox#manage_order_box {{ background-color: {qss.main_color}; border-left: 1px solid {qss.main_color}}}
 
             QGroupBox#manage_data_act_box,
             QGroupBox#payment_c_box,
@@ -269,6 +285,8 @@ class MyTableWidget(QTableWidget):
             'customer_overview_table',
             'user_overview_table',
             
+            'item_sold_overview_table',
+            
             'order_table',
             'final_order_table',
 
@@ -288,8 +306,8 @@ class MyTableWidget(QTableWidget):
             self.verticalHeader().setSectionsClickable(False)
             self.horizontalHeader().setSectionsClickable(False)
             self.setStyleSheet(f"""
-                QTableWidget#{self.object_name} {{ border: none; border-bottom: 1px solid #ddd}}
-                QTableWidget#{self.object_name}::item {{ border-bottom: 1px solid #ddd; padding: 10px 10px}}
+                QTableWidget#{self.object_name} {{ border: none; border-bottom: 1px solid {qss.default_line_color}}}
+                QTableWidget#{self.object_name}::item {{ border-bottom: 1px solid {qss.default_line_color}; padding: 10px 10px}}
                 QTableWidget#{self.object_name}::item:selected {{ background-color: #eee; }}
                 QHeaderView::section:horizontal {{ background-color: {qss.navbar_bg_color}; color: {qss.navbar_btn_txt_color}; font-weight: bold; border: None; padding: 5px 5px;}}
             """)
@@ -317,8 +335,8 @@ class MyTableWidget(QTableWidget):
             self.setHorizontalHeaderLabels(['Action','Name','Password','Access level','Phone','Date/Time created'])
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
             self.horizontalHeader().resizeSection(0, 175)
-            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
@@ -341,8 +359,8 @@ class MyTableWidget(QTableWidget):
             self.setHorizontalHeaderLabels(['Action','Name','Address','Barrio','Town','Phone','Age','Gender','Marital status','Points','Date/Time created'])
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
             self.horizontalHeader().resizeSection(0, 175)
-            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
@@ -397,7 +415,7 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setHidden(True)
             self.verticalHeader().setHidden(True)
             self.setStyleSheet(f"""
-                QTableWidget#{self.object_name} {{ border: none; }}
+                QTableWidget#{self.object_name} {{ border: none; border-bottom: 1px solid {qss.default_line_color}}}
             """)
 
             pass
@@ -473,7 +491,8 @@ class MyVBoxLayout(QVBoxLayout):
             'transaction_complete_act_a_layout',
             'sub_field_layout',
             'customer_data_layout',
-        ]: 
+            'transaction_info_layout',
+        ]:
             self.setSpacing(5)
         pass
 class MyHBoxLayout(QHBoxLayout):
@@ -537,7 +556,7 @@ class MyHBoxLayout(QHBoxLayout):
             self.setSpacing(5)
 
         if self.object_name == 'extra_info_layout':
-            self.setContentsMargins(10,0,10,0)
+            self.setContentsMargins(10,10,10,10)
             self.setSpacing(20)
 
         if self.object_name == 'final_customer_info_layout':
@@ -637,6 +656,9 @@ class MyLabel(QLabel):
                            
             QLabel#current_cashier_label,
             QLabel#current_phone_label {{ color: {qss.main_txt_color}; font-size: 14px;}}
+            QLabel#transaction_order_total_amount_label,
+            QLabel#transaction_payment_amount_label,
+            QLabel#transaction_order_change_label {{ font-size: 14px;}}
 
             QLabel#order_index_label {{ color: {qss.main_txt_color}; font-size: 16px; font-weight: bold; }}
 
@@ -665,10 +687,10 @@ class MyLabel(QLabel):
             self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 14px }}")
             pass
         if self.object_name == 'product_price_label':
-            self.setStyleSheet(f"QLabel#{self.object_name} {{ color: {qss.main_color}; font-weight: bold; font-size: 15px; }}")
+            self.setStyleSheet(f"QLabel#{self.object_name} {{ color: {qss.act_pos_bg_color}; font-weight: bold; font-size: 15px; }}")
             pass
         if self.object_name == 'product_disc_value_label':
-            self.setStyleSheet(f"QLabel#{self.object_name} {{ color: {qss.act_neg_bg_color}; font-weight: bold; font-size: 15px; }}")
+            self.setStyleSheet(f"QLabel#{self.object_name} {{ color: {qss.act_neg_bg_color}; font-weight: bold; font-size: 12px; }}")
             pass
         if self.object_name == 'product_effective_dt_label':
             pass
@@ -778,6 +800,7 @@ class MyLineEdit(QLineEdit):
     def on_global_line_edit(self):
         self.setStyleSheet(f"""
             QLineEdit {{ border: 1px solid {qss.default_line_color}; border-radius: 3px; padding: 9px}}
+            QLineEdit#barcode_scanner_field:focus {{ border: 3px solid {qss.act_pos_bg_color} }} 
         """)
         if self.object_name == 'user_password_field':
             self.setEchoMode(QLineEdit.EchoMode.Password)
@@ -851,7 +874,8 @@ class MyLineEdit(QLineEdit):
             except ValueError as e:
                 self.setText('09')
         pass
-
+    
+    # NOTE: event methods
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
         if self.object_name in [
@@ -1174,8 +1198,8 @@ class MyPushButton(QPushButton):
             self.setStyleSheet(f"""
                 QPushButton#{self.object_name} {{ background-color: none; border: none; }}
             """)
-            self.setIconSize(QSize(20,20))
-            self.setFixedSize(20,20)
+            self.setIconSize(QSize(15,15))
+            self.setFixedSize(15,15)
             self.setCursor(Qt.CursorShape.ArrowCursor)
             if self.object_name == 'product_promo_indicator': self.setIcon(QIcon(qss.product_promo_indicator_icon))
             if self.object_name == 'out_of_stock_indicator': self.setIcon(QIcon(qss.out_of_stock_indicator_icon))

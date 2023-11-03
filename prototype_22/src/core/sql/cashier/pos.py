@@ -68,44 +68,6 @@ class MyPOSSchema:
     def select_product_data_as_display(self, text='', order_type='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
-
-        # self.sales_cursor.execute(f"""
-        #     SELECT 
-        #         Item.Name, 
-        #         Brand.Name,     
-        #         Item.Barcode, 
-        #         ItemPrice.SellPrice, 
-        #         ItemPrice.DiscountValue, 
-        #         ItemPrice.EffectiveDt, 
-        #         Stock.OnHand,
-        #         Item.ItemId,
-
-        #         SalesGroup.SalesGroupId, 
-        #         ItemPrice.ItemPriceId,
-        #         ItemPrice.ItemId,   
-        #         Promo.PromoId, 
-        #         Stock.StockId,
-                                
-        #         ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
-        #     FROM ItemPrice
-        #     LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
-        #     LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
-        #     LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
-        #     LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
-        #     LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
-        #     LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
-        #     LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
-        #     WHERE
-        #         (Item.Barcode LIKE "%{text}%" OR
-        #         Item.Name LIKE "%{text}%" OR
-        #         ItemType.Name LIKE "%{text}%" OR
-        #         Brand.Name LIKE "%{text}%") AND
-        #         SalesGroup.Name = "{order_type}" AND
-        #         ItemPrice.EffectiveDt <= CURRENT_DATE
-        #     ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
-        #     LIMIT {page_size} OFFSET {offset}
-        # """)
-
         self.sales_cursor.execute(f"""
             WITH RankedProduct AS (
                 SELECT DISTINCT

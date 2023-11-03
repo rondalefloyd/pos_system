@@ -213,7 +213,7 @@ class MyPOSView(MyGroupBox):
         self.filter_layout.addWidget(self.filter_button)
         self.filter_box.setLayout(self.filter_layout)
 
-        self.barcode_scanner_field = MyLineEdit()
+        self.barcode_scanner_field = MyLineEdit(object_name='barcode_scanner_field')
         self.barcode_scanner_toggle_button = [
             MyPushButton(object_name='toggle_barcode_scanner', text='On'),
             MyPushButton(object_name='untoggle_barcode_scanner', text='Off')
@@ -295,7 +295,7 @@ class MyPOSView(MyGroupBox):
         self.product_name_layout = MyHBoxLayout(object_name='product_name_layout')
         self.product_name_layout.addWidget(self.product_name_label,0,Qt.AlignmentFlag.AlignLeft)
         self.product_name_layout.addWidget(self.product_promo_indicator,1,Qt.AlignmentFlag.AlignLeft)
-        self.product_name_layout.addWidget(self.out_of_stock_indicator,2,Qt.AlignmentFlag.AlignLeft)
+        # self.product_name_layout.addWidget(self.out_of_stock_indicator,2,Qt.AlignmentFlag.AlignLeft)
 
         self.product_brand_label = MyLabel(object_name='product_brand_label', text=f"{data[1]}")
         self.product_barcode_label = MyLabel(object_name='product_barcode_label', text=f"{data[2]}")
@@ -303,7 +303,7 @@ class MyPOSView(MyGroupBox):
         self.product_price_label = MyLabel(object_name='product_price_label', text=f"{data[3]}")
         self.product_disc_value_label = MyLabel(object_name='product_disc_value_label', text=f"{data[4]}")
         # self.product_onhand_label = MyLabel(object_name='product_onhand_label', text=f"Stock: {data[6]}")
-        self.product_pricing_layout = MyVBoxLayout()
+        self.product_pricing_layout = MyVBoxLayout(object_name='product_pricing_layout')
         self.product_pricing_layout.addWidget(self.product_price_label)
         self.product_pricing_layout.addWidget(self.product_disc_value_label)
         # self.product_pricing_layout.addWidget(self.product_onhand_label)
@@ -539,7 +539,7 @@ class MyPOSView(MyGroupBox):
 
         self.pay_order_b_box = MyGroupBox(object_name='pay_order_b_box')
         self.payment_b_layout = MyGridLayout(object_name='payment_b_layout')
-        self.payment_b_layout.addWidget(self.tender_amount_label,0,0)
+        self.payment_b_layout.addWidget(self.tender_amount_label,0,0,Qt.AlignmentFlag.AlignCenter)
         self.payment_b_layout.addWidget(self.tender_amount_field,1,0)
         # self.payment_b_layout.addWidget(self.numpad_key_toggle_button[0],1,1)
         # self.payment_b_layout.addWidget(self.numpad_key_toggle_button[1],1,1)
@@ -575,14 +575,14 @@ class MyPOSView(MyGroupBox):
         self.pay_order_dialog.setLayout(self.pay_order_layout)
 
     def setup_transaction_complete_dialog(self):
-        self.transaction_order_total_amount_label = MyLabel(text='Order total amount')
+        self.transaction_order_total_amount_label = MyLabel(object_name='transaction_order_total_amount_label', text='Order total amount')
         self.transaction_order_total_amount_display = MyLabel(object_name='transaction_order_total_amount_display', text=f"{'100.00'}")
-        self.transaction_payment_amount_label = MyLabel(text='Payment amount')
+        self.transaction_payment_amount_label = MyLabel(object_name='transaction_payment_amount_label', text='Payment amount')
         self.transaction_payment_amount_display = MyLabel(object_name='transaction_payment_amount_display', text=f"{'100.00'}")
-        self.transaction_order_change_label = MyLabel(text='Change')
+        self.transaction_order_change_label = MyLabel(object_name='transaction_order_change_label', text='Change')
         self.transaction_order_change_display = MyLabel(object_name='transaction_order_change_display', text=f"{'100.00'}")
         self.transaction_info_box = MyGroupBox()
-        self.transaction_info_layout = MyVBoxLayout()
+        self.transaction_info_layout = MyVBoxLayout(object_name='transaction_info_layout')
         self.transaction_info_layout.addWidget(self.transaction_order_total_amount_label,0,Qt.AlignmentFlag.AlignCenter)
         self.transaction_info_layout.addWidget(self.transaction_order_total_amount_display,0,Qt.AlignmentFlag.AlignCenter)
         self.transaction_info_layout.addWidget(self.transaction_payment_amount_label,0,Qt.AlignmentFlag.AlignCenter)
@@ -668,6 +668,7 @@ class MyPOSController:
         elif flag is False:
             self.v.barcode_scanner_toggle_button[0].show()
             self.v.barcode_scanner_toggle_button[1].hide()
+            self.v.barcode_scanner_field.setFocus()
             pass
 
         self.v.barcode_scanner_field.setHidden(flag)
@@ -689,14 +690,14 @@ class MyPOSController:
                     if product_data[1] != 0 and product_data[2] != 0:
                         self.set_initial_add_product_entry(product_name=product_data[0], product_price_id=product_data[1], product_id=product_data[2])
                     else:
-                        QMessageBox.critical(self.v, 'Error', 'Item not registered.')
+                        QMessageBox.critical(self.v, 'Error', 'Item unavailable .')
                 else:
                     QMessageBox.critical(self.v, 'Error', 'Invalid barcode.')
             else:
                 QMessageBox.critical(self.v, 'Error', 'Please unlock the table first.')
                 
         except Exception as e:
-            QMessageBox.critical(self.v, 'Error', f'Item not registered.')
+            QMessageBox.critical(self.v, 'Error', f'Please add a table first.')
             pass
         self.v.barcode_scanner_field.clear()
         product_barcode = ''
@@ -725,14 +726,10 @@ class MyPOSController:
         for i, data in enumerate(product_data):
             self.v.set_overview_table_product_display_box(data)
 
-            if data[11] is not None:
-                self.v.product_promo_indicator.show()
-                self.v.product_name_label.setText(f"<font color='red'>{data[0]}</font>")  
-            else: 
-                self.v.product_name_label.setText(f"{data[0]}")
-                
+            if data[11]: self.v.product_promo_indicator.show()
             if data[6] is not None and data[6] <= 0:
-                self.v.out_of_stock_indicator.show()
+                # self.v.out_of_stock_indicator.show()
+                pass
                 
             column = i % num_columns  # Determine the column based on the index
             row = i // num_columns  # Determine the row based on the index
@@ -754,6 +751,7 @@ class MyPOSController:
         
         else:
             QMessageBox.critical(self.v, 'Error', 'Please unlock the table first.')
+        self.v.barcode_scanner_field.setFocus()
         pass
     def on_view_data_button_clicked(self, data):
         product_name = str(data[0])
@@ -809,9 +807,9 @@ class MyPOSController:
             pass
                 
         self.sync_ui_handler()
+        self.v.barcode_scanner_field.setFocus()
         pass
     def on_add_order_button_clicked(self):
-        self.v.barcode_scanner_field.setFocus()
         if self.v.order_type_field.currentText() in ['Retail','Wholesale']:
             self.m.order_number += 1
             self.add_order_handler()
@@ -822,6 +820,7 @@ class MyPOSController:
 
         self.v.order_type_field.setCurrentIndex(0)
         self.sync_ui_handler()
+        self.v.barcode_scanner_field.setFocus()
         # self.test_prints()
         pass
    
@@ -840,7 +839,10 @@ class MyPOSController:
         customer_data = pos_schema.select_customer_data_with_customer_reward_data(customer_name=customer_name)
         customer_points = str(customer_data[2])
         
-        self.m.customer_points_displays[i].setText(f'Points: <b>{customer_points}</b>')
+        if customer_data[0] != 'N/A' and customer_data[1] != 'N/A':
+            self.m.customer_points_displays[i].setText(f'Points: <b>{customer_points}</b>')
+        else:
+            self.m.customer_points_displays[i].setText(f'Points: <b>N/A</b>')
         pass
     def on_clear_order_table_button_clicked(self):
         i = self.v.manage_order_tab.currentIndex()
@@ -868,18 +870,23 @@ class MyPOSController:
         if confirm is QMessageBox.StandardButton.Yes:
             self.set_drop_all_product_qty_entry(product_name=data[0])
 
+        self.v.barcode_scanner_field.setFocus()
         pass
     def on_drop_qty_button_clicked(self, data):
         self.set_drop_product_qty_entry(product_name=data[0], product_price_id=data[3], product_id=data[4])
+        self.v.barcode_scanner_field.setFocus()
         pass
     def on_add_qty_button_clicked(self, data):
         self.set_add_product_qty_entry(product_name=data[0], product_price_id=data[3], product_id=data[4])
+        self.v.barcode_scanner_field.setFocus()
         pass
     def on_edit_qty_button_clicked(self, data):
         proposed_qty, confirm = QInputDialog.getInt(self.v, f"{data[0]}", 'Set quantity:', 1, 1, 9999999)
 
         if confirm is True:
             self.set_edit_product_qty_entry(product_qty=proposed_qty, product_name=data[0], product_price_id=data[3], product_id=data[4])
+        
+        self.v.barcode_scanner_field.setFocus()
         pass
     
     def on_discard_order_button_clicked(self):
@@ -891,6 +898,7 @@ class MyPOSController:
         if confirm is QMessageBox.StandardButton.Yes:
             self.discard_order_handler(order_tab_name=order_tab_name)
 
+        self.v.barcode_scanner_field.setFocus()
         # self.test_prints()
         
         pass
@@ -917,6 +925,7 @@ class MyPOSController:
         self.m.discard_order_buttons[i].setDisabled(lock)
         self.m.complete_order_buttons[i].setDisabled(lock)
 
+        self.v.barcode_scanner_field.setFocus()
         pass
     
     def on_complete_order_button_clicked(self): # IDEA: src
@@ -1033,6 +1042,8 @@ class MyPOSController:
             pass
         else:
             QMessageBox.critical(self.v, 'Error', 'Please add an item first.')
+        self.v.barcode_scanner_field.setFocus()
+
     # region > manage order table ---------------------------------------------------------------------------------------
     def set_clear_order_table_entry(self):
         i = self.v.manage_order_tab.currentIndex()
@@ -1048,6 +1059,8 @@ class MyPOSController:
         self.m.order_discount_displays[i].setText(f"{new_discount:.2f}")
         # self.m.order_tax_displays[i].setText(f"{new_tax:.2f}") # REVIEW: for next update
         self.m.order_total_displays[i].setText(f"{new_total:.2f}")
+
+        self.v.barcode_scanner_field.setFocus()
         pass
     def set_initial_add_product_entry(self, product_qty=1, product_name='', product_price_id=0, product_id=0):
         i = self.v.manage_order_tab.currentIndex()
