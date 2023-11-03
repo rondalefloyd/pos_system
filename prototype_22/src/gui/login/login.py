@@ -80,9 +80,6 @@ class MyLoginController:
         user_name = self.view.user_name_field.text()
         user_password = self.view.user_password_field.text()
 
-        print('user_name:', user_name) # REVIEW!!!!
-        print('user_password:', user_password) # REVIEW!!!!
-
         self.clear_login_field()
         
         if user_name == 'dev' and user_password == 'dev@2023':

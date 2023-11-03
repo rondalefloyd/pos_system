@@ -200,12 +200,12 @@ class MyUserView(MyWidget):
         self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
         self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
         self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete')
-        self.user_overview_act_box = MyGroupBox(object_name='user_overview_act_box')
-        self.user_overview_act_layout = MyHBoxLayout(object_name='user_overview_act_layout')
-        self.user_overview_act_layout.addWidget(self.edit_data_button)
-        self.user_overview_act_layout.addWidget(self.view_data_button)
-        # self.user_overview_act_layout.addWidget(self.delete_data_button)
-        self.user_overview_act_box.setLayout(self.user_overview_act_layout)
+        self.user_overview_data_act_box = MyGroupBox(object_name='user_overview_data_act_box')
+        self.user_overview_data_act_layout = MyHBoxLayout(object_name='user_overview_data_act_layout')
+        self.user_overview_data_act_layout.addWidget(self.edit_data_button)
+        self.user_overview_data_act_layout.addWidget(self.view_data_button)
+        # self.user_overview_data_act_layout.addWidget(self.delete_data_button)
+        self.user_overview_data_act_box.setLayout(self.user_overview_data_act_layout)
 
     def set_view_dialog(self):
         self.user_name_info = MyLabel(text=f"user_name")
@@ -258,7 +258,6 @@ class MyUserController:
         self.m.total_page_number = schema.select_user_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
 
-        print(self.m.total_page_number, self.m.page_number)
 
         self.v.user_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         
@@ -286,7 +285,6 @@ class MyUserController:
         pass
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
-        print(self.m.progress_count)
         self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count)
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
@@ -329,7 +327,7 @@ class MyUserController:
             user_phone = MyTableWidgetItem(text=f"{data[3]}")
             datetime_created = MyTableWidgetItem(text=f"{data[4]}")
 
-            self.v.user_overview_table.setCellWidget(i, 0, self.v.user_overview_act_box)
+            self.v.user_overview_table.setCellWidget(i, 0, self.v.user_overview_data_act_box)
             self.v.user_overview_table.setItem(i, 1, user_name)
             self.v.user_overview_table.setItem(i, 2, user_password)
             self.v.user_overview_table.setItem(i, 3, user_level)

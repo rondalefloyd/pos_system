@@ -104,10 +104,10 @@ class MyTransactionView(MyWidget):
 
     def set_overview_table_act_box(self):
         self.void_data_button = MyPushButton(object_name='void_data_button', text='Void')
-        self.item_sold_overview_act_box = MyGroupBox(object_name='item_sold_overview_act_box')
-        self.item_sold_overview_act_layout = MyHBoxLayout(object_name='item_sold_overview_act_layout')
-        self.item_sold_overview_act_layout.addWidget(self.void_data_button)
-        self.item_sold_overview_act_box.setLayout(self.item_sold_overview_act_layout)
+        self.item_sold_overview_data_act_box = MyGroupBox(object_name='item_sold_overview_data_act_box')
+        self.item_sold_overview_data_act_layout = MyHBoxLayout(object_name='item_sold_overview_data_act_layout')
+        self.item_sold_overview_data_act_layout.addWidget(self.void_data_button)
+        self.item_sold_overview_data_act_box.setLayout(self.item_sold_overview_data_act_layout)
 class MyTransactionController:
     def __init__(self, model: MyTransactionModel, view: MyTransactionView):
         self.v = view
@@ -158,7 +158,7 @@ class MyTransactionController:
 
             # self.v.void_data_button.hide() if data[5] > 0 else None
 
-            self.v.item_sold_overview_table.setCellWidget(i, 0, self.v.item_sold_overview_act_box)
+            self.v.item_sold_overview_table.setCellWidget(i, 0, self.v.item_sold_overview_data_act_box)
             self.v.item_sold_overview_table.setItem(i, 1, user_name)
             self.v.item_sold_overview_table.setItem(i, 2, customer_name)
             self.v.item_sold_overview_table.setItem(i, 3, item_name)

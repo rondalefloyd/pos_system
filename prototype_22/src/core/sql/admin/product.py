@@ -14,10 +14,11 @@ class MyProductSchema:
         
         os.makedirs(os.path.abspath(qss.db_file_path), exist_ok=True)
 
-        self.sales_conn = sqlite3.connect(database=self.sales_file)
+        self.sales_conn = sqlite3.connect(database=self.sales_file, timeout=10)
         self.sales_cursor = self.sales_conn.cursor()
 
         self.create_product_table()
+
 
     def create_product_table(self):
         # item type
@@ -131,6 +132,9 @@ class MyProductSchema:
 
 
         self.sales_conn.commit()
+        
+        # Close the connection
+        self.sales_conn.close()
 
     def insert_product_data(
             self,
@@ -314,6 +318,10 @@ class MyProductSchema:
             """)
 
         self.sales_conn.commit()
+        
+        # Close the connection
+        self.sales_conn.close()
+
 
     def select_product_data_as_display(self, text='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
@@ -369,6 +377,9 @@ class MyProductSchema:
 
         return product_data
         pass
+        
+        # Close the connection
+        self.sales_conn.close()
     def select_product_data(self, product_barcode='', product_name=''):
         self.sales_cursor.execute(f"""
             SELECT
@@ -407,6 +418,9 @@ class MyProductSchema:
         product_data = self.sales_cursor.fetchall()
 
         return product_data
+        
+        # Close the connection
+        self.sales_conn.close()
     def select_product_data_total_page_count(self, text='', page_size=30):
         self.sales_cursor.execute(f"""
             WITH RankedProduct AS (
@@ -458,7 +472,10 @@ class MyProductSchema:
 
         return total_page_count
         pass
-    
+        
+        # Close the connection
+        self.sales_conn.close()
+
     def select_stock_data_as_display(self, text='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
@@ -490,6 +507,9 @@ class MyProductSchema:
 
         return stock_data
         pass
+        
+        # Close the connection
+        self.sales_conn.close()
     def select_stock_data(self, stock_id=0, stock_product_id=0):
         self.sales_cursor.execute(f"""
             SELECT
@@ -510,6 +530,9 @@ class MyProductSchema:
         stock_data = self.sales_cursor.fetchall()
 
         return stock_data
+        
+        # Close the connection
+        self.sales_conn.close()
     def select_stock_data_total_page_count(self, text='', page_size=30):
         self.sales_cursor.execute(f"""
             SELECT COUNT(*) FROM Stock
@@ -525,7 +548,10 @@ class MyProductSchema:
 
         return total_page_count
         pass
-    
+        
+        # Close the connection
+        self.sales_conn.close()
+
     def select_product_type_for_combo_box(self):
         self.sales_cursor.execute(f"""
             SELECT Name FROM ItemType
@@ -536,6 +562,9 @@ class MyProductSchema:
 
         return product_type
         pass
+        
+        # Close the connection
+        self.sales_conn.close()
     def select_product_brand_for_combo_box(self):
         self.sales_cursor.execute(f"""
             SELECT Name FROM Brand
@@ -546,6 +575,9 @@ class MyProductSchema:
 
         return product_brand
         pass
+        
+        # Close the connection
+        self.sales_conn.close()
     def select_product_supplier_for_combo_box(self):
         self.sales_cursor.execute(f"""
             SELECT Name FROM Brand
@@ -556,6 +588,9 @@ class MyProductSchema:
 
         return product_supplier
         pass
+        
+        # Close the connection
+        self.sales_conn.close()
     def select_product_promo_name_for_combo_box(self):
         self.sales_cursor.execute(f"""
             SELECT Name FROM Promo
@@ -566,6 +601,9 @@ class MyProductSchema:
 
         return product_promo_name
         pass
+        
+        # Close the connection
+        self.sales_conn.close()
 
     def select_promo_type(self, promo_name):
         try:
@@ -581,6 +619,9 @@ class MyProductSchema:
 
         return promo_type
         pass
+        
+        # Close the connection
+        self.sales_conn.close()
     def select_promo_percent(self, promo_name):
         try:
             promo_percent = self.sales_cursor.execute(f"""
@@ -594,6 +635,9 @@ class MyProductSchema:
             promo_percent = 0
 
         return promo_percent
+        
+        # Close the connection
+        self.sales_conn.close()
 
     def select_product_id(self, product_barcode, product_name):
         product_id = self.sales_cursor.execute(f"""
@@ -606,6 +650,9 @@ class MyProductSchema:
         product_id = self.sales_cursor.fetchone()[0]
 
         return product_id
+        
+        # Close the connection
+        self.sales_conn.close()
 
     def update_product_data(
             self, 
@@ -714,13 +761,10 @@ class MyProductSchema:
             """)
 
         self.sales_conn.commit()
+        
+        # Close the connection
+        self.sales_conn.close()
     def update_stock_data(self, stock_available, stock_onhand, stock_id, product_id):
-        print('stock_id:', stock_id)
-        print('product_id:', product_id)
-
-        print('stock_available:', stock_available)
-        print('stock_onhand:', stock_onhand)
-
         self.sales_cursor.execute(f"""
             UPDATE Stock
             SET
@@ -731,6 +775,9 @@ class MyProductSchema:
 
         self.sales_conn.commit()
         pass
+        
+        # Close the connection
+        self.sales_conn.close()
 
     def delete_product_data(self, product_price_id=0, product_effective_dt=date.today()):
         self.sales_cursor.execute(f"""
@@ -740,6 +787,9 @@ class MyProductSchema:
         """)
 
         self.sales_conn.commit()
+        
+        # Close the connection
+        self.sales_conn.close()
     def delete_stock_data(self, stock_id, stock_product_id):
         self.sales_cursor.execute(f"""
             DELETE FROM Stock
@@ -747,5 +797,7 @@ class MyProductSchema:
         """)
 
         self.sales_conn.commit()
-
+        
+        # Close the connection
+        self.sales_conn.close()
 

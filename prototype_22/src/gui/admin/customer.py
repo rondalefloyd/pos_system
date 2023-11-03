@@ -53,7 +53,6 @@ class MyCustomerModel:
             customer_marstat,
             customer_points
     ):
-        print('customer_points:', customer_points)
         if '' not in [customer_name, customer_barrio, customer_town, customer_phone, customer_age, customer_gender, customer_points]:
             if (customer_phone.isdigit() and customer_age.isdigit() and customer_points.replace('.', '', 1).isdigit()):
                 if len(customer_phone) == 11:
@@ -242,12 +241,12 @@ class MyCustomerView(MyWidget):
         self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
         self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
         self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete')
-        self.customer_overview_act_box = MyGroupBox(object_name='customer_overview_act_box')
-        self.customer_overview_act_layout = MyHBoxLayout(object_name='customer_overview_act_layout')
-        self.customer_overview_act_layout.addWidget(self.edit_data_button)
-        self.customer_overview_act_layout.addWidget(self.view_data_button)
-        self.customer_overview_act_layout.addWidget(self.delete_data_button)
-        self.customer_overview_act_box.setLayout(self.customer_overview_act_layout)
+        self.customer_overview_data_act_box = MyGroupBox(object_name='customer_overview_data_act_box')
+        self.customer_overview_data_act_layout = MyHBoxLayout(object_name='customer_overview_data_act_layout')
+        self.customer_overview_data_act_layout.addWidget(self.edit_data_button)
+        self.customer_overview_data_act_layout.addWidget(self.view_data_button)
+        self.customer_overview_data_act_layout.addWidget(self.delete_data_button)
+        self.customer_overview_data_act_box.setLayout(self.customer_overview_data_act_layout)
 
     def set_view_dialog(self):
         self.customer_name_info = MyLabel(text=f"customer_name")
@@ -311,7 +310,6 @@ class MyCustomerController:
         self.m.total_page_number = schema.select_customer_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
 
-        print(self.m.total_page_number, self.m.page_number)
 
         self.v.customer_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         
@@ -339,7 +337,6 @@ class MyCustomerController:
         pass
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
-        print(self.m.progress_count)
         self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count)
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
@@ -392,7 +389,7 @@ class MyCustomerController:
             customer_points = MyTableWidgetItem(text=f"{data[8]}", format='bill')
             datetime_created = MyTableWidgetItem(text=f"{data[9]}")
 
-            self.v.customer_overview_table.setCellWidget(i, 0, self.v.customer_overview_act_box)
+            self.v.customer_overview_table.setCellWidget(i, 0, self.v.customer_overview_data_act_box)
             self.v.customer_overview_table.setItem(i, 1, customer_name)
             self.v.customer_overview_table.setItem(i, 2, customer_address)
             self.v.customer_overview_table.setItem(i, 3, customer_barrio)

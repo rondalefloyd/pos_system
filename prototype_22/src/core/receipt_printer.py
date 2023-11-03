@@ -74,7 +74,6 @@ class ReceiptGenerator(QThread):
         ref_number = self.transaction_info[1]
 
         if self.sales_group_id <= 2:
-            print('self.sales_group_id:', self.sales_group_id)
             self.process_table_a()
             self.process_table_b()
             self.process_table_c()
@@ -82,7 +81,6 @@ class ReceiptGenerator(QThread):
             self.process_table_e()
 
         elif self.sales_group_id == 3:
-            print('self.sales_group_id:', self.sales_group_id)
             self.process_table_a()
             self.process_dual_table()
             self.process_table_c()
@@ -99,7 +97,6 @@ class ReceiptGenerator(QThread):
             # Print the document
             self.doc.PrintOut()
         except Exception as error_exception:
-            print('print error')
             error_tracer(error_exception)
             pass
 
@@ -118,8 +115,6 @@ class ReceiptGenerator(QThread):
         min_number = self.transaction_info[3]
 
         table_a = self.doc.tables[0]
-        print('b4 table a', table_a)
-        print('after table a', table_a)
 
         # Define placeholders and values
         table_a_placeholders = {
@@ -195,7 +190,6 @@ class ReceiptGenerator(QThread):
             final_product = [item[1] for item in final_order_table[i]]
             final_total_amount = [item[2] for item in final_order_table[i]] # remove '₱' from
 
-            print(f'final_order_table[{i}]:', final_order_table[i])
 
             # Access the second table (Table B) in the document
             table_b = self.doc.Tables[table_index]  # Assuming Table B is the second table in the document

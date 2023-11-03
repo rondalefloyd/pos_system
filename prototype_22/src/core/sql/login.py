@@ -17,8 +17,6 @@ class MyLoginSchema:
         self.accounts_conn = sqlite3.connect(database=self.accounts_file)
         self.accounts_cursor = self.accounts_conn.cursor()
 
-        print('path:', qss.db_file_path + qss.sales_file_name)
-
         self.create_transaction_table()
 
     def create_transaction_table(self):
@@ -55,8 +53,6 @@ class MyLoginSchema:
             pass
         except Exception as e:
             user_data = [(0,0,0)][0]
-            print(e)
-
         return user_data
     def insert_user_data(self, user_name='', user_password='', user_level=0, user_phone=''):
         self.accounts_cursor.execute(f"""

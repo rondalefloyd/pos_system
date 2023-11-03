@@ -428,12 +428,12 @@ class MyProductView(MyWidget):
         self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
         self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
         self.delete_data_button = MyPushButton(object_name='product_delete_data_button', text='Delete') # unavailable for now
-        self.product_overview_act_box = MyGroupBox(object_name='product_overview_act_box')
-        self.product_overview_act_layout = MyHBoxLayout(object_name='product_overview_act_layout')
-        self.product_overview_act_layout.addWidget(self.edit_data_button)
-        self.product_overview_act_layout.addWidget(self.view_data_button)
-        self.product_overview_act_layout.addWidget(self.delete_data_button)
-        self.product_overview_act_box.setLayout(self.product_overview_act_layout)
+        self.product_overview_data_act_box = MyGroupBox(object_name='product_overview_data_act_box')
+        self.product_overview_data_act_layout = MyHBoxLayout(object_name='product_overview_data_act_layout')
+        self.product_overview_data_act_layout.addWidget(self.edit_data_button)
+        self.product_overview_data_act_layout.addWidget(self.view_data_button)
+        self.product_overview_data_act_layout.addWidget(self.delete_data_button)
+        self.product_overview_data_act_box.setLayout(self.product_overview_data_act_layout)
     def set_stock_table_act_box(self):
         self.edit_stock_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
         self.delete_stock_data_button = MyPushButton(object_name='void_data_button', text='Stop')
@@ -554,7 +554,6 @@ class MyProductController:
         pass
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
-        print(self.m.progress_count)
         self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count)
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
@@ -626,7 +625,7 @@ class MyProductController:
 
             datetime_created = MyTableWidgetItem(text=f"{data[13]}", has_promo=flag)
 
-            self.v.product_overview_table.setCellWidget(i, 0, self.v.product_overview_act_box)
+            self.v.product_overview_table.setCellWidget(i, 0, self.v.product_overview_data_act_box)
             self.v.product_overview_table.setItem(i, 1, product_barcode)
             self.v.product_overview_table.setItem(i, 2, product_name)
             self.v.product_overview_table.setItem(i, 3, product_expire_dt)
@@ -682,10 +681,6 @@ class MyProductController:
             self.m.sel_product_stock_id = sel_data[12] # NOTE: becomes 0 if NoneType. Check 'product.py'
             self.m.sel_product_promo_id = sel_data[13]
 
-            print('product_id:',self.m.sel_product_id)
-            print('product_price_id:',self.m.sel_product_price_id)
-            print('product_stock_id:',self.m.sel_product_stock_id)
-            print('product_promo_id:',self.m.sel_product_promo_id)
             pass
         
         self.set_manage_product_data_box_conn(task='edit_data')
@@ -719,15 +714,12 @@ class MyProductController:
         self.v.view_data_act_close_button.clicked.connect(lambda: self.close_dialog(self.v.view_data_dialog))
     def on_delete_data_button_clicked(self, data):
         sel_product_data = schema.select_product_data(data[0], data[1])
-        print(sel_product_data)
 
         for i, sel_data in enumerate(sel_product_data):
             product_name = sel_data[1]
             product_effective_dt = sel_data[9]
             product_price_id = sel_data[11]
 
-        print('PRODUCT_NAME:', product_name)
-        print('PRODUCT_PRICE_ID:', product_price_id)
 
         confirm = QMessageBox.warning(self.v, 'Confirm', f"Delete {product_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
@@ -778,9 +770,6 @@ class MyProductController:
         self.m.sel_product_stock_id = data[5]
         self.m.sel_product_id = data[6]
 
-        print(data)
-        print('self.sel_product_stock_id :', self.m.sel_product_stock_id )
-        print('self.sel_product_id :', self.m.sel_product_id )
 
         self.set_manage_stock_data_conn()
 

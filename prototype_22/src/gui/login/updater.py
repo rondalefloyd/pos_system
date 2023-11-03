@@ -61,7 +61,6 @@ class MyUpdaterController:
         self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count) + 1
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
-        print(self.m.progress_percent)
         pass
     def on_data_import_thread_cancelled(self):
         QMessageBox.information(self.v, 'Cancelled', 'Import cancelled.')

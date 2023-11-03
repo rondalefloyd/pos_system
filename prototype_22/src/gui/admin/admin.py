@@ -75,7 +75,7 @@ class MyAdminView(MyWidget):
         self.page_stcw.addWidget(self.settings_page_window)
 
     def set_extra_info_box(self):
-        self.current_user_label = MyLabel(text=f"Current user: {self.m.user}")
+        self.current_user_label = MyLabel(object_name='current_user_label', text=f"Current user: {self.m.user}")
         self.extra_info_box = MyGroupBox(object_name='extra_info_box')
         self.extra_info_layout = MyHBoxLayout(object_name='extra_info_layout')
         self.extra_info_layout.addWidget(self.current_user_label)
@@ -110,8 +110,6 @@ class MyAdminController:
         self.v.reward_page_button.setDisabled(index == 2)
         self.v.customer_page_button.setDisabled(index == 3)
         self.v.user_page_button.setDisabled(index == 4)
-
-        print(index)
  
     def on_logout_button_clicked(self):
         confirm = QMessageBox.question(self.v, 'Confirm', 'Are you sure you want to logout?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)

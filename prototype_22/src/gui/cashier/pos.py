@@ -136,7 +136,6 @@ class MyPOSModel:
                 user_id = pos_schema.select_user_id_by_name(self.cashier_info[0])
 
                 self.final_retail_order_table.append((product_qty, product_name, product_amount))
-                print('self.final_retail_order_table:', self.final_retail_order_table)
 
                 pos_schema.insert_item_sold_data(
                     date_id=date_id,
@@ -166,7 +165,6 @@ class MyPOSModel:
                 user_id = pos_schema.select_user_id_by_name(self.cashier_info[0])
 
                 self.final_wholesale_order_table.append((product_qty, product_name, product_amount))
-                print('self.final_wholesale_order_table:', self.final_wholesale_order_table)
 
                 pos_schema.insert_item_sold_data(
                     date_id=date_id,
@@ -303,18 +301,18 @@ class MyPOSView(MyGroupBox):
         self.product_barcode_label = MyLabel(object_name='product_barcode_label', text=f"{data[2]}")
 
         self.product_price_label = MyLabel(object_name='product_price_label', text=f"{data[3]}")
-        self.product_disc_value_label = MyLabel(object_name='product_disc_value_label', text=f"Discount: {data[4]}")
-        self.product_onhand_label = MyLabel(object_name='product_onhand_label', text=f"Stock: {data[6]}")
+        self.product_disc_value_label = MyLabel(object_name='product_disc_value_label', text=f"{data[4]}")
+        # self.product_onhand_label = MyLabel(object_name='product_onhand_label', text=f"Stock: {data[6]}")
         self.product_pricing_layout = MyVBoxLayout()
         self.product_pricing_layout.addWidget(self.product_price_label)
         self.product_pricing_layout.addWidget(self.product_disc_value_label)
-        self.product_pricing_layout.addWidget(self.product_onhand_label)
+        # self.product_pricing_layout.addWidget(self.product_onhand_label)
 
         self.product_info_box = MyGroupBox(object_name='product_info_box')
         self.product_info_layout = MyVBoxLayout(object_name='product_info_layout')
+        self.product_info_layout.addWidget(self.product_barcode_label)
         self.product_info_layout.addLayout(self.product_name_layout)
         self.product_info_layout.addWidget(self.product_brand_label)
-        self.product_info_layout.addWidget(self.product_barcode_label)
         self.product_info_layout.addLayout(self.product_pricing_layout)
         self.product_info_box.setLayout(self.product_info_layout)
 
@@ -349,8 +347,9 @@ class MyPOSView(MyGroupBox):
         self.product_disc_value_info = MyLabel(text=f"{data[11]}")
 
         self.product_stock_tracking_info = MyLabel(text=f"{data[12]}")
+        self.product_stock_on_hand_info = MyLabel(text=f"{data[13]}")
 
-        self.product_datetime_created_info = MyLabel(text=f"{data[13]}")
+        self.product_datetime_created_info = MyLabel(text=f"{data[14]}")
 
         self.info_box = MyGroupBox(object_name='info_box')
         self.info_layout = MyFormLayout(object_name='info_layout')
@@ -370,6 +369,7 @@ class MyPOSView(MyGroupBox):
         self.info_layout.addRow('Discount:', self.product_disc_value_info)
         self.info_layout.addRow(MyLabel(text='<hr>'))
         self.info_layout.addRow('Inventory tracking:', self.product_stock_tracking_info)
+        self.info_layout.addRow('On hand:', self.product_stock_on_hand_info)
         self.info_layout.addRow(MyLabel(text='<hr>'))
         self.info_layout.addRow('Date/Time created:', self.product_datetime_created_info)
 
@@ -393,11 +393,14 @@ class MyPOSView(MyGroupBox):
     def set_order_box(self):
         self.customer_name_label = MyLabel(object_name='customer_name_label', text='Customer:')
         self.customer_name_field = MyComboBox(object_name='customer_name_field')
-        self.customer_points_display = MyLabel(object_name='customer_points_display', text='Points: <b>0.00</b>')
+        self.customer_data_sub_layout = MyHBoxLayout(object_name='customer_data_sub_layout')
+        self.customer_data_sub_layout.addWidget(self.customer_name_label)
+        self.customer_data_sub_layout.addWidget(self.customer_name_field)
+        self.customer_points_display = MyLabel(object_name='customer_points_display', text='Points: <b>N/A</b>')
         self.customer_data_box = MyGroupBox()
-        self.customer_data_layout = MyFormLayout(object_name='customer_data_layout')
-        self.customer_data_layout.addRow(self.customer_name_label, self.customer_name_field)
-        self.customer_data_layout.addRow(self.customer_points_display)
+        self.customer_data_layout = MyVBoxLayout(object_name='customer_data_layout')
+        self.customer_data_layout.addLayout(self.customer_data_sub_layout)
+        self.customer_data_layout.addWidget(self.customer_points_display)
         self.customer_data_box.setLayout(self.customer_data_layout)
         self.order_type_display = MyLabel(object_name='order_type_display', text='N/A')
         self.clear_order_table_button = MyPushButton(object_name='clear_order_table_button', text='Clear')
@@ -426,7 +429,7 @@ class MyPOSView(MyGroupBox):
         self.lock_order_toggle_button = [
             MyPushButton(object_name='toggle_lock_order', text='Unlocked'),
             MyPushButton(object_name='untoggle_lock_order', text='Locked')
-        ]
+        ]   
         self.extra_order_act_b_layout = MyHBoxLayout(object_name='extra_order_act_b_layout')
         self.extra_order_act_b_layout.addWidget(self.discard_order_button)
         self.extra_order_act_b_layout.addWidget(self.lock_order_toggle_button[0],1,Qt.AlignmentFlag.AlignLeft)
@@ -453,11 +456,11 @@ class MyPOSView(MyGroupBox):
         self.add_qty_button = MyPushButton(object_name='add_qty_button', text='Add')
         self.edit_qty_button = MyPushButton(object_name='edit_qty_button', text='Edit')
         self.order_table_act_box = MyGroupBox(object_name='order_table_act_box')
-        self.order_table_act_layout = MyHBoxLayout(object_name='order_table_act_layout')
-        self.order_table_act_layout.addWidget(self.drop_all_qty_button)
-        self.order_table_act_layout.addWidget(self.drop_qty_button)
-        self.order_table_act_layout.addWidget(self.add_qty_button)
-        self.order_table_act_layout.addWidget(self.edit_qty_button)
+        self.order_table_act_layout = MyGridLayout(object_name='order_table_act_layout')
+        self.order_table_act_layout.addWidget(self.drop_all_qty_button,0,0)
+        self.order_table_act_layout.addWidget(self.drop_qty_button,0,1)
+        self.order_table_act_layout.addWidget(self.add_qty_button,1,1)
+        self.order_table_act_layout.addWidget(self.edit_qty_button,1,0)
         self.order_table_act_box.setLayout(self.order_table_act_layout)
 
     def set_pay_order_dialog(self):
@@ -670,17 +673,35 @@ class MyPOSController:
         self.v.barcode_scanner_field.setHidden(flag)
         pass
     def on_barcode_scanner_field_return_pressed(self):
-        i = self.v.manage_order_tab.currentIndex()
-
         # 4800015401007
-        product_barcode = str(self.v.barcode_scanner_field.text())
+        try:
+            i = self.v.manage_order_tab.currentIndex()
 
-        product_data = pos_schema.select_product_data_as_display(text=product_barcode, order_type=self.m.order_type_displays[i].text())
-        
-        self.set_initial_add_product_entry(product_name=product_data[0][0], product_price_id=product_data[0][9], product_id=product_data[0][10])
-        
+            product_barcode = str(self.v.barcode_scanner_field.text())
+            
+            if self.m.lock_order_toggle_buttons[i][0].isHidden() == False:
+
+                if self.v.barcode_scanner_field.text() != '':
+                    product_data = pos_schema.select_product_data_with_barcode(barcode=product_barcode, order_type=self.m.order_type_displays[i].text())
+                    
+                    # 8850006344200 test barcode
+            
+                    if product_data[1] != 0 and product_data[2] != 0:
+                        self.set_initial_add_product_entry(product_name=product_data[0], product_price_id=product_data[1], product_id=product_data[2])
+                    else:
+                        QMessageBox.critical(self.v, 'Error', 'Item not registered.')
+                else:
+                    QMessageBox.critical(self.v, 'Error', 'Invalid barcode.')
+            else:
+                QMessageBox.critical(self.v, 'Error', 'Please unlock the table first.')
+                
+        except Exception as e:
+            QMessageBox.critical(self.v, 'Error', f'Item not registered.')
+            pass
         self.v.barcode_scanner_field.clear()
-        
+        product_barcode = ''
+        product_data = []
+
     # FIXME NEEDS TO GETS FIXED
     def populate_overview_table(self, text='', order_type='', page_number=1): # IDEA: src
         self.v.product_overview_prev_button.setEnabled(page_number > 1)
@@ -700,7 +721,6 @@ class MyPOSController:
         self.v.product_overview_table.setRowCount(num_rows)
 
         if num_columns < 3: self.v.product_overview_table.setColumnCount(3)
-        print('len(product_data):', len(product_data))
 
         for i, data in enumerate(product_data):
             self.v.set_overview_table_product_display_box(data)
@@ -777,7 +797,6 @@ class MyPOSController:
         self.v.manage_order_tab.currentChanged.connect(self.on_manage_order_tab_current_changed)
         pass
     def on_manage_order_tab_current_changed(self):
-        print('on_manage_order_tab_current_changed ')
         try:
             i = self.v.manage_order_tab.currentIndex()
 
@@ -822,7 +841,6 @@ class MyPOSController:
         customer_points = str(customer_data[2])
         
         self.m.customer_points_displays[i].setText(f'Points: <b>{customer_points}</b>')
-        self.m.customer_points_displays[i].setHidden(customer_data[0] == 'N/A')
         pass
     def on_clear_order_table_button_clicked(self):
         i = self.v.manage_order_tab.currentIndex()
@@ -1336,9 +1354,7 @@ class MyPOSController:
 
 
                     final_retail_order_table = self.v.final_order_table[0]
-                    print('final_retail_order_table:', final_retail_order_table)
                     final_wholesale_order_table = self.v.final_order_table[1]
-                    print('final_wholesale_order_table:', final_wholesale_order_table)
                     # TODO: APPEND FOR RECEIPT
 
                     self.m.append_final_order_info_for_receipt(
@@ -1495,7 +1511,6 @@ class MyPOSController:
     def sync_ui_handler(self):
         text_filter = self.v.filter_field.text()
         try:
-            print('try')
             i = self.v.manage_order_tab.currentIndex()
 
             order_type = self.m.order_type_displays[i].text()
@@ -1609,29 +1624,8 @@ class MyPOSController:
         try: 
             i = self.v.manage_order_tab.currentIndex()
 
-            print(len(self.m.order_type_displays), end=',')
-            print(len(self.m.customer_name_fields), end=',')
-            print(len(self.m.clear_order_table_buttons), end=',')
-            print(len(self.m.order_tables), end=',')
-            print(len(self.m.order_subtotal_displays), end=',')
-            print(len(self.m.order_discount_displays), end=',')
-            print(len(self.m.order_tax_displays), end=',')
-            print(len(self.m.order_total_displays), end=',')
-            print(len(self.m.discard_order_buttons), end=',')
-            print(len(self.m.complete_order_buttons))
 
-            print(self.m.order_type_displays[i].text(), end=',')
-            print(self.m.customer_name_fields[i].text(), end=',')
-            print(self.m.clear_order_table_buttons[i].text(), end=',')
-            print(self.m.order_tables[i], end=',')
-            print(self.m.order_subtotal_displays[i].text(), end=',')
-            print(self.m.order_discount_displays[i].text(), end=',')
-            print(self.m.order_tax_displays[i].text(), end=',')
-            print(self.m.order_total_displays[i].text(), end=',')
-            print(self.m.discard_order_buttons[i].text(), end=',')
-            print(self.m.complete_order_buttons[i].text())
 
-            print(self.m.order_type_displays[i].text())
 
         except Exception as e:
             pass

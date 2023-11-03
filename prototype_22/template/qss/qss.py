@@ -44,7 +44,7 @@ class MyQSSConfig:
         self.secondary_color_alt = '#dd96bdff'
         self.main_txt_color = '#fff'
         self.default_panel_color = '#fff'
-        self.default_hr_color = '#ddd'
+        self.default_line_color = '#ccc'
         self.secondary_text_color = '#222'
         self.disabled_bg_color = '#aaa'
 
@@ -80,8 +80,8 @@ class MyQSSConfig:
         self.app_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/app.png'
 
     def field_icon(self):
-        self.main_drop_down_arrow_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/main_drop_down_arrow.png'
-        self.secondary_drop_down_arrow_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/secondary_drop_down_arrow.png'
+        self.main_drop_down_arrow_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/fields/main_drop_down_arrow.png'
+        self.secondary_drop_down_arrow_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/fields/secondary_drop_down_arrow.png'
 
 
     def nav_icon(self):

@@ -193,12 +193,12 @@ class MyPromoView(MyWidget):
         self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
         self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
         self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete')
-        self.promo_overview_act_box = MyGroupBox(object_name='promo_overview_act_box')
-        self.promo_overview_act_layout = MyHBoxLayout(object_name='promo_overview_act_layout')
-        self.promo_overview_act_layout.addWidget(self.edit_data_button)
-        self.promo_overview_act_layout.addWidget(self.view_data_button)
-        # self.promo_overview_act_layout.addWidget(self.delete_data_button)
-        self.promo_overview_act_box.setLayout(self.promo_overview_act_layout)
+        self.promo_overview_data_act_box = MyGroupBox(object_name='promo_overview_data_act_box')
+        self.promo_overview_data_act_layout = MyHBoxLayout(object_name='promo_overview_data_act_layout')
+        self.promo_overview_data_act_layout.addWidget(self.edit_data_button)
+        self.promo_overview_data_act_layout.addWidget(self.view_data_button)
+        # self.promo_overview_data_act_layout.addWidget(self.delete_data_button)
+        self.promo_overview_data_act_box.setLayout(self.promo_overview_data_act_layout)
 
     def set_view_dialog(self):
         self.promo_name_info = MyLabel(text=f"promo_name")
@@ -252,7 +252,6 @@ class MyPromoController:
         self.m.total_page_number = schema.select_promo_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
 
-        print(self.m.total_page_number, self.m.page_number)
 
         self.v.promo_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         
@@ -280,7 +279,6 @@ class MyPromoController:
         pass
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
-        print(self.m.progress_count)
         self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count)
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
@@ -323,7 +321,7 @@ class MyPromoController:
             promo_desc = MyTableWidgetItem(text=f"{data[3]}")
             datetime_created = MyTableWidgetItem(text=f"{data[4]}")
 
-            self.v.promo_overview_table.setCellWidget(i, 0, self.v.promo_overview_act_box)
+            self.v.promo_overview_table.setCellWidget(i, 0, self.v.promo_overview_data_act_box)
             self.v.promo_overview_table.setItem(i, 1, promo_name)
             self.v.promo_overview_table.setItem(i, 2, promo_type)
             self.v.promo_overview_table.setItem(i, 3, promo_percent)

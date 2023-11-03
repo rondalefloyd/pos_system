@@ -62,8 +62,8 @@ class MyCashierView(MyWidget):
         self.page_stcw.addWidget(self.settings_page_window)
 
     def set_extra_info_box(self):
-        self.current_cashier_label = MyLabel(text=f"Cashier: {self.m.user}")
-        self.current_phone_label = MyLabel(text=f"Phone: {self.m.phone}")
+        self.current_cashier_label = MyLabel(object_name='current_cashier_label', text=f"Cashier: {self.m.user}")
+        self.current_phone_label = MyLabel(object_name='current_phone_label', text=f"Phone: {self.m.phone}")
         self.extra_info_box = MyGroupBox(object_name='extra_info_box')
         self.extra_info_layout = MyHBoxLayout(object_name='extra_info_layout')
         self.extra_info_layout.addWidget(self.current_cashier_label,0,Qt.AlignmentFlag.AlignLeft)
@@ -90,8 +90,6 @@ class MyCashierController:
 
         self.v.pos_page_button.setDisabled(index == 0)
         self.v.transaction_page_button.setDisabled(index == 1)
-                
-        print(index)
 
     def on_logout_button_clicked(self):
         confirm = QMessageBox.question(self.v, 'Confirm', 'Are you sure you want to logout?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)

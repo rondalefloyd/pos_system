@@ -51,7 +51,6 @@ def run_pos_app():
             if not os.path.exists('login_running.flag') and not os.path.exists('app_running.flag'):
                 break
 
-            print('login:', login)
     except Exception as error_exception:
         error_tracer(error_exception)
     pass

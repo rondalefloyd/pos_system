@@ -153,6 +153,43 @@ class MyPOSSchema:
 
         return product_data
         pass
+    def select_product_data_with_barcode(self, barcode='', order_type=''):
+        try:
+            self.sales_cursor.execute(f"""
+                WITH RankedProduct AS (
+                    SELECT DISTINCT
+                        Item.Name, 
+                        ItemPrice.ItemPriceId,
+                        ItemPrice.ItemId,
+                                    
+                        ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                    FROM ItemPrice
+                    LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
+                    LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
+                    LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
+                    LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
+                    LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
+                    LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
+                    LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
+                    WHERE
+                        Item.Barcode = "{barcode}" AND
+                        SalesGroup.Name = "{order_type}" AND
+                        ItemPrice.EffectiveDt <= CURRENT_DATE
+                    ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
+                )
+                SELECT * FROM RankedProduct 
+                WHERE RowNumber = 1
+            """)
+
+            product_data  = self.sales_cursor.fetchall()[0]
+
+        except ValueError as e:
+            product_data = ['',0,0]
+            pass
+
+        return product_data
+        pass
+    
     def select_product_data_for_view_dialog(self, product_name, product_barcode):
         self.sales_cursor.execute(f"""
             SELECT 
@@ -172,7 +209,8 @@ class MyPOSSchema:
                 ItemPrice.DiscountValue, 
                         
                 CASE WHEN Stock.StockId > 0 THEN 'Enabled' ELSE 'Disabled' END AS StockStatus,
-                  
+                Stock.OnHand,
+                
                 ItemPrice.UpdateTs
             FROM ItemPrice
                 LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
@@ -462,7 +500,6 @@ class MyPOSSchema:
 
             self.sales_conn.commit()
         except Exception as e:
-            print(e)
             pass
         pass
     def update_customer_reward_points_by_decrement(self, customer_id, order_total):
@@ -477,7 +514,6 @@ class MyPOSSchema:
 
             self.sales_conn.commit()
         except Exception as e:
-            print(e)
             pass
         pass
     def update_stock_on_hand(self, product_id, product_stock_id, product_qty):
@@ -496,7 +532,6 @@ class MyPOSSchema:
             
             self.sales_conn.commit()
         except Exception as e:
-            print(e)
             pass
 
     def update_promo_data(self, promo_name='', promo_type='', promo_percent=0, promo_desc='', promo_id=0):
