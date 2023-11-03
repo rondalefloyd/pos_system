@@ -317,11 +317,11 @@ class MyRewardController:
 
         for i, data in enumerate(reward_data):
             self.v.set_overview_table_act_box()
-            reward_name = QTableWidgetItem(f"{data[0]}")
-            reward_unit = QTableWidgetItem(f"{data[1]}")
-            reward_points = QTableWidgetItem(f"{data[2]}")
-            reward_desc = QTableWidgetItem(f"{data[3]}")
-            datetime_created = QTableWidgetItem(f"{data[4]}")
+            reward_name = MyTableWidgetItem(text=f"{data[0]}")
+            reward_unit = MyTableWidgetItem(text=f"{data[1]}", format='bill')
+            reward_points = MyTableWidgetItem(text=f"{data[2]}", format='bill')
+            reward_desc = MyTableWidgetItem(text=f"{data[3]}")
+            datetime_created = MyTableWidgetItem(text=f"{data[4]}")
 
             self.v.reward_overview_table.setCellWidget(i, 0, self.v.reward_overview_act_box)
             self.v.reward_overview_table.setItem(i, 1, reward_name)

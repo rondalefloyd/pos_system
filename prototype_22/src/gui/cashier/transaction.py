@@ -146,15 +146,15 @@ class MyTransactionController:
 
         for i, data in enumerate(item_sold_data):
             self.v.set_overview_table_act_box()
-            user_name = QTableWidgetItem(f"{data[0]}")
-            customer_name = QTableWidgetItem(f"{data[1]}")
-            item_name = QTableWidgetItem(f"{data[2]}")
-            quantity = QTableWidgetItem(f"{data[3]}")
-            total_amount = QTableWidgetItem(f"{data[4]}")
-            void = QTableWidgetItem(f"{data[5]}")
-            reason = QTableWidgetItem(f"{data[6]}")
-            reference_number = QTableWidgetItem(f"{data[7]}")
-            datetime_created = QTableWidgetItem(f"{data[8]}")
+            user_name = MyTableWidgetItem(text=f"{data[0]}")
+            customer_name = MyTableWidgetItem(text=f"{data[1]}")
+            item_name = MyTableWidgetItem(text=f"{data[2]}")
+            quantity = MyTableWidgetItem(text=f"{data[3]}")
+            total_amount = MyTableWidgetItem(text=f"{data[4]}", format='bill')
+            void = MyTableWidgetItem(text=f"{data[5]}")
+            reason = MyTableWidgetItem(text=f"{data[6]}")
+            reference_number = MyTableWidgetItem(text=f"{data[7]}")
+            datetime_created = MyTableWidgetItem(text=f"{data[8]}")
 
             # self.v.void_data_button.hide() if data[5] > 0 else None
 

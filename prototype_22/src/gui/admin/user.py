@@ -323,11 +323,11 @@ class MyUserController:
 
         for i, data in enumerate(user_data):
             self.v.set_overview_table_act_box()
-            user_name = QTableWidgetItem(f"{data[0]}")
-            user_password = QTableWidgetItem(f"{data[1]}")
-            user_level = QTableWidgetItem(f"{data[2]}")
-            user_phone = QTableWidgetItem(f"{data[3]}")
-            datetime_created = QTableWidgetItem(f"{data[4]}")
+            user_name = MyTableWidgetItem(text=f"{data[0]}")
+            user_password = MyTableWidgetItem(text=f"{data[1]}")
+            user_level = MyTableWidgetItem(text=f"{data[2]}")
+            user_phone = MyTableWidgetItem(text=f"{data[3]}")
+            datetime_created = MyTableWidgetItem(text=f"{data[4]}")
 
             self.v.user_overview_table.setCellWidget(i, 0, self.v.user_overview_act_box)
             self.v.user_overview_table.setItem(i, 1, user_name)

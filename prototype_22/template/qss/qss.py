@@ -10,6 +10,7 @@ class MyQSSConfig:
         self.field_indicator()
         self.color_scheme()
         self.main_icon()
+        self.field_icon()
         self.nav_icon()
         self.act_icon()
         self.pos_icon()
@@ -78,6 +79,11 @@ class MyQSSConfig:
     def main_icon(self):
         self.app_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/app.png'
 
+    def field_icon(self):
+        self.main_drop_down_arrow_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/main_drop_down_arrow.png'
+        self.secondary_drop_down_arrow_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/secondary_drop_down_arrow.png'
+
+
     def nav_icon(self):
         self.nav_product_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/nav/nav_product.png'
         self.nav_promo_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/nav/nav_promo.png'
@@ -99,7 +105,6 @@ class MyQSSConfig:
         self.act_view_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/act_view.png'
         self.act_delete_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/act_delete.png'
         self.act_void_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/act_void.png'
-
 
     def pos_icon(self):
         self.toggle_barcode_scanner_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/untoggled_barcode_scan.png'

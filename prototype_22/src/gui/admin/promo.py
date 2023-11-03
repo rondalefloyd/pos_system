@@ -317,11 +317,11 @@ class MyPromoController:
 
         for i, data in enumerate(promo_data):
             self.v.set_overview_table_act_box()
-            promo_name = QTableWidgetItem(f"{data[0]}")
-            promo_type = QTableWidgetItem(f"{data[1]}")
-            promo_percent = QTableWidgetItem(f"{data[2]}")
-            promo_desc = QTableWidgetItem(f"{data[3]}")
-            datetime_created = QTableWidgetItem(f"{data[4]}")
+            promo_name = MyTableWidgetItem(text=f"{data[0]}")
+            promo_type = MyTableWidgetItem(text=f"{data[1]}")
+            promo_percent = MyTableWidgetItem(text=f"{data[2]}", format='bill')
+            promo_desc = MyTableWidgetItem(text=f"{data[3]}")
+            datetime_created = MyTableWidgetItem(text=f"{data[4]}")
 
             self.v.promo_overview_table.setCellWidget(i, 0, self.v.promo_overview_act_box)
             self.v.promo_overview_table.setItem(i, 1, promo_name)

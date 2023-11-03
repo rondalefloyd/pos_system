@@ -616,11 +616,11 @@ class MyProductController:
             product_sales_group = MyTableWidgetItem(text=f"{data[5]}", has_promo=flag)
             product_supplier = MyTableWidgetItem(text=f"{data[6]}", has_promo=flag)
 
-            product_cost = MyTableWidgetItem(text=f"{data[7]}", has_promo=flag)
-            product_price = MyTableWidgetItem(text=f"{data[8]}", has_promo=flag)
+            product_cost = MyTableWidgetItem(text=f"{data[7]}", format='bill', has_promo=flag)
+            product_price = MyTableWidgetItem(text=f"{data[8]}", format='bill', has_promo=flag)
             product_effective_dt = MyTableWidgetItem(text=f"{data[9]}", has_promo=flag)
             product_promo_name = MyTableWidgetItem(text=f"{data[10]}", has_promo=flag)
-            product_disc_value = MyTableWidgetItem(text=f"{data[11]}", has_promo=flag)
+            product_disc_value = MyTableWidgetItem(text=f"{data[11]}", format='bill', has_promo=flag)
 
             product_stock_id = MyTableWidgetItem(text=f"{data[12]}", has_promo=flag)
 

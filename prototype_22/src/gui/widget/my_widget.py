@@ -704,12 +704,14 @@ class MyComboBox(QComboBox):
         super().__init__()
 
         self.object_name = object_name
+        self.setObjectName(object_name)
+        self.setFont(QFont(qss.global_font))
 
         self.on_global_combo_box()
 
     def on_global_combo_box(self):
         self.setStyleSheet(f"""
-            QComboBox {{ padding: 5px }}
+            QComboBox {{ background-color: {qss.main_color}; padding: 5px }}
         """)
         if self.object_name in [
             'user_name_field', 
@@ -722,7 +724,40 @@ class MyComboBox(QComboBox):
             'customer_name_field',
             
         ]:
+            self.setLineEdit(MyLineEdit())
+            self.setStyleSheet(f"""
+                QComboBox {{
+                    border: 1px solid gray;
+                    border-radius: 3px;
+                    padding: 1px 18px 1px 3px;
+                    min-width: 6em;
+                }}
+
+                QComboBox::drop-down {{
+                    subcontrol-origin: padding;
+                    subcontrol-position: top right;
+                    width: 15px;
+
+                    border-left-width: 1px;
+                    border-left-color: {qss.secondary_color};
+                    border-left-style: solid; /* just a single line */
+                    border-top-right-radius: 3px; /* same radius as the QComboBox */
+                    border-bottom-right-radius: 3px;
+                }}
+
+                QComboBox::down-arrow {{
+                    image: url({qss.secondary_drop_down_arrow_icon});
+                    width: 50px;
+                    height: auto;
+                }}
+
+            """)
             self.setEditable(True)
+
+        if self.object_name == 'order_type_field':
+            self.setStyleSheet(f"""
+                QComboBox#{self.object_name} {{ background-color: {qss.act_pas_bg_color} }}
+            """)
         pass
 class MyLineEdit(QLineEdit):
     def __init__(self, object_name='', text='', push_button = None):
@@ -732,6 +767,7 @@ class MyLineEdit(QLineEdit):
 
         self.setObjectName(object_name)
         self.setText(text)
+        self.setFont(QFont(qss.global_font))
 
         self.on_global_line_edit()
 
@@ -837,6 +873,7 @@ class MyPlainTextEdit(QPlainTextEdit):
 
         self.object_name = object_name
         self.setObjectName(object_name)
+        self.setFont(QFont(qss.global_font))
         self.on_transaction_plain_text_edit()
 
     def on_global_plain_text_edit(self):
@@ -856,6 +893,8 @@ class MyDateEdit(QDateEdit):
         self.setObjectName(object_name)
         self.setCalendarPopup(True)
         self.setMinimumDate(QDate().currentDate())
+        self.setFont(QFont(qss.global_font))
+        
         self.on_global_date_edit()
 
     def on_global_date_edit(self):
@@ -1135,6 +1174,7 @@ class MyCheckBox(QCheckBox):
 
         self.setObjectName(object_name)
         self.setText(text)
+        self.setFont(QFont(qss.global_font))
         pass
 
 class MyProgressBar(QProgressBar):
@@ -1144,17 +1184,24 @@ class MyProgressBar(QProgressBar):
         self.object_name = object_name
 
         self.setObjectName(object_name)
+        self.setFont(QFont(qss.global_font))
         self.setTextVisible(False)
         self.setFixedHeight(20)
 
 class MyTableWidgetItem(QTableWidgetItem):
-    def __init__(self, text='', has_promo=False):
+    def __init__(self, text='', format='', has_promo=False):
         super().__init__() 
         
         self.setText(text)
+        self.format = format
         self.has_promo = has_promo
 
+        self.on_global_table_Widget_item()
         self.on_product_table_widget_item()
+
+    def on_global_table_Widget_item(self):
+        if self.format == 'bill':
+            self.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
     def on_product_table_widget_item(self):
         if self.has_promo is True:
