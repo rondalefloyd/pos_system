@@ -4,13 +4,30 @@ import time as tm
 import pythoncom
 import uuid
 import machineid
+import traceback
+import inspect
+import textwrap
+import win32com.client
 from datetime import *
 from docx2pdf import *
-import win32com.client
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6 import *
+
+def error_tracer(error_exception):
+    error_traceback = traceback.format_exc().splitlines()[-1]
+    error_line_number = inspect.currentframe().f_lineno
+    timestamp = datetime.today().strftime("%a-%b-%d-%Y-%I:%M%p")
+    error_layout = textwrap.dedent(f"""\
+        TIME_STAMP: {timestamp}, 
+        ERROR_LINE_NO: {error_line_number}, 
+        EXCEPTION: {error_exception}, 
+        ERROR_TRACEBACK: {error_traceback}
+
+    """)
+    with open(f"receipt_printer_{date.today()}_error_log.txt", 'a') as file: 
+        file.write(error_layout)
 
 class ReceiptGenerator(QThread):
     update = pyqtSignal(int)
@@ -41,18 +58,15 @@ class ReceiptGenerator(QThread):
     def run(self):
         self.print_receipt()
         
-        if self.action == 'save':
-            self.convert_receipt_to_pdf()
-
         self.finished.emit()
 
     def print_receipt(self):
         pythoncom.CoInitialize()
 
         if self.sales_group_id <= 2:
-            docx_file = os.path.abspath('G:' + '/My Drive/receipt/receipt.docx')
+            docx_file = os.path.abspath('G:/My Drive/receipt/receipt.docx')
         elif self.sales_group_id == 3:
-            docx_file = os.path.abspath('G:' + '/My Drive/receipt/dual_receipt.docx')
+            docx_file = os.path.abspath('G:/My Drive/receipt/dual_receipt.docx')
             
         word = win32com.client.Dispatch('Word.Application')
         self.doc = word.Documents.Open(docx_file)
@@ -60,7 +74,6 @@ class ReceiptGenerator(QThread):
         ref_number = self.transaction_info[1]
 
         if self.sales_group_id <= 2:
-            print('self.sales_group_id:', self.sales_group_id)
             self.process_table_a()
             self.process_table_b()
             self.process_table_c()
@@ -68,7 +81,6 @@ class ReceiptGenerator(QThread):
             self.process_table_e()
 
         elif self.sales_group_id == 3:
-            print('self.sales_group_id:', self.sales_group_id)
             self.process_table_a()
             self.process_dual_table()
             self.process_table_c()
@@ -76,14 +88,16 @@ class ReceiptGenerator(QThread):
             self.process_table_e()
             
         # NOTE: can be used just in case
-        # self.doc.Protect(Password='123', NoReset=True, Type=3)
-        # self.doc.SaveAs(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.docx'))  # Save with the same file path to overwrite the original
+        self.doc.Protect(Password='123', NoReset=True, Type=3)
+        self.doc.SaveAs(os.path.abspath(f'G:/My Drive/receipt/saved/{ref_number}.docx'))  # Save with the same file path to overwrite the original
         
-        self.doc.ExportAsFixedFormat(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.pdf'), 17)  # 17 represents PDF format
+        # self.doc.ExportAsFixedFormat(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.pdf'), 17)  # 17 represents PDF format
 
-        if self.action == 'print':
+        try:
             # Print the document
-            # self.updated_doc.PrintOut()
+            self.doc.PrintOut()
+        except Exception as error_exception:
+            error_tracer(error_exception)
             pass
 
         word.Quit()
@@ -91,17 +105,6 @@ class ReceiptGenerator(QThread):
         self.update.emit(6)
 
         pythoncom.CoInitialize()
-
-    def convert_receipt_to_pdf(self):
-        self.update.emit(7)
-        
-        pdf_file = self.updated_docx_file.replace('.docx','.pdf')
-        convert(self.updated_docx_file, pdf_file)
-
-
-        if os.path.exists(self.updated_docx_file): 
-            os.remove(self.updated_docx_file)
-
 
 
     def process_table_a(self):
@@ -111,7 +114,7 @@ class ReceiptGenerator(QThread):
         tin_number = self.transaction_info[2]
         min_number = self.transaction_info[3]
 
-        table_a = self.doc.tables[0] 
+        table_a = self.doc.tables[0]
 
         # Define placeholders and values
         table_a_placeholders = {
@@ -180,13 +183,13 @@ class ReceiptGenerator(QThread):
         ]
 
         table_index = 1  # Assuming Table B is the second table in the document
+        table_row = 1
         for i in range(2):
             # sample data
             final_qty = [item[0] for item in final_order_table[i]] # remove 'x' from quantities
             final_product = [item[1] for item in final_order_table[i]]
             final_total_amount = [item[2] for item in final_order_table[i]] # remove '₱' from
 
-            print(f'final_order_table[{i}]:', final_order_table[i])
 
             # Access the second table (Table B) in the document
             table_b = self.doc.Tables[table_index]  # Assuming Table B is the second table in the document
@@ -213,11 +216,12 @@ class ReceiptGenerator(QThread):
                 row.Cells[0].Range.Text = qty
                 row.Cells[1].Range.Text = item_name
                 row.Cells[2].Range.Text = price
-
-            table_b.Rows[1].Delete()
             
             table_index += 1  # Assuming Table B is the second table in the document
 
+            table_b.Rows[table_row].Delete()
+            
+            table_row -= 1
 
         self.update.emit(2)
 
@@ -246,7 +250,7 @@ class ReceiptGenerator(QThread):
             for cell in row.Cells:
                 for placeholder, value in table_c_placeholders.items():
                     if placeholder in cell.Range.Text:
-                        cell.Range.Text = '₱' + cell.Range.Text.replace(placeholder, value).replace('\r', '').replace('\n', '')
+                        cell.Range.Text = cell.Range.Text.replace(placeholder, value).replace('\r', '').replace('\n', '')
 
         self.update.emit(3)
 
@@ -271,7 +275,7 @@ class ReceiptGenerator(QThread):
             for cell in row.Cells:
                 for placeholder, value in table_d_placeholders.items():
                     if placeholder in cell.Range.Text:
-                        cell.Range.Text = '₱' + cell.Range.Text.replace(placeholder, value).replace('\r', '').replace('\n', '')
+                        cell.Range.Text = cell.Range.Text.replace(placeholder, value).replace('\r', '').replace('\n', '')
 
         self.update.emit(4)
 

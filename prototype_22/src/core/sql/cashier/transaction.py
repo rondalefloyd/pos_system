@@ -2,7 +2,7 @@ import os, sys
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 from datetime import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from template.qss.qss import MyQSSConfig
 
@@ -74,7 +74,7 @@ class MyTXNSchema:
                 LEFT JOIN accounts.User ON ItemSold.UserId = User.UserId
                 LEFT JOIN sales.Item ON ItemPrice.ItemId = Item.ItemId
                 LEFT JOIN sales.Stock ON Item.ItemId = Stock.ItemId
-            WHERE Item.Name LIKE "%{text}%" OR ItemSold.ReferenceNumber LIKE "%{text}%"
+            WHERE CustomerName LIKE "%{text}%" OR Item.Name LIKE "%{text}%" OR ItemSold.ReferenceNumber LIKE "%{text}%"
             ORDER BY 
                 ItemSold.ItemSoldId DESC,
                 ItemSold.UpdateTs DESC
@@ -144,13 +144,13 @@ class MyTXNSchema:
                 UserId = {user_id} AND
                 StockId = {stock_id}
         """)
-            
-        # REVIEW: execute depending on the specific reason?
-        self.txn_cursor.execute(f"""
-            UPDATE Stock
-            SET OnHand = Onhand + {product_qty}
-            WHERE StockId = {stock_id}
-        """)
+        
+        if stock_id is not None or stock_id > 0:
+            # REVIEW: execute depending on the specific reason?
+            self.txn_cursor.execute(f"""
+                UPDATE Stock
+                SET OnHand = Onhand + {product_qty}
+                WHERE StockId = {stock_id}
+            """)
 
-        self.txn_conn.commit()
-        pass
+            self.txn_conn.commit()

@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
  
 from src.core.sql.admin.promo import *
 from src.core.sql.admin.user import *
@@ -32,7 +32,7 @@ class MyDataImportThread(QThread):
         
         self.data_name = data_name
         self.csv_file_path = csv_file_path
-        self.data_frame = pd.read_csv(self.csv_file_path, encoding='utf-8-sig', keep_default_na=False, header=None)
+        self.data_frame = pd.read_csv(self.csv_file_path, encoding='utf-8-sig', keep_default_na=False, header=None, skiprows=1)
         self.data_row = 1
 
     def run(self):
@@ -71,18 +71,28 @@ class MyDataImportThread(QThread):
                         self.update.emit(total_data_count, current_data)
                         pass
                     else:
+                        self.close_db_conn()
                         self.cancelled.emit()
                         return
                 except Exception as e: 
                     specific_error = f"{self.csv_file_path} contains missing values in row {self.data_row}"
-                    with open(f"{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}] [{specific_error}]\n")
+                    with open(f"import_{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}] [{specific_error}]\n")
                 
+            self.close_db_conn()
             self.finished.emit()
+            print('--done')
 
         except Exception as e:
-            with open(f"{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}]\n")
+            with open(f"import_{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}]\n")
             self.invalid.emit()
         pass
+
+    def close_db_conn(self):
+        if self.data_name == 'promo': self.promo_schema.sales_conn.close()
+        elif self.data_name == 'user': self.user_schema.accounts_conn.close()
+        elif self.data_name == 'reward': self.reward_schema.sales_conn.close()
+        elif self.data_name == 'customer': self.customer_schema.sales_conn.close()
+        elif self.data_name == 'product': self.product_schema.sales_conn.close()
 
     def stop(self):
         self.thread_running = False
@@ -137,13 +147,19 @@ class MyDataImportThread(QThread):
         product_supplier,
         product_cost,
         product_price,
+        product_effective_dt,
         product_stock_available,
-        product_stock_onhand) = row_v[:11]
+        product_stock_onhand) = row_v[:12]
 
         product_expire_dt = product_expire_dt or '9999-99-99'
 
+
+        if product_brand == '':
+            return
         if product_sales_group not in ['Retail', 'Wholesale']:
             return # which means considered as error
+        if product_supplier == '':
+            return
 
         if product_stock_available > 0 or product_stock_onhand >0:
             product_stock_tracking = True
@@ -162,6 +178,7 @@ class MyDataImportThread(QThread):
 
             product_cost=product_cost,
             product_price=product_price,
+            product_effective_dt=product_effective_dt,
 
             product_stock_tracking=product_stock_tracking,
             product_stock_available=product_stock_available,

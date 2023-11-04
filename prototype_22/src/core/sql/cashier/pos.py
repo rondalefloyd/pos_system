@@ -2,7 +2,7 @@ import os, sys
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 from datetime import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from template.qss.qss import MyQSSConfig
 
@@ -68,47 +68,9 @@ class MyPOSSchema:
     def select_product_data_as_display(self, text='', order_type='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
-
-        # self.sales_cursor.execute(f"""
-        #     SELECT 
-        #         Item.Name, 
-        #         Brand.Name,     
-        #         Item.Barcode, 
-        #         ItemPrice.SellPrice, 
-        #         ItemPrice.DiscountValue, 
-        #         ItemPrice.EffectiveDt, 
-        #         Stock.OnHand,
-        #         Item.ItemId,
-
-        #         SalesGroup.SalesGroupId, 
-        #         ItemPrice.ItemPriceId,
-        #         ItemPrice.ItemId,   
-        #         Promo.PromoId, 
-        #         Stock.StockId,
-                                
-        #         ROW_NUMBER() OVER(PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
-        #     FROM ItemPrice
-        #     LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
-        #     LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
-        #     LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
-        #     LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
-        #     LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
-        #     LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
-        #     LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
-        #     WHERE
-        #         (Item.Barcode LIKE "%{text}%" OR
-        #         Item.Name LIKE "%{text}%" OR
-        #         ItemType.Name LIKE "%{text}%" OR
-        #         Brand.Name LIKE "%{text}%") AND
-        #         SalesGroup.Name = "{order_type}" AND
-        #         ItemPrice.EffectiveDt <= CURRENT_DATE
-        #     ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
-        #     LIMIT {page_size} OFFSET {offset}
-        # """)
-
         self.sales_cursor.execute(f"""
             WITH RankedProduct AS (
-                SELECT 
+                SELECT DISTINCT
                     Item.Name, 
                     Brand.Name,     
                     Item.Barcode, 
@@ -124,7 +86,7 @@ class MyPOSSchema:
                     Promo.PromoId, 
                     Stock.StockId,
                                   
-                    ROW_NUMBER() OVER(PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                    ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
                 FROM ItemPrice
                 LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                 LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -153,6 +115,43 @@ class MyPOSSchema:
 
         return product_data
         pass
+    def select_product_data_with_barcode(self, barcode='', order_type=''):
+        try:
+            self.sales_cursor.execute(f"""
+                WITH RankedProduct AS (
+                    SELECT DISTINCT
+                        Item.Name, 
+                        ItemPrice.ItemPriceId,
+                        ItemPrice.ItemId,
+                                    
+                        ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                    FROM ItemPrice
+                    LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
+                    LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
+                    LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
+                    LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
+                    LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
+                    LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
+                    LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
+                    WHERE
+                        Item.Barcode = "{barcode}" AND
+                        SalesGroup.Name = "{order_type}" AND
+                        ItemPrice.EffectiveDt <= CURRENT_DATE
+                    ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
+                )
+                SELECT * FROM RankedProduct 
+                WHERE RowNumber = 1
+            """)
+
+            product_data  = self.sales_cursor.fetchall()[0]
+
+        except ValueError as e:
+            product_data = ['',0,0]
+            pass
+
+        return product_data
+        pass
+    
     def select_product_data_for_view_dialog(self, product_name, product_barcode):
         self.sales_cursor.execute(f"""
             SELECT 
@@ -172,7 +171,8 @@ class MyPOSSchema:
                 ItemPrice.DiscountValue, 
                         
                 CASE WHEN Stock.StockId > 0 THEN 'Enabled' ELSE 'Disabled' END AS StockStatus,
-                  
+                Stock.OnHand,
+                
                 ItemPrice.UpdateTs
             FROM ItemPrice
                 LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
@@ -235,7 +235,7 @@ class MyPOSSchema:
                         ItemPrice.ItemId,   
                         Promo.PromoId, 
                         Stock.StockId,
-                        ROW_NUMBER() OVER(PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                        ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
                     FROM ItemPrice
                     LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                     LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -253,6 +253,7 @@ class MyPOSSchema:
                         ItemPrice.EffectiveDt <= CURRENT_DATE
                 )
                 SELECT COUNT(*) FROM RankedProduct 
+                WHERE RowNumber = 1 
             """)
 
             total_product_data_count = self.sales_cursor.fetchone()[0]
@@ -266,15 +267,18 @@ class MyPOSSchema:
         pass
 
     def select_customer_data_with_customer_reward_data(self, customer_name):
-        self.sales_cursor.execute(f"""
-            SELECT Customer.Name, Customer.Phone, CustomerReward.Points FROM Customer
-            LEFT JOIN CustomerReward ON Customer.CustomerId = CustomerReward.CustomerId
-            WHERE Customer.Name = "{customer_name}"
-        """)
+        try:
+            self.sales_cursor.execute(f"""
+                SELECT Customer.Name, Customer.Phone, CustomerReward.Points FROM Customer
+                LEFT JOIN CustomerReward ON Customer.CustomerId = CustomerReward.CustomerId
+                WHERE Customer.Name = "{customer_name}"
+            """)
 
-        customer_data = self.sales_cursor.fetchall()
+            customer_data = self.sales_cursor.fetchall()
 
-        return customer_data[0]
+            return customer_data[0]
+        except Exception as e:
+            return ['N/A','N/A',0]
         pass
     def select_customer_name_for_combo_box(self):
         self.sales_cursor.execute(f"""
@@ -458,7 +462,6 @@ class MyPOSSchema:
 
             self.sales_conn.commit()
         except Exception as e:
-            print(e)
             pass
         pass
     def update_customer_reward_points_by_decrement(self, customer_id, order_total):
@@ -473,7 +476,6 @@ class MyPOSSchema:
 
             self.sales_conn.commit()
         except Exception as e:
-            print(e)
             pass
         pass
     def update_stock_on_hand(self, product_id, product_stock_id, product_qty):
@@ -492,7 +494,6 @@ class MyPOSSchema:
             
             self.sales_conn.commit()
         except Exception as e:
-            print(e)
             pass
 
     def update_promo_data(self, promo_name='', promo_type='', promo_percent=0, promo_desc='', promo_id=0):

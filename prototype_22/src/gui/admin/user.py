@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.widget.my_widget import *
 from src.core.csv_to_db_importer import MyDataImportThread
@@ -104,34 +104,33 @@ class MyUserView(MyWidget):
 
     def set_user_box(self):
         self.filter_field = MyLineEdit(object_name='filter_field')
-        self.filter_button = MyPushButton(text='Filter')
-        self.filter_box = MyGroupBox()
-        self.filter_layout = MyHBoxLayout()
+        self.filter_button = MyPushButton(object_name='filter_button', text='Filter')
+        self.filter_box = MyGroupBox(object_name='filter_box')
+        self.filter_layout = MyHBoxLayout(object_name='filter_layout')
         self.filter_layout.addWidget(self.filter_field)
         self.filter_layout.addWidget(self.filter_button)
         self.filter_box.setLayout(self.filter_layout)
 
-        self.import_data_button = MyPushButton(text='Import')
-        self.add_data_button = MyPushButton(text='Add')
-        self.manage_data_box = MyGroupBox()
-        self.field_layout = MyHBoxLayout()
-        self.field_layout.addWidget(self.import_data_button)
-        self.field_layout.addWidget(self.add_data_button)
-        self.manage_data_box.setLayout(self.field_layout)
+        self.import_data_button = MyPushButton(object_name='import_data_button', text='Import')
+        self.add_data_button = MyPushButton(object_name='add_data_button', text='Add')
+        self.manage_data_box = MyGroupBox(object_name='manage_data_box')
+        self.manage_data_layout = MyHBoxLayout(object_name='manage_data_layout')
+        self.manage_data_layout.addWidget(self.import_data_button)
+        self.manage_data_layout.addWidget(self.add_data_button)
+        self.manage_data_box.setLayout(self.manage_data_layout)
 
-        self.user_act_box = MyGroupBox()
-        self.user_act_layout = MyHBoxLayout()
+        self.user_act_box = MyGroupBox(object_name='user_act_box')
+        self.user_act_layout = MyHBoxLayout(object_name='user_act_layout')
         self.user_act_layout.addWidget(self.filter_box,0,Qt.AlignmentFlag.AlignLeft)
         self.user_act_layout.addWidget(self.manage_data_box,1,Qt.AlignmentFlag.AlignRight)
         self.user_act_box.setLayout(self.user_act_layout)
 
         self.user_overview_table = MyTableWidget(object_name='user_overview_table')
-        self.user_overview_prev_button = MyPushButton(text='Prev')
-        self.user_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.user_overview_next_button = MyPushButton(text='Next')
-
-        self.user_overview_act_box = MyGroupBox()
-        self.user_overview_act_layout = MyHBoxLayout()
+        self.user_overview_prev_button = MyPushButton(object_name='overview_prev_button', text='Prev')
+        self.user_overview_page_label = MyLabel(object_name='overview_page_label', text=f"Page {self.m.page_number}/{self.m.total_page_number}")
+        self.user_overview_next_button = MyPushButton(object_name='overview_next_button', text='Next')
+        self.user_overview_act_box = MyGroupBox(object_name='overview_act_box')
+        self.user_overview_act_layout = MyHBoxLayout(object_name='overview_act_layout')
         self.user_overview_act_layout.addWidget(self.user_overview_prev_button)
         self.user_overview_act_layout.addWidget(self.user_overview_page_label)
         self.user_overview_act_layout.addWidget(self.user_overview_next_button)
@@ -153,14 +152,14 @@ class MyUserView(MyWidget):
     def set_manage_data_box(self):
         self.user_name_field = MyLineEdit(object_name='user_name_field')
         self.user_name_label = MyLabel(text='Name')
-        self.user_password_field = MyLineEdit(object_name='user_password_field')
+        self.user_password_field = MyLineEdit(object_name='user_edit_password_field')
         self.user_password_label = MyLabel(text='Password')
         self.user_level_field = MyComboBox(object_name='user_level_field')
         self.user_level_label = MyLabel(text='Access level')
         self.user_phone_field = MyLineEdit(object_name='user_phone_field')
         self.user_phone_label = MyLabel(text='Phone')
-        self.field_box = MyGroupBox()
-        self.field_layout = MyFormLayout()
+        self.field_box = MyGroupBox(object_name='field_box')
+        self.field_layout = MyFormLayout(object_name='field_layout')
         self.field_layout.addRow(self.user_name_label)
         self.field_layout.addRow(self.user_name_field)
         self.field_layout.addRow(self.user_password_label)
@@ -173,10 +172,10 @@ class MyUserView(MyWidget):
         self.manage_data_scra = MyScrollArea()
         self.manage_data_scra.setWidget(self.field_box)
 
-        self.save_data_button = MyPushButton(text='Save')
-        self.manage_data_act_close_button = MyPushButton(text='Close')
-        self.manage_data_act_box = MyGroupBox()
-        self.manage_data_act_layout = MyHBoxLayout()
+        self.save_data_button = MyPushButton(object_name='save_button', text='Save')
+        self.manage_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.manage_data_act_box = MyGroupBox(object_name='manage_data_act_box')
+        self.manage_data_act_layout = MyHBoxLayout(object_name='manage_data_act_layout')
         self.manage_data_act_layout.addWidget(self.save_data_button,1,Qt.AlignmentFlag.AlignRight)
         self.manage_data_act_layout.addWidget(self.manage_data_act_close_button)
         self.manage_data_act_box.setLayout(self.manage_data_act_layout)
@@ -191,22 +190,22 @@ class MyUserView(MyWidget):
         self.progress_bar = MyProgressBar()
         self.progress_label = MyLabel(text='Please wait...')
         self.progress_dialog = MyDialog(object_name='progress_dialog', window_title='99% complete')
-        self.progress_layout = MyVBoxLayout()
+        self.progress_layout = MyVBoxLayout(object_name='progress_layout')
         self.progress_layout.addWidget(self.progress_bar)
         self.progress_layout.addWidget(self.progress_label)
         self.progress_dialog.setLayout(self.progress_layout)
         pass
 
     def set_overview_table_act_box(self):
-        self.edit_data_button = MyPushButton(text='Edit')
-        self.view_data_button = MyPushButton(text='View')
-        self.delete_data_button = MyPushButton(text='Delete')
-        self.user_overview_act_box = MyGroupBox(object_name='user_overview_act_box')
-        self.user_overview_act_layout = MyHBoxLayout(object_name='user_overview_act_layout')
-        self.user_overview_act_layout.addWidget(self.edit_data_button)
-        self.user_overview_act_layout.addWidget(self.view_data_button)
-        self.user_overview_act_layout.addWidget(self.delete_data_button)
-        self.user_overview_act_box.setLayout(self.user_overview_act_layout)
+        self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
+        self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
+        self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete')
+        self.user_overview_data_act_box = MyGroupBox(object_name='user_overview_data_act_box')
+        self.user_overview_data_act_layout = MyHBoxLayout(object_name='user_overview_data_act_layout')
+        self.user_overview_data_act_layout.addWidget(self.edit_data_button)
+        self.user_overview_data_act_layout.addWidget(self.view_data_button)
+        # self.user_overview_data_act_layout.addWidget(self.delete_data_button)
+        self.user_overview_data_act_box.setLayout(self.user_overview_data_act_layout)
 
     def set_view_dialog(self):
         self.user_name_info = MyLabel(text=f"user_name")
@@ -214,8 +213,8 @@ class MyUserView(MyWidget):
         self.user_level_info = MyLabel(text=f"user_level")
         self.user_phone_info = MyLabel(text=f"user_phone")
         self.datetime_created_info = MyLabel(text=f"datetime_created")
-        self.info_box = MyGroupBox()
-        self.info_layout = MyFormLayout()
+        self.info_box = MyGroupBox(object_name='info_box')
+        self.info_layout = MyFormLayout(object_name='info_layout')
         self.info_layout.addRow('Name:', self.user_name_info)
         self.info_layout.addRow('Type:', self.user_password_info)
         self.info_layout.addRow('Percent:', self.user_level_info)
@@ -226,10 +225,9 @@ class MyUserView(MyWidget):
         self.view_data_scra = MyScrollArea()
         self.view_data_scra.setWidget(self.info_box)
 
-
-        self.view_data_act_close_button = MyPushButton(text='Close')
-        self.view_data_act_box = MyGroupBox()
-        self.view_data_act_layout = MyHBoxLayout()
+        self.view_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.view_data_act_box = MyGroupBox(object_name='view_data_act_box')
+        self.view_data_act_layout = MyHBoxLayout(object_name='view_data_act_layout')
         self.view_data_act_layout.addWidget(self.view_data_act_close_button,0,Qt.AlignmentFlag.AlignRight)
         self.view_data_act_box.setLayout(self.view_data_act_layout)
 
@@ -260,7 +258,6 @@ class MyUserController:
         self.m.total_page_number = schema.select_user_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
 
-        print(self.m.total_page_number, self.m.page_number)
 
         self.v.user_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         
@@ -288,7 +285,6 @@ class MyUserController:
         pass
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
-        print(self.m.progress_count)
         self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count)
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
@@ -325,13 +321,13 @@ class MyUserController:
 
         for i, data in enumerate(user_data):
             self.v.set_overview_table_act_box()
-            user_name = QTableWidgetItem(f"{data[0]}")
-            user_password = QTableWidgetItem(f"{data[1]}")
-            user_level = QTableWidgetItem(f"{data[2]}")
-            user_phone = QTableWidgetItem(f"{data[3]}")
-            datetime_created = QTableWidgetItem(f"{data[4]}")
+            user_name = MyTableWidgetItem(text=f"{data[0]}")
+            user_password = MyTableWidgetItem(text=f"{data[1]}")
+            user_level = MyTableWidgetItem(text=f"{data[2]}")
+            user_phone = MyTableWidgetItem(text=f"{data[3]}")
+            datetime_created = MyTableWidgetItem(text=f"{data[4]}")
 
-            self.v.user_overview_table.setCellWidget(i, 0, self.v.user_overview_act_box)
+            self.v.user_overview_table.setCellWidget(i, 0, self.v.user_overview_data_act_box)
             self.v.user_overview_table.setItem(i, 1, user_name)
             self.v.user_overview_table.setItem(i, 2, user_password)
             self.v.user_overview_table.setItem(i, 3, user_level)
