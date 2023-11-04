@@ -28,9 +28,9 @@ class MyScrollArea(QScrollArea):
         self.setWidgetResizable(True)
         self.setObjectName(object_name)
 
-        self.on_glboal_scra()
+        self.on_global_scra()
 
-    def on_glboal_scra(self):
+    def on_global_scra(self):
         self.setStyleSheet(f"""
             QScrollArea {{ border: none;}}
             QScrollArea#navbar_scra {{ background-color: {qss.navbar_bg_color};}}
@@ -54,7 +54,7 @@ class MyTabWidget(QTabWidget):
 
     def on_global_tab_widget(self):
         self.setStyleSheet(f"""
-            QTabWidget::pane {{ background-color: {qss.default_panel_color}; border: None}}
+            QTabWidget::pane {{ background-color: {qss.default_panel_color}; border: None; border-top: 1px solid {qss.default_line_color}}}
             QTabWidget > QTabBar::tab {{ background-color: {qss.default_panel_color}; height: 40px; width: 100px; font-size: 14px; padding: 0px 10px }}
             QTabWidget > QTabBar::tab:selected {{ background-color: {qss.default_panel_color}; border-right: 1px solid {qss.default_line_color};     font-weight: bold }}
             QTabWidget > QTabBar::tab:!selected {{ background-color: none; border-right: 1px solid {qss.default_line_color}; }}
@@ -144,6 +144,8 @@ class MyGroupBox(QGroupBox):
 
             QGroupBox#manage_order_box {{ background-color: {qss.main_color}; border-left: 1px solid {qss.main_color}}}
 
+            QGroupBox#order_empty_tab_box {{ background-color: {qss.default_panel_color}; }}
+
             QGroupBox#manage_data_act_box,
             QGroupBox#payment_c_box,
             QGroupBox#view_data_act_box,
@@ -154,6 +156,7 @@ class MyGroupBox(QGroupBox):
 
         if self.object_name in [
             'product_overview_data_act_box',
+            'product_stock_data_act_box',
             'promo_overview_data_act_box',
             'reward_overview_data_act_box',
             'customer_overview_data_act_box',
@@ -164,8 +167,6 @@ class MyGroupBox(QGroupBox):
             self.setStyleSheet(f"""
                 QGroupBox#{self.object_name} {{ border: 0; }}
             """)
-
-
 
     def on_cashier_group_box(self):
         pass
@@ -180,6 +181,9 @@ class MyGroupBox(QGroupBox):
         if self.object_name == 'manage_order_box':
             self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             self.setMaximumWidth(450)
+        
+        if self.object_name in ['order_empty_tab_box','txn_complete_summary_box']:
+            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         pass
 class MyDialog(QDialog):
     close_signal = pyqtSignal(str)
@@ -203,15 +207,17 @@ class MyDialog(QDialog):
 
         self.close_signal.connect(self.on_close_signal)
 
-    def on_login_dialog(self):
-        pass
-
     def on_global_dialog(self):
+        self.setMinimumWidth(300)
+
         if self.object_name == 'updater_progress_dialog':
             self.setMinimumWidth(250)
 
         if self.object_name == 'progress_dialog':
-            self.setMinimumWidth(200)
+            self.setMinimumWidth(250)
+        pass
+
+    def on_login_dialog(self):
         pass
 
     def on_pos_dialog(self):
@@ -396,7 +402,7 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
             self.horizontalHeader().resizeSection(0, 175)
             self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
@@ -653,7 +659,8 @@ class MyLabel(QLabel):
     def on_global_label(self):
         self.setStyleSheet(f"""
             QLabel {{ font-size: 12px; }}
-                           
+
+            QLabel#current_user_label,
             QLabel#current_cashier_label,
             QLabel#current_phone_label {{ color: {qss.main_txt_color}; font-size: 14px;}}
             QLabel#transaction_order_total_amount_label,
@@ -749,8 +756,9 @@ class MyComboBox(QComboBox):
         self.on_global_combo_box()
 
     def on_global_combo_box(self):
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setStyleSheet(f"""
-            QComboBox {{ border: 1px solid {qss.default_line_color}; border-radius: 3px; padding: 9px}}
+            QComboBox#{self.object_name} {{ background-color: {qss.main_color}; color: {qss.main_txt_color}; border-radius: 3px; padding: 9px}}
 
             QComboBox::drop-down {{
                 subcontrol-origin: padding;
@@ -763,7 +771,9 @@ class MyComboBox(QComboBox):
                 border-bottom-right-radius: 3px;
             }}
 
-            QComboBox::down-arrow {{ image: url({qss.secondary_drop_down_arrow_icon}); width: 15px; height: auto; }}
+            QComboBox::down-arrow {{ image: url({qss.main_drop_down_arrow_icon}); width: 15px; height: auto; }}
+
+            QComboBox QAbstractItemView::item {{ padding: 10px; }}
         """)
         if self.object_name in [
             'user_name_field', 
@@ -774,10 +784,30 @@ class MyComboBox(QComboBox):
             'product_brand_field',
             'product_supplier_field',   
             'customer_name_field',
-            
         ]:
+            self.setStyleSheet(f"""
+                QComboBox {{ border: 1px solid {qss.default_line_color}; border-radius: 3px; padding: 9px}}
+
+                QComboBox#{self.object_name}::drop-down {{
+                    subcontrol-origin: padding;
+                    subcontrol-position: top right;
+                    width: 15px;
+
+                    border-left-width: 1px;
+                    border-left-style: solid;
+                    border-top-right-radius: 3px; 
+                    border-bottom-right-radius: 3px;
+                }}
+
+                QComboBox#{self.object_name}::down-arrow {{ image: url({qss.secondary_drop_down_arrow_icon}); width: 15px; height: auto; }}
+
+                QComboBox#{self.object_name} QAbstractItemView::item {{ padding: 10px; }}
+            """)
             self.setEditable(True)
             self.lineEdit().setFont(QFont(qss.global_font))
+
+            if self.object_name == 'customer_name_field':
+                self.setMinimumWidth(150)
         if self.object_name == 'order_type_field':
             # self.setStyleSheet(f"""
             #     QComboBox#{self.object_name} {{ background-color: {qss.act_pas_bg_color} }}
@@ -924,6 +954,7 @@ class MyDateEdit(QDateEdit):
         self.on_global_date_edit()
 
     def on_global_date_edit(self):
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setStyleSheet(f"""
             QDateEdit {{ border: 1px solid {qss.default_line_color}; border-radius: 3px; padding: 9px}}
 
@@ -997,6 +1028,8 @@ class MyPushButton(QPushButton):
         if self.object_name in [
             'login_button',
 
+            'order_empty_add_order_button',
+
             'filter_button',
             'add_data_button',
             'import_data_button',
@@ -1044,6 +1077,9 @@ class MyPushButton(QPushButton):
                 QPushButton#login_button {{ background-color: {qss.main_color}; border: none; border-radius: 3px; color: {qss.main_txt_color}; text-align: center; padding: 10px }}
                 QPushButton#login_button:hover {{ background-color: {qss.main_color_alt} }}
 
+                QPushButton#order_empty_add_order_button {{ background-color: {qss.act_pas_bg_color}; border: none; font-size: 35px; font-weight: bold; color: {qss.default_line_color};  }}
+                QPushButton#order_empty_add_order_button:hover {{ background-color: {qss.act_pas_bg_color}; color: {qss.main_color}  }}
+
                 QPushButton#filter_button,
                 QPushButton#add_data_button,
                 QPushButton#overview_prev_button,
@@ -1060,7 +1096,7 @@ class MyPushButton(QPushButton):
             
 
                 QPushButton#overview_prev_button:disabled,
-                QPushButton#overview_next_button:disabled {{ background-color: {qss.secondary_color_alt}; color: {qss.secondary_text_color} }}
+                QPushButton#overview_next_button:disabled {{ background-color: {qss.secondary_color_alt}; color: {qss.secondary_txt_color} }}
 
                 QPushButton#delete_data_button, 
                 QPushButton#void_data_button,
@@ -1080,7 +1116,7 @@ class MyPushButton(QPushButton):
                 QPushButton#untoggle_lock_order {{ background-color: {qss.main_color}; border: none; border-radius: 3px; color: {qss.act_pas_txt_color}; text-align: center; padding: 10px }}
                 QPushButton#untoggle_lock_order:hover {{ background-color: {qss.main_color_alt} }}
 
-                QPushButton#complete_order_button {{ background-color: {qss.act_pos_bg_color}; border: none; border-radius: 3px; color: {qss.act_pos_txt_color}; font-size: 16px; font-weight: bold; text-align: center; padding: 15px }}
+                QPushButton#complete_order_button {{ background-color: {qss.act_pos_bg_color}; border: none; border-radius: 3px; color: {qss.act_pos_txt_color}; font-size: 18px; font-weight: bold; text-align: center; padding: 15px }}
                 QPushButton#complete_order_button:hover {{ background-color: {qss.act_pos_bg_color_alt} }}
 
                 QPushButton#pay_cash_button,
@@ -1105,6 +1141,10 @@ class MyPushButton(QPushButton):
                 QPushButton#save_button:hover {{ background-color: {qss.act_pos_bg_color_alt};}}
                 
             """)
+            if self.object_name == 'order_empty_add_order_button':
+                self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+
             if self.object_name == 'filter_button': self.setIcon(QIcon(qss.filter_icon))
             if self.object_name == 'add_data_button': self.setIcon(QIcon(qss.add_data_icon))
             if self.object_name == 'import_data_button': self.setIcon(QIcon(qss.import_data_icon))

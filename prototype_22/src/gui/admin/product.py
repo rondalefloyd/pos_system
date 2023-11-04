@@ -306,17 +306,29 @@ class MyProductView(MyWidget):
         self.product_cost_label = MyLabel(text='Cost')
         self.product_price_label = MyLabel(text='Price')
         self.product_effective_dt_label = MyLabel(text='Effective date')
+        self.product_retail_price_label = MyLabel(text='Retail price')
+        self.product_wholesale_price_label = MyLabel(text='Wholesale price')
+
         self.product_cost_field = MyLineEdit(object_name='product_cost_field')
-        self.product_price_field = MyLineEdit(object_name='product_price_field')
         self.product_effective_dt_field = MyDateEdit(object_name='product_effective_dt_field')
+        
+        self.product_price_field = MyLineEdit(object_name='product_price_field')
+        self.product_retail_price_field = MyLineEdit(object_name='product_price_field')
+        self.product_wholesale_price_field = MyLineEdit(object_name='product_price_field')
+        
         self.pricing_field_box = MyGroupBox(object_name='field_box')
         self.pricing_field_layout = MyGridLayout(object_name='sub_field_layout')
         self.pricing_field_layout.addWidget(self.product_cost_label,0,0)
         self.pricing_field_layout.addWidget(self.product_cost_field,1,0)
-        self.pricing_field_layout.addWidget(self.product_price_label,0,1)
-        self.pricing_field_layout.addWidget(self.product_price_field,1,1)
-        self.pricing_field_layout.addWidget(self.product_effective_dt_label,0,2)
-        self.pricing_field_layout.addWidget(self.product_effective_dt_field,1,2)
+        self.pricing_field_layout.addWidget(self.product_effective_dt_label,0,1)
+        self.pricing_field_layout.addWidget(self.product_effective_dt_field,1,1)
+
+        self.pricing_field_layout.addWidget(self.product_retail_price_label,2,0)
+        self.pricing_field_layout.addWidget(self.product_retail_price_field,3,0)
+        self.pricing_field_layout.addWidget(self.product_wholesale_price_label,2,1)
+        self.pricing_field_layout.addWidget(self.product_wholesale_price_field,3,1)
+        self.pricing_field_layout.addWidget(self.product_price_label,2,0)
+        self.pricing_field_layout.addWidget(self.product_price_field,3,0)
         self.pricing_field_box.setLayout(self.pricing_field_layout)
 
         self.product_promo_name_label = MyLabel(text='Promo name')
@@ -427,18 +439,18 @@ class MyProductView(MyWidget):
     def set_overview_table_act_box(self):
         self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
         self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
-        self.delete_data_button = MyPushButton(object_name='product_delete_data_button', text='Delete') # unavailable for now
+        self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete') # unavailable for now
         self.product_overview_data_act_box = MyGroupBox(object_name='product_overview_data_act_box')
         self.product_overview_data_act_layout = MyHBoxLayout(object_name='product_overview_data_act_layout')
         self.product_overview_data_act_layout.addWidget(self.edit_data_button)
         self.product_overview_data_act_layout.addWidget(self.view_data_button)
-        self.product_overview_data_act_layout.addWidget(self.delete_data_button)
+        # self.product_overview_data_act_layout.addWidget(self.delete_data_button)
         self.product_overview_data_act_box.setLayout(self.product_overview_data_act_layout)
     def set_stock_table_act_box(self):
         self.edit_stock_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
         self.delete_stock_data_button = MyPushButton(object_name='void_data_button', text='Stop')
-        self.product_stock_act_box = MyGroupBox(object_name='product_stock_act_box')
-        self.product_stock_act_layout = MyHBoxLayout(object_name='product_stock_act_layout')
+        self.product_stock_act_box = MyGroupBox(object_name='product_stock_data_act_box')
+        self.product_stock_act_layout = MyHBoxLayout(object_name='product_stock_data_act_layout')
         self.product_stock_act_layout.addWidget(self.edit_stock_data_button)
         self.product_stock_act_layout.addWidget(self.delete_stock_data_button)
         self.product_stock_act_box.setLayout(self.product_stock_act_layout)
@@ -577,8 +589,9 @@ class MyProductController:
         self.load_combo_box_data()
         self.v.manage_product_data_dialog.setWindowTitle('Add product')
 
-        self.set_category_field_disabled(False)
+        # self.set_category_field_disabled(False)
         self.v.promo_field_box.hide()
+        self.set_price_type_field_hidden(False)
     
         self.set_manage_product_data_box_conn(task='add_data')
         self.v.manage_product_data_dialog.exec()
@@ -655,9 +668,9 @@ class MyProductController:
         self.v.manage_product_data_dialog.setWindowTitle(f"{data[1]}")
 
         self.v.promo_field_box.show()
-        self.set_category_field_disabled(True)
+        # self.set_category_field_disabled(True)
         self.set_promo_field_hidden(True)
-
+        self.set_price_type_field_hidden(True)
         sel_product_data = schema.select_product_data(data[0], data[1])
 
         for i, sel_data in enumerate(sel_product_data):
@@ -686,6 +699,19 @@ class MyProductController:
         self.set_manage_product_data_box_conn(task='edit_data')
         self.v.manage_product_data_dialog.exec()
         pass
+
+    def set_price_type_field_hidden(self, hidden):
+        if hidden is True:
+            self.v.product_price_label.show()
+            self.v.product_price_field.show()
+        else:
+            self.v.product_price_label.hide()
+            self.v.product_price_field.hide()
+        self.v.product_retail_price_label.setHidden(hidden)
+        self.v.product_retail_price_field.setHidden(hidden)
+        self.v.product_wholesale_price_label.setHidden(hidden)
+        self.v.product_wholesale_price_field.setHidden(hidden)
+
     def on_view_data_button_clicked(self, data):
         self.v.set_view_dialog()
         self.v.view_data_dialog.setWindowTitle(f"{data[1]}")

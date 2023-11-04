@@ -45,7 +45,7 @@ class MyQSSConfig:
         self.main_txt_color = '#fff'
         self.default_panel_color = '#fff'
         self.default_line_color = '#ccc'
-        self.secondary_text_color = '#222'
+        self.secondary_txt_color = '#222'
         self.disabled_bg_color = '#aaa'
 
         self.navbar_bg_color = '#222'

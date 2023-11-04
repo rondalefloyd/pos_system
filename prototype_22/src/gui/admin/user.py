@@ -152,7 +152,7 @@ class MyUserView(MyWidget):
     def set_manage_data_box(self):
         self.user_name_field = MyLineEdit(object_name='user_name_field')
         self.user_name_label = MyLabel(text='Name')
-        self.user_password_field = MyLineEdit(object_name='user_password_field')
+        self.user_password_field = MyLineEdit(object_name='user_edit_password_field')
         self.user_password_label = MyLabel(text='Password')
         self.user_level_field = MyComboBox(object_name='user_level_field')
         self.user_level_label = MyLabel(text='Access level')

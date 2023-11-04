@@ -71,23 +71,28 @@ class MyDataImportThread(QThread):
                         self.update.emit(total_data_count, current_data)
                         pass
                     else:
+                        self.close_db_conn()
                         self.cancelled.emit()
                         return
                 except Exception as e: 
                     specific_error = f"{self.csv_file_path} contains missing values in row {self.data_row}"
                     with open(f"import_{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}] [{specific_error}]\n")
                 
+            self.close_db_conn()
             self.finished.emit()
-            if self.data_name == 'promo': self.promo_schema.sales_conn.close()
-            elif self.data_name == 'user': self.user_schema.accounts_conn.close()
-            elif self.data_name == 'reward': self.reward_schema.sales_conn.close()
-            elif self.data_name == 'customer': self.customer_schema.sales_conn.close()
-            elif self.data_name == 'product': self.product_schema.sales_conn.close()
+            print('--done')
 
         except Exception as e:
             with open(f"import_{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}]\n")
             self.invalid.emit()
         pass
+
+    def close_db_conn(self):
+        if self.data_name == 'promo': self.promo_schema.sales_conn.close()
+        elif self.data_name == 'user': self.user_schema.accounts_conn.close()
+        elif self.data_name == 'reward': self.reward_schema.sales_conn.close()
+        elif self.data_name == 'customer': self.customer_schema.sales_conn.close()
+        elif self.data_name == 'product': self.product_schema.sales_conn.close()
 
     def stop(self):
         self.thread_running = False
@@ -148,8 +153,13 @@ class MyDataImportThread(QThread):
 
         product_expire_dt = product_expire_dt or '9999-99-99'
 
+
+        if product_brand == '':
+            return
         if product_sales_group not in ['Retail', 'Wholesale']:
             return # which means considered as error
+        if product_supplier == '':
+            return
 
         if product_stock_available > 0 or product_stock_onhand >0:
             product_stock_tracking = True

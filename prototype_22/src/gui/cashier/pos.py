@@ -260,12 +260,19 @@ class MyPOSView(MyGroupBox):
         self.manage_order_act_layout.addWidget(self.add_order_button,0,Qt.AlignmentFlag.AlignRight)
         self.manage_order_act_box.setLayout(self.manage_order_act_layout)
 
+        self.order_empty_tab_box = MyGroupBox(object_name='order_empty_tab_box')
+        self.order_empty_tab_layout = MyVBoxLayout(object_name='order_empty_tab_layout')
+        self.order_empty_add_order_button = MyPushButton(object_name='order_empty_add_order_button', text='Add order')
+        self.order_empty_tab_layout.addWidget(self.order_empty_add_order_button)
+        self.order_empty_tab_box.setLayout(self.order_empty_tab_layout)
+
         self.manage_order_tab = MyTabWidget(object_name='manage_order_tab')
 
         self.manage_order_box = MyGroupBox(object_name='manage_order_box')
         self.manage_order_layout = MyVBoxLayout(object_name='manage_order_layout')
         self.manage_order_layout.addWidget(self.manage_order_act_box)
         self.manage_order_layout.addWidget(self.manage_order_tab)
+        self.manage_order_layout.addWidget(self.order_empty_tab_box)
         self.manage_order_box.setLayout(self.manage_order_layout)
 
         self.main_layout = MyGridLayout(object_name='main_layout')
@@ -374,7 +381,7 @@ class MyPOSView(MyGroupBox):
         self.info_layout.addRow('Date/Time created:', self.product_datetime_created_info)
 
         self.info_box.setLayout(self.info_layout)
-        self.view_data_scra = MyScrollArea()
+        self.view_data_scra = MyScrollArea(object_name='view_data_scra')
         self.view_data_scra.setWidget(self.info_box)
 
         self.view_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
@@ -383,8 +390,8 @@ class MyPOSView(MyGroupBox):
         self.view_data_act_layout.addWidget(self.view_data_act_close_button,0,Qt.AlignmentFlag.AlignRight)
         self.view_data_act_box.setLayout(self.view_data_act_layout)
 
-        self.view_data_dialog = MyDialog()
-        self.view_data_layout = MyVBoxLayout()
+        self.view_data_dialog = MyDialog(object_name='view_data_dialog')
+        self.view_data_layout = MyVBoxLayout(object_name='view_data_layout')
         self.view_data_layout.addWidget(self.view_data_scra)
         self.view_data_layout.addWidget(self.view_data_act_box)
         self.view_data_dialog.setLayout(self.view_data_layout)
@@ -567,7 +574,7 @@ class MyPOSView(MyGroupBox):
         self.payment_act_layout.addWidget(self.pay_cash_button,0,Qt.AlignmentFlag.AlignRight)
         self.payment_c_box.setLayout(self.payment_act_layout)
 
-        self.pay_order_dialog = MyDialog(object_name='pay_order_dialog')
+        self.pay_order_dialog = MyDialog(object_name='pay_order_dialog', window_title='Payment')
         self.pay_order_layout = MyGridLayout(object_name='pay_order_layout')
         self.pay_order_layout.addWidget(self.pay_order_a_box,0,0)
         self.pay_order_layout.addWidget(self.pay_order_b_box,0,1,Qt.AlignmentFlag.AlignTop)
@@ -616,10 +623,10 @@ class MyPOSView(MyGroupBox):
         self.transaction_complete_act_b_layout.addWidget(self.transaction_complete_close_button,0,Qt.AlignmentFlag.AlignRight)
         self.transaction_complete_act_b_box.setLayout(self.transaction_complete_act_b_layout)
         
-        self.transaction_complete_dialog = MyDialog(object_name='transaction_complete_dialog')
+        self.transaction_complete_dialog = MyDialog(object_name='transaction_complete_dialog', window_title='Transaction summary')
         self.transaction_complete_layout = MyVBoxLayout(object_name='transaction_complete_layout')
-        self.transaction_complete_layout.addWidget(self.transaction_complete_summary_box)
-        self.transaction_complete_layout.addWidget(self.transaction_complete_act_b_box)
+        self.transaction_complete_layout.addWidget(self.transaction_complete_summary_box,0,Qt.AlignmentFlag.AlignTop)
+        self.transaction_complete_layout.addWidget(self.transaction_complete_act_b_box,1,Qt.AlignmentFlag.AlignTop)
         self.transaction_complete_dialog.setLayout(self.transaction_complete_layout)
     pass
 class MyPOSController:
@@ -631,8 +638,18 @@ class MyPOSController:
         self.set_order_box_conn()
         self.load_combo_box_data_handler(load='global')
         self.sync_ui_handler()
+        self.panel_add_order_handler()
+
+        # if self.v.manage_order_tab.count() <= 0:
+    
+    def panel_add_order_handler(self):
+        self.v.manage_order_tab.setHidden(self.v.manage_order_tab.count() <= 0)
+        self.v.order_empty_tab_box.setHidden(self.v.manage_order_tab.count() > 0)
+        print('count::', self.v.manage_order_tab.count())
 
     def set_pos_box_conn(self):
+        self.v.order_empty_add_order_button.clicked.connect(self.on_add_order_button_clicked)
+
         self.v.filter_field.returnPressed.connect(self.on_filter_button_clicked)
         self.v.filter_button.clicked.connect(self.on_filter_button_clicked)
 
@@ -765,6 +782,8 @@ class MyPOSController:
 
         self.set_view_data_box_conn()
         self.v.view_data_dialog.exec()
+        self.v.barcode_scanner_field.setFocus()
+
         pass
     def set_view_data_box_conn(self):
         self.v.view_data_act_close_button.clicked.connect(lambda: self.close_dialog_handler(self.v.view_data_dialog))
@@ -819,11 +838,12 @@ class MyPOSController:
             self.add_order_handler(order_type_display='Wholesale')
 
         self.v.order_type_field.setCurrentIndex(0)
+        self.panel_add_order_handler()
         self.sync_ui_handler()
         self.v.barcode_scanner_field.setFocus()
         # self.test_prints()
         pass
-   
+
     def set_order_tab_content_conn(self):
         self.v.customer_name_field.currentTextChanged.connect(self.on_customer_name_field_current_text_changed)
         self.v.clear_order_table_button.clicked.connect(self.on_clear_order_table_button_clicked)
@@ -898,6 +918,7 @@ class MyPOSController:
         if confirm is QMessageBox.StandardButton.Yes:
             self.discard_order_handler(order_tab_name=order_tab_name)
 
+        self.panel_add_order_handler()
         self.v.barcode_scanner_field.setFocus()
         # self.test_prints()
         
@@ -1541,6 +1562,7 @@ class MyPOSController:
             self.populate_overview_table(page_number=self.m.page_number)
             pass
         self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
+        self.v.barcode_scanner_field.setFocus()
         pass
     def discard_order_handler(self, order_tab_name=''):
         for _ in range(self.v.manage_order_tab.count()):
