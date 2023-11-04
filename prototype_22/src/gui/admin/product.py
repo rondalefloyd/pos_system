@@ -446,7 +446,7 @@ class MyProductView(MyWidget):
         self.product_overview_data_act_layout = MyHBoxLayout(object_name='product_overview_data_act_layout')
         self.product_overview_data_act_layout.addWidget(self.edit_data_button)
         self.product_overview_data_act_layout.addWidget(self.view_data_button)
-        # self.product_overview_data_act_layout.addWidget(self.delete_data_button)
+        self.product_overview_data_act_layout.addWidget(self.delete_data_button)
         self.product_overview_data_act_box.setLayout(self.product_overview_data_act_layout)
     def set_stock_table_act_box(self):
         self.edit_stock_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
@@ -616,7 +616,7 @@ class MyProductController:
 
             if datetime.strptime(str(data[9]), "%Y-%m-%d") <= datetime.today(): 
                 self.v.edit_data_button.hide()
-                # self.v.delete_data_button.hide() # NOTE: temporarily unavailable
+                self.v.delete_data_button.hide() # NOTE: temporarily unavailable
 
             flag = True  if data[10] is not None else False # if has promo, set flag (to make the item's foreground red)
 
@@ -673,7 +673,7 @@ class MyProductController:
         # self.set_category_field_disabled(True)
         self.set_promo_field_hidden(True)
         self.set_price_type_field_hidden(True)
-        sel_product_data = schema.select_product_data(data[0], data[1])
+        sel_product_data = schema.select_product_data(data[0], data[1], data[15])
 
         for i, sel_data in enumerate(sel_product_data):
             self.v.product_barcode_field.setText(str(sel_data[0]))
@@ -741,18 +741,18 @@ class MyProductController:
     def set_view_product_data_box_conn(self):
         self.v.view_data_act_close_button.clicked.connect(lambda: self.close_dialog(self.v.view_data_dialog))
     def on_delete_data_button_clicked(self, data):
-        sel_product_data = schema.select_product_data(data[0], data[1])
+        sel_product_data = schema.select_product_data(data[0], data[1], data[15])
 
         for i, sel_data in enumerate(sel_product_data):
             product_name = sel_data[1]
             product_effective_dt = sel_data[9]
-            product_price_id = sel_data[11]
+            product_price_id = data[15]
 
 
         confirm = QMessageBox.warning(self.v, 'Confirm', f"Delete {product_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm is QMessageBox.StandardButton.Yes:
-            schema.delete_product_data(product_price_id, product_effective_dt)
+            schema.delete_product_data(product_price_id)
 
             QMessageBox.information(self.v, 'Success', f"{product_name} has been deleted.")
 

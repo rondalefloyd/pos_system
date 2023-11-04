@@ -86,7 +86,7 @@ class MyPOSSchema:
                     Promo.PromoId, 
                     Stock.StockId,
                                   
-                    ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                    ROW_NUMBER() OVER(PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
                 FROM ItemPrice
                 LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                 LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -124,7 +124,7 @@ class MyPOSSchema:
                         ItemPrice.ItemPriceId,
                         ItemPrice.ItemId,
                                     
-                        ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                        ROW_NUMBER() OVER(PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
                     FROM ItemPrice
                     LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                     LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -235,7 +235,7 @@ class MyPOSSchema:
                         ItemPrice.ItemId,   
                         Promo.PromoId, 
                         Stock.StockId,
-                        ROW_NUMBER() OVER(PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                        ROW_NUMBER() OVER(PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
                     FROM ItemPrice
                     LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                     LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId

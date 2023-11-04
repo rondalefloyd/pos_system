@@ -213,6 +213,7 @@ class MyPOSView(MyGroupBox):
         self.filter_layout.addWidget(self.filter_button)
         self.filter_box.setLayout(self.filter_layout)
 
+        self.sync_ui_button = MyPushButton(object_name='sync_ui_button', text='Sync')
         self.barcode_scanner_field = MyLineEdit(object_name='barcode_scanner_field')
         self.barcode_scanner_toggle_button = [
             MyPushButton(object_name='toggle_barcode_scanner', text='On'),
@@ -220,6 +221,7 @@ class MyPOSView(MyGroupBox):
         ]
         self.barcode_scanner_box = MyGroupBox(object_name='barcode_scanner_box')
         self.barcode_scanner_layout = MyHBoxLayout(object_name='barcode_scanner_layout')
+        self.barcode_scanner_layout.addWidget(self.sync_ui_button)
         self.barcode_scanner_layout.addWidget(self.barcode_scanner_field)
         self.barcode_scanner_layout.addWidget(self.barcode_scanner_toggle_button[0])
         self.barcode_scanner_layout.addWidget(self.barcode_scanner_toggle_button[1])
@@ -642,17 +644,13 @@ class MyPOSController:
 
         # if self.v.manage_order_tab.count() <= 0:
     
-    def panel_add_order_handler(self):
-        self.v.manage_order_tab.setHidden(self.v.manage_order_tab.count() <= 0)
-        self.v.order_empty_tab_box.setHidden(self.v.manage_order_tab.count() > 0)
-        print('count::', self.v.manage_order_tab.count())
-
     def set_pos_box_conn(self):
         self.v.order_empty_add_order_button.clicked.connect(self.on_add_order_button_clicked)
 
         self.v.filter_field.returnPressed.connect(self.on_filter_button_clicked)
         self.v.filter_button.clicked.connect(self.on_filter_button_clicked)
 
+        self.v.sync_ui_button.clicked.connect(self.on_sync_ui_button_clicked)
         self.v.barcode_scanner_field.returnPressed.connect(self.on_barcode_scanner_field_return_pressed)
         self.v.barcode_scanner_toggle_button[0].clicked.connect(lambda: self.on_barcode_scanner_toggle_button_clicked(flag=True))
         self.v.barcode_scanner_toggle_button[1].clicked.connect(lambda: self.on_barcode_scanner_toggle_button_clicked(flag=False))
@@ -676,6 +674,10 @@ class MyPOSController:
         except Exception as e:
             # self.populate_overview_table(page_number=self.m.page_number)
             pass
+        pass
+    def on_sync_ui_button_clicked(self):
+        self.load_combo_box_data_handler(load='order_box')
+        self.sync_ui_handler()
         pass
     def on_barcode_scanner_toggle_button_clicked(self, flag):
         if flag is True:
@@ -734,11 +736,11 @@ class MyPOSController:
         else:
             num_columns = 0
             num_rows = 0
-            
+
+        self.v.product_overview_table.clear()
         self.v.product_overview_table.setColumnCount(num_columns)
         self.v.product_overview_table.setRowCount(num_rows)
 
-        if num_columns < 3: self.v.product_overview_table.setColumnCount(3)
 
         for i, data in enumerate(product_data):
             self.v.set_overview_table_product_display_box(data)
@@ -918,7 +920,6 @@ class MyPOSController:
         if confirm is QMessageBox.StandardButton.Yes:
             self.discard_order_handler(order_tab_name=order_tab_name)
 
-        self.panel_add_order_handler()
         self.v.barcode_scanner_field.setFocus()
         # self.test_prints()
         
@@ -1563,6 +1564,14 @@ class MyPOSController:
             pass
         self.v.product_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         self.v.barcode_scanner_field.setFocus()
+        self.v.filter_field.setEnabled(self.v.manage_order_tab.count() > 0)
+        self.v.filter_field.clear()
+        self.v.barcode_scanner_field.setEnabled(self.v.manage_order_tab.count() > 0)
+        pass
+    def panel_add_order_handler(self):
+        self.v.manage_order_tab.setHidden(self.v.manage_order_tab.count() <= 0)
+        self.v.order_empty_tab_box.setHidden(self.v.manage_order_tab.count() > 0)
+        print('count::', self.v.manage_order_tab.count())
         pass
     def discard_order_handler(self, order_tab_name=''):
         for _ in range(self.v.manage_order_tab.count()):
@@ -1574,8 +1583,8 @@ class MyPOSController:
 
             self.v.order_index_label.setText(f"{self.v.manage_order_tab.tabText(i)}") if self.v.manage_order_tab.count() > 0 else self.v.order_index_label.setText(f"No order")
         self.v.add_order_button.setEnabled(self.v.manage_order_tab.count() < 10)
-            
         self.sync_ui_handler()
+        self.panel_add_order_handler()
         pass
     def compute_change_by_payment_amount_type_handler(self, customer_data=['','',-1], signal=''):
         cash_payment_change = 0

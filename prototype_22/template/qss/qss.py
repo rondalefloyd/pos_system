@@ -98,6 +98,7 @@ class MyQSSConfig:
 
     def act_icon(self):
         self.filter_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/filter_text.png'
+        self.sync_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/sync.png'
         self.add_data_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/add_data.png'
         self.import_data_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/import_data.png'
 
@@ -136,7 +137,8 @@ class MyQSSConfig:
         self.toggle_numpad_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/toggled_numpad.png'
         self.untoggle_numpad_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/untoggled_numpad.png'
 
-        self.pay_cash_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/pos/pay_cash.png'
+        self.pay_cash_points_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/pos/pay_cash_points.png'
         self.pay_points_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/pos/pay_points.png'
+        self.pay_cash_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/pos/pay_cash.png'
 
         self.print_receipt_icon = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/template/icon/act/print_receipt.png'

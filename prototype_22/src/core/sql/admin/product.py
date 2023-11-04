@@ -341,7 +341,10 @@ class MyProductSchema:
                             
                     ItemPrice.UpdateTs,
                     
-                    ROW_NUMBER() OVER (PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                    COALESCE(NULLIF(Item.ItemId, ''), 0),
+                    COALESCE(NULLIF(ItemPrice.ItemPriceId, ''), 0),
+
+                    ROW_NUMBER() OVER (PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC) AS RowNumber
                 FROM ItemPrice
                 LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                 LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -361,8 +364,7 @@ class MyProductSchema:
                     ItemPrice.UpdateTs LIKE "%{text}%"
                 ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
             )
-            SELECT * FROM RankedProduct 
-            WHERE RowNumber <= 2 
+            SELECT * FROM RankedProduct
             LIMIT {page_size} OFFSET {offset}
         """)
 
@@ -370,7 +372,7 @@ class MyProductSchema:
 
         return product_data
         pass
-    def select_product_data(self, product_barcode='', product_name=''):
+    def select_product_data(self, product_barcode='', product_name='', product_price_id=0):
         self.sales_cursor.execute(f"""
             SELECT
                 Item.Barcode,
@@ -400,18 +402,21 @@ class MyProductSchema:
                 LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
             WHERE
                 Item.Barcode = "{product_barcode}" AND
-                Item.Name = "{product_name}"
-            ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
+                Item.Name = "{product_name}" AND
+                ItemPrice.ItemPriceId = "{product_price_id}"
+            ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC
             LIMIT 1
         """)
 
         product_data = self.sales_cursor.fetchall()
 
         return product_data
+    
+
     def select_product_data_total_page_count(self, text='', page_size=30):
         self.sales_cursor.execute(f"""
             WITH RankedProduct AS (
-                SELECT 
+                SELECT DISTINCT
                     Item.Barcode, 
                     Item.Name, 
                     Item.ExpireDt, 
@@ -431,7 +436,7 @@ class MyProductSchema:
                             
                     ItemPrice.UpdateTs,
                     
-                    ROW_NUMBER() OVER (PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                    ROW_NUMBER() OVER (PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC) AS RowNumber
                 FROM ItemPrice
                 LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                 LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -676,18 +681,55 @@ class MyProductSchema:
             """)
             product_supplier_id = self.sales_cursor.fetchone()[0]
 
+            # self.sales_cursor.execute(f"""
+            #     UPDATE Item
+            #     SET
+            #         Barcode = "{product_barcode}",
+            #         Name = "{product_name}",
+            #         ExpireDt = "{product_expire_dt}",
+            #         ItemTypeId = {product_type_id},
+            #         BrandId = {product_brand_id},
+            #         SalesGroupId = {product_sales_group_id},
+            #         SupplierId = {product_supplier_id}
+            #     WHERE ItemId = {product_id}
+            # """)
+
             self.sales_cursor.execute(f"""
-                UPDATE Item
-                SET
-                    Barcode = "{product_barcode}",
-                    Name = "{product_name}",
-                    ExpireDt = "{product_expire_dt}",
-                    ItemTypeId = {product_type_id},
-                    BrandId = {product_brand_id},
-                    SalesGroupId = {product_sales_group_id},
-                    SupplierId = {product_supplier_id}
-                WHERE ItemId = {product_id}
+                INSERT INTO Item (Barcode, Name, ExpireDt, ItemTypeId, BrandId, SalesGroupId, SupplierId)
+                SELECT
+                    "{product_barcode}",
+                    "{product_name}",
+                    "{product_expire_dt}",
+                    {product_type_id},
+                    {product_brand_id},
+                    {product_sales_group_id},
+                    {product_supplier_id}
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM Item
+                    WHERE
+                        Barcode = "{product_barcode}" AND
+                        Name = "{product_name}" AND
+                        ExpireDt = "{product_expire_dt}" AND
+                        ItemTypeId = {product_type_id} AND
+                        BrandId = {product_brand_id} AND
+                        SalesGroupId = {product_sales_group_id} AND
+                        SupplierId = {product_supplier_id}
+                )
             """)
+
+            product_id = self.sales_cursor.execute(f"""
+                SELECT ItemId FROM Item
+                WHERE
+                    Barcode = "{product_barcode}" AND
+                    Name = "{product_name}" AND
+                    ExpireDt = "{product_expire_dt}" AND
+                    ItemTypeId = {product_type_id} AND
+                    BrandId = {product_brand_id} AND
+                    SalesGroupId = {product_sales_group_id} AND
+                    SupplierId = {product_supplier_id}
+            """)
+            product_id = self.sales_cursor.fetchone()[0]
+
 
             self.sales_cursor.execute(f"""
                 INSERT INTO ItemPrice (ItemId, EffectiveDt, Cost, SellPrice, PromoId, DiscountValue)
@@ -784,9 +826,10 @@ class MyProductSchema:
     def delete_product_data(self, product_price_id=0, product_effective_dt=date.today()):
         self.sales_cursor.execute(f"""
             DELETE FROM ItemPrice
-            -- WHERE ItemPriceId = {product_price_id} AND EffectiveDt > CURRENT_DATE
-            WHERE ItemPriceId <= 0
+            WHERE ItemPriceId = {product_price_id} AND EffectiveDt > CURRENT_DATE
         """)
+
+        print('product_price_id:', product_price_id)
 
         self.sales_conn.commit()
     def delete_stock_data(self, stock_id, stock_product_id):

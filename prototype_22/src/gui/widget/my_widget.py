@@ -84,10 +84,7 @@ class MyWidget(QWidget):
         self.close_signal.connect(self.on_close_signal)
 
     def on_global_widget(self):
-        if self.object_name == 'MyPOSView':
-            self.setStyleSheet(f"""
-                QWidget#MyPOSView {{ background-color: {qss.secondary_color} }}
-            """)
+        pass
 
     def on_close_signal(self, text):
         self.close_signal_value = text
@@ -130,8 +127,6 @@ class MyGroupBox(QGroupBox):
             QGroupBox#navbar_box {{ background-color: {qss.navbar_bg_color};}}
             QGroupBox#extra_info_box {{ background-color: {qss.main_color}; }}
             
-
-            QGroupBox#MyPOSView {{ background-color: {qss.secondary_color}}}
     
             QGroupBox#product_cell_display_box {{ 
                 background-color: #eee; 
@@ -495,6 +490,7 @@ class MyVBoxLayout(QVBoxLayout):
         
         if self.object_name in [
             'transaction_complete_act_a_layout',
+            'product_pricing_layout',
             'sub_field_layout',
             'customer_data_layout',
             'transaction_info_layout',
@@ -686,6 +682,7 @@ class MyLabel(QLabel):
 
         if self.object_name == 'product_name_label':
             self.setStyleSheet(f"QLabel#{self.object_name} {{ font-size: 15px; font-weight: bold;}}")
+            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding) # FIXME: HERE
             self.setWordWrap(True)
             pass
         if self.object_name == 'product_barcode_label':
@@ -759,6 +756,7 @@ class MyComboBox(QComboBox):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setStyleSheet(f"""
             QComboBox#{self.object_name} {{ background-color: {qss.main_color}; color: {qss.main_txt_color}; border-radius: 3px; padding: 9px}}
+            QComboBox#order_type_field {{ background-color: {qss.act_pas_bg_color}; color: {qss.act_pas_txt_color}; border-radius: 3px; padding: 9px}}
 
             QComboBox::drop-down {{
                 subcontrol-origin: padding;
@@ -808,11 +806,19 @@ class MyComboBox(QComboBox):
 
             if self.object_name == 'customer_name_field':
                 self.setMinimumWidth(150)
-        if self.object_name == 'order_type_field':
-            # self.setStyleSheet(f"""
-            #     QComboBox#{self.object_name} {{ background-color: {qss.act_pas_bg_color} }}
-            # """)
+        # if self.object_name == 'order_type_field':
+        #     self.setStyleSheet(f"""
+        #         QComboBox#{self.object_name} {{ background-color: {qss.act_pas_bg_color}; border-radius: 3px; padding: 9px}}
+        #     """)
             pass
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter:
+            # Ignore the event
+            event.ignore()
+        else:
+            # Pass the event to the parent class
+            super().keyPressEvent(event)
+        pass
 class MyLineEdit(QLineEdit):
     def __init__(self, object_name='', text='', push_button = None):
         super().__init__()
@@ -832,11 +838,7 @@ class MyLineEdit(QLineEdit):
             QLineEdit {{ border: 1px solid {qss.default_line_color}; border-radius: 3px; padding: 9px}}
             QLineEdit#barcode_scanner_field:focus {{ border: 3px solid {qss.act_pos_bg_color} }} 
         """)
-        if self.object_name == 'user_password_field':
-            self.setEchoMode(QLineEdit.EchoMode.Password)
-            pass
-        if self.object_name == 'barcode_scan_field':
-            self.hide()
+        if self.object_name == 'user_password_field': self.setEchoMode(QLineEdit.EchoMode.Password)
 
         if self.object_name in [
             'product_promo_type_field',
@@ -1031,6 +1033,8 @@ class MyPushButton(QPushButton):
             'order_empty_add_order_button',
 
             'filter_button',
+            'sync_ui_button',
+
             'add_data_button',
             'import_data_button',
             'toggle_barcode_scanner',
@@ -1081,6 +1085,7 @@ class MyPushButton(QPushButton):
                 QPushButton#order_empty_add_order_button:hover {{ background-color: {qss.act_pas_bg_color}; color: {qss.main_color}  }}
 
                 QPushButton#filter_button,
+                QPushButton#sync_ui_button,
                 QPushButton#add_data_button,
                 QPushButton#overview_prev_button,
                 QPushButton#toggle_barcode_scanner,
@@ -1146,6 +1151,7 @@ class MyPushButton(QPushButton):
 
 
             if self.object_name == 'filter_button': self.setIcon(QIcon(qss.filter_icon))
+            if self.object_name == 'sync_ui_button': self.setIcon(QIcon(qss.sync_icon))
             if self.object_name == 'add_data_button': self.setIcon(QIcon(qss.add_data_icon))
             if self.object_name == 'import_data_button': self.setIcon(QIcon(qss.import_data_icon))
 
@@ -1180,8 +1186,9 @@ class MyPushButton(QPushButton):
             if self.object_name == 'toggle_numpad_key': self.setIcon(QIcon(qss.toggle_numpad_icon))
             if self.object_name == 'untoggle_numpad_key': self.setIcon(QIcon(qss.untoggle_numpad_icon))
 
-            if self.object_name == 'pay_cash_button': self.setIcon(QIcon(qss.pay_cash_icon))
+            if self.object_name == 'pay_cash_points_button': self.setIcon(QIcon(qss.pay_cash_points_icon))
             if self.object_name == 'pay_points_button': self.setIcon(QIcon(qss.pay_points_icon))
+            if self.object_name == 'pay_cash_button': self.setIcon(QIcon(qss.pay_cash_icon))
 
             if self.object_name == 'print_receipt_button': self.setIcon(QIcon(qss.print_receipt_icon))
             if self.object_name == 'add_new_order_button': self.setIcon(QIcon(qss.add_order_icon))
@@ -1223,8 +1230,13 @@ class MyPushButton(QPushButton):
             'pay_points_button',
             'pay_cash_points_button',
         ]:
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             self.setDisabled(True)
             self.setFixedWidth(100)
+
+            if self.object_name == 'pay_cash_points_button':
+                self.setFixedWidth(120)
+
 
         if self.object_name == 'numpad_key_button':
             self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
