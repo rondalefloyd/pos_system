@@ -1,0 +1,30 @@
+TIME_STAMP: Thu-Nov-02-2023-09:16AM, 
+ERROR_LINE_NO: 15, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\Janjan\\Documents\\GitHub\\pos_system\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\Janjan\\Documents\\GitHub\\pos_system\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Thu-Nov-02-2023-09:20AM, 
+ERROR_LINE_NO: 16, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\Janjan\\Documents\\GitHub\\pos_system\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\Janjan\\Documents\\GitHub\\pos_system\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Thu-Nov-02-2023-09:20AM, 
+ERROR_LINE_NO: 16, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\Janjan\\Documents\\GitHub\\pos_system\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\Janjan\\Documents\\GitHub\\pos_system\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Thu-Nov-02-2023-09:21AM, 
+ERROR_LINE_NO: 16, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\Janjan\\Documents\\GitHub\\pos_system\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\Janjan\\Documents\\GitHub\\pos_system\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Thu-Nov-02-2023-09:22AM, 
+ERROR_LINE_NO: 16, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\Janjan\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\Janjan\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Thu-Nov-02-2023-12:11PM, 
+ERROR_LINE_NO: 14, 
+EXCEPTION: HTTPSConnectionPool(host='oauth2.googleapis.com', port=443): Max retries exceeded with url: /token (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000269FDE99F10>: Failed to resolve 'oauth2.googleapis.com' ([Errno 11001] getaddrinfo failed)")), 
+ERROR_TRACEBACK: google.auth.exceptions.TransportError: HTTPSConnectionPool(host='oauth2.googleapis.com', port=443): Max retries exceeded with url: /token (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000269FDE99F10>: Failed to resolve 'oauth2.googleapis.com' ([Errno 11001] getaddrinfo failed)"))
+

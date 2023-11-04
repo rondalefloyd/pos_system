@@ -6,8 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
-
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 from src.gui.widget.my_widget import *
 from src.core.csv_to_db_importer import MyDataImportThread
 from src.core.sql.admin.customer import MyCustomerSchema
@@ -54,7 +53,6 @@ class MyCustomerModel:
             customer_marstat,
             customer_points
     ):
-        print('customer_points:', customer_points)
         if '' not in [customer_name, customer_barrio, customer_town, customer_phone, customer_age, customer_gender, customer_points]:
             if (customer_phone.isdigit() and customer_age.isdigit() and customer_points.replace('.', '', 1).isdigit()):
                 if len(customer_phone) == 11:
@@ -127,33 +125,33 @@ class MyCustomerView(MyWidget):
 
     def set_customer_box(self):
         self.filter_field = MyLineEdit(object_name='filter_field')
-        self.filter_button = MyPushButton(text='Filter')
-        self.filter_box = MyGroupBox()
-        self.filter_layout = MyHBoxLayout()
+        self.filter_button = MyPushButton(object_name='filter_button', text='Filter')
+        self.filter_box = MyGroupBox(object_name='filter_box')
+        self.filter_layout = MyHBoxLayout(object_name='filter_layout')
         self.filter_layout.addWidget(self.filter_field)
         self.filter_layout.addWidget(self.filter_button)
         self.filter_box.setLayout(self.filter_layout)
 
-        self.import_data_button = MyPushButton(text='Import')
-        self.add_data_button = MyPushButton(text='Add')
-        self.manage_data_box = MyGroupBox()
-        self.field_layout = MyHBoxLayout()
-        self.field_layout.addWidget(self.import_data_button)
-        self.field_layout.addWidget(self.add_data_button)
-        self.manage_data_box.setLayout(self.field_layout)
+        self.import_data_button = MyPushButton(object_name='import_data_button', text='Import')
+        self.add_data_button = MyPushButton(object_name='add_data_button', text='Add')
+        self.manage_data_box = MyGroupBox(object_name='manage_data_box')
+        self.manage_data_layout = MyHBoxLayout(object_name='manage_data_layout')
+        self.manage_data_layout.addWidget(self.import_data_button)
+        self.manage_data_layout.addWidget(self.add_data_button)
+        self.manage_data_box.setLayout(self.manage_data_layout)
 
-        self.customer_act_box = MyGroupBox()
-        self.customer_act_layout = MyHBoxLayout()
+        self.customer_act_box = MyGroupBox(object_name='customer_act_box')
+        self.customer_act_layout = MyHBoxLayout(object_name='customer_act_layout')
         self.customer_act_layout.addWidget(self.filter_box,0,Qt.AlignmentFlag.AlignLeft)
         self.customer_act_layout.addWidget(self.manage_data_box,1,Qt.AlignmentFlag.AlignRight)
         self.customer_act_box.setLayout(self.customer_act_layout)
 
         self.customer_overview_table = MyTableWidget(object_name='customer_overview_table')
-        self.customer_overview_prev_button = MyPushButton(text='Prev')
-        self.customer_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.customer_overview_next_button = MyPushButton(text='Next')
-        self.customer_overview_act_box = MyGroupBox()
-        self.customer_overview_act_layout = MyHBoxLayout()
+        self.customer_overview_prev_button = MyPushButton(object_name='overview_prev_button', text='Prev')
+        self.customer_overview_page_label = MyLabel(object_name='overview_page_label', text=f"Page {self.m.page_number}/{self.m.total_page_number}")
+        self.customer_overview_next_button = MyPushButton(object_name='overview_next_button', text='Next')
+        self.customer_overview_act_box = MyGroupBox(object_name='overview_act_box')
+        self.customer_overview_act_layout = MyHBoxLayout(object_name='overview_act_layout')
         self.customer_overview_act_layout.addWidget(self.customer_overview_prev_button)
         self.customer_overview_act_layout.addWidget(self.customer_overview_page_label)
         self.customer_overview_act_layout.addWidget(self.customer_overview_next_button)
@@ -185,14 +183,14 @@ class MyCustomerView(MyWidget):
         self.customer_phone_field = MyLineEdit(object_name='customer_phone_field')
         self.customer_age_label = MyLabel(text='Age')
         self.customer_age_field = MyLineEdit(object_name='customer_age_field')
-        self.customer_gender_label = MyLabel(text='Town')
+        self.customer_gender_label = MyLabel(text='Gender')
         self.customer_gender_field = MyComboBox(object_name='customer_gender_field')
-        self.customer_marstat_label = MyLabel(text='Points')
+        self.customer_marstat_label = MyLabel(text='Marital status')
         self.customer_marstat_field = MyComboBox(object_name='customer_marstat_field')
         self.customer_points_label = MyLabel(object_name='customer_points_label', text='Points')
         self.customer_points_field = MyLineEdit(object_name='customer_points_field')
-        self.field_box = MyGroupBox()
-        self.field_layout = MyFormLayout()
+        self.field_box = MyGroupBox(object_name='field_box')
+        self.field_layout = MyFormLayout(object_name='field_layout')
         self.field_layout.addRow(self.customer_name_label)
         self.field_layout.addRow(self.customer_name_field)
         self.field_layout.addRow(self.customer_address_label)
@@ -215,10 +213,10 @@ class MyCustomerView(MyWidget):
         self.manage_data_scra = MyScrollArea()
         self.manage_data_scra.setWidget(self.field_box)
 
-        self.save_data_button = MyPushButton(text='Save')
-        self.manage_data_act_close_button = MyPushButton(text='Close')
-        self.manage_data_act_box = MyGroupBox()
-        self.manage_data_act_layout = MyHBoxLayout()
+        self.save_data_button = MyPushButton(object_name='save_button', text='Save')
+        self.manage_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.manage_data_act_box = MyGroupBox(object_name='manage_data_act_box')
+        self.manage_data_act_layout = MyHBoxLayout(object_name='manage_data_act_layout')
         self.manage_data_act_layout.addWidget(self.save_data_button,1,Qt.AlignmentFlag.AlignRight)
         self.manage_data_act_layout.addWidget(self.manage_data_act_close_button)
         self.manage_data_act_box.setLayout(self.manage_data_act_layout)
@@ -233,22 +231,22 @@ class MyCustomerView(MyWidget):
         self.progress_bar = MyProgressBar()
         self.progress_label = MyLabel(text='Please wait...')
         self.progress_dialog = MyDialog(object_name='progress_dialog', window_title='99% complete')
-        self.progress_layout = MyVBoxLayout()
+        self.progress_layout = MyVBoxLayout(object_name='progress_layout')
         self.progress_layout.addWidget(self.progress_bar)
         self.progress_layout.addWidget(self.progress_label)
         self.progress_dialog.setLayout(self.progress_layout)
         pass
 
     def set_overview_table_act_box(self):
-        self.edit_data_button = MyPushButton(text='Edit')
-        self.view_data_button = MyPushButton(text='View')
-        self.delete_data_button = MyPushButton(text='Delete')
-        self.customer_overview_act_box = MyGroupBox(object_name='customer_overview_act_box')
-        self.customer_overview_act_layout = MyHBoxLayout(object_name='customer_overview_act_layout')
-        self.customer_overview_act_layout.addWidget(self.edit_data_button)
-        self.customer_overview_act_layout.addWidget(self.view_data_button)
-        self.customer_overview_act_layout.addWidget(self.delete_data_button)
-        self.customer_overview_act_box.setLayout(self.customer_overview_act_layout)
+        self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
+        self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
+        self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete')
+        self.customer_overview_data_act_box = MyGroupBox(object_name='customer_overview_data_act_box')
+        self.customer_overview_data_act_layout = MyHBoxLayout(object_name='customer_overview_data_act_layout')
+        self.customer_overview_data_act_layout.addWidget(self.edit_data_button)
+        self.customer_overview_data_act_layout.addWidget(self.view_data_button)
+        self.customer_overview_data_act_layout.addWidget(self.delete_data_button)
+        self.customer_overview_data_act_box.setLayout(self.customer_overview_data_act_layout)
 
     def set_view_dialog(self):
         self.customer_name_info = MyLabel(text=f"customer_name")
@@ -260,8 +258,8 @@ class MyCustomerView(MyWidget):
         self.customer_gender_info = MyLabel(text=f"customer_gender")
         self.customer_marstat_info = MyLabel(text=f"customer_marstat")
         self.datetime_created_info = MyLabel(text=f"datetime_created")
-        self.info_box = MyGroupBox()
-        self.info_layout = MyFormLayout()
+        self.info_box = MyGroupBox(object_name='info_box')
+        self.info_layout = MyFormLayout(object_name='info_layout')
         self.info_layout.addRow('Name:', self.customer_name_info)
         self.info_layout.addRow(MyLabel(text='<hr>'))
         self.info_layout.addRow('Address:', self.customer_address_info)
@@ -279,9 +277,9 @@ class MyCustomerView(MyWidget):
         self.view_data_scra.setWidget(self.info_box)
 
 
-        self.view_data_act_close_button = MyPushButton(text='Close')
-        self.view_data_act_box = MyGroupBox()
-        self.view_data_act_layout = MyHBoxLayout()
+        self.view_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.view_data_act_box = MyGroupBox(object_name='view_data_act_box')
+        self.view_data_act_layout = MyHBoxLayout(object_name='view_data_act_layout')
         self.view_data_act_layout.addWidget(self.view_data_act_close_button,0,Qt.AlignmentFlag.AlignRight)
         self.view_data_act_box.setLayout(self.view_data_act_layout)
 
@@ -312,7 +310,6 @@ class MyCustomerController:
         self.m.total_page_number = schema.select_customer_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
 
-        print(self.m.total_page_number, self.m.page_number)
 
         self.v.customer_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         
@@ -340,7 +337,6 @@ class MyCustomerController:
         pass
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
-        print(self.m.progress_count)
         self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count)
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
@@ -382,18 +378,18 @@ class MyCustomerController:
 
         for i, data in enumerate(customer_data):
             self.v.set_overview_table_act_box()
-            customer_name = QTableWidgetItem(f"{data[0]}")
-            customer_address = QTableWidgetItem(f"{data[1]}")
-            customer_barrio = QTableWidgetItem(f"{data[2]}")
-            customer_town = QTableWidgetItem(f"{data[3]}")
-            customer_phone = QTableWidgetItem(f"{data[4]}")
-            customer_age = QTableWidgetItem(f"{data[5]}")
-            customer_gender = QTableWidgetItem(f"{data[6]}")
-            customer_marstat = QTableWidgetItem(f"{data[7]}")
-            customer_points = QTableWidgetItem(f"{data[8]}")
-            datetime_created = QTableWidgetItem(f"{data[9]}")
+            customer_name = MyTableWidgetItem(text=f"{data[0]}")
+            customer_address = MyTableWidgetItem(text=f"{data[1]}")
+            customer_barrio = MyTableWidgetItem(text=f"{data[2]}")
+            customer_town = MyTableWidgetItem(text=f"{data[3]}")
+            customer_phone = MyTableWidgetItem(text=f"{data[4]}")
+            customer_age = MyTableWidgetItem(text=f"{data[5]}")
+            customer_gender = MyTableWidgetItem(text=f"{data[6]}")
+            customer_marstat = MyTableWidgetItem(text=f"{data[7]}")
+            customer_points = MyTableWidgetItem(text=f"{data[8]}", format='bill')
+            datetime_created = MyTableWidgetItem(text=f"{data[9]}")
 
-            self.v.customer_overview_table.setCellWidget(i, 0, self.v.customer_overview_act_box)
+            self.v.customer_overview_table.setCellWidget(i, 0, self.v.customer_overview_data_act_box)
             self.v.customer_overview_table.setItem(i, 1, customer_name)
             self.v.customer_overview_table.setItem(i, 2, customer_address)
             self.v.customer_overview_table.setItem(i, 3, customer_barrio)
@@ -514,8 +510,8 @@ class MyCustomerController:
         customer_town = self.v.customer_town_field.currentText()
         customer_phone = self.v.customer_phone_field.text()
         customer_age = self.v.customer_age_field.text()
-        customer_gender = self.v.customer_town_field.currentText()
-        customer_marstat =  self.v.customer_town_field.currentText()
+        customer_gender = self.v.customer_gender_field.currentText()
+        customer_marstat =  self.v.customer_marstat_field.currentText()
         customer_points = self.v.customer_points_field.text() if task == 'edit_data' else '0'
 
         self.m.init_manage_data_entry(

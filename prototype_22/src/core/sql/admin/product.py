@@ -2,7 +2,7 @@ import os, sys
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 from datetime import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from template.qss.qss import MyQSSConfig
 
@@ -14,10 +14,11 @@ class MyProductSchema:
         
         os.makedirs(os.path.abspath(qss.db_file_path), exist_ok=True)
 
-        self.sales_conn = sqlite3.connect(database=self.sales_file)
+        self.sales_conn = sqlite3.connect(database=self.sales_file, timeout=10)
         self.sales_cursor = self.sales_conn.cursor()
 
         self.create_product_table()
+
 
     def create_product_table(self):
         # item type
@@ -230,7 +231,6 @@ class MyProductSchema:
         """)
         product_id = self.sales_cursor.fetchone()[0]
 
-        print('product_promo_name:', product_promo_name)
         if product_promo_name == 'No promo':
             self.sales_cursor.execute(f"""
                 INSERT INTO ItemPrice (ItemId, EffectiveDt, Cost, SellPrice, PromoId, DiscountValue)
@@ -320,52 +320,56 @@ class MyProductSchema:
         offset = (page_number - 1) * page_size
 
         self.sales_cursor.execute(f"""
-            SELECT 
-                Item.Barcode, 
-                Item.Name, 
-                Item.ExpireDt, 
-                                  
-                ItemType.Name, 
-                Brand.Name, 
-                SalesGroup.Name, 
-                Supplier.Name, 
-                                  
-                ItemPrice.Cost, 
-                ItemPrice.SellPrice, 
-                ItemPrice.EffectiveDt, 
-                Promo.Name, 
-                ItemPrice.DiscountValue, 
-                        
-                CASE WHEN Stock.StockId > 0 THEN 'Enabled' ELSE 'Disabled' END AS StockStatus,
-                  
-                ItemPrice.UpdateTs
-            FROM ItemPrice
-            LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
-            LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
-            LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
-            LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
-            LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
-            LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
-            LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
-            WHERE
-                Item.Barcode LIKE "%{text}%" OR
-                Item.Name LIKE "%{text}%" OR
-                Item.ExpireDt LIKE "%{text}%" OR
-                ItemType.Name LIKE "%{text}%" OR
-                Brand.Name LIKE "%{text}%" OR
-                SalesGroup.Name LIKE "%{text}%" OR
-                Supplier.Name LIKE "%{text}%" OR
-                ItemPrice.UpdateTs LIKE "%{text}%"
-            ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
-            LIMIT {page_size}
-            OFFSET {offset}
+            WITH RankedProduct AS (
+                SELECT DISTINCT
+                    Item.Barcode, 
+                    Item.Name, 
+                    Item.ExpireDt, 
+                                            
+                    ItemType.Name AS ItemTypeName, 
+                    Brand.Name AS BrandName, 
+                    SalesGroup.Name AS SalesGroupName, 
+                    Supplier.Name AS SupplierName, 
+                                            
+                    ItemPrice.Cost, 
+                    ItemPrice.SellPrice, 
+                    ItemPrice.EffectiveDt, 
+                    Promo.Name AS PromoName, 
+                    ItemPrice.DiscountValue, 
+                                    
+                    CASE WHEN Stock.StockId > 0 THEN 'Enabled' ELSE 'Disabled' END AS StockStatus,
+                            
+                    ItemPrice.UpdateTs,
+                    
+                    ROW_NUMBER() OVER (PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                FROM ItemPrice
+                LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
+                LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
+                LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
+                LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
+                LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
+                LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
+                LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
+                WHERE
+                    Item.Barcode LIKE "%{text}%" OR
+                    Item.Name LIKE "%{text}%" OR
+                    Item.ExpireDt LIKE "%{text}%" OR
+                    ItemType.Name LIKE "%{text}%" OR
+                    Brand.Name LIKE "%{text}%" OR
+                    SalesGroup.Name LIKE "%{text}%" OR
+                    Supplier.Name LIKE "%{text}%" OR
+                    ItemPrice.UpdateTs LIKE "%{text}%"
+                ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC
+            )
+            SELECT * FROM RankedProduct 
+            WHERE RowNumber <= 2 
+            LIMIT {page_size} OFFSET {offset}
         """)
 
         product_data = self.sales_cursor.fetchall()
 
         return product_data
         pass
-    
     def select_product_data(self, product_barcode='', product_name=''):
         self.sales_cursor.execute(f"""
             SELECT
@@ -406,23 +410,48 @@ class MyProductSchema:
         return product_data
     def select_product_data_total_page_count(self, text='', page_size=30):
         self.sales_cursor.execute(f"""
-            SELECT COUNT(*) FROM ItemPrice
-            LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
-            LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
-            LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
-            LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
-            LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
-            LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
-            LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
-            WHERE
-                Item.Barcode LIKE "%{text}%" OR
-                Item.Name LIKE "%{text}%" OR
-                Item.ExpireDt LIKE "%{text}%" OR
-                ItemType.Name LIKE "%{text}%" OR
-                Brand.Name LIKE "%{text}%" OR
-                SalesGroup.Name LIKE "%{text}%" OR
-                Supplier.Name LIKE "%{text}%" OR
-                ItemPrice.UpdateTs LIKE "%{text}%"
+            WITH RankedProduct AS (
+                SELECT 
+                    Item.Barcode, 
+                    Item.Name, 
+                    Item.ExpireDt, 
+                                            
+                    ItemType.Name AS ItemTypeName, 
+                    Brand.Name AS BrandName, 
+                    SalesGroup.Name AS SalesGroupName, 
+                    Supplier.Name AS SupplierName, 
+                                            
+                    ItemPrice.Cost, 
+                    ItemPrice.SellPrice, 
+                    ItemPrice.EffectiveDt, 
+                    Promo.Name AS PromoName, 
+                    ItemPrice.DiscountValue, 
+                                    
+                    CASE WHEN Stock.StockId > 0 THEN 'Enabled' ELSE 'Disabled' END AS StockStatus,
+                            
+                    ItemPrice.UpdateTs,
+                    
+                    ROW_NUMBER() OVER (PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                FROM ItemPrice
+                LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
+                LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
+                LEFT JOIN Brand ON Item.BrandId = Brand.BrandId
+                LEFT JOIN Supplier ON Item.SupplierId = Supplier.SupplierId
+                LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
+                LEFT JOIN Promo ON ItemPrice.PromoId = Promo.PromoId
+                LEFT JOIN Stock ON Item.ItemId = Stock.ItemId
+                WHERE
+                    Item.Barcode LIKE "%{text}%" OR
+                    Item.Name LIKE "%{text}%" OR
+                    Item.ExpireDt LIKE "%{text}%" OR
+                    ItemType.Name LIKE "%{text}%" OR
+                    Brand.Name LIKE "%{text}%" OR
+                    SalesGroup.Name LIKE "%{text}%" OR
+                    Supplier.Name LIKE "%{text}%" OR
+                    ItemPrice.UpdateTs LIKE "%{text}%"
+            )
+            SELECT COUNT(*) FROM RankedProduct 
+            WHERE RowNumber <= 2 
         """)
 
         total_product_data_count = self.sales_cursor.fetchone()[0]
@@ -430,7 +459,7 @@ class MyProductSchema:
 
         return total_page_count
         pass
-    
+
     def select_stock_data_as_display(self, text='', page_number=1, page_size=30):
         offset = (page_number - 1) * page_size
 
@@ -497,7 +526,7 @@ class MyProductSchema:
 
         return total_page_count
         pass
-    
+
     def select_product_type_for_combo_box(self):
         self.sales_cursor.execute(f"""
             SELECT Name FROM ItemType
@@ -610,21 +639,75 @@ class MyProductSchema:
     ):
         if product_promo_id <= 0 and product_promo_name == 'No promo':
             self.sales_cursor.execute(f"""
+                INSERT INTO ItemType (Name)
+                SELECT "{product_type}" WHERE NOT EXISTS (SELECT 1 FROM ItemType WHERE Name = "{product_type}")
+            """)
+            self.sales_cursor.execute(f"""
+                INSERT INTO Brand (Name)
+                SELECT "{product_brand}" WHERE NOT EXISTS (SELECT 1 FROM Brand WHERE Name = "{product_brand}")
+            """)
+            self.sales_cursor.execute(f"""
+                INSERT INTO SalesGroup (Name)
+                SELECT "{product_sales_group}" WHERE NOT EXISTS (SELECT 1 FROM SalesGroup WHERE Name = "{product_sales_group}")
+            """)
+            self.sales_cursor.execute(f"""
+                INSERT INTO Supplier (Name)
+                SELECT "{product_supplier}" WHERE NOT EXISTS (SELECT 1 FROM Supplier WHERE Name = "{product_supplier}")
+            """)
+
+            product_type_id = self.sales_cursor.execute(f"""
+                SELECT ItemTypeId FROM ItemType
+                WHERE Name = "{product_type}"
+            """)
+            product_type_id = self.sales_cursor.fetchone()[0]
+            product_brand_id = self.sales_cursor.execute(f"""
+                SELECT BrandId FROM Brand
+                WHERE Name = "{product_brand}"
+            """)
+            product_brand_id = self.sales_cursor.fetchone()[0]
+            product_sales_group_id = self.sales_cursor.execute(f"""
+                SELECT SalesGroupId FROM SalesGroup
+                WHERE Name = "{product_sales_group}"
+            """)
+            product_sales_group_id = self.sales_cursor.fetchone()[0]
+            product_supplier_id = self.sales_cursor.execute(f"""
+                SELECT SupplierId FROM Supplier
+                WHERE Name = "{product_supplier}"
+            """)
+            product_supplier_id = self.sales_cursor.fetchone()[0]
+
+            self.sales_cursor.execute(f"""
                 UPDATE Item
                 SET
                     Barcode = "{product_barcode}",
                     Name = "{product_name}",
-                    ExpireDt = "{product_expire_dt}"
+                    ExpireDt = "{product_expire_dt}",
+                    ItemTypeId = {product_type_id},
+                    BrandId = {product_brand_id},
+                    SalesGroupId = {product_sales_group_id},
+                    SupplierId = {product_supplier_id}
                 WHERE ItemId = {product_id}
             """)
 
             self.sales_cursor.execute(f"""
-                UPDATE ItemPrice
-                SET
-                    Cost = {product_cost},
-                    SellPrice = {product_price},
-                    EffectiveDt = "{product_effective_dt}"
-                WHERE ItemPriceId = {product_price_id}
+                INSERT INTO ItemPrice (ItemId, EffectiveDt, Cost, SellPrice, PromoId, DiscountValue)
+                SELECT
+                    {product_id},
+                    "{product_effective_dt}",
+                    {product_cost},
+                    {product_price},    
+                    0,
+                    0
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM ItemPrice
+                    WHERE
+                        ItemId = {product_id} AND 
+                        EffectiveDt = "{product_effective_dt}" AND 
+                        Cost = {product_cost} AND 
+                        SellPrice = {product_price} AND 
+                        PromoId = 0 AND
+                        DiscountValue = 0
+                )
             """)
             pass  
         elif product_promo_id <= 0 and product_promo_name != 'No promo':
@@ -687,12 +770,6 @@ class MyProductSchema:
 
         self.sales_conn.commit()
     def update_stock_data(self, stock_available, stock_onhand, stock_id, product_id):
-        print('stock_id:', stock_id)
-        print('product_id:', product_id)
-
-        print('stock_available:', stock_available)
-        print('stock_onhand:', stock_onhand)
-
         self.sales_cursor.execute(f"""
             UPDATE Stock
             SET
@@ -707,7 +784,8 @@ class MyProductSchema:
     def delete_product_data(self, product_price_id=0, product_effective_dt=date.today()):
         self.sales_cursor.execute(f"""
             DELETE FROM ItemPrice
-            WHERE ItemPriceId = {product_price_id} AND EffectiveDt > CURRENT_DATE
+            -- WHERE ItemPriceId = {product_price_id} AND EffectiveDt > CURRENT_DATE
+            WHERE ItemPriceId <= 0
         """)
 
         self.sales_conn.commit()
@@ -718,5 +796,4 @@ class MyProductSchema:
         """)
 
         self.sales_conn.commit()
-
 

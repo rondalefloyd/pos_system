@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.widget.my_widget import *
 from src.core.csv_to_db_importer import MyDataImportThread
@@ -97,33 +97,33 @@ class MyPromoView(MyWidget):
 
     def set_promo_box(self):
         self.filter_field = MyLineEdit(object_name='filter_field')
-        self.filter_button = MyPushButton(text='Filter')
-        self.filter_box = MyGroupBox()
-        self.filter_layout = MyHBoxLayout()
+        self.filter_button = MyPushButton(object_name='filter_button', text='Filter')
+        self.filter_box = MyGroupBox(object_name='filter_box')
+        self.filter_layout = MyHBoxLayout(object_name='filter_layout')
         self.filter_layout.addWidget(self.filter_field)
         self.filter_layout.addWidget(self.filter_button)
         self.filter_box.setLayout(self.filter_layout)
 
-        self.import_data_button = MyPushButton(text='Import')
-        self.add_data_button = MyPushButton(text='Add')
-        self.manage_data_box = MyGroupBox()
-        self.field_layout = MyHBoxLayout()
-        self.field_layout.addWidget(self.import_data_button)
-        self.field_layout.addWidget(self.add_data_button)
-        self.manage_data_box.setLayout(self.field_layout)
+        self.import_data_button = MyPushButton(object_name='import_data_button', text='Import')
+        self.add_data_button = MyPushButton(object_name='add_data_button', text='Add')
+        self.manage_data_box = MyGroupBox(object_name='manage_data_box')
+        self.manage_data_layout = MyHBoxLayout(object_name='manage_data_layout')
+        self.manage_data_layout.addWidget(self.import_data_button)
+        self.manage_data_layout.addWidget(self.add_data_button)
+        self.manage_data_box.setLayout(self.manage_data_layout)
 
-        self.promo_act_box = MyGroupBox()
-        self.promo_act_layout = MyHBoxLayout()
+        self.promo_act_box = MyGroupBox(object_name='promo_act_box')
+        self.promo_act_layout = MyHBoxLayout(object_name='promo_act_layout')
         self.promo_act_layout.addWidget(self.filter_box,0,Qt.AlignmentFlag.AlignLeft)
         self.promo_act_layout.addWidget(self.manage_data_box,1,Qt.AlignmentFlag.AlignRight)
         self.promo_act_box.setLayout(self.promo_act_layout)
 
         self.promo_overview_table = MyTableWidget(object_name='promo_overview_table')
-        self.promo_overview_prev_button = MyPushButton(text='Prev')
-        self.promo_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.promo_overview_next_button = MyPushButton(text='Next')
-        self.promo_overview_act_box = MyGroupBox()
-        self.promo_overview_act_layout = MyHBoxLayout()
+        self.promo_overview_prev_button = MyPushButton(object_name='overview_prev_button', text='Prev')
+        self.promo_overview_page_label = MyLabel(object_name='overview_page_label', text=f"Page {self.m.page_number}/{self.m.total_page_number}")
+        self.promo_overview_next_button = MyPushButton(object_name='overview_next_button', text='Next')
+        self.promo_overview_act_box = MyGroupBox(object_name='overview_act_box')
+        self.promo_overview_act_layout = MyHBoxLayout(object_name='overview_act_layout')
         self.promo_overview_act_layout.addWidget(self.promo_overview_prev_button)
         self.promo_overview_act_layout.addWidget(self.promo_overview_page_label)
         self.promo_overview_act_layout.addWidget(self.promo_overview_next_button)
@@ -151,8 +151,8 @@ class MyPromoView(MyWidget):
         self.promo_percent_label = MyLabel(text='Percent')
         self.promo_desc_field = MyPlainTextEdit(object_name='promo_desc_field')
         self.promo_desc_label = MyLabel(text='Description')
-        self.field_box = MyGroupBox()
-        self.field_layout = MyFormLayout()
+        self.field_box = MyGroupBox(object_name='field_box')
+        self.field_layout = MyFormLayout(object_name='field_layout')
         self.field_layout.addRow(self.promo_name_label)
         self.field_layout.addRow(self.promo_name_field)
         self.field_layout.addRow(self.promo_type_label)
@@ -165,10 +165,10 @@ class MyPromoView(MyWidget):
         self.manage_data_scra = MyScrollArea()
         self.manage_data_scra.setWidget(self.field_box)
 
-        self.save_data_button = MyPushButton(text='Save')
-        self.manage_data_act_close_button = MyPushButton(text='Close')
-        self.manage_data_act_box = MyGroupBox()
-        self.manage_data_act_layout = MyHBoxLayout()
+        self.save_data_button = MyPushButton(object_name='save_button', text='Save')
+        self.manage_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.manage_data_act_box = MyGroupBox(object_name='manage_data_act_box')
+        self.manage_data_act_layout = MyHBoxLayout(object_name='manage_data_act_layout')
         self.manage_data_act_layout.addWidget(self.save_data_button,1,Qt.AlignmentFlag.AlignRight)
         self.manage_data_act_layout.addWidget(self.manage_data_act_close_button)
         self.manage_data_act_box.setLayout(self.manage_data_act_layout)
@@ -183,22 +183,22 @@ class MyPromoView(MyWidget):
         self.progress_bar = MyProgressBar()
         self.progress_label = MyLabel(text='Please wait...')
         self.progress_dialog = MyDialog(object_name='progress_dialog', window_title='99% complete')
-        self.progress_layout = MyVBoxLayout()
+        self.progress_layout = MyVBoxLayout(object_name='progress_layout')
         self.progress_layout.addWidget(self.progress_bar)
         self.progress_layout.addWidget(self.progress_label)
         self.progress_dialog.setLayout(self.progress_layout)
         pass
 
     def set_overview_table_act_box(self):
-        self.edit_data_button = MyPushButton(text='Edit')
-        self.view_data_button = MyPushButton(text='View')
-        self.delete_data_button = MyPushButton(text='Delete')
-        self.promo_overview_act_box = MyGroupBox(object_name='promo_overview_act_box')
-        self.promo_overview_act_layout = MyHBoxLayout(object_name='promo_overview_act_layout')
-        self.promo_overview_act_layout.addWidget(self.edit_data_button)
-        self.promo_overview_act_layout.addWidget(self.view_data_button)
-        self.promo_overview_act_layout.addWidget(self.delete_data_button)
-        self.promo_overview_act_box.setLayout(self.promo_overview_act_layout)
+        self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
+        self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
+        self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete')
+        self.promo_overview_data_act_box = MyGroupBox(object_name='promo_overview_data_act_box')
+        self.promo_overview_data_act_layout = MyHBoxLayout(object_name='promo_overview_data_act_layout')
+        self.promo_overview_data_act_layout.addWidget(self.edit_data_button)
+        self.promo_overview_data_act_layout.addWidget(self.view_data_button)
+        # self.promo_overview_data_act_layout.addWidget(self.delete_data_button)
+        self.promo_overview_data_act_box.setLayout(self.promo_overview_data_act_layout)
 
     def set_view_dialog(self):
         self.promo_name_info = MyLabel(text=f"promo_name")
@@ -206,8 +206,8 @@ class MyPromoView(MyWidget):
         self.promo_percent_info = MyLabel(text=f"promo_percent")
         self.promo_desc_info = MyLabel(text=f"promo_desc")
         self.datetime_created_info = MyLabel(text=f"datetime_created")
-        self.info_box = MyGroupBox()
-        self.info_layout = MyFormLayout()
+        self.info_box = MyGroupBox(object_name='info_box')
+        self.info_layout = MyFormLayout(object_name='info_layout')
         self.info_layout.addRow('Name:', self.promo_name_info)
         self.info_layout.addRow('Type:', self.promo_type_info)
         self.info_layout.addRow('Percent:', self.promo_percent_info)
@@ -219,9 +219,9 @@ class MyPromoView(MyWidget):
         self.view_data_scra.setWidget(self.info_box)
 
 
-        self.view_data_act_close_button = MyPushButton(text='Close')
-        self.view_data_act_box = MyGroupBox()
-        self.view_data_act_layout = MyHBoxLayout()
+        self.view_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.view_data_act_box = MyGroupBox(object_name='view_data_act_box')
+        self.view_data_act_layout = MyHBoxLayout(object_name='view_data_act_layout')
         self.view_data_act_layout.addWidget(self.view_data_act_close_button,0,Qt.AlignmentFlag.AlignRight)
         self.view_data_act_box.setLayout(self.view_data_act_layout)
 
@@ -252,7 +252,6 @@ class MyPromoController:
         self.m.total_page_number = schema.select_promo_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
 
-        print(self.m.total_page_number, self.m.page_number)
 
         self.v.promo_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         
@@ -280,7 +279,6 @@ class MyPromoController:
         pass
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
-        print(self.m.progress_count)
         self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count)
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
@@ -317,13 +315,13 @@ class MyPromoController:
 
         for i, data in enumerate(promo_data):
             self.v.set_overview_table_act_box()
-            promo_name = QTableWidgetItem(f"{data[0]}")
-            promo_type = QTableWidgetItem(f"{data[1]}")
-            promo_percent = QTableWidgetItem(f"{data[2]}")
-            promo_desc = QTableWidgetItem(f"{data[3]}")
-            datetime_created = QTableWidgetItem(f"{data[4]}")
+            promo_name = MyTableWidgetItem(text=f"{data[0]}")
+            promo_type = MyTableWidgetItem(text=f"{data[1]}")
+            promo_percent = MyTableWidgetItem(text=f"{data[2]}", format='bill')
+            promo_desc = MyTableWidgetItem(text=f"{data[3]}")
+            datetime_created = MyTableWidgetItem(text=f"{data[4]}")
 
-            self.v.promo_overview_table.setCellWidget(i, 0, self.v.promo_overview_act_box)
+            self.v.promo_overview_table.setCellWidget(i, 0, self.v.promo_overview_data_act_box)
             self.v.promo_overview_table.setItem(i, 1, promo_name)
             self.v.promo_overview_table.setItem(i, 2, promo_type)
             self.v.promo_overview_table.setItem(i, 3, promo_percent)

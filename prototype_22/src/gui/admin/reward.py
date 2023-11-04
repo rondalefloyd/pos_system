@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.widget.my_widget import *
 from src.core.csv_to_db_importer import MyDataImportThread
@@ -97,33 +97,33 @@ class MyRewardView(MyWidget):
 
     def set_reward_box(self):
         self.filter_field = MyLineEdit(object_name='filter_field')
-        self.filter_button = MyPushButton(text='Filter')
-        self.filter_box = MyGroupBox()
-        self.filter_layout = MyHBoxLayout()
+        self.filter_button = MyPushButton(object_name='filter_button', text='Filter')
+        self.filter_box = MyGroupBox(object_name='filter_box')
+        self.filter_layout = MyHBoxLayout(object_name='filter_layout')
         self.filter_layout.addWidget(self.filter_field)
         self.filter_layout.addWidget(self.filter_button)
         self.filter_box.setLayout(self.filter_layout)
 
-        self.import_data_button = MyPushButton(text='Import')
-        self.add_data_button = MyPushButton(text='Add')
-        self.manage_data_box = MyGroupBox()
-        self.field_layout = MyHBoxLayout()
-        self.field_layout.addWidget(self.import_data_button)
-        self.field_layout.addWidget(self.add_data_button)
-        self.manage_data_box.setLayout(self.field_layout)
+        self.import_data_button = MyPushButton(object_name='import_data_button',text='Import')
+        self.add_data_button = MyPushButton(object_name='add_data_button',text='Add')
+        self.manage_data_box = MyGroupBox(object_name='manage_data_box')
+        self.manage_data_layout = MyHBoxLayout(object_name='manage_data_layout')
+        self.manage_data_layout.addWidget(self.import_data_button)
+        self.manage_data_layout.addWidget(self.add_data_button)
+        self.manage_data_box.setLayout(self.manage_data_layout)
 
-        self.reward_act_box = MyGroupBox()
-        self.reward_act_layout = MyHBoxLayout()
+        self.reward_act_box = MyGroupBox(object_name='reward_act_box')
+        self.reward_act_layout = MyHBoxLayout(object_name='reward_act_layout')
         self.reward_act_layout.addWidget(self.filter_box,0,Qt.AlignmentFlag.AlignLeft)
         self.reward_act_layout.addWidget(self.manage_data_box,1,Qt.AlignmentFlag.AlignRight)
         self.reward_act_box.setLayout(self.reward_act_layout)
 
         self.reward_overview_table = MyTableWidget(object_name='reward_overview_table')
-        self.reward_overview_prev_button = MyPushButton(text='Prev')
-        self.reward_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_page_number}")
-        self.reward_overview_next_button = MyPushButton(text='Next')
-        self.reward_overview_act_box = MyGroupBox()
-        self.reward_overview_act_layout = MyHBoxLayout()
+        self.reward_overview_prev_button = MyPushButton(object_name='overview_prev_button', text='Prev')
+        self.reward_overview_page_label = MyLabel(object_name='overview_page_label', text=f"Page {self.m.page_number}/{self.m.total_page_number}")
+        self.reward_overview_next_button = MyPushButton(object_name='overview_next_button', text='Next')
+        self.reward_overview_act_box = MyGroupBox(object_name='overview_act_box')
+        self.reward_overview_act_layout = MyHBoxLayout(object_name='overview_act_layout')
         self.reward_overview_act_layout.addWidget(self.reward_overview_prev_button)
         self.reward_overview_act_layout.addWidget(self.reward_overview_page_label)
         self.reward_overview_act_layout.addWidget(self.reward_overview_next_button)
@@ -151,8 +151,8 @@ class MyRewardView(MyWidget):
         self.reward_points_label = MyLabel(text='Points')
         self.reward_desc_field = MyPlainTextEdit(object_name='reward_desc_field')
         self.reward_desc_label = MyLabel(text='Description')
-        self.field_box = MyGroupBox()
-        self.field_layout = MyFormLayout()
+        self.field_box = MyGroupBox(object_name='field_box')
+        self.field_layout = MyFormLayout(object_name='field_layout')
         self.field_layout.addRow(self.reward_name_label)
         self.field_layout.addRow(self.reward_name_field)
         self.field_layout.addRow(self.reward_unit_label)
@@ -165,10 +165,10 @@ class MyRewardView(MyWidget):
         self.manage_data_scra = MyScrollArea()
         self.manage_data_scra.setWidget(self.field_box)
 
-        self.save_data_button = MyPushButton(text='Save')
-        self.manage_data_act_close_button = MyPushButton(text='Close')
-        self.manage_data_act_box = MyGroupBox()
-        self.manage_data_act_layout = MyHBoxLayout()
+        self.save_data_button = MyPushButton(object_name='save_button', text='Save')
+        self.manage_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.manage_data_act_box = MyGroupBox(object_name='manage_data_act_box')
+        self.manage_data_act_layout = MyHBoxLayout(object_name='manage_data_act_layout')
         self.manage_data_act_layout.addWidget(self.save_data_button,1,Qt.AlignmentFlag.AlignRight)
         self.manage_data_act_layout.addWidget(self.manage_data_act_close_button)
         self.manage_data_act_box.setLayout(self.manage_data_act_layout)
@@ -183,22 +183,22 @@ class MyRewardView(MyWidget):
         self.progress_bar = MyProgressBar()
         self.progress_label = MyLabel(text='Please wait...')
         self.progress_dialog = MyDialog(object_name='progress_dialog', window_title='99% complete')
-        self.progress_layout = MyVBoxLayout()
+        self.progress_layout = MyVBoxLayout(object_name='progress_layout')
         self.progress_layout.addWidget(self.progress_bar)
         self.progress_layout.addWidget(self.progress_label)
         self.progress_dialog.setLayout(self.progress_layout)
         pass
 
     def set_overview_table_act_box(self):
-        self.edit_data_button = MyPushButton(text='Edit')
-        self.view_data_button = MyPushButton(text='View')
-        self.delete_data_button = MyPushButton(text='Delete')
-        self.reward_overview_act_box = MyGroupBox(object_name='reward_overview_act_box')
-        self.reward_overview_act_layout = MyHBoxLayout(object_name='reward_overview_act_layout')
-        self.reward_overview_act_layout.addWidget(self.edit_data_button)
-        self.reward_overview_act_layout.addWidget(self.view_data_button)
-        self.reward_overview_act_layout.addWidget(self.delete_data_button)
-        self.reward_overview_act_box.setLayout(self.reward_overview_act_layout)
+        self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
+        self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
+        self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete')
+        self.reward_overview_data_act_box = MyGroupBox(object_name='reward_overview_data_act_box')
+        self.reward_overview_data_act_layout = MyHBoxLayout(object_name='reward_overview_data_act_layout')
+        self.reward_overview_data_act_layout.addWidget(self.edit_data_button)
+        self.reward_overview_data_act_layout.addWidget(self.view_data_button)
+        self.reward_overview_data_act_layout.addWidget(self.delete_data_button)
+        self.reward_overview_data_act_box.setLayout(self.reward_overview_data_act_layout)
 
     def set_view_dialog(self):
         self.reward_name_info = MyLabel(text=f"reward_name")
@@ -206,8 +206,8 @@ class MyRewardView(MyWidget):
         self.reward_points_info = MyLabel(text=f"reward_points")
         self.reward_desc_info = MyLabel(text=f"reward_desc")
         self.datetime_created_info = MyLabel(text=f"datetime_created")
-        self.info_box = MyGroupBox()
-        self.info_layout = MyFormLayout()
+        self.info_box = MyGroupBox(object_name='info_box')
+        self.info_layout = MyFormLayout(object_name='info_layout')
         self.info_layout.addRow('Name:', self.reward_name_info)
         self.info_layout.addRow('Type:', self.reward_unit_info)
         self.info_layout.addRow('Percent:', self.reward_points_info)
@@ -219,9 +219,9 @@ class MyRewardView(MyWidget):
         self.view_data_scra.setWidget(self.info_box)
 
 
-        self.view_data_act_close_button = MyPushButton(text='Close')
-        self.view_data_act_box = MyGroupBox()
-        self.view_data_act_layout = MyHBoxLayout()
+        self.view_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.view_data_act_box = MyGroupBox(object_name='view_data_act_box')
+        self.view_data_act_layout = MyHBoxLayout(object_name='view_data_act_layout')
         self.view_data_act_layout.addWidget(self.view_data_act_close_button,0,Qt.AlignmentFlag.AlignRight)
         self.view_data_act_box.setLayout(self.view_data_act_layout)
 
@@ -252,7 +252,6 @@ class MyRewardController:
         self.m.total_page_number = schema.select_reward_data_total_page_count(text=text_filter)
         self.m.page_number = 1 if self.m.total_page_number > 0 else 0
 
-        print(self.m.total_page_number, self.m.page_number)
 
         self.v.reward_overview_page_label.setText(f"Page {self.m.page_number}/{self.m.total_page_number}")
         
@@ -280,7 +279,6 @@ class MyRewardController:
         pass
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
-        print(self.m.progress_count)
         self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count)
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
@@ -317,13 +315,13 @@ class MyRewardController:
 
         for i, data in enumerate(reward_data):
             self.v.set_overview_table_act_box()
-            reward_name = QTableWidgetItem(f"{data[0]}")
-            reward_unit = QTableWidgetItem(f"{data[1]}")
-            reward_points = QTableWidgetItem(f"{data[2]}")
-            reward_desc = QTableWidgetItem(f"{data[3]}")
-            datetime_created = QTableWidgetItem(f"{data[4]}")
+            reward_name = MyTableWidgetItem(text=f"{data[0]}")
+            reward_unit = MyTableWidgetItem(text=f"{data[1]}", format='bill')
+            reward_points = MyTableWidgetItem(text=f"{data[2]}", format='bill')
+            reward_desc = MyTableWidgetItem(text=f"{data[3]}")
+            datetime_created = MyTableWidgetItem(text=f"{data[4]}")
 
-            self.v.reward_overview_table.setCellWidget(i, 0, self.v.reward_overview_act_box)
+            self.v.reward_overview_table.setCellWidget(i, 0, self.v.reward_overview_data_act_box)
             self.v.reward_overview_table.setItem(i, 1, reward_name)
             self.v.reward_overview_table.setItem(i, 2, reward_unit)
             self.v.reward_overview_table.setItem(i, 3, reward_points)

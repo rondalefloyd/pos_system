@@ -2,7 +2,7 @@ import os, sys
 import sqlite3 # pre-installed in python (if not, install it using 'pip install pysqlite')
 from datetime import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(os.path.abspath('../prototype_22'))
 
 from template.qss.qss import MyQSSConfig
 
@@ -16,8 +16,6 @@ class MyLoginSchema:
 
         self.accounts_conn = sqlite3.connect(database=self.accounts_file)
         self.accounts_cursor = self.accounts_conn.cursor()
-
-        print('path:', qss.db_file_path + qss.sales_file_name)
 
         self.create_transaction_table()
 
@@ -55,8 +53,6 @@ class MyLoginSchema:
             pass
         except Exception as e:
             user_data = [(0,0,0)][0]
-            print(e)
-
         return user_data
     def insert_user_data(self, user_name='', user_password='', user_level=0, user_phone=''):
         self.accounts_cursor.execute(f"""

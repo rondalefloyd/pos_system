@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
-sys.path.append(os.path.abspath(''))
+sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22')
 
 from src.gui.widget.my_widget import *
 from src.core.csv_to_db_importer import MyDataImportThread
@@ -204,33 +204,33 @@ class MyProductView(MyWidget):
 
     def set_product_box(self):
         self.filter_field = MyLineEdit(object_name='filter_field')
-        self.filter_button = MyPushButton(text='Filter')
-        self.filter_box = MyGroupBox()
-        self.filter_layout = MyHBoxLayout()
+        self.filter_button = MyPushButton(object_name='filter_button', text='Filter')
+        self.filter_box = MyGroupBox(object_name='filter_box')
+        self.filter_layout = MyHBoxLayout(object_name='filter_layout')
         self.filter_layout.addWidget(self.filter_field)
         self.filter_layout.addWidget(self.filter_button)
         self.filter_box.setLayout(self.filter_layout)
 
-        self.import_data_button = MyPushButton(text='Import')
-        self.add_data_button = MyPushButton(text='Add')
-        self.manage_data_box = MyGroupBox()
-        self.field_layout = MyHBoxLayout()
-        self.field_layout.addWidget(self.import_data_button)
-        self.field_layout.addWidget(self.add_data_button)
-        self.manage_data_box.setLayout(self.field_layout)
+        self.import_data_button = MyPushButton(object_name='import_data_button', text='Import')
+        self.add_data_button = MyPushButton(object_name='add_data_button', text='Add')
+        self.manage_data_box = MyGroupBox(object_name='manage_data_box')
+        self.manage_data_layout = MyHBoxLayout(object_name='manage_data_layout')
+        self.manage_data_layout.addWidget(self.import_data_button)
+        self.manage_data_layout.addWidget(self.add_data_button)
+        self.manage_data_box.setLayout(self.manage_data_layout)
 
-        self.product_act_box = MyGroupBox()
-        self.product_act_layout = MyHBoxLayout()
+        self.product_act_box = MyGroupBox(object_name='product_act_box')
+        self.product_act_layout = MyHBoxLayout(object_name='product_act_layout')
         self.product_act_layout.addWidget(self.filter_box,0,Qt.AlignmentFlag.AlignLeft)
         self.product_act_layout.addWidget(self.manage_data_box,1,Qt.AlignmentFlag.AlignRight)
         self.product_act_box.setLayout(self.product_act_layout)
 
         self.product_overview_table = MyTableWidget(object_name='product_overview_table')
-        self.product_overview_prev_button = MyPushButton(text='Prev')
-        self.product_overview_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_product_page_number}")
-        self.product_overview_next_button = MyPushButton(text='Next')
-        self.product_overview_act_box = MyGroupBox()
-        self.product_overview_act_layout = MyHBoxLayout()
+        self.product_overview_prev_button = MyPushButton(object_name='overview_prev_button', text='Prev')
+        self.product_overview_page_label = MyLabel(object_name='overview_page_label', text=f"Page {self.m.page_number}/{self.m.total_product_page_number}")
+        self.product_overview_next_button = MyPushButton(object_name='overview_next_button', text='Next')
+        self.product_overview_act_box = MyGroupBox(object_name='overview_act_box')
+        self.product_overview_act_layout = MyHBoxLayout(object_name='overview_act_layout')
         self.product_overview_act_layout.addWidget(self.product_overview_prev_button)
         self.product_overview_act_layout.addWidget(self.product_overview_page_label)
         self.product_overview_act_layout.addWidget(self.product_overview_next_button)
@@ -242,11 +242,11 @@ class MyProductView(MyWidget):
         self.product_overview_box.setLayout(self.product_overview_layout)
 
         self.product_stock_table = MyTableWidget(object_name='product_stock_table')
-        self.product_stock_prev_button = MyPushButton(text='Prev')
-        self.product_stock_page_label = MyLabel(text=f"Page {self.m.page_number}/{self.m.total_stock_page_number}")
-        self.product_stock_next_button = MyPushButton(text='Next')
-        self.product_stock_act_box = MyGroupBox()
-        self.product_stock_act_layout = MyHBoxLayout()
+        self.product_stock_prev_button = MyPushButton(object_name='overview_prev_button', text='Prev')
+        self.product_stock_page_label = MyLabel(object_name='overview_page_label', text=f"Page {self.m.page_number}/{self.m.total_stock_page_number}")
+        self.product_stock_next_button = MyPushButton(object_name='overview_next_button', text='Next')
+        self.product_stock_act_box = MyGroupBox(object_name='overview_act_box')
+        self.product_stock_act_layout = MyHBoxLayout(object_name='overview_act_layout')
         self.product_stock_act_layout.addWidget(self.product_stock_prev_button)
         self.product_stock_act_layout.addWidget(self.product_stock_page_label)
         self.product_stock_act_layout.addWidget(self.product_stock_next_button)
@@ -273,8 +273,8 @@ class MyProductView(MyWidget):
         self.product_barcode_field = MyLineEdit(object_name='product_barcode_field')
         self.product_name_field = MyLineEdit(object_name='product_name_field')
         self.product_expire_dt_field = MyDateEdit(object_name='product_expire_dt_field')
-        self.primary_field_box = MyGroupBox()
-        self.primary_field_layout = MyGridLayout()
+        self.primary_field_box = MyGroupBox(object_name='field_box')
+        self.primary_field_layout = MyGridLayout(object_name='sub_field_layout')
         self.primary_field_layout.addWidget(self.product_barcode_label,0,0)
         self.primary_field_layout.addWidget(self.product_barcode_field,1,0)
         self.primary_field_layout.addWidget(self.product_name_label,0,1)
@@ -291,8 +291,8 @@ class MyProductView(MyWidget):
         self.product_brand_field = MyComboBox(object_name='product_brand_field')
         self.product_sales_group_field = MyComboBox(object_name='product_sales_group_field')
         self.product_supplier_field = MyComboBox(object_name='product_supplier_field')
-        self.category_field_box = MyGroupBox()
-        self.category_field_layout = MyGridLayout()
+        self.category_field_box = MyGroupBox(object_name='field_box')
+        self.category_field_layout = MyGridLayout(object_name='sub_field_layout')
         self.category_field_layout.addWidget(self.product_type_label,0,0)
         self.category_field_layout.addWidget(self.product_type_field,1,0)
         self.category_field_layout.addWidget(self.product_brand_label,2,0)
@@ -306,17 +306,29 @@ class MyProductView(MyWidget):
         self.product_cost_label = MyLabel(text='Cost')
         self.product_price_label = MyLabel(text='Price')
         self.product_effective_dt_label = MyLabel(text='Effective date')
+        self.product_retail_price_label = MyLabel(text='Retail price')
+        self.product_wholesale_price_label = MyLabel(text='Wholesale price')
+
         self.product_cost_field = MyLineEdit(object_name='product_cost_field')
-        self.product_price_field = MyLineEdit(object_name='product_price_field')
         self.product_effective_dt_field = MyDateEdit(object_name='product_effective_dt_field')
-        self.pricing_field_box = MyGroupBox()
-        self.pricing_field_layout = MyGridLayout()
+        
+        self.product_price_field = MyLineEdit(object_name='product_price_field')
+        self.product_retail_price_field = MyLineEdit(object_name='product_price_field')
+        self.product_wholesale_price_field = MyLineEdit(object_name='product_price_field')
+        
+        self.pricing_field_box = MyGroupBox(object_name='field_box')
+        self.pricing_field_layout = MyGridLayout(object_name='sub_field_layout')
         self.pricing_field_layout.addWidget(self.product_cost_label,0,0)
         self.pricing_field_layout.addWidget(self.product_cost_field,1,0)
-        self.pricing_field_layout.addWidget(self.product_price_label,0,1)
-        self.pricing_field_layout.addWidget(self.product_price_field,1,1)
-        self.pricing_field_layout.addWidget(self.product_effective_dt_label,0,2)
-        self.pricing_field_layout.addWidget(self.product_effective_dt_field,1,2)
+        self.pricing_field_layout.addWidget(self.product_effective_dt_label,0,1)
+        self.pricing_field_layout.addWidget(self.product_effective_dt_field,1,1)
+
+        self.pricing_field_layout.addWidget(self.product_retail_price_label,2,0)
+        self.pricing_field_layout.addWidget(self.product_retail_price_field,3,0)
+        self.pricing_field_layout.addWidget(self.product_wholesale_price_label,2,1)
+        self.pricing_field_layout.addWidget(self.product_wholesale_price_field,3,1)
+        self.pricing_field_layout.addWidget(self.product_price_label,2,0)
+        self.pricing_field_layout.addWidget(self.product_price_field,3,0)
         self.pricing_field_box.setLayout(self.pricing_field_layout)
 
         self.product_promo_name_label = MyLabel(text='Promo name')
@@ -333,8 +345,8 @@ class MyProductView(MyWidget):
         self.product_new_price_field = MyLineEdit(object_name='product_new_price_field')
         self.product_start_dt_field = MyDateEdit(object_name='product_start_dt_field')
         self.product_end_dt_field = MyDateEdit(object_name='product_end_dt_field')
-        self.promo_field_box = MyGroupBox()
-        self.promo_field_layout = MyGridLayout()
+        self.promo_field_box = MyGroupBox(object_name='field_box')
+        self.promo_field_layout = MyGridLayout(object_name='sub_field_layout')
         self.promo_field_layout.addWidget(self.product_promo_name_label,0,0)
         self.promo_field_layout.addWidget(self.product_promo_name_field,1,0)
         self.promo_field_layout.addWidget(self.product_promo_type_label,2,0)
@@ -351,21 +363,29 @@ class MyProductView(MyWidget):
         self.promo_field_layout.addWidget(self.product_end_dt_field,13,0)
         self.promo_field_box.setLayout(self.promo_field_layout)
 
-        self.field_box = MyGroupBox()
-        self.field_layout = MyGridLayout()
-        self.field_layout.addWidget(self.primary_field_box,0,0)
-        self.field_layout.addWidget(self.category_field_box,1,0)
-        self.field_layout.addWidget(self.pricing_field_box,2,0)
-        self.field_layout.addWidget(self.promo_field_box,0,1,4,1,Qt.AlignmentFlag.AlignTop)
-        self.field_box.setLayout(self.field_layout)
+        self.side_a_field_layout = MyVBoxLayout('sub_field_layout')
+        self.side_a_field_layout.addWidget(self.primary_field_box)
+        self.side_a_field_layout.addWidget(QLabel('<hr>'))
+        self.side_a_field_layout.addWidget(self.category_field_box)
+        self.side_a_field_layout.addWidget(QLabel('<hr>'))
+        self.side_a_field_layout.addWidget(self.pricing_field_box,4,Qt.AlignmentFlag.AlignTop)
+
+        self.side_b_field_layout = MyVBoxLayout('sub_field_layout')
+        self.side_b_field_layout.addWidget(self.promo_field_box,0,Qt.AlignmentFlag.AlignTop)
+
+        self.product_field_box = MyGroupBox(object_name='field_box')
+        self.product_field_layout = MyGridLayout(object_name='field_layout')
+        self.product_field_layout.addLayout(self.side_a_field_layout,0,0)
+        self.product_field_layout.addLayout(self.side_b_field_layout,0,1)
+        self.product_field_box.setLayout(self.product_field_layout)
         self.manage_product_data_scra = MyScrollArea()
-        self.manage_product_data_scra.setWidget(self.field_box)
+        self.manage_product_data_scra.setWidget(self.product_field_box)
 
         self.product_stock_tracking_field = MyCheckBox(object_name='product_stock_tracking_field', text='Track inventory?')
-        self.save_product_data_button = MyPushButton(text='Save')
-        self.manage_product_data_act_close_button = MyPushButton(text='Close')
-        self.manage_product_data_act_box = MyGroupBox()
-        self.manage_product_data_act_layout = MyHBoxLayout()
+        self.save_product_data_button = MyPushButton(object_name='save_button', text='Save')
+        self.manage_product_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.manage_product_data_act_box = MyGroupBox(object_name='manage_data_act_box')
+        self.manage_product_data_act_layout = MyHBoxLayout(object_name='manage_data_act_layout')
         self.manage_product_data_act_layout.addWidget(self.product_stock_tracking_field)
         self.manage_product_data_act_layout.addWidget(self.save_product_data_button,1,Qt.AlignmentFlag.AlignRight)
         self.manage_product_data_act_layout.addWidget(self.manage_product_data_act_close_button)
@@ -381,20 +401,20 @@ class MyProductView(MyWidget):
         self.stock_available_field = MyLineEdit()
         self.stock_onhand_label = MyLabel(text='On hand')
         self.stock_onhand_field = MyLineEdit()
-        self.field_box = MyGroupBox()
-        self.field_layout = MyFormLayout()
-        self.field_layout.addRow(self.stock_available_label)
-        self.field_layout.addRow(self.stock_available_field)
-        self.field_layout.addRow(self.stock_onhand_label)
-        self.field_layout.addRow(self.stock_onhand_field)
-        self.field_box.setLayout(self.field_layout)
+        self.stock_field_box = MyGroupBox(object_name='field_box')
+        self.stock_field_layout = MyFormLayout(object_name='field_layout')
+        self.stock_field_layout.addRow(self.stock_available_label)
+        self.stock_field_layout.addRow(self.stock_available_field)
+        self.stock_field_layout.addRow(self.stock_onhand_label)
+        self.stock_field_layout.addRow(self.stock_onhand_field)
+        self.stock_field_box.setLayout(self.stock_field_layout)
         self.manage_product_data_scra = MyScrollArea()
-        self.manage_product_data_scra.setWidget(self.field_box)
+        self.manage_product_data_scra.setWidget(self.stock_field_box)
 
-        self.save_stock_data_button = MyPushButton(text='Save')
-        self.manage_stock_data_act_close_button = MyPushButton(text='Close')
-        self.manage_stock_data_act_box = MyGroupBox()
-        self.manage_stock_data_act_layout = MyHBoxLayout()
+        self.save_stock_data_button = MyPushButton(object_name='save_button', text='Save')
+        self.manage_stock_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.manage_stock_data_act_box = MyGroupBox(object_name='manage_data_act_box')
+        self.manage_stock_data_act_layout = MyHBoxLayout(object_name='manage_data_act_layout')
         self.manage_stock_data_act_layout.addWidget(self.save_stock_data_button,1,Qt.AlignmentFlag.AlignRight)
         self.manage_stock_data_act_layout.addWidget(self.manage_stock_data_act_close_button)
         self.manage_stock_data_act_box.setLayout(self.manage_stock_data_act_layout)
@@ -410,27 +430,27 @@ class MyProductView(MyWidget):
         self.progress_bar = MyProgressBar()
         self.progress_label = MyLabel(text='Please wait...')
         self.progress_dialog = MyDialog(window_title='99% complete')
-        self.progress_layout = MyVBoxLayout()
+        self.progress_layout = MyVBoxLayout(object_name='progress_layout')
         self.progress_layout.addWidget(self.progress_bar)
         self.progress_layout.addWidget(self.progress_label)
         self.progress_dialog.setLayout(self.progress_layout)
         pass
 
     def set_overview_table_act_box(self):
-        self.edit_product_data_button = MyPushButton(text='Edit')
-        self.view_product_data_button = MyPushButton(text='View')
-        self.delete_product_data_button = MyPushButton(text='Delete')
-        self.product_overview_act_box = MyGroupBox(object_name='product_overview_act_box')
-        self.product_overview_act_layout = MyHBoxLayout(object_name='product_overview_act_layout')
-        self.product_overview_act_layout.addWidget(self.edit_product_data_button)
-        self.product_overview_act_layout.addWidget(self.view_product_data_button)
-        self.product_overview_act_layout.addWidget(self.delete_product_data_button)
-        self.product_overview_act_box.setLayout(self.product_overview_act_layout)
+        self.edit_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
+        self.view_data_button = MyPushButton(object_name='view_data_button', text='View')
+        self.delete_data_button = MyPushButton(object_name='delete_data_button', text='Delete') # unavailable for now
+        self.product_overview_data_act_box = MyGroupBox(object_name='product_overview_data_act_box')
+        self.product_overview_data_act_layout = MyHBoxLayout(object_name='product_overview_data_act_layout')
+        self.product_overview_data_act_layout.addWidget(self.edit_data_button)
+        self.product_overview_data_act_layout.addWidget(self.view_data_button)
+        # self.product_overview_data_act_layout.addWidget(self.delete_data_button)
+        self.product_overview_data_act_box.setLayout(self.product_overview_data_act_layout)
     def set_stock_table_act_box(self):
-        self.edit_stock_data_button = MyPushButton(text='Edit')
-        self.delete_stock_data_button = MyPushButton(text='Stop')
-        self.product_stock_act_box = MyGroupBox(object_name='product_stock_act_box')
-        self.product_stock_act_layout = MyHBoxLayout(object_name='product_stock_act_layout')
+        self.edit_stock_data_button = MyPushButton(object_name='edit_data_button', text='Edit')
+        self.delete_stock_data_button = MyPushButton(object_name='void_data_button', text='Stop')
+        self.product_stock_act_box = MyGroupBox(object_name='product_stock_data_act_box')
+        self.product_stock_act_layout = MyHBoxLayout(object_name='product_stock_data_act_layout')
         self.product_stock_act_layout.addWidget(self.edit_stock_data_button)
         self.product_stock_act_layout.addWidget(self.delete_stock_data_button)
         self.product_stock_act_box.setLayout(self.product_stock_act_layout)
@@ -455,8 +475,8 @@ class MyProductView(MyWidget):
 
         self.product_datetime_created_info = MyLabel(text=f"product_datetime_created")
 
-        self.info_box = MyGroupBox()
-        self.info_layout = MyFormLayout()
+        self.info_box = MyGroupBox(object_name='info_box')
+        self.info_layout = MyFormLayout(object_name='info_layout')
         self.info_layout.addRow('Barcode:', self.product_barcode_info)
         self.info_layout.addRow('Name:', self.product_name_info)
         self.info_layout.addRow('Expire date:', self.product_expire_dt_info)
@@ -480,9 +500,9 @@ class MyProductView(MyWidget):
         self.view_data_scra = MyScrollArea()
         self.view_data_scra.setWidget(self.info_box)
 
-        self.view_data_act_close_button = MyPushButton(text='Close')
-        self.view_data_act_box = MyGroupBox()
-        self.view_data_act_layout = MyHBoxLayout()
+        self.view_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
+        self.view_data_act_box = MyGroupBox(object_name='view_data_act_box')
+        self.view_data_act_layout = MyHBoxLayout(object_name='view_data_act_layout')
         self.view_data_act_layout.addWidget(self.view_data_act_close_button,0,Qt.AlignmentFlag.AlignRight)
         self.view_data_act_box.setLayout(self.view_data_act_layout)
 
@@ -546,7 +566,6 @@ class MyProductController:
         pass
     def on_data_import_thread_update(self, total_data_count, current_data):
         self.m.progress_count += 1
-        print(self.m.progress_count)
         self.m.progress_percent = int((self.m.progress_count * 100) / total_data_count)
         self.v.progress_dialog.setWindowTitle(f"{self.m.progress_percent}% complete")
         self.v.progress_bar.setValue(self.m.progress_percent)
@@ -570,8 +589,9 @@ class MyProductController:
         self.load_combo_box_data()
         self.v.manage_product_data_dialog.setWindowTitle('Add product')
 
-        self.set_category_field_disabled(False)
+        # self.set_category_field_disabled(False)
         self.v.promo_field_box.hide()
+        self.set_price_type_field_hidden(False)
     
         self.set_manage_product_data_box_conn(task='add_data')
         self.v.manage_product_data_dialog.exec()
@@ -592,14 +612,12 @@ class MyProductController:
         for i, data in enumerate(product_data):
             self.v.set_overview_table_act_box()
 
-            if datetime.strptime(str(data[9]), "%Y-%m-%d") <= datetime.today(): # REVIEW
-                self.v.delete_product_data_button.hide()
+            if datetime.strptime(str(data[9]), "%Y-%m-%d") <= datetime.today(): 
+                self.v.edit_data_button.hide()
+                # self.v.delete_data_button.hide() # NOTE: temporarily unavailable
 
-            if data[10] is not None: # REVIEW
-                flag = True 
-                self.v.edit_product_data_button.hide()
-            else:
-                flag = False 
+            flag = True  if data[10] is not None else False # if has promo, set flag (to make the item's foreground red)
+
 
             product_barcode = MyTableWidgetItem(text=f"{data[0]}", has_promo=flag)
             product_name = MyTableWidgetItem(text=f"{data[1]}", has_promo=flag)
@@ -610,17 +628,17 @@ class MyProductController:
             product_sales_group = MyTableWidgetItem(text=f"{data[5]}", has_promo=flag)
             product_supplier = MyTableWidgetItem(text=f"{data[6]}", has_promo=flag)
 
-            product_cost = MyTableWidgetItem(text=f"{data[7]}", has_promo=flag)
-            product_price = MyTableWidgetItem(text=f"{data[8]}", has_promo=flag)
+            product_cost = MyTableWidgetItem(text=f"{data[7]}", format='bill', has_promo=flag)
+            product_price = MyTableWidgetItem(text=f"{data[8]}", format='bill', has_promo=flag)
             product_effective_dt = MyTableWidgetItem(text=f"{data[9]}", has_promo=flag)
             product_promo_name = MyTableWidgetItem(text=f"{data[10]}", has_promo=flag)
-            product_disc_value = MyTableWidgetItem(text=f"{data[11]}", has_promo=flag)
+            product_disc_value = MyTableWidgetItem(text=f"{data[11]}", format='bill', has_promo=flag)
 
             product_stock_id = MyTableWidgetItem(text=f"{data[12]}", has_promo=flag)
 
             datetime_created = MyTableWidgetItem(text=f"{data[13]}", has_promo=flag)
 
-            self.v.product_overview_table.setCellWidget(i, 0, self.v.product_overview_act_box)
+            self.v.product_overview_table.setCellWidget(i, 0, self.v.product_overview_data_act_box)
             self.v.product_overview_table.setItem(i, 1, product_barcode)
             self.v.product_overview_table.setItem(i, 2, product_name)
             self.v.product_overview_table.setItem(i, 3, product_expire_dt)
@@ -640,19 +658,19 @@ class MyProductController:
 
             self.v.product_overview_table.setItem(i, 14, datetime_created)
 
-            self.v.edit_product_data_button.clicked.connect(lambda _, data=data: self.on_edit_product_data_button_clicked(data))
-            self.v.view_product_data_button.clicked.connect(lambda _, data=data: self.on_view_product_data_button_clicked(data))
-            self.v.delete_product_data_button.clicked.connect(lambda _, data=data: self.on_delete_product_data_button_clicked(data))
+            self.v.edit_data_button.clicked.connect(lambda _, data=data: self.on_edit_data_button_clicked(data))
+            self.v.view_data_button.clicked.connect(lambda _, data=data: self.on_view_data_button_clicked(data))
+            self.v.delete_data_button.clicked.connect(lambda _, data=data: self.on_delete_data_button_clicked(data))
         pass
-    def on_edit_product_data_button_clicked(self, data):
+    def on_edit_data_button_clicked(self, data):
         self.v.set_manage_product_data_box()
         self.load_combo_box_data()
         self.v.manage_product_data_dialog.setWindowTitle(f"{data[1]}")
 
         self.v.promo_field_box.show()
-        self.set_category_field_disabled(True)
+        # self.set_category_field_disabled(True)
         self.set_promo_field_hidden(True)
-
+        self.set_price_type_field_hidden(True)
         sel_product_data = schema.select_product_data(data[0], data[1])
 
         for i, sel_data in enumerate(sel_product_data):
@@ -676,16 +694,25 @@ class MyProductController:
             self.m.sel_product_stock_id = sel_data[12] # NOTE: becomes 0 if NoneType. Check 'product.py'
             self.m.sel_product_promo_id = sel_data[13]
 
-            print('product_id:',self.m.sel_product_id)
-            print('product_price_id:',self.m.sel_product_price_id)
-            print('product_stock_id:',self.m.sel_product_stock_id)
-            print('product_promo_id:',self.m.sel_product_promo_id)
             pass
         
         self.set_manage_product_data_box_conn(task='edit_data')
         self.v.manage_product_data_dialog.exec()
         pass
-    def on_view_product_data_button_clicked(self, data):
+
+    def set_price_type_field_hidden(self, hidden):
+        if hidden is True:
+            self.v.product_price_label.show()
+            self.v.product_price_field.show()
+        else:
+            self.v.product_price_label.hide()
+            self.v.product_price_field.hide()
+        self.v.product_retail_price_label.setHidden(hidden)
+        self.v.product_retail_price_field.setHidden(hidden)
+        self.v.product_wholesale_price_label.setHidden(hidden)
+        self.v.product_wholesale_price_field.setHidden(hidden)
+
+    def on_view_data_button_clicked(self, data):
         self.v.set_view_dialog()
         self.v.view_data_dialog.setWindowTitle(f"{data[1]}")
 
@@ -711,17 +738,14 @@ class MyProductController:
         pass
     def set_view_product_data_box_conn(self):
         self.v.view_data_act_close_button.clicked.connect(lambda: self.close_dialog(self.v.view_data_dialog))
-    def on_delete_product_data_button_clicked(self, data):
+    def on_delete_data_button_clicked(self, data):
         sel_product_data = schema.select_product_data(data[0], data[1])
-        print(sel_product_data)
 
         for i, sel_data in enumerate(sel_product_data):
             product_name = sel_data[1]
             product_effective_dt = sel_data[9]
             product_price_id = sel_data[11]
 
-        print('PRODUCT_NAME:', product_name)
-        print('PRODUCT_PRICE_ID:', product_price_id)
 
         confirm = QMessageBox.warning(self.v, 'Confirm', f"Delete {product_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
@@ -772,9 +796,6 @@ class MyProductController:
         self.m.sel_product_stock_id = data[5]
         self.m.sel_product_id = data[6]
 
-        print(data)
-        print('self.sel_product_stock_id :', self.m.sel_product_stock_id )
-        print('self.sel_product_id :', self.m.sel_product_id )
 
         self.set_manage_stock_data_conn()
 
@@ -843,7 +864,7 @@ class MyProductController:
         self.v.product_price_field.textChanged.connect(self.on_product_price_field_text_changed)
         self.v.product_promo_name_field.currentTextChanged.connect(self.on_product_promo_name_field_current_text_changed)
 
-        self.v.save_product_data_button.clicked.connect(lambda: self.on_save_product_data_button_clicked(task))
+        self.v.save_product_data_button.clicked.connect(lambda: self.on_save_data_button_clicked(task))
         self.v.manage_product_data_act_close_button.clicked.connect(lambda: self.close_dialog(self.v.manage_product_data_dialog))
         pass
     def load_combo_box_data(self):
@@ -931,7 +952,7 @@ class MyProductController:
         self.v.product_start_dt_field.setHidden(hidden)
         self.v.product_end_dt_field.setHidden(hidden)
         pass
-    def on_save_product_data_button_clicked(self, task):
+    def on_save_data_button_clicked(self, task):
         product_barcode = self.v.product_barcode_field.text()
         product_name = self.v.product_name_field.text()
         product_expire_dt = self.v.product_expire_dt_field.date().toString(Qt.DateFormat.ISODate)
