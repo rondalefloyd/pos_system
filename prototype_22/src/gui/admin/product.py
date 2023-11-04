@@ -61,6 +61,8 @@ class MyProductModel:
             product_supplier, 
 
             product_cost, 
+            product_retail_price, # FIXME: HERE
+            product_wholesale_price, # FIXME: HERE
             product_price, 
             product_effective_dt, 
             product_promo_name, 
@@ -963,6 +965,8 @@ class MyProductController:
         product_supplier = self.v.product_supplier_field.currentText()
 
         product_cost = self.v.product_cost_field.text()
+        product_retail_price = self.v.product_retail_price_field.text()
+        product_wholesale_price = self.v.product_wholesale_price_field.text()
         product_price = self.v.product_price_field.text()
         product_effective_dt = self.v.product_effective_dt_field.date().toString(Qt.DateFormat.ISODate)
         product_promo_name = self.v.product_promo_name_field.currentText()
@@ -996,6 +1000,8 @@ class MyProductController:
             product_supplier,
 
             product_cost,
+            product_retail_price,
+            product_wholesale_price,
             product_price,
             product_effective_dt,
             product_promo_name,
