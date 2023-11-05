@@ -206,11 +206,9 @@ class MyDialog(QDialog):
     def on_global_dialog(self):
         self.setMinimumWidth(300)
 
-        if self.object_name == 'updater_progress_dialog':
+        if self.object_name in ['updater_progress_dialog','progress_dialog']:
             self.setMinimumWidth(250)
-
-        if self.object_name == 'progress_dialog':
-            self.setMinimumWidth(250)
+            self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowCloseButtonHint)
         pass
 
     def on_login_dialog(self):
@@ -231,6 +229,13 @@ class MyDialog(QDialog):
     def on_close_signal(self, text):
         self.close_signal_value = text
 
+    def keyPressEvent(self, event):
+        if self.object_name in ['updater_progress_dialog','progress_dialog']:
+            if event.key() == Qt.Key.Key_Escape:
+                event.ignore()
+            else:
+                super().keyPressEvent(event)
+
     def closeEvent(self, event: QKeyEvent):
         print('CLOSE SIGNAL:', self.close_signal_value)
         if self.object_name == 'MyLoginView':
@@ -244,13 +249,8 @@ class MyDialog(QDialog):
             if self.close_signal_value == 'finished':
                 event.accept()
             else:
-                confirm = QMessageBox.question(self, 'Confirm', 'Do you want to cancel this update and proceed?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-
-                if confirm == QMessageBox.StandardButton.Yes:
-                    event.accept()
-                else:
-                    event.ignore()
-                    pass
+                event.ignore()
+                pass
                 
             pass
 

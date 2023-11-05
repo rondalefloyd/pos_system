@@ -160,7 +160,6 @@ class MyProductSchema:
             product_stock_available=0,    
             product_stock_onhand=0,
     ):
-        print('insert new:', product_sales_group)
         self.sales_cursor.execute(f"""
             INSERT INTO ItemType (Name)
             SELECT "{product_type}" WHERE NOT EXISTS (SELECT 1 FROM ItemType WHERE Name = "{product_type}")
@@ -890,7 +889,6 @@ class MyProductSchema:
             WHERE ItemPriceId = {product_price_id} AND EffectiveDt > CURRENT_DATE
         """)
 
-        print('product_price_id:', product_price_id)
 
         self.sales_conn.commit()
     def delete_stock_data(self, stock_id, stock_product_id):

@@ -108,7 +108,7 @@ class MyPromoView(MyWidget):
         self.add_data_button = MyPushButton(object_name='add_data_button', text='Add')
         self.manage_data_box = MyGroupBox(object_name='manage_data_box')
         self.manage_data_layout = MyHBoxLayout(object_name='manage_data_layout')
-        self.manage_data_layout.addWidget(self.import_data_button)
+        # self.manage_data_layout.addWidget(self.import_data_button)
         self.manage_data_layout.addWidget(self.add_data_button)
         self.manage_data_box.setLayout(self.manage_data_layout)
 
