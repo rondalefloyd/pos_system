@@ -161,7 +161,7 @@ class MyProductModel:
                     print('product_price:', product_price)
                     print('insert 2 done')
                     QMessageBox.information(dialog, 'Success', 'Product added.')
-                    dialog.close()
+                    # dialog.close()
                     pass
                 elif task == 'edit_data':
                     schema.insert_edited_product_data(

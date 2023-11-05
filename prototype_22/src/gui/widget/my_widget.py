@@ -1197,7 +1197,9 @@ class MyPushButton(QPushButton):
             if self.object_name == 'print_receipt_button': self.setIcon(QIcon(qss.print_receipt_icon))
             if self.object_name == 'add_new_order_button': self.setIcon(QIcon(qss.add_order_icon))
 
-            if self.object_name in ['close_button','save_button']: self.setFixedWidth(80)
+            if self.object_name in ['close_button','save_button']: 
+                self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+                self.setFixedWidth(80)
 
     def on_pos_push_button(self):
         if self.object_name in [

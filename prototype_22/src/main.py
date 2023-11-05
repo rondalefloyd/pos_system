@@ -23,7 +23,7 @@ def error_tracer(error_exception):
         ERROR_TRACEBACK: {error_traceback}
 
     """)
-    with open(f"main_{date.today()}_error_log.txt", 'a') as file: 
+    with open(f"main_error_log.txt", 'a') as file: 
         file.write(error_layout)
 
 def export_gsheet_as_csv():
@@ -31,7 +31,7 @@ def export_gsheet_as_csv():
         file_path = r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/core/smpos-403608-aa14a49badc1.json'
 
         google_console = gspread.service_account(filename=file_path)
-        spreadsheet = google_console.open('test_data')
+        spreadsheet = google_console.open('item_list')
         worksheet = spreadsheet.get_worksheet(0) 
         data = worksheet.get_all_records()
 
