@@ -932,11 +932,12 @@ class MyPlainTextEdit(QPlainTextEdit):
         self.object_name = object_name
         self.setObjectName(object_name)
         self.setFont(QFont(qss.global_font))
+        self.on_global_plain_text_edit()
         self.on_transaction_plain_text_edit()
 
     def on_global_plain_text_edit(self):
         self.setStyleSheet(f"""
-            QPlainTextEdit {{ border: 1px solid {qss.default_line_color}; border-radius: 3px; padding: 9px}}
+            QPlainTextEdit {{ background-color: {qss.default_panel_color}; border: 1px solid {qss.default_line_color}; border-radius: 3px; padding: 9px}}
         """)
 
     def on_transaction_plain_text_edit(self):
