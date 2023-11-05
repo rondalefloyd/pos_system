@@ -987,6 +987,8 @@ class MyProductController:
             self.v.product_sales_group_label,
             self.v.product_supplier_label,
             self.v.product_cost_label,
+            self.v.product_retail_price_label,
+            self.v.product_wholesale_price_label,
             self.v.product_price_label,
             self.v.product_effective_dt_label,
 
