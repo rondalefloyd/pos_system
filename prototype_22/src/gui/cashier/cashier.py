@@ -11,12 +11,16 @@ sys.path.append(r'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22
 
 from src.gui.cashier.pos import MyPOSWindow
 from src.gui.cashier.transaction import MyTXNWindow
+from src.gui.admin.product import MyProductWindow
+from src.gui.admin.customer import MyCustomerWindow
 from src.gui.widget.my_widget import *
 
 class MyCashierModel:
-    def __init__(self, user, phone):
+    def __init__(self, user, password, phone, level):
         self.user = user
+        self.password = password
         self.phone = phone
+        self.level = int(level)
         pass
 class MyCashierView(MyWidget):
     def __init__(self, model: MyCashierModel):
@@ -41,25 +45,44 @@ class MyCashierView(MyWidget):
     def set_navbar_box(self):
         self.pos_page_button = MyPushButton(object_name='pos_page_button', text='  POS', disabled=True)
         self.transaction_page_button = MyPushButton(object_name='transaction_page_button', text='  Transaction')
+        self.product_page_button = MyPushButton(object_name='product_page_button', text='  Product')
+        self.customer_page_button = MyPushButton(object_name='customer_page_button', text='  Customer')
         self.logout_button = MyPushButton(object_name='logout_button', text='  Logout')
         self.navbar_box = MyGroupBox(object_name='navbar_box')
         self.navbar_layout = MyVBoxLayout(object_name='navbar_layout')
         self.navbar_layout.addWidget(self.pos_page_button)
         self.navbar_layout.addWidget(self.transaction_page_button)
+        self.navbar_layout.addWidget(self.product_page_button)
+        self.navbar_layout.addWidget(self.customer_page_button)
         self.navbar_layout.addWidget(self.logout_button)
         self.navbar_box.setLayout(self.navbar_layout)
         self.navbar_scra = MyScrollArea(object_name='navbar_scra')
         self.navbar_scra.setWidget(self.navbar_box)
+
+        print('self.m.level:', type(self.m.level), self.m.level)
+        if self.m.level == 1: 
+            print('self.m.level:', self.m.level)
+            self.customer_page_button.hide()
+        elif self.m.level == 2: 
+            print('self.m.level:', self.m.level)
+            self.customer_page_button.show()
+        elif self.m.level == 3: 
+            print('self.m.level:', self.m.level)
+            self.customer_page_button.show()
+
         pass
     
     def set_page_stcw(self):
-        self.pos_page_window = MyPOSWindow(self.m.user, self.m.phone)
-        self.transaction_page_window = MyTXNWindow(self.m.user, self.m.phone)
-        self.settings_page_window = MyGroupBox()
+        self.pos_page_window = MyPOSWindow(self.m.user, self.m.password, self.m.phone)
+        self.transaction_page_window = MyTXNWindow(self.m.user, self.m.password, self.m.phone)
+        self.product_page_window = MyProductWindow(self.m.user)
+        self.customer_page_window = MyCustomerWindow(self.m.user, self.m.level)
+
         self.page_stcw = MyStackedWidget()
         self.page_stcw.addWidget(self.pos_page_window)
         self.page_stcw.addWidget(self.transaction_page_window)
-        self.page_stcw.addWidget(self.settings_page_window)
+        self.page_stcw.addWidget(self.product_page_window)
+        self.page_stcw.addWidget(self.customer_page_window)
 
     def set_extra_info_box(self):
         self.current_cashier_label = MyLabel(object_name='current_cashier_label', text=f"Cashier: {self.m.user}")
@@ -80,6 +103,8 @@ class MyCashierController:
     def set_navbar_box_conn(self):
         self.v.pos_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=0))
         self.v.transaction_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=1))
+        self.v.product_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=2))
+        self.v.customer_page_button.clicked.connect(lambda: self.on_page_button_clicked(index=3))
         self.v.logout_button.clicked.connect(self.on_logout_button_clicked)
 
     def on_page_button_clicked(self, index):
@@ -87,9 +112,13 @@ class MyCashierController:
 
         self.v.pos_page_window.controller.sync_ui_handler() if index == 0 else None
         self.v.transaction_page_window.controller.sync_ui() if index == 1 else None
+        self.v.product_page_window.controller.sync_ui() if index == 2 else None
+        self.v.customer_page_window.controller.sync_ui() if index == 3 else None
 
         self.v.pos_page_button.setDisabled(index == 0)
         self.v.transaction_page_button.setDisabled(index == 1)
+        self.v.product_page_button.setDisabled(index == 2)
+        self.v.customer_page_button.setDisabled(index == 3)
 
     def on_logout_button_clicked(self):
         confirm = QMessageBox.question(self.v, 'Confirm', 'Are you sure you want to logout?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
@@ -99,8 +128,8 @@ class MyCashierController:
             self.v.close()
 
 class MyCashierWindow:
-    def __init__(self, user='test', phone='test'):
-        self.model = MyCashierModel(user, phone)
+    def __init__(self, user='test', password='test', phone='test', level=0):
+        self.model = MyCashierModel(user, password, phone, level)
         self.view = MyCashierView(self.model)
         self.controller = MyCashierController(self.model, self.view)
 
@@ -111,7 +140,7 @@ class MyCashierWindow:
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)
-    cashier_window = MyCashierWindow(user=sys.argv[1], phone=sys.argv[2])
+    cashier_window = MyCashierWindow(user=sys.argv[1], password=sys.argv[2], phone=sys.argv[3], level=sys.argv[4])
     # cashier_window = MyCashierWindow(user='test', phone='test') # for testing only
 
     cashier_window.run()

@@ -153,15 +153,17 @@ class MyDataImportThread(QThread):
 
         product_expire_dt = product_expire_dt or '9999-99-99'
 
+        if product_name == '': return
 
-        if product_brand == '':
-            return
-        if product_sales_group not in ['Retail', 'Wholesale']:
-            return # which means considered as error
-        if product_supplier == '':
-            return
+        if product_brand == '': return
+        if product_sales_group not in ['Retail', 'Wholesale']: return # which means considered as error
+        if product_supplier == '': return
+        
+        if product_cost.replace('.', '', 1).isdigit() == False: return
+        if product_price.replace('.', '', 1).isdigit() == False: return
+        if product_effective_dt == '': return
 
-        if product_stock_available > 0 or product_stock_onhand >0:
+        if product_stock_available > 0 or product_stock_onhand > 0:
             product_stock_tracking = True
         else:
             product_stock_tracking = False

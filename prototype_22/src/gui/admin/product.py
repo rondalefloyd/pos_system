@@ -48,6 +48,8 @@ class MyProductModel:
             product_sales_group_label, 
             product_supplier_label, 
             product_cost_label, 
+            product_retail_price_label,
+            product_wholesale_price_label,
             product_price_label, 
             product_effective_dt_label, 
             
@@ -75,25 +77,35 @@ class MyProductModel:
 
             product_stock_tracking=False,
     ):
+        print('product_sales_group:', product_sales_group)
         if '' not in [
             product_name,
             product_brand,
             product_sales_group,
             product_supplier,
             product_cost,
+            product_retail_price,
+            product_wholesale_price,
             product_price,
             product_effective_dt,
         ]:
-            if (product_cost.replace('.', '', 1).isdigit() and product_price.replace('.', '', 1).isdigit()):
+            if (product_cost.replace('.', '', 1).isdigit() and 
+                (product_retail_price.replace('.', '', 1).isdigit() and product_wholesale_price.replace('.', '', 1).isdigit()) or
+                product_price.replace('.', '', 1).isdigit()):
+
                 product_name_label.setText(f"Name")
                 product_brand_label.setText(f"Brand")
                 product_sales_group_label.setText(f"Sales group")
                 product_supplier_label.setText(f"Supplier")
                 product_cost_label.setText(f"Cost")
-                product_price_label.setText(f"Price")
+                product_retail_price_label.setText(f"Retail price"),
+                product_wholesale_price_label.setText(f"Wholesale price"),
+                product_price_label.setText(f"Price"),
                 product_effective_dt_label.setText(f"Effective date")
 
+                # FIXME: wholesale not showing due to RANK
                 if task == 'add_data':
+                    product_sales_group = "Retail"
                     schema.insert_product_data(
                         product_barcode,
                         product_name,
@@ -105,7 +117,7 @@ class MyProductModel:
                         product_supplier,
 
                         product_cost,
-                        product_price,
+                        product_retail_price, # <-- retail
                         product_effective_dt,
                         product_promo_name,
                         product_promo_type,
@@ -117,11 +129,42 @@ class MyProductModel:
 
                         product_stock_tracking,
                     )
+
+                    product_sales_group = "Wholesale"
+                    schema.insert_product_data(
+                        product_barcode,
+                        product_name,
+                        product_expire_dt,
+
+                        product_type,
+                        product_brand,
+                        product_sales_group,
+                        product_supplier,
+
+                        product_cost,
+                        product_wholesale_price, # <-- wholesale
+                        product_effective_dt,
+                        product_promo_name,
+                        product_promo_type,
+                        product_disc_value,
+                        product_promo_percent,
+                        product_new_price,
+                        product_start_dt,
+                        product_end_dt,
+
+                        product_stock_tracking,
+                    )
+
+                    print('product_sales_group:', product_sales_group)
+                    print('product_retail_price:', product_retail_price)
+                    print('product_wholesale_price:', product_wholesale_price)
+                    print('product_price:', product_price)
+                    print('insert 2 done')
                     QMessageBox.information(dialog, 'Success', 'Product added.')
                     dialog.close()
                     pass
                 elif task == 'edit_data':
-                    schema.update_product_data(
+                    schema.insert_edited_product_data(
                         product_barcode,
                         product_name,
                         product_expire_dt,
@@ -163,7 +206,8 @@ class MyProductModel:
                 product_brand_label.setText(f"Brand")
                 product_sales_group_label.setText(f"Sales group")
                 product_supplier_label.setText(f"Supplier")
-                product_cost_label.setText(f"Cost {qss.inv_field_indicator}") if product_cost.replace('.', '', 1).isdigit() is False else product_cost_label.setText(f"Cost")
+                product_retail_price_label.setText(f"Retail price {qss.inv_field_indicator}") if product_retail_price.replace('.', '', 1).isdigit() is False else product_retail_price_label.setText(f"Retail price")
+                product_wholesale_price_label.setText(f"Wholesale price {qss.inv_field_indicator}") if product_wholesale_price.replace('.', '', 1).isdigit() is False else product_wholesale_price_label.setText(f"Wholesale price")
                 product_price_label.setText(f"Price {qss.inv_field_indicator}") if product_price.replace('.', '', 1).isdigit() is False else product_price_label.setText(f"Price")
                 product_effective_dt_label.setText(f"Effective date")
 
@@ -174,6 +218,8 @@ class MyProductModel:
             product_sales_group_label.setText(f"Sales group {qss.req_field_indicator}") if product_sales_group == '' else product_sales_group_label.setText(f"Sales group")
             product_supplier_label.setText(f"Supplier {qss.req_field_indicator}") if product_supplier == '' else product_supplier_label.setText(f"Supplier")
             product_cost_label.setText(f"Cost {qss.inv_field_indicator}") if product_cost.replace('.', '', 1).isdigit() is False else product_cost_label.setText(f"Cost")
+            product_retail_price_label.setText(f"Retail price {qss.inv_field_indicator}") if product_retail_price.replace('.', '', 1).isdigit() is False else product_retail_price_label.setText(f"Retail price")
+            product_wholesale_price_label.setText(f"Wholesale price {qss.inv_field_indicator}") if product_wholesale_price.replace('.', '', 1).isdigit() is False else product_wholesale_price_label.setText(f"Wholesale price")
             product_price_label.setText(f"Price {qss.inv_field_indicator}") if product_price.replace('.', '', 1).isdigit() is False else product_price_label.setText(f"Price")
             product_effective_dt_label.setText(f"Effective date {qss.req_field_indicator}") if product_effective_dt == '' else product_effective_dt_label.setText(f"Effective date")
 
@@ -261,7 +307,7 @@ class MyProductView(MyWidget):
         
         self.product_sort_tab = MyTabWidget()
         self.product_sort_tab.addTab(self.product_overview_box, 'Overview')
-        self.product_sort_tab.addTab(self.product_stock_box, 'Inventory')
+        # self.product_sort_tab.addTab(self.product_stock_box, 'Inventory') # NOTE: unavailable for now
 
         self.main_layout = MyVBoxLayout()
         self.main_layout.addWidget(self.product_act_box)
@@ -299,10 +345,10 @@ class MyProductView(MyWidget):
         self.category_field_layout.addWidget(self.product_type_field,1,0)
         self.category_field_layout.addWidget(self.product_brand_label,2,0)
         self.category_field_layout.addWidget(self.product_brand_field,3,0)
-        self.category_field_layout.addWidget(self.product_sales_group_label,0,1)
-        self.category_field_layout.addWidget(self.product_sales_group_field,1,1)
-        self.category_field_layout.addWidget(self.product_supplier_label,2,1)
-        self.category_field_layout.addWidget(self.product_supplier_field,3,1)
+        self.category_field_layout.addWidget(self.product_supplier_label,0,1)
+        self.category_field_layout.addWidget(self.product_supplier_field,1,1)
+        self.category_field_layout.addWidget(self.product_sales_group_label,2,1)
+        self.category_field_layout.addWidget(self.product_sales_group_field,3,1)
         self.category_field_box.setLayout(self.category_field_layout)
 
         self.product_cost_label = MyLabel(text='Cost')
@@ -388,7 +434,7 @@ class MyProductView(MyWidget):
         self.manage_product_data_act_close_button = MyPushButton(object_name='close_button', text='Close')
         self.manage_product_data_act_box = MyGroupBox(object_name='manage_data_act_box')
         self.manage_product_data_act_layout = MyHBoxLayout(object_name='manage_data_act_layout')
-        self.manage_product_data_act_layout.addWidget(self.product_stock_tracking_field)
+        # self.manage_product_data_act_layout.addWidget(self.product_stock_tracking_field) # NOTE: unavailable for now
         self.manage_product_data_act_layout.addWidget(self.save_product_data_button,1,Qt.AlignmentFlag.AlignRight)
         self.manage_product_data_act_layout.addWidget(self.manage_product_data_act_close_button)
         self.manage_product_data_act_box.setLayout(self.manage_product_data_act_layout)
@@ -614,12 +660,11 @@ class MyProductController:
         for i, data in enumerate(product_data):
             self.v.set_overview_table_act_box()
 
-            if datetime.strptime(str(data[9]), "%Y-%m-%d") <= datetime.today(): 
-                self.v.edit_data_button.hide()
+            effective_dt = datetime.strptime(str(data[9]), "%Y-%m-%d")
+            if effective_dt <= datetime.today():
                 self.v.delete_data_button.hide() # NOTE: temporarily unavailable
 
             flag = True  if data[10] is not None else False # if has promo, set flag (to make the item's foreground red)
-
 
             product_barcode = MyTableWidgetItem(text=f"{data[0]}", has_promo=flag)
             product_name = MyTableWidgetItem(text=f"{data[1]}", has_promo=flag)
@@ -704,11 +749,16 @@ class MyProductController:
 
     def set_price_type_field_hidden(self, hidden):
         if hidden is True:
+            self.v.product_sales_group_label.show()
+            self.v.product_sales_group_field.show()
             self.v.product_price_label.show()
             self.v.product_price_field.show()
         else:
+            self.v.product_sales_group_label.hide()
+            self.v.product_sales_group_field.hide()
             self.v.product_price_label.hide()
             self.v.product_price_field.hide()
+
         self.v.product_retail_price_label.setHidden(hidden)
         self.v.product_retail_price_field.setHidden(hidden)
         self.v.product_wholesale_price_label.setHidden(hidden)

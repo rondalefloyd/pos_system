@@ -145,7 +145,7 @@ class MyGroupBox(QGroupBox):
             QGroupBox#payment_c_box,
             QGroupBox#view_data_act_box,
             QGroupBox#transaction_complete_act_b_box {{ background-color: {qss.default_panel_color}; border-top: 1px solid {qss.default_line_color} }}
-
+            
             QGroupBox#txn_complete_summary_box {{ padding: 20px }}
         """)
 
@@ -167,18 +167,19 @@ class MyGroupBox(QGroupBox):
         pass
 
     def on_pos_group_box(self):
-        if self.object_name == 'MyPOSView':
+        if self.object_name in [
+            'MyPOSView',
+            'order_empty_tab_box',
+            'txn_complete_summary_box',
+            'transaction_info_box',
+            'pay_order_a_box'
+        ]: 
             self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-            pass
-        if self.object_name == 'product_cell_display_box':
-            pass
-
+        if self.object_name == 'final_order_summary_box': self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         if self.object_name == 'manage_order_box':
             self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             self.setMaximumWidth(450)
         
-        if self.object_name in ['order_empty_tab_box','txn_complete_summary_box']:
-            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         pass
 class MyDialog(QDialog):
     close_signal = pyqtSignal(str)
@@ -260,6 +261,7 @@ class MyTableWidget(QTableWidget):
         self.object_name = object_name
         self.setObjectName(object_name)
         self.setFont(QFont(qss.global_font))
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.horizontalHeader().setFont(QFont(qss.global_font))
         self.verticalHeader().setFont(QFont(qss.global_font))
 
@@ -377,7 +379,8 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
             self.horizontalHeader().resizeSection(0, 175)
             self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+            self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
+            self.horizontalHeader().resizeSection(2, 400)
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
@@ -727,7 +730,7 @@ class MyLabel(QLabel):
                 'final_order_total_display',
             ]:
                 self.setStyleSheet(f"""
-                    QLabel#{self.object_name} {{ font-weight: bold; font-size: 18px }}
+                    QLabel#{self.object_name} {{ font-weight: bold; font-size: 25px }}
                 """)
 
         if self.object_name in [

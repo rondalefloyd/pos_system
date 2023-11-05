@@ -412,6 +412,7 @@ class MyUserController:
 
         self.v.user_level_field.addItem('1')
         self.v.user_level_field.addItem('2')
+        self.v.user_level_field.addItem('3')
         pass
     def on_save_data_button_clicked(self, task):
         user_name = self.v.user_name_field.text()

@@ -103,14 +103,30 @@ class MyLoginController:
             user_phone = user_data[2]
 
 
-            if user_id > 0 and user_level == 1:
+            if user_id > 0 and user_level <= 2:
                 self.view.close()
-                cashier_window_process = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/gui/cashier/cashier.py', str(user_name), str(user_phone)])
+                cashier_window_process = subprocess.run([
+                    'python', 
+                    '-Xfrozen_modules=off', 
+                    'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/gui/cashier/cashier.py', 
+                    str(user_name), 
+                    str(user_password), 
+                    str(user_phone), 
+                    str(user_level)
+                ])
                 return True
                 pass
-            elif user_id > 0 and user_level == 2:
+            elif user_id > 0 and user_level == 3:
                 self.view.close()
-                admin_window_process = subprocess.run(['python', '-Xfrozen_modules=off', 'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/gui/admin/admin.py', str(user_name), str(user_phone)])
+                admin_window_process = subprocess.run([
+                    'python', 
+                    '-Xfrozen_modules=off', 
+                    'C:/Users/feebee store/Documents/GitHub/pos_system/prototype_22/src/gui/admin/admin.py', 
+                    str(user_name), 
+                    str(user_password), 
+                    str(user_phone),
+                    str(user_level)
+                ])
                 pass
             else:
                 QMessageBox.critical(self.view, 'Error', 'User not found.')
@@ -155,8 +171,7 @@ class MyLoginController:
 
         self.view.reg_user_access_level_field.addItem('1')
         self.view.reg_user_access_level_field.addItem('2')
-
-        for user_name in user_name_data: self.view.reg_user_name_field.addItems(user_name)
+        self.view.reg_user_access_level_field.addItem('3')
         pass
 
     def clear_login_field(self):

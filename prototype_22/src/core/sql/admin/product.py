@@ -141,11 +141,11 @@ class MyProductSchema:
 
             product_type='',
             product_brand='',
-            product_sales_group='Retail',
+            product_sales_group='',
             product_supplier='',
 
             product_cost='',
-            product_price='',
+            product_price=0,
             product_effective_dt=date.today(),
             product_promo_name='No promo',
             product_promo_type='',
@@ -160,6 +160,7 @@ class MyProductSchema:
             product_stock_available=0,    
             product_stock_onhand=0,
     ):
+        print('insert new:', product_sales_group)
         self.sales_cursor.execute(f"""
             INSERT INTO ItemType (Name)
             SELECT "{product_type}" WHERE NOT EXISTS (SELECT 1 FROM ItemType WHERE Name = "{product_type}")
@@ -183,19 +184,16 @@ class MyProductSchema:
             WHERE Name = "{product_type}"
         """)
         product_type_id = self.sales_cursor.fetchone()[0]
-        
         product_brand_id = self.sales_cursor.execute(f"""
             SELECT BrandId FROM Brand
             WHERE Name = "{product_brand}"
         """)
         product_brand_id = self.sales_cursor.fetchone()[0]
-        
         product_sales_group_id = self.sales_cursor.execute(f"""
             SELECT SalesGroupId FROM SalesGroup
             WHERE Name = "{product_sales_group}"
         """)
         product_sales_group_id = self.sales_cursor.fetchone()[0]
-        
         product_supplier_id = self.sales_cursor.execute(f"""
             SELECT SupplierId FROM Supplier
             WHERE Name = "{product_supplier}"
@@ -204,30 +202,31 @@ class MyProductSchema:
 
         self.sales_cursor.execute(f"""
             INSERT INTO Item (Barcode, Name, ExpireDt, ItemTypeId, BrandId, SalesGroupId, SupplierId)
-            SELECT 
-                "{product_barcode}", 
-                "{product_name}", 
-                "{product_expire_dt}", 
-                "{product_type_id}", 
-                "{product_brand_id}", 
-                "{product_sales_group_id}", 
-                "{product_supplier_id}"
+            SELECT
+                "{product_barcode}",
+                "{product_name}",
+                "{product_expire_dt}",
+                {product_type_id},
+                {product_brand_id},
+                {product_sales_group_id},
+                {product_supplier_id}
             WHERE NOT EXISTS (
-                SELECT 1 FROM Item 
-                WHERE 
+                SELECT 1 FROM Item
+                WHERE
                     Barcode = "{product_barcode}" AND
                     Name = "{product_name}" AND
                     ExpireDt = "{product_expire_dt}" AND
-                    ItemTypeId = "{product_type_id}" AND
-                    BrandId = "{product_brand_id}" AND
-                    SalesGroupId = "{product_sales_group_id}" AND
-                    SupplierId = "{product_supplier_id}"
+                    ItemTypeId = {product_type_id} AND
+                    BrandId = {product_brand_id} AND
+                    SalesGroupId = {product_sales_group_id} AND
+                    SupplierId = {product_supplier_id}
             )
         """)
 
         product_id = self.sales_cursor.execute(f"""
             SELECT ItemId FROM Item
-            WHERE Name = "{product_name}"
+            LEFT JOIN SalesGroup ON Item.SalesGroupId = SalesGroup.SalesGroupId
+            WHERE Item.Name = "{product_name}" AND SalesGroup.Name = "{product_sales_group}"
         """)
         product_id = self.sales_cursor.fetchone()[0]
 
@@ -344,7 +343,7 @@ class MyProductSchema:
                     COALESCE(NULLIF(Item.ItemId, ''), 0),
                     COALESCE(NULLIF(ItemPrice.ItemPriceId, ''), 0),
 
-                    ROW_NUMBER() OVER (PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                    ROW_NUMBER() OVER (PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC) AS RowNumber
                 FROM ItemPrice
                 LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                 LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -411,7 +410,6 @@ class MyProductSchema:
         product_data = self.sales_cursor.fetchall()
 
         return product_data
-    
 
     def select_product_data_total_page_count(self, text='', page_size=30):
         self.sales_cursor.execute(f"""
@@ -436,7 +434,7 @@ class MyProductSchema:
                             
                     ItemPrice.UpdateTs,
                     
-                    ROW_NUMBER() OVER (PARTITION BY Item.Name ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC) AS RowNumber
+                    ROW_NUMBER() OVER (PARTITION BY ItemPrice.ItemPriceId ORDER BY ItemPrice.ItemPriceId DESC, ItemPrice.EffectiveDt DESC, ItemPrice.UpdateTs DESC) AS RowNumber -- #FIXME
                 FROM ItemPrice
                 LEFT JOIN Item ON ItemPrice.ItemId = Item.ItemId
                 LEFT JOIN ItemType ON Item.ItemTypeId = ItemType.ItemTypeId
@@ -456,7 +454,6 @@ class MyProductSchema:
                     ItemPrice.UpdateTs LIKE "%{text}%"
             )
             SELECT COUNT(*) FROM RankedProduct 
-            WHERE RowNumber <= 2 
         """)
 
         total_product_data_count = self.sales_cursor.fetchone()[0]
@@ -613,7 +610,7 @@ class MyProductSchema:
 
         return product_id
 
-    def update_product_data(
+    def insert_edited_product_data(
             self, 
             product_barcode='',
             product_name='',
@@ -625,7 +622,7 @@ class MyProductSchema:
             product_supplier='',
 
             product_cost='',
-            product_price='',
+            product_price=0,
             product_effective_dt=date.today(),
             product_promo_name='No promo',
             product_promo_type='',
@@ -680,19 +677,6 @@ class MyProductSchema:
                 WHERE Name = "{product_supplier}"
             """)
             product_supplier_id = self.sales_cursor.fetchone()[0]
-
-            # self.sales_cursor.execute(f"""
-            #     UPDATE Item
-            #     SET
-            #         Barcode = "{product_barcode}",
-            #         Name = "{product_name}",
-            #         ExpireDt = "{product_expire_dt}",
-            #         ItemTypeId = {product_type_id},
-            #         BrandId = {product_brand_id},
-            #         SalesGroupId = {product_sales_group_id},
-            #         SupplierId = {product_supplier_id}
-            #     WHERE ItemId = {product_id}
-            # """)
 
             self.sales_cursor.execute(f"""
                 INSERT INTO Item (Barcode, Name, ExpireDt, ItemTypeId, BrandId, SalesGroupId, SupplierId)
@@ -777,21 +761,98 @@ class MyProductSchema:
             pass
         elif product_promo_id > 0 and product_promo_name == 'No promo':
             self.sales_cursor.execute(f"""
-                UPDATE Item
-                SET
-                    Barcode = "{product_barcode}",
-                    Name = "{product_name}",
-                    ExpireDt = "{product_expire_dt}"
-                WHERE ItemId = {product_id}
+                INSERT INTO ItemType (Name)
+                SELECT "{product_type}" WHERE NOT EXISTS (SELECT 1 FROM ItemType WHERE Name = "{product_type}")
+            """)
+            self.sales_cursor.execute(f"""
+                INSERT INTO Brand (Name)
+                SELECT "{product_brand}" WHERE NOT EXISTS (SELECT 1 FROM Brand WHERE Name = "{product_brand}")
+            """)
+            self.sales_cursor.execute(f"""
+                INSERT INTO SalesGroup (Name)
+                SELECT "{product_sales_group}" WHERE NOT EXISTS (SELECT 1 FROM SalesGroup WHERE Name = "{product_sales_group}")
+            """)
+            self.sales_cursor.execute(f"""
+                INSERT INTO Supplier (Name)
+                SELECT "{product_supplier}" WHERE NOT EXISTS (SELECT 1 FROM Supplier WHERE Name = "{product_supplier}")
             """)
 
+            product_type_id = self.sales_cursor.execute(f"""
+                SELECT ItemTypeId FROM ItemType
+                WHERE Name = "{product_type}"
+            """)
+            product_type_id = self.sales_cursor.fetchone()[0]
+            product_brand_id = self.sales_cursor.execute(f"""
+                SELECT BrandId FROM Brand
+                WHERE Name = "{product_brand}"
+            """)
+            product_brand_id = self.sales_cursor.fetchone()[0]
+            product_sales_group_id = self.sales_cursor.execute(f"""
+                SELECT SalesGroupId FROM SalesGroup
+                WHERE Name = "{product_sales_group}"
+            """)
+            product_sales_group_id = self.sales_cursor.fetchone()[0]
+            product_supplier_id = self.sales_cursor.execute(f"""
+                SELECT SupplierId FROM Supplier
+                WHERE Name = "{product_supplier}"
+            """)
+            product_supplier_id = self.sales_cursor.fetchone()[0]
+
             self.sales_cursor.execute(f"""
-                UPDATE ItemPrice
-                SET
-                    Cost = {product_cost},
-                    SellPrice = {product_price},
-                    EffectiveDt = "{product_effective_dt}"
-                WHERE ItemPriceId = {product_price_id}
+                INSERT INTO Item (Barcode, Name, ExpireDt, ItemTypeId, BrandId, SalesGroupId, SupplierId)
+                SELECT
+                    "{product_barcode}",
+                    "{product_name}",
+                    "{product_expire_dt}",
+                    {product_type_id},
+                    {product_brand_id},
+                    {product_sales_group_id},
+                    {product_supplier_id}
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM Item
+                    WHERE
+                        Barcode = "{product_barcode}" AND
+                        Name = "{product_name}" AND
+                        ExpireDt = "{product_expire_dt}" AND
+                        ItemTypeId = {product_type_id} AND
+                        BrandId = {product_brand_id} AND
+                        SalesGroupId = {product_sales_group_id} AND
+                        SupplierId = {product_supplier_id}
+                )
+            """)
+
+            product_id = self.sales_cursor.execute(f"""
+                SELECT ItemId FROM Item
+                WHERE
+                    Barcode = "{product_barcode}" AND
+                    Name = "{product_name}" AND
+                    ExpireDt = "{product_expire_dt}" AND
+                    ItemTypeId = {product_type_id} AND
+                    BrandId = {product_brand_id} AND
+                    SalesGroupId = {product_sales_group_id} AND
+                    SupplierId = {product_supplier_id}
+            """)
+            product_id = self.sales_cursor.fetchone()[0]
+
+            self.sales_cursor.execute(f"""
+                INSERT INTO ItemPrice (ItemId, EffectiveDt, Cost, SellPrice, PromoId, DiscountValue)
+                SELECT
+                    {product_id},
+                    "{product_effective_dt}",
+                    {product_cost},
+                    {product_price},    
+                    0,
+                    0
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM ItemPrice
+                    WHERE
+                        ItemId = {product_id} AND 
+                        EffectiveDt = "{product_effective_dt}" AND 
+                        Cost = {product_cost} AND 
+                        SellPrice = {product_price} AND 
+                        PromoId = 0 AND
+                        DiscountValue = 0
+                )
             """)
             pass  
 

@@ -22,8 +22,11 @@ pos_schema = MyPOSSchema()
 product_schema = MyProductSchema()
 
 class MyPOSModel:
-    def __init__(self, name, phone):
-        self.cashier_info = [name, phone] # NAME AND PHONE OF CASHIER
+    def __init__(self, name, password, phone):
+        self.cashier_info = [name, password, phone] # NAME AND PHONE OF CASHIER
+        print('cashier_info:', self.cashier_info[0])
+        print('cashier_info:', self.cashier_info[1])
+        print('cashier_info:', self.cashier_info[2])
 
         self.total_page_number = 0
         self.page_number = 1 if self.total_page_number > 0 else 0
@@ -111,31 +114,44 @@ class MyPOSModel:
             order_total, 
             payment_amount, 
             order_change, 
-            final_retail_order_table: QTableWidget,
-            final_wholesale_order_table: QTableWidget,
+            final_order_table: QTableWidget,
+            
+            payment_type,
+            cash_payment_amount,
+            points_payment_amount,
+            cash_points_payment_amount,
             current_date=QDate.currentDate().toString(Qt.DateFormat.ISODate)
     ):
         self.generate_transaction_info_entry(sales_group_id, customer_id)
         
         self.transaction_info = [self.transaction_date, self.ref, self.tin, self.min] # GENERATE STORE ADDRESS, TRANSACTION DATE, REF, TIN, MIN
 
-        self.final_retail_order_table = [] 
-        self.final_wholesale_order_table = []
+        self.payment_type = 0
+        self.cash_payment_amount = 0
+        self.points_payment_amount = 0
+        self.cash_points_payment_amount = [0,0]
+
+        self.payment_type = payment_type
+        self.cash_payment_amount = cash_payment_amount
+        self.points_payment_amount = points_payment_amount
+        self.cash_points_payment_amount = cash_points_payment_amount
+
+        self.final_order_table = []
         
-        if final_retail_order_table.rowCount() > 0:
-            for row_v in range(final_retail_order_table.rowCount()):
+        if final_order_table.rowCount() > 0:
+            for row_v in range(final_order_table.rowCount()):
 
-                product_qty = final_retail_order_table.item(row_v, 0).text()
-                product_name = final_retail_order_table.item(row_v, 1).text()
-                product_amount = final_retail_order_table.item(row_v, 2).text()
+                product_qty = final_order_table.item(row_v, 0).text()
+                product_name = final_order_table.item(row_v, 1).text()
+                product_amount = final_order_table.item(row_v, 2).text()
 
                 date_id = pos_schema.select_date_id_by_date_value(current_date)
                 product_id = pos_schema.select_product_id_by_name(product_name)
                 product_price_id = pos_schema.select_product_price_id_by_product_id(product_id)
                 product_stock_id = pos_schema.select_stock_id_by_item_id(product_id)
-                user_id = pos_schema.select_user_id_by_name(self.cashier_info[0])
+                user_id = pos_schema.select_user_id_by_name(self.cashier_info[0], self.cashier_info[1])
 
-                self.final_retail_order_table.append((product_qty, product_name, product_amount))
+                self.final_order_table.append((product_qty, product_name, product_amount))
 
                 pos_schema.insert_item_sold_data(
                     date_id=date_id,
@@ -149,36 +165,6 @@ class MyPOSModel:
                 )
 
                 pos_schema.update_stock_on_hand(product_id, product_stock_id, product_qty)
-
-
-        if final_wholesale_order_table.rowCount() > 0:
-            for row_v in range(final_wholesale_order_table.rowCount()):
-
-                product_qty = final_wholesale_order_table.item(row_v, 0).text()
-                product_name = final_wholesale_order_table.item(row_v, 1).text()
-                product_amount = final_wholesale_order_table.item(row_v, 2).text()
-
-                date_id = pos_schema.select_date_id_by_date_value(current_date)
-                product_id = pos_schema.select_product_id_by_name(product_name)
-                product_price_id = pos_schema.select_product_price_id_by_product_id(product_id)
-                product_stock_id = pos_schema.select_stock_id_by_item_id(product_id)
-                user_id = pos_schema.select_user_id_by_name(self.cashier_info[0])
-
-                self.final_wholesale_order_table.append((product_qty, product_name, product_amount))
-
-                pos_schema.insert_item_sold_data(
-                    date_id=date_id,
-                    customer_id=customer_id,
-                    product_price_id=product_price_id,
-                    product_stock_id=product_stock_id,
-                    user_id=user_id,
-                    product_qty=product_qty,
-                    product_amount=product_amount,
-                    reference_number=self.ref,
-                )
-
-                pos_schema.update_stock_on_hand(product_id, product_stock_id, product_qty)
-
 
         pos_schema.update_customer_reward_points_by_increment(customer_id, order_total)
 
@@ -473,11 +459,7 @@ class MyPOSView(MyGroupBox):
         self.order_table_act_box.setLayout(self.order_table_act_layout)
 
     def set_pay_order_dialog(self):
-        self.final_order_table = [
-            MyTableWidget(object_name='final_order_table'),
-            MyTableWidget(object_name='final_order_table')
-        ]
-        self.final_order_tab = MyTabWidget(object_name='final_order_tab')
+        self.final_order_table = MyTableWidget(object_name='final_order_table')
 
         self.final_order_subtotal_display = MyLabel(object_name='final_order_subtotal_display', text=f"{'test'}")
         self.final_order_discount_display = MyLabel(object_name='final_order_discount_display', text=f"{'test'}")
@@ -492,7 +474,7 @@ class MyPOSView(MyGroupBox):
         self.final_order_summary_box.setLayout(self.final_order_summary_layout)
         self.pay_order_a_box = MyGroupBox(object_name='pay_order_a_box')
         self.payment_a_layout = MyVBoxLayout(object_name='payment_a_layout')
-        self.payment_a_layout.addWidget(self.final_order_tab)
+        self.payment_a_layout.addWidget(self.final_order_table)
         self.payment_a_layout.addWidget(self.final_order_summary_box)
         self.pay_order_a_box.setLayout(self.payment_a_layout)
 
@@ -584,13 +566,13 @@ class MyPOSView(MyGroupBox):
         self.pay_order_dialog.setLayout(self.pay_order_layout)
 
     def setup_transaction_complete_dialog(self):
-        self.transaction_order_total_amount_label = MyLabel(object_name='transaction_order_total_amount_label', text='Order total amount')
+        self.transaction_order_total_amount_label = MyLabel(object_name='transaction_order_total_amount_label', text='Total amount')
         self.transaction_order_total_amount_display = MyLabel(object_name='transaction_order_total_amount_display', text=f"{'100.00'}")
-        self.transaction_payment_amount_label = MyLabel(object_name='transaction_payment_amount_label', text='Payment amount')
+        self.transaction_payment_amount_label = MyLabel(object_name='transaction_payment_amount_label', text='Paid amount')
         self.transaction_payment_amount_display = MyLabel(object_name='transaction_payment_amount_display', text=f"{'100.00'}")
         self.transaction_order_change_label = MyLabel(object_name='transaction_order_change_label', text='Change')
         self.transaction_order_change_display = MyLabel(object_name='transaction_order_change_display', text=f"{'100.00'}")
-        self.transaction_info_box = MyGroupBox()
+        self.transaction_info_box = MyGroupBox(object_name='transaction_info_box')
         self.transaction_info_layout = MyVBoxLayout(object_name='transaction_info_layout')
         self.transaction_info_layout.addWidget(self.transaction_order_total_amount_label,0,Qt.AlignmentFlag.AlignCenter)
         self.transaction_info_layout.addWidget(self.transaction_order_total_amount_display,0,Qt.AlignmentFlag.AlignCenter)
@@ -628,7 +610,7 @@ class MyPOSView(MyGroupBox):
         self.transaction_complete_dialog = MyDialog(object_name='transaction_complete_dialog', window_title='Transaction summary')
         self.transaction_complete_layout = MyVBoxLayout(object_name='transaction_complete_layout')
         self.transaction_complete_layout.addWidget(self.transaction_complete_summary_box,0,Qt.AlignmentFlag.AlignTop)
-        self.transaction_complete_layout.addWidget(self.transaction_complete_act_b_box,1,Qt.AlignmentFlag.AlignTop)
+        self.transaction_complete_layout.addWidget(self.transaction_complete_act_b_box,0,Qt.AlignmentFlag.AlignBottom)
         self.transaction_complete_dialog.setLayout(self.transaction_complete_layout)
     pass
 class MyPOSController:
@@ -966,55 +948,32 @@ class MyPOSController:
 
             for tab_i in range(self.v.manage_order_tab.count()):
                 if self.v.manage_order_tab.tabText(tab_i) == order_tab_name:
-                    if self.m.order_type_displays[tab_i].text() == 'Retail':
-                        self.v.final_order_tab.addTab(self.v.final_order_table[0], 'Retail') 
 
-                        self.v.final_order_type_display = self.m.order_type_displays[tab_i].text()
-                        self.v.final_customer_name_field = self.m.customer_name_fields[tab_i].currentText()
+                    print('self.v.manage_order_tab.count():', self.v.manage_order_tab.count())
+                    print('tab_i:', tab_i)
+                    print('order_tab_name:', order_tab_name)
 
-                        for row_v in range(self.m.order_tables[tab_i].rowCount()):
-                            row_i = self.v.final_order_table[0].rowCount()
-                            self.v.final_order_table[0].insertRow(row_i)
+                    self.v.final_order_type_display = self.m.order_type_displays[tab_i].text()
+                    self.v.final_customer_name_field = self.m.customer_name_fields[tab_i].currentText()
 
-                            product_qty = self.m.order_tables[tab_i].item(row_v, 1).text()
-                            product_name = self.m.order_tables[tab_i].item(row_v, 2).text()
-                            product_amount = self.m.order_tables[tab_i].item(row_v, 3).text()
-                            product_disc_value = self.m.order_tables[tab_i].item(row_v, 4).text()
-                            
-                            final_product_qty = MyTableWidgetItem(text=f"{product_qty}")
-                            final_product_name = MyTableWidgetItem(text=f"{product_name}")
-                            final_product_amount = MyTableWidgetItem(text=f"{float(product_amount):.2f}", format='bill')
-                            final_product_disc_value = MyTableWidgetItem(text=f"{float(product_disc_value):.2f}", format='bill')
+                    for row_v in range(self.m.order_tables[tab_i].rowCount()):
+                        row_i = self.v.final_order_table.rowCount()
+                        self.v.final_order_table.insertRow(row_i)
 
-                            self.v.final_order_table[0].setItem(row_i, 0, final_product_qty)
-                            self.v.final_order_table[0].setItem(row_i, 1, final_product_name)
-                            self.v.final_order_table[0].setItem(row_i, 2, final_product_amount)
-                            self.v.final_order_table[0].setItem(row_i, 3, final_product_disc_value)
+                        product_qty = self.m.order_tables[tab_i].item(row_v, 1).text()
+                        product_name = self.m.order_tables[tab_i].item(row_v, 2).text()
+                        product_amount = self.m.order_tables[tab_i].item(row_v, 3).text()
+                        product_disc_value = self.m.order_tables[tab_i].item(row_v, 4).text()
                         
-                    elif self.m.order_type_displays[tab_i].text() == 'Wholesale':
-                        self.v.final_order_tab.addTab(self.v.final_order_table[1], 'Wholesale') 
+                        final_product_qty = MyTableWidgetItem(text=f"{product_qty}")
+                        final_product_name = MyTableWidgetItem(text=f"{product_name}")
+                        final_product_amount = MyTableWidgetItem(text=f"{float(product_amount):.2f}", format='bill')
+                        final_product_disc_value = MyTableWidgetItem(text=f"{float(product_disc_value):.2f}", format='bill')
 
-                        self.v.final_order_type_display = self.m.order_type_displays[tab_i].text()
-                        self.v.final_customer_name_field = self.m.customer_name_fields[tab_i].currentText()
-
-                        for row_v in range(self.m.order_tables[tab_i].rowCount()):
-                            row_i = self.v.final_order_table[1].rowCount()
-                            self.v.final_order_table[1].insertRow(row_i)
-
-                            product_qty = self.m.order_tables[tab_i].item(row_v, 1).text()
-                            product_name = self.m.order_tables[tab_i].item(row_v, 2).text()
-                            product_amount = self.m.order_tables[tab_i].item(row_v, 3).text()
-                            product_disc_value = self.m.order_tables[tab_i].item(row_v, 4).text()
-                            
-                            final_product_qty = MyTableWidgetItem(text=f"{product_qty}")
-                            final_product_name = MyTableWidgetItem(text=f"{product_name}")
-                            final_product_amount = MyTableWidgetItem(text=f"{float(product_amount):.2f}", format='bill')
-                            final_product_disc_value = MyTableWidgetItem(text=f"{float(product_disc_value):.2f}", format='bill')
-
-                            self.v.final_order_table[1].setItem(row_i, 0, final_product_qty)
-                            self.v.final_order_table[1].setItem(row_i, 1, final_product_name)
-                            self.v.final_order_table[1].setItem(row_i, 2, final_product_amount)
-                            self.v.final_order_table[1].setItem(row_i, 3, final_product_disc_value)
+                        self.v.final_order_table.setItem(row_i, 0, final_product_qty)
+                        self.v.final_order_table.setItem(row_i, 1, final_product_name)
+                        self.v.final_order_table.setItem(row_i, 2, final_product_amount)
+                        self.v.final_order_table.setItem(row_i, 3, final_product_disc_value)
 
                     final_order_subtotal_value += float(self.m.order_subtotal_displays[tab_i].text())
                     final_order_discount_value += float(self.m.order_discount_displays[tab_i].text())
@@ -1283,7 +1242,7 @@ class MyPOSController:
     # region > pay order dialog -----------------------------------------------------------------------------------------
     def set_pay_order_dialog_conn(self):
         self.v.tender_amount_field.textChanged.connect(self.on_tender_amount_field_text_changed)
-        self.v.tender_amount_field.returnPressed.connect(lambda: self.on_pay_button_clicked(type='pay_cash'))
+        self.v.tender_amount_field.returnPressed.connect(lambda: self.on_pay_button_clicked(payment_type='pay_cash'))
         self.v.numpad_key_toggle_button[0].clicked.connect(lambda: self.on_numpad_key_toggle_button_clicked(hide=True))
         self.v.numpad_key_toggle_button[1].clicked.connect(lambda: self.on_numpad_key_toggle_button_clicked(hide=False))
         self.v.numpad_key_button[0].clicked.connect(lambda: self.on_numpad_key_button_clicked(key_value='1'))
@@ -1299,9 +1258,9 @@ class MyPOSController:
         self.v.numpad_key_button[10].clicked.connect(lambda: self.on_numpad_key_button_clicked(key_value='0'))
         self.v.numpad_key_button[11].clicked.connect(lambda: self.on_numpad_key_button_clicked(key_value='.'))
 
-        self.v.pay_cash_button.clicked.connect(lambda: self.on_pay_button_clicked(type='pay_cash'))
-        self.v.pay_points_button.clicked.connect(lambda: self.on_pay_button_clicked(type='pay_points'))
-        self.v.pay_cash_points_button.clicked.connect(lambda: self.on_pay_button_clicked(type='pay_cash_points'))
+        self.v.pay_cash_button.clicked.connect(lambda: self.on_pay_button_clicked(payment_type='pay_cash'))
+        self.v.pay_points_button.clicked.connect(lambda: self.on_pay_button_clicked(payment_type='pay_points'))
+        self.v.pay_cash_points_button.clicked.connect(lambda: self.on_pay_button_clicked(payment_type='pay_cash_points'))
         pass
     def on_tender_amount_field_text_changed(self):
         try:
@@ -1349,11 +1308,16 @@ class MyPOSController:
             pass
         self.v.tender_amount_field.setText(current_amount_tendered)
 
-    def on_pay_button_clicked(self, type):
+    def on_pay_button_clicked(self, payment_type):
         try:
             i = self.v.manage_order_tab.currentIndex()
 
-            if ((float(self.v.tender_amount_field.text()) >= float(self.m.order_total_displays[i].text())) and type == 'pay_cash') or type == 'pay_points' or type == 'pay_cash_points':
+            cash_payment_amount = 0
+            points_payment_amount = 0
+            cash_points_payment_amount = [0,0]
+
+
+            if (payment_type == 'pay_cash' and float(self.v.tender_amount_field.text()) >= float(self.m.order_total_displays[i].text())) or payment_type == 'pay_points' or payment_type == 'pay_cash_points':
                 order_tab_name = self.v.manage_order_tab.tabText(i)
                 sales_group_id = 0
                 payment_amount = 0
@@ -1372,24 +1336,30 @@ class MyPOSController:
                 confirm = QMessageBox.warning(self.v.pay_order_dialog, 'Confirm', 'Proceed payment?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
                 if confirm is QMessageBox.StandardButton.Yes:
-                    if type == 'pay_cash':
+                    if payment_type == 'pay_cash':
                         payment_amount = float(self.v.tender_amount_field.text())
                         order_change = payment_amount - order_total
+                        cash_payment_amount = payment_amount
                         pass
-                    elif type == 'pay_points':
+                    elif payment_type == 'pay_points':
                         payment_amount = float(self.m.final_customer_points_value)
                         order_change = payment_amount - order_total
+                        points_payment_amount = order_total
                         pos_schema.update_customer_reward_points_by_decrement(customer_id, order_total)
                         pass
-                    elif type == 'pay_cash_points':
+                    elif payment_type == 'pay_cash_points':
                         final_customer_points = float(self.m.final_customer_points_value)
+
+                        cash_amount = float(self.v.tender_amount_field.text())
+                        points_amount = order_total - cash_amount
+
                         payment_amount = float(self.v.tender_amount_field.text()) + final_customer_points
                         order_change = payment_amount - order_total
-                        pos_schema.update_customer_reward_points_by_decrement(customer_id, (order_total - float(self.v.tender_amount_field.text())))
+                        cash_points_payment_amount = [cash_amount, points_amount]
+                        pos_schema.update_customer_reward_points_by_decrement(customer_id, points_amount)
 
 
-                    final_retail_order_table = self.v.final_order_table[0]
-                    final_wholesale_order_table = self.v.final_order_table[1]
+                    final_order_table = self.v.final_order_table
                     # TODO: APPEND FOR RECEIPT
 
                     self.m.append_final_order_info_for_receipt(
@@ -1402,8 +1372,12 @@ class MyPOSController:
                         order_total=order_total, 
                         payment_amount=payment_amount, 
                         order_change=order_change, 
-                        final_retail_order_table=final_retail_order_table,
-                        final_wholesale_order_table=final_wholesale_order_table
+                        final_order_table=final_order_table,
+
+                        payment_type=payment_type,
+                        cash_payment_amount=cash_payment_amount,
+                        points_payment_amount=points_payment_amount,
+                        cash_points_payment_amount=cash_points_payment_amount,
                     )
                     # TODO: PERFORM TRANSACTION INSERTION
 
@@ -1412,18 +1386,20 @@ class MyPOSController:
 
                     self.v.setup_transaction_complete_dialog()
 
-                    if type == 'pay_cash':
+
+                    if payment_type == 'pay_cash':
                         self.v.transaction_order_change_display.show()
                         self.v.transaction_order_change_label.show()
-                    elif type == 'pay_points':
+                        self.v.transaction_payment_amount_display.setText(f"{self.m.cash_payment_amount:.2f}")
+                    elif payment_type == 'pay_points':
                         self.v.transaction_order_change_display.hide()
                         self.v.transaction_order_change_label.hide()
-                    elif type == 'pay_cash_points':
-                        self.v.transaction_order_change_display.show()
-                        self.v.transaction_order_change_label.show()
-
-
-                    self.v.transaction_payment_amount_display.setText(f"{payment_amount:.2f}")
+                        self.v.transaction_payment_amount_display.setText(f"{self.m.points_payment_amount:.2f}")
+                    elif payment_type == 'pay_cash_points':
+                        self.v.transaction_order_change_display.hide()
+                        self.v.transaction_order_change_label.hide()
+                        self.v.transaction_payment_amount_display.setText(f"{self.m.cash_points_payment_amount[0]:.2f} (Cash) + {self.m.cash_points_payment_amount[1]:.2f} (Points)")
+                    
                     self.v.transaction_order_total_amount_display.setText(f"{order_total:.2f}")
                     self.v.transaction_order_change_display.setText(f"{order_change:.2f}")
 
@@ -1441,7 +1417,7 @@ class MyPOSController:
                 QMessageBox.critical(self.v.pay_order_dialog, 'Error', 'Insufficient fund.')
             
         except ValueError as e:
-            QMessageBox.critical(self.v.pay_order_dialog, 'Error', f"Invalid input.")
+            QMessageBox.critical(self.v.pay_order_dialog, 'Error', f"Invalid input. {e}")
 
         # pass
     # endregion
@@ -1468,10 +1444,15 @@ class MyPOSController:
                 self.v.transaction_complete_dialog,
                 sales_group_id,
                 self.m.transaction_info,
-                self.m.final_retail_order_table,
-                self.m.final_wholesale_order_table,
+                self.m.final_order_table,
                 self.m.final_order_summary,
                 self.m.cashier_info,
+
+                self.m.payment_type,
+                self.m.cash_payment_amount,
+                self.m.points_payment_amount,
+                self.m.cash_points_payment_amount,
+
                 action,
             )
             self.receipt_printer.start()
@@ -1481,29 +1462,28 @@ class MyPOSController:
             self.v.progress_dialog.exec()
 
             pass
-        elif action == 'save':
-            self.v.save_receipt_button.setDisabled(True)
+        # elif action == 'save':
+        #     self.v.save_receipt_button.setDisabled(True)
 
-            self.v.set_progress_dialog()
+        #     self.v.set_progress_dialog()
 
-            self.receipt_printer = ReceiptGenerator(
-                self.v.transaction_complete_dialog,
-                sales_group_id,
-                self.m.transaction_info,
-                self.m.final_retail_order_table,
-                self.m.final_wholesale_order_table,
-                self.m.final_order_summary,
-                self.m.cashier_info,
-                action,
-            )
-            self.receipt_printer.start()
-            self.receipt_printer.update.connect(lambda step, action=action: self.on_receipt_generator_update(step, action))
-            self.receipt_printer.finished.connect(lambda action=action: self.on_receipt_generator_finished(action))
+        #     self.receipt_printer = ReceiptGenerator(
+        #         self.v.transaction_complete_dialog,
+        #         sales_group_id,
+        #         self.m.transaction_info,
+        #         self.m.final_order_table,
+        #         self.m.final_wholesale_order_table,
+        #         self.m.final_order_summary,
+        #         self.m.cashier_info,
+        #         action,
+        #     )
+        #     self.receipt_printer.start()
+        #     self.receipt_printer.update.connect(lambda step, action=action: self.on_receipt_generator_update(step, action))
+        #     self.receipt_printer.finished.connect(lambda action=action: self.on_receipt_generator_finished(action))
 
-            self.v.progress_dialog.exec()
+        #     self.v.progress_dialog.exec()
 
-            pass
-            pass
+        #     pass
     def on_receipt_generator_update(self, step, action):
         self.v.progress_label.setText(f"Please wait...")
         if action == 'print':
@@ -1542,6 +1522,18 @@ class MyPOSController:
             for customer_name in customer_name_data: self.v.customer_name_field.addItems(customer_name)
             self.v.customer_name_field.clearEditText()
 
+            try:
+                i = self.v.manage_order_tab.currentIndex()
+
+                self.m.customer_name_fields[i].clear()
+
+                customer_name_data = pos_schema.select_customer_name_for_combo_box()
+                self.m.customer_name_fields[i].addItem('')
+                for customer_name in customer_name_data: self.m.customer_name_fields[i].addItems(customer_name)
+                self.m.customer_name_fields[i].clearEditText()
+            except:
+                pass
+
         pass
     def sync_ui_handler(self):
         text_filter = self.v.filter_field.text()
@@ -1556,6 +1548,7 @@ class MyPOSController:
             self.v.order_index_label.setText(f"{self.v.manage_order_tab.tabText(i)}")
 
             self.populate_overview_table(text=text_filter, order_type=order_type, page_number=self.m.page_number)
+            self.load_combo_box_data_handler(load='order_box')
         except Exception as e:
             self.m.total_page_number = pos_schema.select_product_data_total_page_count()
             self.m.page_number = 1 if self.m.total_page_number > 0 else 0
@@ -1675,9 +1668,9 @@ class MyPOSController:
             pass
 
 class MyPOSWindow(MyGroupBox):
-    def __init__(self, name='test', phone='test'):
+    def __init__(self, name='test', password='test', phone='test'):
 
-        self.model = MyPOSModel(name, phone)
+        self.model = MyPOSModel(name, password, phone)
         self.view = MyPOSView(self.model)
         self.controller = MyPOSController(self.model, self.view)
 

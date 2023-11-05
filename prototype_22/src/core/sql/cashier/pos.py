@@ -358,18 +358,19 @@ class MyPOSSchema:
         except Exception as e:
             return 0
         pass  
-    def select_user_id_by_name(self, user_name):
-        try:
-            self.accounts_cursor.execute(f"""
-                SELECT UserId FROM User
-                WHERE Name = {user_name}
-            """)
-            user_id = self.accounts_cursor.fetchone()[0]
-            
-            return user_id
-            pass
-        except Exception as e:
-            return 0
+    def select_user_id_by_name(self, user_name, user_password):
+        # try:
+        self.accounts_cursor.execute(f"""
+            SELECT UserId FROM User
+            WHERE Name = "{user_name}" AND Password = "{user_password}"
+        """)
+        user_id = self.accounts_cursor.fetchone()[0]
+        
+        print('user_id:', user_id)
+        return user_id
+        #     pass
+        # except Exception as e:
+        #     return 0
         pass  
     def select_date_id_by_date_value(self, current_date):
         try:

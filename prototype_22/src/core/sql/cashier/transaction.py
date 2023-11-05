@@ -74,7 +74,15 @@ class MyTXNSchema:
                 LEFT JOIN accounts.User ON ItemSold.UserId = User.UserId
                 LEFT JOIN sales.Item ON ItemPrice.ItemId = Item.ItemId
                 LEFT JOIN sales.Stock ON Item.ItemId = Stock.ItemId
-            WHERE CustomerName LIKE "%{text}%" OR Item.Name LIKE "%{text}%" OR ItemSold.ReferenceNumber LIKE "%{text}%"
+            WHERE 
+                User.Name LIKE "%{text}%" OR 
+                CustomerName LIKE "%{text}%" OR 
+                Item.Name LIKE "%{text}%" OR 
+                ItemSold.TotalAmount LIKE "%{text}%" OR 
+                ItemSold.Void LIKE "%{text}%" OR 
+                ItemSold.Reason LIKE "%{text}%" OR 
+                ItemSold.ReferenceNumber LIKE "%{text}%" OR 
+                ItemSold.UpdateTs LIKE "%{text}%"
             ORDER BY 
                 ItemSold.ItemSoldId DESC,
                 ItemSold.UpdateTs DESC

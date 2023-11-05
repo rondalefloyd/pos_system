@@ -16,8 +16,11 @@ from src.gui.admin.user import MyUserWindow
 from src.gui.widget.my_widget import *
 
 class MyAdminModel:
-    def __init__(self, user, phone):
+    def __init__(self, user, password, phone, level):
         self.user = user
+        self.password = password
+        self.phone = phone
+        self.level = int(level)
         pass
 class MyAdminView(MyWidget):
     def __init__(self, model: MyAdminModel):
@@ -63,7 +66,7 @@ class MyAdminView(MyWidget):
         self.product_page_window = MyProductWindow(self.m.user)
         self.promo_page_window = MyPromoWindow(self.m.user)
         self.reward_page_window = MyRewardWindow(self.m.user)
-        self.customer_page_window = MyCustomerWindow(self.m.user)
+        self.customer_page_window = MyCustomerWindow(self.m.user, self.m.phone, self.m.level)
         self.user_page_window = MyUserWindow(self.m.user)
         self.settings_page_window = MyGroupBox()
         self.page_stcw = MyStackedWidget()
@@ -119,8 +122,8 @@ class MyAdminController:
             self.v.close()
 
 class MyAdminWindow:
-    def __init__(self, user='test', phone='test'):
-        self.model = MyAdminModel(user, phone)
+    def __init__(self, user='test', password='test', phone='test', level=0):
+        self.model = MyAdminModel(user, password, phone, level)
         self.view = MyAdminView(self.model)
         self.controller = MyAdminController(self.model, self.view)
 
@@ -131,7 +134,7 @@ class MyAdminWindow:
 
 if __name__ == ('__main__'):
     app = QApplication(sys.argv)
-    cashier_window = MyAdminWindow(user=sys.argv[1], phone=sys.argv[2])
+    cashier_window = MyAdminWindow(user=sys.argv[1], password=sys.argv[2], phone=sys.argv[3], level=sys.argv[4])
     # cashier_window = MyAdminWindow(user='test', phone='test') # for testing only
 
     cashier_window.run()

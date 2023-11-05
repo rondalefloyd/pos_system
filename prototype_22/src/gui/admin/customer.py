@@ -16,9 +16,10 @@ qss = MyQSSConfig()
 schema = MyCustomerSchema()
 
 class MyCustomerModel:
-    def __init__(self, name, phone):
+    def __init__(self, name, phone, level):
         self.user_name = name
         self.user_phone = phone
+        self.level = level
 
         self.total_page_number = schema.select_customer_data_total_page_count()
         self.page_number = 1 if self.total_page_number > 0 else 0
@@ -209,6 +210,7 @@ class MyCustomerView(MyWidget):
         self.field_layout.addRow(self.customer_marstat_field)
         self.field_layout.addRow(self.customer_points_label)
         self.field_layout.addRow(self.customer_points_field)
+
         self.field_box.setLayout(self.field_layout)
         self.manage_data_scra = MyScrollArea()
         self.manage_data_scra.setWidget(self.field_box)
@@ -378,6 +380,9 @@ class MyCustomerController:
 
         for i, data in enumerate(customer_data):
             self.v.set_overview_table_act_box()
+
+            self.v.delete_data_button.setHidden(self.m.level <= 2)
+
             customer_name = MyTableWidgetItem(text=f"{data[0]}")
             customer_address = MyTableWidgetItem(text=f"{data[1]}")
             customer_barrio = MyTableWidgetItem(text=f"{data[2]}")
@@ -410,8 +415,8 @@ class MyCustomerController:
         self.load_combo_box_data()
         self.v.manage_data_dialog.setWindowTitle(f"{data[0]}")
 
-        self.v.customer_points_label.show()
-        self.v.customer_points_field.show()
+        self.v.customer_points_label.setHidden(self.m.level <= 2)
+        self.v.customer_points_field.setHidden(self.m.level <= 2)
 
         sel_customer_data = schema.select_customer_data(data[0], data[3], data[4], data[5])
 
@@ -547,9 +552,9 @@ class MyCustomerController:
         dialog.close()
 
 class MyCustomerWindow(MyGroupBox):
-    def __init__(self, name='test', phone='test'):
+    def __init__(self, name='test', phone='test', level=0):
 
-        self.model = MyCustomerModel(name, phone)
+        self.model = MyCustomerModel(name, phone, level)
         self.view = MyCustomerView(self.model)
         self.controller = MyCustomerController(self.model, self.view)
         

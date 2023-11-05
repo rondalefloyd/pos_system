@@ -17,8 +17,9 @@ qss = MyQSSConfig()
 schema = MyTXNSchema()
 
 class MyTransactionModel:
-    def __init__(self, name, phone):
+    def __init__(self, name, password, phone):
         self.user_name = name
+        self.password = password
         self.user_phone = phone
 
         self.total_page_number = schema.select_item_sold_data_total_page_count()
@@ -272,9 +273,9 @@ class MyTransactionController:
         dialog.close()
 
 class MyTXNWindow(MyGroupBox):
-    def __init__(self, name='test', phone='test'):
+    def __init__(self, name='test', password='test', phone='test'):
 
-        self.model = MyTransactionModel(name, phone)
+        self.model = MyTransactionModel(name, password, phone)
         self.view = MyTransactionView(self.model)
         self.controller = MyTransactionController(self.model, self.view)
 

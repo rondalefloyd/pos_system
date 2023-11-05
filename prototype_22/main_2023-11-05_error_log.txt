@@ -1,0 +1,400 @@
+TIME_STAMP: Sun-Nov-05-2023-11:23AM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-12:48PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-01:15PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-01:17PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-01:18PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-01:19PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-01:19PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-01:20PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-01:32PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-03:17PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-03:21PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-03:22PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-03:34PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-03:36PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-03:45PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-03:47PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-03:48PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-03:50PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:11PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:20PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:22PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:24PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:26PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:32PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:34PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:36PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:38PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:40PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:47PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:48PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-04:59PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:02PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:05PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:07PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:10PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:12PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:25PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:37PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:46PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:48PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:52PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-05:53PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-06:09PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-06:13PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-07:57PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-07:59PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-08:05PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-08:54PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-08:55PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:04PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:07PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:15PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:21PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:24PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:26PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:28PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:29PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:31PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:32PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:37PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:39PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:41PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:46PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:47PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:49PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:51PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-09:55PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:13PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:15PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:18PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:24PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:30PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:33PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:38PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:40PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:47PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:52PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-10:52PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-11:09PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
+TIME_STAMP: Sun-Nov-05-2023-11:53PM, 
+ERROR_LINE_NO: 17, 
+EXCEPTION: <Response [200]>, 
+ERROR_TRACEBACK: gspread.exceptions.SpreadsheetNotFound: <Response [200]>
+
