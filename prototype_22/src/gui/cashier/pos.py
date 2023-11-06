@@ -24,9 +24,6 @@ product_schema = MyProductSchema()
 class MyPOSModel:
     def __init__(self, name, password, phone):
         self.cashier_info = [name, password, phone] # NAME AND PHONE OF CASHIER
-        print('cashier_info:', self.cashier_info[0])
-        print('cashier_info:', self.cashier_info[1])
-        print('cashier_info:', self.cashier_info[2])
 
         self.total_page_number = 0
         self.page_number = 1 if self.total_page_number > 0 else 0
@@ -362,9 +359,9 @@ class MyPOSView(MyGroupBox):
         self.info_layout.addRow('Effective date:', self.product_effective_dt_info)
         self.info_layout.addRow('Promo name:', self.product_promo_name_info)
         self.info_layout.addRow('Discount:', self.product_disc_value_info)
-        self.info_layout.addRow(MyLabel(text='<hr>'))
-        self.info_layout.addRow('Inventory tracking:', self.product_stock_tracking_info)
-        self.info_layout.addRow('On hand:', self.product_stock_on_hand_info)
+        # self.info_layout.addRow(MyLabel(text='<hr>'))
+        # self.info_layout.addRow('Inventory tracking:', self.product_stock_tracking_info)
+        # self.info_layout.addRow('On hand:', self.product_stock_on_hand_info)
         self.info_layout.addRow(MyLabel(text='<hr>'))
         self.info_layout.addRow('Date/Time created:', self.product_datetime_created_info)
 
