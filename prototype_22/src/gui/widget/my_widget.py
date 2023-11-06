@@ -216,6 +216,7 @@ class MyDialog(QDialog):
 
     def on_pos_dialog(self):
         if self.object_name == 'pay_order_dialog':
+            self.setMinimumHeight(900)
             self.setMinimumWidth(800)
 
         if self.object_name == 'transaction_complete_dialog':

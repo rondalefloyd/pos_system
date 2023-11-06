@@ -193,6 +193,8 @@ class MyTransactionController:
         self.v.set_manage_data_box()
         self.load_combo_box_data()
 
+        self.v.manage_data_dialog.setWindowTitle(f"{data[2]}")
+
         print('b4 data[13]:', data[13])
 
         self.m.sel_item_sold_id = data[9]
