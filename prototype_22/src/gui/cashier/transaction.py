@@ -235,8 +235,7 @@ class MyTransactionController:
         self.v.reason_field.addItem('No Receipt')
         self.v.reason_field.addItem('Store Policy')
         self.v.reason_field.addItem('Expired Product')
-        self.v.reason_field.addItem('Unsatisfactory Quality')
-        self.v.reason_field.addItem('Excessive Quantity')
+        self.v.reason_field.addItem('Tested transaction')
         self.v.reason_field.addItem('Other (specify the reason)')
  
     def on_save_data_button_clicked(self):
