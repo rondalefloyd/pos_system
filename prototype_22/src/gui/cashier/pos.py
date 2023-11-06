@@ -1207,6 +1207,11 @@ class MyPOSController:
         sel_product_price = float(sel_data[1])
         sel_product_disc_value = float(sel_data[2])
 
+        sel_subtotal = float(self.m.order_subtotal_displays[i].text())
+        sel_discount = float(self.m.order_discount_displays[i].text())
+        sel_tax = float(self.m.order_tax_displays[i].text())
+        sel_total = float(self.m.order_total_displays[i].text())
+
         matched_product = self.m.order_tables[i].findItems(product_name, Qt.MatchFlag.MatchExactly) # becomes list
 
         if matched_product: # if product name matched
@@ -1218,13 +1223,18 @@ class MyPOSController:
                 current_product_amount = (sel_product_price + sel_product_disc_value) * product_qty
                 current_product_disc_value = sel_product_disc_value * product_qty
 
+                sel_subtotal -= float(self.m.order_tables[i].item(row_i, 3).text())
+                sel_discount -= float(self.m.order_tables[i].item(row_i, 4).text())
+                sel_tax = 0
+                sel_total = sel_subtotal - sel_discount
+
                 self.m.order_tables[i].item(row_i, 1).setText(f"{current_product_qty}")
                 self.m.order_tables[i].item(row_i, 3).setText(f"{current_product_amount:.2f}")
                 self.m.order_tables[i].item(row_i, 4).setText(f"{current_product_disc_value:.2f}")
 
-        new_subtotal = (sel_product_price + sel_product_disc_value) * product_qty
-        new_discount = sel_product_disc_value * product_qty
-        # new_tax = float(self.m.order_tax_displays[i].text()) + (0) # REVIEW: for next update
+        new_subtotal = sel_subtotal + ((sel_product_price + sel_product_disc_value) * product_qty)
+        new_discount = sel_discount + (sel_product_disc_value * product_qty)
+        # new_tax = sel_tax + float(self.m.order_tax_displays[i].text()) + (0) # REVIEW: for next update
         new_total = new_subtotal - new_discount # - new_tax
 
         self.m.order_subtotal_displays[i].setText(f"{new_subtotal:.2f}")
