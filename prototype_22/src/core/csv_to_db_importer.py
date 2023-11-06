@@ -1,8 +1,9 @@
 import sys, os
 import pandas as pd
 import time as tm
-import schedule as sc
 import traceback
+import inspect
+import textwrap
 from typing import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
@@ -16,7 +17,21 @@ from src.core.sql.admin.reward import *
 from src.core.sql.admin.customer import *
 from src.core.sql.admin.product import *
 
-current_date = str(date.today())
+def error_tracer(error_exception='', csv_file_path='', data_row=''):
+    error_traceback = traceback.format_exc().splitlines()[-1]
+    error_line_number = inspect.currentframe().f_lineno
+    timestamp = datetime.today().strftime("%a-%b-%d-%Y-%I:%M%p")
+    error_layout = textwrap.dedent(f"""\
+        TIME_STAMP: {timestamp}, 
+        ERROR_LINE_NO: {error_line_number}, 
+        EXCEPTION: {error_exception}, 
+        ERROR_TRACEBACK: {error_traceback}
+        ADDITIONAL_INFO: specific_error = f"{csv_file_path} contains missing values in row {data_row}"
+
+    """)
+    with open(f"main_error_log.txt", 'a') as file: 
+        file.write(error_layout)
+
 
 class MyDataImportThread(QThread):
     update = pyqtSignal(int,str)
@@ -75,15 +90,13 @@ class MyDataImportThread(QThread):
                         self.cancelled.emit()
                         return
                 except Exception as e: 
-                    specific_error = f"{self.csv_file_path} contains missing values in row {self.data_row}"
-                    with open(f"import_{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}] [{specific_error}]\n")
-                
+                    error_tracer(e, self.csv_file_path, self.data_row)
+                    
             self.close_db_conn()
             self.finished.emit()
-            print('--done')
 
         except Exception as e:
-            with open(f"import_{current_date}_log.txt", 'a') as file: file.write(f"[{str(datetime.today())}] [{e}]\n")
+            error_tracer(e, self.csv_file_path, self.data_row)
             self.invalid.emit()
         pass
 
@@ -163,7 +176,7 @@ class MyDataImportThread(QThread):
         if product_price.replace('.', '', 1).isdigit() == False: return
         if product_effective_dt == '': return
 
-        if product_stock_available > 0 or product_stock_onhand > 0:
+        if int(product_stock_available) > 0 or int(product_stock_onhand) > 0:
             product_stock_tracking = True
         else:
             product_stock_tracking = False

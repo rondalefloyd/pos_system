@@ -1,0 +1,624 @@
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1181"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1181"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1181"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1181"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1181"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1301"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1301"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1301"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1301"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1301"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1301"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1301"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1301"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1301"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1310"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1311"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1323"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1436"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1468"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1469"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1483"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1483"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1483"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1483"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1483"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1566"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1566"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1566"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1566"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1566"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1637"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1637"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1637"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1637"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1637"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1637"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1637"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1637"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1637"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1644"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1645"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1657"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1739"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1762"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1762"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1774"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1774"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1774"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1774"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1774"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1846"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1846"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1846"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1846"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1846"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1877"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1877"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1948"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1948"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1948"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1948"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1948"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1948"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1948"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1948"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1948"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1997"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 1997"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2033"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2033"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2074"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2074"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2310"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2310"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2310"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2555"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2555"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2594"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2594"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2594"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2594"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2594"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2594"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2594"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2632"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2648"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2658"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2658"
+
+TIME_STAMP: Mon-Nov-06-2023-10:24AM, 
+ERROR_LINE_NO: 22, 
+EXCEPTION: invalid literal for int() with base 10: '', 
+ERROR_TRACEBACK: ValueError: invalid literal for int() with base 10: ''
+ADDITIONAL_INFO: specific_error = f"G:/My Drive/csv/product.csv contains missing values in row 2933"
+

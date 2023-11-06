@@ -74,6 +74,8 @@ class MyLoginController:
         self.init_main_dialog_conn()
 
     def init_main_dialog_conn(self):
+        self.view.user_name_field.returnPressed.connect(self.on_login_button_clicked)
+        self.view.user_password_field.returnPressed.connect(self.on_login_button_clicked)
         self.view.login_button.clicked.connect(self.on_login_button_clicked)
         pass
     def on_login_button_clicked(self):
@@ -130,7 +132,9 @@ class MyLoginController:
                 pass
             else:
                 QMessageBox.critical(self.view, 'Error', 'User not found.')
-            pass
+            
+        self.view.user_name_field.setFocus()
+        pass
     def on_reg_user_button_clicked(self):
         user_name = self.view.reg_user_name_field.text()
         user_password = self.view.reg_user_password_field.text()
