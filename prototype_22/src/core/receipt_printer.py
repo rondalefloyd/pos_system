@@ -37,6 +37,7 @@ class ReceiptGenerator(QThread):
             self,
             transaction_complete_dialog,
             sales_group_id,
+            customer_name_label,
             transaction_info,
             final_order_table,
             final_order_summary,
@@ -53,6 +54,7 @@ class ReceiptGenerator(QThread):
 
         self.transaction_complete_dialog = transaction_complete_dialog
         self.sales_group_id = sales_group_id
+        self.customer_name_label = customer_name_label
         self.transaction_info = transaction_info
         self.final_order_table = final_order_table
         self.final_order_summary = final_order_summary

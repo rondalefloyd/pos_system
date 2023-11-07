@@ -34,6 +34,7 @@ class MyPOSModel:
         self.order_number = 0
         self.sel_product_id = 0
 
+        self.final_customer_name = ''
         self.final_customer_points_value = 0
 
         self.order_type_displays: List[MyLabel] = []
@@ -545,6 +546,7 @@ class MyPOSView(MyGroupBox):
         self.payment_b_layout.addWidget(self.payment_amount_compute_box,3,0,1,2)
         self.pay_order_b_box.setLayout(self.payment_b_layout)
         
+    
         self.final_customer_name_display = MyLabel(text=f"Customer: {'test'}")
         self.final_customer_phone_display = MyLabel(text=f"Phone: {'test'}")
         self.final_customer_points_display = MyLabel(text=f"Points: {'0'}")
@@ -1000,6 +1002,7 @@ class MyPOSController:
                 self.v.pay_points_button.show()
 
                 self.m.final_customer_points_value = customer_data[2]
+                self.m.final_customer_name = str(customer_data[0])
                 self.v.final_customer_name_display.setText(f"Customer: <b>{customer_data[0]}</b>")
                 self.v.final_customer_phone_display.setText(f"Phone: <b>{customer_data[1]}</b>")
                 self.v.final_customer_points_display.setText(f"Points: <b>{customer_data[2]:.2f}</b>") 
@@ -1425,30 +1428,30 @@ class MyPOSController:
                     self.set_transaction_complete_dialog_conn(sales_group_id=sales_group_id, order_tab_name=order_tab_name)
 
 
-                    # save receipt
-                    self.v.set_progress_dialog(action='save_receipt')
+                    # # save receipt # FIXME
+                    # self.v.set_progress_dialog(action='save_receipt')
 
-                    self.receipt_printer = ReceiptGenerator(
-                        self.v.transaction_complete_dialog,
-                        sales_group_id,
-                        self.m.transaction_info,
-                        self.m.final_order_table,
-                        self.m.final_order_summary,
-                        self.m.cashier_info,
+                    # self.receipt_printer = ReceiptGenerator(
+                    #     self.v.transaction_complete_dialog,
+                    #     sales_group_id,
+                    #     self.m.transaction_info,
+                    #     self.m.final_order_table,
+                    #     self.m.final_order_summary,
+                    #     self.m.cashier_info,
 
-                        self.m.payment_type,
-                        self.m.cash_payment_amount,
-                        self.m.points_payment_amount,
-                        self.m.cash_points_payment_amount,
+                    #     self.m.payment_type,
+                    #     self.m.cash_payment_amount,
+                    #     self.m.points_payment_amount,
+                    #     self.m.cash_points_payment_amount,
 
-                        'save_receipt',
-                    )
-                    self.receipt_printer.start()
-                    self.receipt_printer.update.connect(lambda step, action='save_receipt': self.on_receipt_generator_update(step, action))
-                    self.receipt_printer.finished.connect(lambda action='save_receipt': self.on_receipt_generator_finished(action))
+                    #     'save_receipt',
+                    # )
+                    # self.receipt_printer.start()
+                    # self.receipt_printer.update.connect(lambda step, action='save_receipt': self.on_receipt_generator_update(step, action))
+                    # self.receipt_printer.finished.connect(lambda action='save_receipt': self.on_receipt_generator_finished(action))
 
-                    self.v.progress_dialog.exec()
-                    # save receipt
+                    # self.v.progress_dialog.exec()
+                    # # save receipt
 
                     self.v.transaction_complete_dialog.exec()
 
@@ -1485,9 +1488,12 @@ class MyPOSController:
             
             self.v.set_progress_dialog(action='print_receipt')
 
+            print('self.m.final_customer_name:', self.m.final_customer_name)
+
             self.receipt_printer = ReceiptGenerator(
                 self.v.transaction_complete_dialog,
                 sales_group_id,
+                self.m.final_customer_name,
                 self.m.transaction_info,
                 self.m.final_order_table,
                 self.m.final_order_summary,

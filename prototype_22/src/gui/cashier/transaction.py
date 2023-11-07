@@ -143,20 +143,24 @@ class MyTransactionController:
         pass
     
     def on_reprint_button_clicked(self):
+        pythoncom.CoInitialize()
         receipt_file, _ = QFileDialog.getOpenFileName(self.v, 'Open receipt', r'G:/My Drive/receipt/saved', 'DOCX File (*docx)') #FIXME
+        filename = os.path.basename(receipt_file)
+        print('filename:', filename)
+        docx_file = os.path.abspath(f"G:/My Drive/receipt/saved/{filename}")
+        print('2filename:', docx_file)
 
+        print(receipt_file)
         if receipt_file:
-            pythoncom.CoInitialize()
             word = win32com.client.Dispatch('Word.Application')
-            self.doc = word.Documents.Open(receipt_file)
+            self.doc = word.Documents.Open(docx_file)
             self.doc.PrintOut()
             word.Quit()
 
-            pythoncom.CoInitialize()
-            
-            print(receipt_file)
+            QMessageBox.information(self.v, 'Success', 'Receipt printed.')
         else:
             pass
+        pythoncom.CoInitialize()
 
     def populate_overview_table(self, text='', page_number=1): # IDEA: src
         self.v.item_sold_overview_prev_button.setEnabled(page_number > 1)
