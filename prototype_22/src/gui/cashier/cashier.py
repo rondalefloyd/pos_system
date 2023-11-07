@@ -62,6 +62,7 @@ class MyCashierView(MyWidget):
         print('self.m.level:', type(self.m.level), self.m.level)
         if self.m.level == 1: 
             print('self.m.level:', self.m.level)
+            self.product_page_button.hide()
             self.customer_page_button.hide()
         elif self.m.level == 2: 
             print('self.m.level:', self.m.level)
