@@ -386,6 +386,21 @@ class MyPOSSchema:
             return 0
 
         pass
+    def select_reward_for_reward_selection(self, order_total):
+        self.sales_cursor.execute(f"""
+            SELECT 
+                Unit, 
+                Points
+            FROM Reward
+            WHERE {order_total} >= Unit
+            ORDER BY Unit DESC
+            -- LIMIT 1
+        """)
+
+        unit_points_data = self.sales_cursor.fetchall()
+
+        return unit_points_data
+
 
     def insert_item_sold_data(
             self,
@@ -442,29 +457,38 @@ class MyPOSSchema:
 
         self.txn_conn.commit()
         pass
+    
     def update_customer_reward_points_by_increment(self, customer_id, order_total):
-        try:
-            reward_points = self.sales_cursor.execute(f"""
-            SELECT Points FROM Reward
-            WHERE {order_total} >= Unit 
-            ORDER BY Unit DESC
-            LIMIT 1
-            """)
+        # try:
+        unit_points_data = self.select_reward_for_reward_selection(order_total=order_total)
 
-            reward_points = self.sales_cursor.fetchone()[0]
+        print('unit_points_data:', unit_points_data)
+
+        calculated_points = 0
+        used_order_units = 0
+        remaining_order_total = order_total
+
+        for unit, points in unit_points_data:
+            calculated_points = (remaining_order_total // unit) * points
+            used_order_units = (remaining_order_total // unit) * unit
+            remaining_order_total = (remaining_order_total - used_order_units)
+
+            print('calculated_points:', calculated_points)
+            print('used_order_units:', used_order_units)
+            print('remaining_order_total:', remaining_order_total)
 
             self.sales_cursor.execute(f"""
             UPDATE CustomerReward
             SET 
-                Points = Points + {reward_points},
-                UpdateTs = CURRENT_TIMESTAMP		
+                Points = Points + {calculated_points},
+                UpdateTs = CURRENT_TIMESTAMP
             WHERE CustomerId = {customer_id}
             """)
 
             self.sales_conn.commit()
-        except Exception as e:
-            pass
-        pass
+        # except Exception as e:
+        #     pass
+        # pass
     def update_customer_reward_points_by_decrement(self, customer_id, order_total):
         try:
             self.sales_cursor.execute(f"""

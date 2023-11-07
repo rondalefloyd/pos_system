@@ -254,6 +254,18 @@ class MyDialog(QDialog):
                 pass
                 
             pass
+class MyFileDialog(QFileDialog):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Find the Open button and hide it
+        open_button = self.findChild(QPushButton, 'qt_file_dialog_openButton')
+        if open_button:
+            open_button.hide()
+        
+        # Find the Cancel button and change its text to Close
+        cancel_button = self.findChild(QPushButton, 'qt_file_dialog_cancelButton')
+        if cancel_button:
+            cancel_button.setText('Close')
 
 class MyTableWidget(QTableWidget):
     def __init__(self, object_name=''):
@@ -312,7 +324,6 @@ class MyTableWidget(QTableWidget):
             self.setStyleSheet(f"""
                 QTableWidget#{self.object_name} {{ border: none; border-bottom: 1px solid {qss.default_line_color}}}
                 QTableWidget#{self.object_name}::item {{ border-bottom: 1px solid {qss.default_line_color}; padding: 10px 10px}}
-                QTableWidget#{self.object_name}::item:selected {{ background-color: #eee; }}
                 QHeaderView::section:horizontal {{ background-color: {qss.navbar_bg_color}; color: {qss.navbar_btn_txt_color}; font-weight: bold; border: None; padding: 5px 5px;}}
             """)
 
@@ -381,7 +392,7 @@ class MyTableWidget(QTableWidget):
             self.horizontalHeader().resizeSection(0, 175)
             self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
-            self.horizontalHeader().resizeSection(2, 400)
+            self.horizontalHeader().resizeSection(2, 300)
             self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
             self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
@@ -1039,6 +1050,7 @@ class MyPushButton(QPushButton):
 
             'filter_button',
             'sync_ui_button',
+            'reprint_button',
 
             'add_data_button',
             'import_data_button',
@@ -1091,13 +1103,16 @@ class MyPushButton(QPushButton):
 
                 QPushButton#filter_button,
                 QPushButton#sync_ui_button,
+                QPushButton#reprint_button,
                 QPushButton#add_data_button,
                 QPushButton#overview_prev_button,
                 QPushButton#toggle_barcode_scanner,
                 QPushButton#overview_next_button,
                 QPushButton#toggle_numpad_key {{ background-color: {qss.main_color}; border: none; border-radius: 3px; color: {qss.main_txt_color}; text-align: center; padding: 10px }}
-                
+
                 QPushButton#filter_button:hover,
+                QPushButton#sync_ui_button:hover,
+                QPushButton#reprint_button:hover,
                 QPushButton#add_data_button:hover,
                 QPushButton#toggle_barcode_scanner:hover,
                 QPushButton#overview_prev_button:hover,
@@ -1157,6 +1172,7 @@ class MyPushButton(QPushButton):
 
             if self.object_name == 'filter_button': self.setIcon(QIcon(qss.filter_icon))
             if self.object_name == 'sync_ui_button': self.setIcon(QIcon(qss.sync_icon))
+            if self.object_name == 'reprint_button': self.setIcon(QIcon(qss.print_receipt_icon))
             if self.object_name == 'add_data_button': self.setIcon(QIcon(qss.add_data_icon))
             if self.object_name == 'import_data_button': self.setIcon(QIcon(qss.import_data_icon))
 

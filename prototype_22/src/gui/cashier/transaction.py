@@ -1,5 +1,7 @@
 
 import sys, os
+import pythoncom
+import win32com.client
 from typing import *
 from PyQt6 import *
 from PyQt6.QtWidgets import *
@@ -49,9 +51,12 @@ class MyTransactionView(MyWidget):
         self.filter_layout.addWidget(self.filter_button)
         self.filter_box.setLayout(self.filter_layout)
 
+        self.reprint_button = MyPushButton(object_name='reprint_button', text='Reprint')
+
         self.item_sold_act_box = MyGroupBox(object_name='item_sold_act_box')
         self.item_sold_act_layout = MyHBoxLayout(object_name='item_sold_act_layout')
         self.item_sold_act_layout.addWidget(self.filter_box,0,Qt.AlignmentFlag.AlignLeft)
+        self.item_sold_act_layout.addWidget(self.reprint_button,0,Qt.AlignmentFlag.AlignRight)
         self.item_sold_act_box.setLayout(self.item_sold_act_layout)
 
         self.item_sold_overview_table = MyTableWidget(object_name='item_sold_overview_table')
@@ -120,6 +125,7 @@ class MyTransactionController:
     def set_item_sold_box_conn(self):
         self.v.filter_field.returnPressed.connect(self.on_filter_button_clicked)
         self.v.filter_button.clicked.connect(self.on_filter_button_clicked)
+        self.v.reprint_button.clicked.connect(self.on_reprint_button_clicked)
         self.v.item_sold_overview_prev_button.clicked.connect(self.on_overview_prev_button_clicked)
         self.v.item_sold_overview_next_button.clicked.connect(self.on_overview_next_button_clicked)
         pass
@@ -136,6 +142,22 @@ class MyTransactionController:
         self.populate_overview_table(text=text_filter, page_number=1)
         pass
     
+    def on_reprint_button_clicked(self):
+        receipt_file, _ = QFileDialog.getOpenFileName(self.v, 'Open receipt', r'G:/My Drive/receipt/saved', 'DOCX File (*docx)') #FIXME
+
+        if receipt_file:
+            pythoncom.CoInitialize()
+            word = win32com.client.Dispatch('Word.Application')
+            self.doc = word.Documents.Open(receipt_file)
+            self.doc.PrintOut()
+            word.Quit()
+
+            pythoncom.CoInitialize()
+            
+            print(receipt_file)
+        else:
+            pass
+
     def populate_overview_table(self, text='', page_number=1): # IDEA: src
         self.v.item_sold_overview_prev_button.setEnabled(page_number > 1)
         self.v.item_sold_overview_next_button.setEnabled(page_number < self.m.total_page_number)

@@ -266,14 +266,24 @@ class MyPOSView(MyGroupBox):
         self.main_layout.addWidget(self.manage_order_box,0,1,2,1)
         self.setLayout(self.main_layout)
 
-    def set_progress_dialog(self):
-        # self.progress_bar = MyProgressBar()
-        self.progress_label = MyLabel(text='Please wait...')
-        self.progress_dialog = MyDialog(object_name='progress_dialog', window_title='Step 0 out of ?')
-        self.progress_layout = MyVBoxLayout(object_name='progress_layout')
-        # self.progress_layout.addWidget(self.progress_bar)
-        self.progress_layout.addWidget(self.progress_label)
-        self.progress_dialog.setLayout(self.progress_layout)
+    def set_progress_dialog(self, action=''):
+        if action == 'print_receipt':
+            # self.progress_bar = MyProgressBar()
+            self.progress_label = MyLabel(text='Please wait...')
+            self.progress_dialog = MyDialog(object_name='progress_dialog', window_title='Step 0 out of ?')
+            self.progress_layout = MyVBoxLayout(object_name='progress_layout')
+            # self.progress_layout.addWidget(self.progress_bar)
+            self.progress_layout.addWidget(self.progress_label)
+            self.progress_dialog.setLayout(self.progress_layout)
+            pass
+        elif action == 'save_receipt':
+            # self.progress_bar = MyProgressBar()
+            self.progress_label = MyLabel(text='Saving receipt...')
+            self.progress_dialog = MyDialog(object_name='progress_dialog', window_title='Saving')
+            self.progress_layout = MyVBoxLayout(object_name='progress_layout')
+            # self.progress_layout.addWidget(self.progress_bar)
+            self.progress_layout.addWidget(self.progress_label)
+            self.progress_dialog.setLayout(self.progress_layout)
         pass
 
     def set_overview_table_product_display_box(self, data):
@@ -1245,7 +1255,6 @@ class MyPOSController:
         pass
     # endregion ---------------------------------------------------------------------------------------------------------
 
-
     # region > pay order dialog -----------------------------------------------------------------------------------------
     def set_pay_order_dialog_conn(self):
         self.v.tender_amount_field.textChanged.connect(self.on_tender_amount_field_text_changed)
@@ -1292,6 +1301,9 @@ class MyPOSController:
         self.v.numpad_key_box.setHidden(hide)
         pass
     def on_numpad_key_button_clicked(self, key_value):
+        reward_data = pos_schema.select_reward_for_reward_selection()
+        print('reward_data:', reward_data)
+
         current_amount_tendered = self.v.tender_amount_field.text()
 
         if key_value == '.' and '.' in current_amount_tendered:
@@ -1412,6 +1424,32 @@ class MyPOSController:
 
                     self.set_transaction_complete_dialog_conn(sales_group_id=sales_group_id, order_tab_name=order_tab_name)
 
+
+                    # save receipt
+                    self.v.set_progress_dialog(action='save_receipt')
+
+                    self.receipt_printer = ReceiptGenerator(
+                        self.v.transaction_complete_dialog,
+                        sales_group_id,
+                        self.m.transaction_info,
+                        self.m.final_order_table,
+                        self.m.final_order_summary,
+                        self.m.cashier_info,
+
+                        self.m.payment_type,
+                        self.m.cash_payment_amount,
+                        self.m.points_payment_amount,
+                        self.m.cash_points_payment_amount,
+
+                        'save_receipt',
+                    )
+                    self.receipt_printer.start()
+                    self.receipt_printer.update.connect(lambda step, action='save_receipt': self.on_receipt_generator_update(step, action))
+                    self.receipt_printer.finished.connect(lambda action='save_receipt': self.on_receipt_generator_finished(action))
+
+                    self.v.progress_dialog.exec()
+                    # save receipt
+
                     self.v.transaction_complete_dialog.exec()
 
                     self.discard_order_handler(order_tab_name=order_tab_name)
@@ -1430,8 +1468,8 @@ class MyPOSController:
     # endregion
 
     def set_transaction_complete_dialog_conn(self, sales_group_id=0, order_tab_name=''): # IDEA: src
-        self.v.print_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='print', sales_group_id=sales_group_id))
-        self.v.save_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='save', sales_group_id=sales_group_id))
+        self.v.print_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='print_receipt', sales_group_id=sales_group_id))
+        self.v.save_receipt_button.clicked.connect(lambda: self.on_receipt_button_clicked(action='save_receipt', sales_group_id=sales_group_id))
         self.v.add_new_order_button.clicked.connect(lambda: self.on_add_new_order_button_clicked(order_tab_name=order_tab_name))
         self.v.transaction_complete_close_button.clicked.connect(lambda: self.close_dialog_handler(self.v.transaction_complete_dialog))
         pass
@@ -1442,10 +1480,10 @@ class MyPOSController:
         pass
 
     def on_receipt_button_clicked(self, action, sales_group_id): # IDEA: src
-        if action == 'print':
+        if action == 'print_receipt':
             self.v.print_receipt_button.setDisabled(True)
             
-            self.v.set_progress_dialog()
+            self.v.set_progress_dialog(action='print_receipt')
 
             self.receipt_printer = ReceiptGenerator(
                 self.v.transaction_complete_dialog,
@@ -1469,6 +1507,7 @@ class MyPOSController:
             self.v.progress_dialog.exec()
 
             pass
+
         # elif action == 'save':
         #     self.v.save_receipt_button.setDisabled(True)
 
@@ -1492,13 +1531,11 @@ class MyPOSController:
 
         #     pass
     def on_receipt_generator_update(self, step, action):
-        self.v.progress_label.setText(f"Please wait...")
-        if action == 'print':
+        if action == 'print_receipt':
+            self.v.progress_label.setText(f"Please wait...")
             self.v.progress_dialog.setWindowTitle(f"Step {step} out of 6")
-        if action == 'save':
-            self.v.progress_dialog.setWindowTitle(f"Step {step} out of 7")
-            if step == 7:
-                self.v.progress_label.setText(f"Converting to PDF...")
+        if action == 'save_receipt':
+            self.v.progress_dialog.setWindowTitle(f"Saving")
     def on_receipt_generator_finished(self, action):
         self.v.print_receipt_button.setEnabled(True) if self.v.print_receipt_button.isEnabled() is not True else None
         self.v.save_receipt_button.setEnabled(True) if self.v.save_receipt_button.isEnabled() is not True else None
@@ -1506,10 +1543,8 @@ class MyPOSController:
         self.v.progress_dialog.close_signal.emit('finished')
         self.v.progress_dialog.close()
 
-        if action == 'print':
+        if action == 'print_receipt':
             QMessageBox.information(self.v.transaction_complete_dialog, 'Success', 'Receipt printed.')
-        elif action == 'save':
-            QMessageBox.information(self.v.transaction_complete_dialog, 'Success', 'Receipt saved.')
 
 
     # IDEA: if the widget uses the same connection

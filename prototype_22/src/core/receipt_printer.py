@@ -1,12 +1,12 @@
 import os
 import random
 import time as tm
-import pythoncom
 import uuid
 import machineid
 import traceback
 import inspect
 import textwrap
+import pythoncom
 import win32com.client
 from datetime import *
 from docx2pdf import *
@@ -92,11 +92,9 @@ class ReceiptGenerator(QThread):
         self.doc.Protect(Password='123', NoReset=True, Type=3)
         self.doc.SaveAs(os.path.abspath(f'G:/My Drive/receipt/saved/{ref_number}.docx'))  # Save with the same file path to overwrite the original
         
-        # self.doc.ExportAsFixedFormat(os.path.abspath('G:' + f'/My Drive/receipt/saved/{ref_number}.pdf'), 17)  # 17 represents PDF format
-
         try:
-            # Print the document
-            self.doc.PrintOut()
+            if self.action == 'print_receipt':
+                self.doc.PrintOut()
         except Exception as error_exception:
             error_tracer(error_exception)
             pass

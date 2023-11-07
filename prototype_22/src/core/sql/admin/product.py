@@ -833,6 +833,7 @@ class MyProductSchema:
             """)
             product_id = self.sales_cursor.fetchone()[0]
 
+
             self.sales_cursor.execute(f"""
                 INSERT INTO ItemPrice (ItemId, EffectiveDt, Cost, SellPrice, PromoId, DiscountValue)
                 SELECT
@@ -854,7 +855,6 @@ class MyProductSchema:
                 )
             """)
             pass  
-
         if product_stock_id <= 0 and product_stock_tracking is True:
             self.sales_cursor.execute(f"""
                 INSERT INTO Stock (ItemId, OnHand, Available)
@@ -886,7 +886,7 @@ class MyProductSchema:
     def delete_product_data(self, product_price_id=0, product_effective_dt=date.today()):
         self.sales_cursor.execute(f"""
             DELETE FROM ItemPrice
-            WHERE ItemPriceId = {product_price_id} AND EffectiveDt > CURRENT_DATE
+            WHERE ItemPriceId = {product_price_id} AND EffectiveDt >= CURRENT_DATE
         """)
 
 

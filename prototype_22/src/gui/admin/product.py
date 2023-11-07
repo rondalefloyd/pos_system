@@ -660,10 +660,6 @@ class MyProductController:
         for i, data in enumerate(product_data):
             self.v.set_overview_table_act_box()
 
-            effective_dt = datetime.strptime(str(data[9]), "%Y-%m-%d")
-            if effective_dt <= datetime.today():
-                self.v.delete_data_button.hide() # NOTE: temporarily unavailable
-
             flag = True  if data[10] is not None else False # if has promo, set flag (to make the item's foreground red)
 
             product_barcode = MyTableWidgetItem(text=f"{data[0]}", has_promo=flag)
@@ -798,13 +794,33 @@ class MyProductController:
             product_effective_dt = sel_data[9]
             product_price_id = data[15]
 
+        effective_dt = datetime.strptime(str(data[9]), "%Y-%m-%d")
+        today = datetime.today()
+        yesterday = today - timedelta(days=1)
 
-        confirm = QMessageBox.warning(self.v, 'Confirm', f"Delete {product_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if effective_dt > today:
+            confirm = QMessageBox.warning(self.v, 'Confirm', f"Delete {product_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
-        if confirm is QMessageBox.StandardButton.Yes:
-            schema.delete_product_data(product_price_id)
+            if confirm is QMessageBox.StandardButton.Yes:
+                schema.delete_product_data(product_price_id)
 
-            QMessageBox.information(self.v, 'Success', f"{product_name} has been deleted.")
+                QMessageBox.information(self.v, 'Success', f"{product_name} has been deleted.")
+                pass
+        elif effective_dt > yesterday:
+            confirm = QMessageBox.warning(self.v, 'Confirm', f"Delete {product_name}?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+            if confirm is QMessageBox.StandardButton.Yes:
+                confirm_b = QMessageBox.warning(self.v, 'Confirm', 'This may affect the reports. Proceed?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+                if confirm_b is QMessageBox.StandardButton.Yes:
+                    schema.delete_product_data(product_price_id)
+
+                    QMessageBox.information(self.v, 'Success', f"{product_name} has been deleted.")
+                pass
+        else:
+            QMessageBox.critical(self.v, 'Error', f"Cannot delete {product_name}")
+            pass
+
 
         self.sync_ui()
         pass
