@@ -1001,7 +1001,6 @@ class MyPOSController:
                 self.v.final_customer_info_box.show()
                 self.v.pay_points_button.show()
 
-                self.m.final_customer_points_value = customer_data[2]
                 self.m.final_customer_name = str(customer_data[0])
                 self.v.final_customer_name_display.setText(f"Customer: <b>{customer_data[0]}</b>")
                 self.v.final_customer_phone_display.setText(f"Phone: <b>{customer_data[1]}</b>")
@@ -1012,8 +1011,8 @@ class MyPOSController:
                 self.compute_change_by_payment_amount_type_handler(customer_data, signal='on_complete_order_button_clicked')
                 self.compute_change_by_payment_amount_type_handler(customer_data, signal='on_tender_amount_field_text_changed')
 
-                    
             else:
+                if str(customer_data[0]) == "N/A": self.m.final_customer_name = "Guest" 
                 self.v.points_payment_compute_label.hide()
                 self.v.cash_points_payment_compute_label.hide()
                 self.v.points_payment_compute_display.hide()
@@ -1026,6 +1025,7 @@ class MyPOSController:
 
                 self.compute_change_by_payment_amount_type_handler(signal='on_tender_amount_field_text_changed')
 
+            print('self.m.final_customer_name:', self.m.final_customer_name)
 
             self.set_pay_order_dialog_conn()
 
