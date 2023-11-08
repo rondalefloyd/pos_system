@@ -206,6 +206,9 @@ class MyDialog(QDialog):
     def on_global_dialog(self):
         self.setMinimumWidth(300)
 
+        if self.object_name == 'MyLoginView':
+            self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+            pass
         if self.object_name in ['updater_progress_dialog','progress_dialog']:
             self.setMinimumWidth(250)
             self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowCloseButtonHint)
