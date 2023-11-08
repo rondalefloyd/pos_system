@@ -160,9 +160,7 @@ class MyDataImportThread(QThread):
         product_supplier,
         product_cost,
         product_price,
-        product_effective_dt,
-        product_stock_available,
-        product_stock_onhand) = row_v[:12]
+        product_effective_dt) = row_v[:10]
 
         product_expire_dt = product_expire_dt or '9999-99-99'
 
@@ -175,11 +173,6 @@ class MyDataImportThread(QThread):
         if product_cost.replace('.', '', 1).isdigit() == False: return
         if product_price.replace('.', '', 1).isdigit() == False: return
         if product_effective_dt == '': return
-
-        if int(product_stock_available) > 0 or int(product_stock_onhand) > 0:
-            product_stock_tracking = True
-        else:
-            product_stock_tracking = False
 
         self.product_schema.insert_product_data(
             product_barcode=product_barcode,
@@ -195,7 +188,5 @@ class MyDataImportThread(QThread):
             product_price=product_price,
             product_effective_dt=product_effective_dt,
 
-            product_stock_tracking=product_stock_tracking,
-            product_stock_available=product_stock_available,
-            product_stock_onhand=product_stock_onhand,
+            product_stock_tracking=False,
         )
