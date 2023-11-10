@@ -37,9 +37,9 @@ class MyCashierView(MyWidget):
         self.set_extra_info_box()
         
         self.main_layout = MyGridLayout()
-        self.main_layout.addWidget(self.navbar_scra,0,0)
-        self.main_layout.addWidget(self.page_stcw,0,1)
-        self.main_layout.addWidget(self.extra_info_box,1,0,1,2)
+        self.main_layout.addWidget(self.navbar_box,0,0)
+        self.main_layout.addWidget(self.page_stcw,1,0)
+        self.main_layout.addWidget(self.extra_info_box,2,0)
         self.setLayout(self.main_layout)
 
     def set_navbar_box(self):
@@ -49,15 +49,14 @@ class MyCashierView(MyWidget):
         self.customer_page_button = MyPushButton(object_name='customer_page_button', text='  Customer')
         self.logout_button = MyPushButton(object_name='logout_button', text='  Logout')
         self.navbar_box = MyGroupBox(object_name='navbar_box')
-        self.navbar_layout = MyVBoxLayout(object_name='navbar_layout')
+        self.navbar_layout = MyHBoxLayout(object_name='navbar_layout')
         self.navbar_layout.addWidget(self.pos_page_button)
         self.navbar_layout.addWidget(self.transaction_page_button)
         self.navbar_layout.addWidget(self.product_page_button)
         self.navbar_layout.addWidget(self.customer_page_button)
-        self.navbar_layout.addWidget(self.logout_button)
+        self.navbar_layout.addWidget(QLabel(),4,Qt.AlignmentFlag.AlignLeft)
+        self.navbar_layout.addWidget(self.logout_button,0,Qt.AlignmentFlag.AlignRight)
         self.navbar_box.setLayout(self.navbar_layout)
-        self.navbar_scra = MyScrollArea(object_name='navbar_scra')
-        self.navbar_scra.setWidget(self.navbar_box)
 
         print('self.m.level:', type(self.m.level), self.m.level)
         if self.m.level == 1: 

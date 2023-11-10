@@ -37,9 +37,9 @@ class MyAdminView(MyWidget):
         self.set_extra_info_box()
         
         self.main_layout = MyGridLayout()
-        self.main_layout.addWidget(self.navbar_scra,0,0)
-        self.main_layout.addWidget(self.page_stcw,0,1)
-        self.main_layout.addWidget(self.extra_info_box,1,0,1,2)
+        self.main_layout.addWidget(self.navbar_box,0,0)
+        self.main_layout.addWidget(self.page_stcw,1,0)
+        self.main_layout.addWidget(self.extra_info_box,2,0)
         self.setLayout(self.main_layout)
 
     def set_navbar_box(self):
@@ -50,16 +50,15 @@ class MyAdminView(MyWidget):
         self.user_page_button = MyPushButton(object_name='user_page_button', text='  User')
         self.logout_button = MyPushButton(object_name='logout_button', text='  Logout')
         self.navbar_box = MyGroupBox(object_name='navbar_box')
-        self.navbar_layout = MyFormLayout(object_name='navbar_layout')
-        self.navbar_layout.addRow(self.product_page_button)
-        self.navbar_layout.addRow(self.promo_page_button)
-        self.navbar_layout.addRow(self.reward_page_button)
-        self.navbar_layout.addRow(self.customer_page_button)
-        self.navbar_layout.addRow(self.user_page_button)
-        self.navbar_layout.addRow(self.logout_button)
+        self.navbar_layout = MyHBoxLayout(object_name='navbar_layout')
+        self.navbar_layout.addWidget(self.product_page_button)
+        self.navbar_layout.addWidget(self.promo_page_button)
+        self.navbar_layout.addWidget(self.reward_page_button)
+        self.navbar_layout.addWidget(self.customer_page_button)
+        self.navbar_layout.addWidget(self.user_page_button)
+        self.navbar_layout.addWidget(QLabel(),5,Qt.AlignmentFlag.AlignLeft)
+        self.navbar_layout.addWidget(self.logout_button,0,Qt.AlignmentFlag.AlignRight)
         self.navbar_box.setLayout(self.navbar_layout)
-        self.navbar_scra = MyScrollArea(object_name='navbar_scra')
-        self.navbar_scra.setWidget(self.navbar_box)
         pass
     
     def set_page_stcw(self):
@@ -129,7 +128,7 @@ class MyAdminWindow:
 
     def run(self):
         open('app_running.flag', 'w').close()
-        self.view.show()
+        self.view.showFullScreen()
     pass
 
 if __name__ == ('__main__'):
