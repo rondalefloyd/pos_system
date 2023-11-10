@@ -1304,9 +1304,6 @@ class MyPOSController:
         self.v.numpad_key_box.setHidden(hide)
         pass
     def on_numpad_key_button_clicked(self, key_value):
-        reward_data = pos_schema.select_reward_for_reward_selection()
-        print('reward_data:', reward_data)
-
         current_amount_tendered = self.v.tender_amount_field.text()
 
         if key_value == '.' and '.' in current_amount_tendered:
