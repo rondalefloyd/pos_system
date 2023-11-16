@@ -1,0 +1,76 @@
+import sys, os
+import subprocess
+import pandas as pd
+import shutil
+import gspread
+import pandas as pd
+import traceback
+import inspect
+import textwrap
+import ctypes
+from typing import *
+from datetime import *
+from PyQt6 import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+
+ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
+
+cwd = os.getcwd() # get current working dir
+
+def error_tracer(error_exception):
+    error_traceback = traceback.format_exc().splitlines()[-1]
+    error_line_number = inspect.currentframe().f_lineno
+    timestamp = datetime.today().strftime("%a-%b-%d-%Y-%I:%M%p")
+    error_layout = textwrap.dedent(f"""\
+        TIME_STAMP: {timestamp}, 
+        ERROR_LINE_NO: {error_line_number}, 
+        EXCEPTION: {error_exception}, 
+        ERROR_TRACEBACK: {error_traceback}
+
+    """)
+    with open(f"main_error_log.txt", 'a') as file: 
+        file.write(error_layout)
+
+def export_gsheet_as_csv():
+    try:
+        file_path = os.path.join(cwd,'src','core','smpos-403608-aa14a49badc1.json')
+
+        google_console = gspread.service_account(filename=file_path)
+        spreadsheet = google_console.open_by_url('https://docs.google.com/spreadsheets/d/1v7EvAov0Pwcly5j824NgAt141SnSt9Xh1jEL0FN_WNA/edit#gid=0')
+        worksheet = spreadsheet.get_worksheet(0) 
+        data = worksheet.get_all_records()
+
+        data_frame = pd.DataFrame(data)
+        data_frame.to_csv('G:/My Drive/csv/product.csv', index=False)
+    except Exception as error_exception:
+        error_tracer(error_exception)
+    pass
+def run_pos_app():
+    try:
+        subprocess.run([sys.executable, '-Xfrozen_modules=off', os.path.join(cwd,'src','gui','login','updater.py')]) # for loading database
+
+        open('app_running.flag', 'w').close()
+        while True:
+            login = subprocess.run([sys.executable, '-Xfrozen_modules=off', os.path.join(cwd,'src','gui','login','login.py')])
+
+            if not os.path.exists('login_running.flag') and not os.path.exists('app_running.flag'):
+                break
+
+    except Exception as error_exception:
+        error_tracer(error_exception)
+    pass
+def copy_live_db_to_reports_db():
+    try:
+        shutil.copyfile('G:/My Drive/live_db/sales.db', 'G:/My Drive/reports_db/sales.db')
+        shutil.copyfile('G:/My Drive/live_db/txn.db', 'G:/My Drive/reports_db/txn.db')
+        shutil.copyfile('G:/My Drive/live_db/syslib.db', 'G:/My Drive/reports_db/syslib.db')
+        shutil.copyfile('G:/My Drive/live_db/accounts.db', 'G:/My Drive/reports_db/accounts.db')
+    except Exception as error_exception:
+        error_tracer(error_exception)
+    pass
+
+export_gsheet_as_csv()
+run_pos_app()
+copy_live_db_to_reports_db()
