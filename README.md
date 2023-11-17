@@ -3,6 +3,10 @@ POS System Development for Phoebe M. Santos
 
 ## Introduction
 
+## Installation
+1. Type this command in terminal/cmd/powershell: pyinstaller --add-data "template;template" --add-data "src;src" --noconsole --name=POS main.py
+2. Go to 'dist' folder and move the src and template along with the 'POS.exe'.
+
 ## Key features
 1. POS.bat
     a. Timeout for 30 sec. to wait for wifi connection after turning on the computer
