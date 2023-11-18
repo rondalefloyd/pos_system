@@ -15,9 +15,9 @@ To get started with the POS System, follow these installation steps:
      ```
 
 3. **Requirements:**<br>
-   - Ensure that the computer has the following prerequisites:
-     3.1. Google Drive for desktop: The Gmail account's Google Drive should contain specific folders with necessary files.
-     3.2. Microsoft Word (any version): This is required for printing receipts.
+   - Ensure that the computer has the following prerequisites:<br>
+   3.1. Google Drive for desktop: The Gmail account's Google Drive should contain specific folders with necessary files.<br>
+   3.2. Microsoft Word (any version): This is required for printing receipts.
 
 ## Key Features
 Explore the key features of the POS System:
