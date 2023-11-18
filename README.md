@@ -48,4 +48,4 @@ Explore the key features of the POS System:
    4.1. Sales Management (POS), Transaction Management, and Product/Customer Management (for level 2 users only).
    ```
 
-Feel free to explore the detailed documentation for each section to make the most out of the POS System for Phoebe M. Santos.
+Feel free to explore the detailed documentation for each section to make the most out of the POS System.
