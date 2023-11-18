@@ -1,145 +1,43 @@
-## POS System Development for Phoebe M. Santos
-
 ## Introduction
 
+Welcome to the POS System developed for Phoebe M. Santos! This Point of Sale (POS) system is designed to streamline the management of products, transactions, and user interactions in a retail environment. Whether you're an administrator with access to comprehensive product and user management tools or a cashier processing orders with a user-friendly interface, this POS system aims to provide a seamless and efficient experience.
+
 ## Installation
+To get started with the POS System, follow these installation steps:
 
-1. Change the current working directory to the directory of 'main.py'
-2. Type this command in terminal/cmd/powershell: 
-  ```bash
-  pyinstaller --onefile --add-data "template;template" --add-data "src;src" --noconsole --name=POS main.py
-  ```
-3. To run the 'POS.exe', make sure the computer has the following:
-  3.1 Google Drive for desktop
-    - The Gmail account's Google Drive should contain the following folders:
-      - csv
-        - product.csv ('item_list.gsheet' exported as 'product.csv') 
-      - dashboard
-      - live_db
-        - accounts.db
-        - sales.db
-        - syslib.db
-        - txn.db
-      - receipt
-        - saved (printed receipt)
-      - sito ('Scan-IT to Office' files)
-        - item_list.gsheet
-  3.2 Microsoft Word (any version) (used for printing receipts)
+1. **Change Directory:**
+   - Change the current working directory to the location of the 'main.py' file.
 
-## Key features
-```
-1. Main
-  1.1 Execute initial task
-    - Get data from spreadsheet via Google API (export .gsheet file to .csv file)
-    - Use SQLite3 to perform INSERT query (extract data from ..csv using Pandas and use INSERT query)
-    - Run login.py
+2. **PyInstaller Command:**
+   - Open a terminal/cmd/powershell window and type the following command:
+     ```bash
+     pyinstaller --onefile --add-data "template;template" --add-data "src;src" --noconsole --name=POS main.py
+     ```
 
-2. Login
-  2.1 Username and password entry
-    - Input the registered user (show the page depending on the user's access level)
+3. **Requirements:**
+   - Ensure that the computer has the following prerequisites:
+     3.1. Google Drive for desktop:
+         - The Gmail account's Google Drive should contain specific folders with necessary files.
+     3.2. Microsoft Word (any version):
+         - This is required for printing receipts.
 
-3. Admin (show if level 3 users)
-  3.1 Product management
-    - Filter product
-      - Can be filtered by item barcode, item name, item expiredt, itemtype name, brand name, salesgroup name, supplier name, itemprice updatets
-    - Manage product
-      - Add product
-      - Edit product
-      - View product
-      - Delete product
-    - Product table
+## Key Features
+Explore the key features of the POS System:
 
-  3.2 Promo management
-    - Filter promo
-      - Can be filtered by name, promo type, discount percent, description
-    - Manage promo
-      - Add promo
-      - Edit promo
-      - View promo
-      - Delete promo
-    - Promo table
+1. **Main:**
+   1.1. Execute Initial Task:
+       - Fetch data from a spreadsheet via Google API, utilizing SQLite3 to perform INSERT queries, and running the 'login.py' script.
 
-  3.3 Reward management
-    - Filter reward
-      - Can be filtered by name, unit, points, description
-    - Manage reward
-      - Add reward
-      - Edit reward
-      - View reward
-      - Delete reward
-    - Reward table
+2. **Login:**
+   2.1. Username and Password Entry:
+       - Input your registered user credentials to access the system, with different pages displayed based on user access levels.
 
-  3.4 Customer management
-    - Filter customer
-      - Can be filtered by name, address, barrio, town, phone, age, gender, marital status
-    - Manage customer
-      - Add customer
-      - Edit customer
-      - View customer
-      - Delete customer
-    - Customer table
+3. **Admin (for level 3 users):**
+   Manage various aspects of the system, including:
+   3.1. Product, Promo, Reward, Customer, and User Management.
 
-  3.5 User management
-    - Filter user
-      - Can be filtered by name, password, accesslevel, phone
-    - Manage user
-      - Add user
-      - Edit user
-      - View user
-      - Delete user
-    - User table
+4. **Cashier (for level 1 or 2 users):**
+   Process sales efficiently with features like:
+   4.1. Sales Management (POS), Transaction Management, and Product/Customer Management (for level 2 users only).
 
-  3.6 Logout
-
-4. Cashier (show if level 1 or 2 users)
-  4.1 Sales Management (POS)
-    - Filter product
-      - Can be filtered by item barcode, item name, itemtype name, brand name
-    - Add order
-      - Retail (creates separate tab for retail orders)
-      - Wholesale (creates a separate tab for wholesale orders)
-      - Dual (creates two (2) separate linked tabs for retail and wholesale orders)
-
-    - Set customer for selected order
-      - Show list of customer names
-      - Show points of selected customer 
-
-    - Add product to order
-      - Add product with custom qty
-      - Add product with fixed qty (1)   
-      - Add product with fixed qty (1) via barcode
-      - Edit product qty
-      - Drop product with fixed qty (1)
-      - Drop all product qty
-
-    - Complete order
-      - 
-  4.2 Transaction management
-    - Filter product
-      - Can be filtered by user name, customer name, item name, total amount, void, reason, referencenumber, updatets
-    - Reprint (reprint receipt)
-    - Manage transaction
-      - Void transaction
-
-  4.3 Product management (for level 2 users only)
-    - Filter product
-      - Can be filtered by item barcode, item name, item expiredt, itemtype name, brand name, salesgroup name, supplier name, itemprice updatets
-    - Manage product
-      - Add product
-      - Edit product
-      - View product
-      - Delete product
-    - Product table
-
-  4.4 Customer management (for level 2 users only)
-    - Filter customer
-      - Can be filtered by name, address, barrio, town, phone, age, gender, marital status
-    - Manage customer
-      - Add customer
-      - Edit customer
-      - View customer
-      - Delete customer
-    - Customer table
-
-  4.5 Logout
-```
+Feel free to explore the detailed documentation for each section to make the most out of the POS System for Phoebe M. Santos.
