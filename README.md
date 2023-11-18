@@ -3,7 +3,7 @@
 ## Introduction
 
 ## Installation
-```markdown
+
 1. Change the current working directory to the directory of 'main.py'
 2. Type this command in terminal/cmd/powershell: 
   ```bash
@@ -25,9 +25,9 @@
       - sito ('Scan-IT to Office' files)
         - item_list.gsheet
   3.2 Microsoft Word (any version) (used for printing receipts)
-```
+
 ## Key features
-```markdown
+```
 1. Main
   1.1 Execute initial task
     - Get data from spreadsheet via Google API (export .gsheet file to .csv file)
