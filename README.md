@@ -9,7 +9,7 @@
   pyinstaller --onefile --add-data "template;template" --add-data "src;src" --noconsole --name=POS main.py
   ```
 3. To run the 'POS.exe', make sure the computer has the following:
-  #.1 Google Drive for desktop
+  3.1 Google Drive for desktop
     - The Gmail account's Google Drive should contain the following folders:
       - csv
         - product.csv ('item_list.gsheet' exported as 'product.csv') 
@@ -23,7 +23,7 @@
         - saved (printed receipt)
       - sito ('Scan-IT to Office' files)
         - item_list.gsheet
-  #.2 Microsoft Word (any version) (used for printing receipts)
+  3.2 Microsoft Word (any version) (used for printing receipts)
 
 ## Key features
 
