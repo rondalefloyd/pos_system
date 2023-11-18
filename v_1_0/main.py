@@ -7,7 +7,7 @@ import pandas as pd
 import traceback
 import inspect
 import textwrap
-import ctypes
+import urllib.request
 from typing import *
 from datetime import *
 from PyQt6 import *
@@ -18,8 +18,15 @@ from PyQt6.QtGui import *
 cwd = os.getcwd() # get current working dir
 sys.path.append(os.path.join(cwd))
 
-from src.gui.login.login import *
-from src.gui.login.updater import *
+try:
+    from src.gui.login.login import *
+    from src.gui.login.updater import *
+except:
+    from _internal.src.gui.login.login import *
+    from _internal.src.gui.login.updater import *
+
+
+app = QApplication(sys.argv)
 
 def error_tracer(error_exception):
     error_traceback = traceback.format_exc().splitlines()[-1]
@@ -52,7 +59,6 @@ def export_gsheet_as_csv():
 def run_pos_app():
     try:
         open('app_running.flag', 'w').close()
-        app = QApplication(sys.argv)
 
         updater_window = MyUpdaterWindow()
         updater_window.run()
@@ -110,6 +116,29 @@ def copy_live_db_to_reports_db():
         error_tracer(error_exception)
     pass
 
-export_gsheet_as_csv()
-run_pos_app()
-copy_live_db_to_reports_db()
+def is_connected():
+    try:
+        urllib.request.urlopen('http://google.com', timeout=1)
+        
+        export_gsheet_as_csv()
+        run_pos_app()
+        copy_live_db_to_reports_db()
+
+    except urllib.request.URLError:
+        confirm_a = QMessageBox.warning(None, 'Confirm', 'Proceed without internet connection?.', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+
+        if confirm_a is QMessageBox.StandardButton.Yes:
+            confirm_b = QMessageBox.warning(None, 'Confirm', 'The database might not be updated. Proceed?.', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            if confirm_b is QMessageBox.StandardButton.Yes:
+                export_gsheet_as_csv()
+                run_pos_app()
+                copy_live_db_to_reports_db()
+            else:
+                sys.exit()
+        elif QMessageBox.StandardButton.No:
+            sys.exit()
+
+
+        
+
+is_connected()

@@ -37,7 +37,7 @@ class MyUpdaterView(MyDialog):
     def set_progress_dialog(self):
         self.progress_bar = MyProgressBar()
         # self.progress_label = MyLabel(object_name='progress_label', text='Please wait...')
-        self.other_label_a = MyLabel(object_name='other_label_a', text='Please wait while updating database')
+        self.other_label_a = MyLabel(object_name='other_label_a', text='Please wait while loading database')
         self.progress_dialog = MyDialog(object_name='updater_progress_dialog', window_title='99% complete')
         self.progress_layout = MyVBoxLayout(object_name='progress_layout')
         self.progress_layout.addWidget(self.progress_bar)

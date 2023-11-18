@@ -1,0 +1,85 @@
+TIME_STAMP: Fri-Nov-17-2023-06:44PM, 
+ERROR_LINE_NO: 26, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Fri-Nov-17-2023-06:44PM, 
+ERROR_LINE_NO: 26, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Fri-Nov-17-2023-06:47PM, 
+ERROR_LINE_NO: 28, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Fri-Nov-17-2023-06:47PM, 
+ERROR_LINE_NO: 28, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Fri-Nov-17-2023-06:51PM, 
+ERROR_LINE_NO: 28, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Fri-Nov-17-2023-06:51PM, 
+ERROR_LINE_NO: 28, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Fri-Nov-17-2023-06:52PM, 
+ERROR_LINE_NO: 28, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Fri-Nov-17-2023-06:52PM, 
+ERROR_LINE_NO: 28, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Fri-Nov-17-2023-07:32PM, 
+ERROR_LINE_NO: 28, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Fri-Nov-17-2023-07:33PM, 
+ERROR_LINE_NO: 28, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Fri-Nov-17-2023-07:35PM, 
+ERROR_LINE_NO: 28, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Fri-Nov-17-2023-07:36PM, 
+ERROR_LINE_NO: 28, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Fri-Nov-17-2023-07:36PM, 
+ERROR_LINE_NO: 26, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Fri-Nov-17-2023-10:56PM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Fri-Nov-17-2023-11:12PM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Fri-Nov-17-2023-11:13PM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\mimoy\\Documents\\GitHub\\pos_system\\src\\core\\smpos-403608-aa14a49badc1.json'
+
+TIME_STAMP: Fri-Nov-17-2023-11:14PM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+

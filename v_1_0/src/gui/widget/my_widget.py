@@ -8,7 +8,10 @@ from PyQt6 import *
 cwd = os.getcwd() # get current working dir
 sys.path.append(os.path.join(cwd))
 
-from template.qss.qss import MyQSSConfig
+try:
+    from template.qss.qss import MyQSSConfig
+except:
+    from _internal.template.qss.qss import MyQSSConfig
 
 qss = MyQSSConfig()
 
