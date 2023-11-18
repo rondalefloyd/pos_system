@@ -17,20 +17,20 @@ To get started with the POS System, follow these installation steps:
 3. **Requirements:**<br>
    - Ensure that the computer has the following prerequisites:
      3.1. Google Drive for desktop:
-         - The Gmail account's Google Drive should contain specific folders with necessary files.
+          - The Gmail account's Google Drive should contain specific folders with necessary files.
      3.2. Microsoft Word (any version):
-         - This is required for printing receipts.
+          - This is required for printing receipts.
 
 ## Key Features
 Explore the key features of the POS System:
 
 1. **Main:**<br>
    1.1. Execute Initial Task:
-       - Fetch data from a spreadsheet via Google API, utilizing SQLite3 to perform INSERT queries, and running the 'login.py' script.
+        - Fetch data from a spreadsheet via Google API, utilizing SQLite3 to perform INSERT queries, and running the 'login.py' script.
 
 2. **Login:**<br>
    2.1. Username and Password Entry:
-       - Input your registered user credentials to access the system, with different pages displayed based on user access levels.
+        - Input your registered user credentials to access the system, with different pages displayed based on user access levels.
 
 3. **Admin (for level 3 users):**<br>
    Manage various aspects of the system, including:
