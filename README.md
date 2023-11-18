@@ -14,8 +14,7 @@ To get started with the POS System, follow these installation steps:
      pyinstaller --onefile --add-data "template;template" --add-data "src;src" --noconsole --name=POS main.py
      ```
 
-3. **Requirements:**<br>
-Ensure that the computer has the following prerequisites:<br>
+3. **Requirements:** Ensure that the computer has the following prerequisites:<br>
    3.1. Google Drive for desktop: The Gmail account's Google Drive should contain specific folders with necessary files.<br>
    3.2. Microsoft Word (any version): This is required for printing receipts.
 
