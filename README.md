@@ -12,10 +12,10 @@ To get started with the POS System, follow these installation steps:
 2. **PyInstaller Command:**<br>
    ```
    2.1 Open a terminal/cmd/powershell window and type the following command:
+   ```
      ```bash
      pyinstaller --onefile --add-data "template;template" --add-data "src;src" --noconsole --name=POS main.py
      ```
-   ```
 
 3. **Requirements:** Ensure that the computer has the following prerequisites:<br>
    ```
