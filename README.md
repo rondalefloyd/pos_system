@@ -9,7 +9,7 @@
   pyinstaller --onefile --add-data "template;template" --add-data "src;src" --noconsole --name=POS main.py
   ```
 3. To run the 'POS.exe', make sure the computer has the following:
-  a. Google Drive for desktop
+  - Google Drive for desktop
     - The Gmail account's Google Drive should contain the following folders:
       - csv
         - product.csv ('item_list.gsheet' exported as 'product.csv') 
@@ -23,22 +23,22 @@
         - saved (printed receipt)
       - sito ('Scan-IT to Office' files)
         - item_list.gsheet
-  b. Microsoft Word (any version) (used for printing receipts)
+  - Microsoft Word (any version) (used for printing receipts)
 
 ## Key features
 
-1. Main <br>
-  a. Execute initial task
+1. Main
+  - Execute initial task
     - Get data from spreadsheet via Google API (export .gsheet file to .csv file)
     - Use SQLite3 to perform INSERT query (extract data from ..csv using Pandas and use INSERT query)
     - Run login.py
 
-2. Login <br>
-  a. Username and password entry
+2. Login
+  - Username and password entry
     - Input the registered user (show the page depending on the user's access level)
 
-3. Admin (show if level 3 users) <br>
-  a. Product management
+3. Admin (show if level 3 users)
+  - Product management
     - Filter product
       - Can be filtered by item barcode, item name, item expiredt, itemtype name, brand name, salesgroup name, supplier name, itemprice updatets
     - Manage product
@@ -48,7 +48,7 @@
       - Delete product
     - Product table
 
-  b. Promo management
+  - Promo management
     - Filter promo
       - Can be filtered by name, promo type, discount percent, description
     - Manage promo
@@ -58,7 +58,7 @@
       - Delete promo
     - Promo table
 
-  c. Reward management
+  - Reward management
     - Filter reward
       - Can be filtered by name, unit, points, description
     - Manage reward
@@ -68,7 +68,7 @@
       - Delete reward
     - Reward table
 
-  d. Customer management
+  - Customer management
     - Filter customer
       - Can be filtered by name, address, barrio, town, phone, age, gender, marital status
     - Manage customer
@@ -78,7 +78,7 @@
       - Delete customer
     - Customer table
 
-  e. User management
+  - User management
     - Filter user
       - Can be filtered by name, password, accesslevel, phone
     - Manage user
@@ -88,10 +88,10 @@
       - Delete user
     - User table
 
-  f. Logout
+  - Logout
 
-4. Cashier (show if level 1 or 2 users) <br>
-  a. Sales Management (POS)
+4. Cashier (show if level 1 or 2 users)
+  - Sales Management (POS)
     - Filter product
       - Can be filtered by item barcode, item name, itemtype name, brand name
     - Add order
@@ -113,14 +113,14 @@
 
     - Complete order
       - 
-  b. Transaction management
+  - Transaction management
     - Filter product
       - Can be filtered by user name, customer name, item name, total amount, void, reason, referencenumber, updatets
     - Reprint (reprint receipt)
     - Manage transaction
       - Void transaction
 
-  c. Product management (for level 2 users only)
+  - Product management (for level 2 users only)
     - Filter product
       - Can be filtered by item barcode, item name, item expiredt, itemtype name, brand name, salesgroup name, supplier name, itemprice updatets
     - Manage product
@@ -130,7 +130,7 @@
       - Delete product
     - Product table
 
-  d. Customer management (for level 2 users only)
+  - Customer management (for level 2 users only)
     - Filter customer
       - Can be filtered by name, address, barrio, town, phone, age, gender, marital status
     - Manage customer
@@ -140,4 +140,4 @@
       - Delete customer
     - Customer table
 
-  e. Logout
+  - Logout
