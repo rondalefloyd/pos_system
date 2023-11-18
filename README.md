@@ -27,17 +27,17 @@
 
 ## Key features
 
-1. Main
+1. Main <br>
   a. Execute initial task
     - Get data from spreadsheet via Google API (export .gsheet file to .csv file)
     - Use SQLite3 to perform INSERT query (extract data from ..csv using Pandas and use INSERT query)
     - Run login.py
 
-2. Login
+2. Login <br>
   a. Username and password entry
     - Input the registered user (show the page depending on the user's access level)
 
-3. Admin (show if level 3 users)
+3. Admin (show if level 3 users) <br>
   a. Product management
     - Filter product
       - Can be filtered by item barcode, item name, item expiredt, itemtype name, brand name, salesgroup name, supplier name, itemprice updatets
@@ -90,7 +90,7 @@
 
   f. Logout
 
-4. Cashier (show if level 1 or 2 users)
+4. Cashier (show if level 1 or 2 users) <br>
   a. Sales Management (POS)
     - Filter product
       - Can be filtered by item barcode, item name, itemtype name, brand name
