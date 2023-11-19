@@ -1,0 +1,55 @@
+TIME_STAMP: Sun-Nov-19-2023-09:27AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Sun-Nov-19-2023-09:28AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Sun-Nov-19-2023-09:39AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Sun-Nov-19-2023-09:41AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Sun-Nov-19-2023-10:32AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Sun-Nov-19-2023-10:39AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Sun-Nov-19-2023-10:39AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: [Errno 2] No such file or directory: 'G:/My Drive/sito/item_list.gsheet', 
+ERROR_TRACEBACK: FileNotFoundError: [Errno 2] No such file or directory: 'G:/My Drive/sito/item_list.gsheet'
+
+TIME_STAMP: Sun-Nov-19-2023-10:41AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Sun-Nov-19-2023-10:49AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'str' object has no attribute 'open', 
+ERROR_TRACEBACK: AttributeError: 'str' object has no attribute 'open'
+
+TIME_STAMP: Sun-Nov-19-2023-10:58AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
+TIME_STAMP: Sun-Nov-19-2023-11:02AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+

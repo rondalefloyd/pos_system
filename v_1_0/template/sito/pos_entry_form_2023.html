@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>pos_entry_form_2023</title>
+    <meta name="viewport" id="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,initial-scale=1.0"/>
+    <meta name="icons" content="barcode,text,text,text,text,list,text,number,number,date"/>
+    <meta name="NeedsLocation" content="false"/>
+    <meta charset="UTF-8"/>
+    
+    <link rel="stylesheet" type="text/css" href="../style/tecit_sto_layout.css"/>
+    <!-- %BEGIN_ADDITIONAL_STYLES% -->
+      <!-- %END_ADDITIONAL_STYLES% -->
+    
+    <script type="text/javascript" src="../api/tecit_sto_api.js"></script>
+    <script type="text/javascript" src="../api/tecit_sto_common_api.js"></script>
+    <script type="text/javascript" src="../api/tecit_sto_form_api.js"></script>
+    <script type="text/javascript" src="../api/signature_pad.min.js"></script>
+    <script type="text/javascript" src="../api/tecit_sto_signature.js"></script>
+    <script type="text/javascript">
+
+    var updatePromise;
+    var controlIdsToUpdate;
+
+    //----------------------------------------------------------
+    //  window.load
+    //----------------------------------------------------------
+    window.addEventListener("load", function() {
+      if (_tecit_GetPlatform() == "iOS")
+        _tecit_OnLoad(null);
+    });
+
+    //----------------------------------------------------------
+    //  _tecit_OnLoad
+    //----------------------------------------------------------
+    function _tecit_OnLoad(state) {
+      if (state) {
+        _tecit_RestoreState(state);
+      } else {
+        _tecit_UpdateDateAndTimeFields();
+        _tecit_UpdateLocations();
+        window.scrollTo(0,0);
+        _tecit_FocusFirstField();
+      }
+    }
+
+    //----------------------------------------------------------
+    //  _tecit_OnLocationUpdate
+    //----------------------------------------------------------
+    function _tecit_OnLocationUpdate(id, latitude, longitude) {
+      if (!id) { // update all location fields if no id is given
+        var mapFrames = document.getElementsByClassName("mapFrame");
+        for (i = 0; i < mapFrames.length; ++i) {
+          _tecit_OnLocationUpdate(mapFrames[i].id, latitude, longitude);
+        }
+      }
+      else {
+        if (latitude && longitude) {
+          document.getElementById(id).src="https://www.google.com/maps/embed/v1/place?key="+MAPS_EMBED_API_KEY+"&q="+latitude+","+longitude;
+          _tecit_Locations[id] = latitude + ", " + longitude;
+        }
+        else {
+          document.getElementById(id).src="../api/locationError.html";
+        }
+
+        if (updatePromise) {
+          if (controlIdsToUpdate && controlIdsToUpdate.length > 0) {
+            var index = controlIdsToUpdate.indexOf(id);
+            if (index > -1) {
+              controlIdsToUpdate.splice(index, 1);
+              if (controlIdsToUpdate.length == 0) {
+                updatePromise.resolve();
+              }
+            }
+          }
+          else {
+            updatePromise.resolve();
+          }
+        }
+      }
+    }
+
+    //----------------------------------------------------------
+    //  _tecit_OnScanResult
+    //----------------------------------------------------------
+    function _tecit_OnScanResult(id, data, description, image) {
+      _tecit_SetBarcode(id, data, description, image);
+    }
+    
+    //----------------------------------------------------------
+    //  _tecit_OnTextRecognitionResult
+    //----------------------------------------------------------
+    function _tecit_OnTextRecognitionResult(id, text) {
+      if (id && text) {
+        document.getElementById(id).value = text;
+      }
+    }
+    
+    //----------------------------------------------------------
+    //  _tecit_OnReadNFCTagResult
+    //----------------------------------------------------------
+    function _tecit_OnReadNFCTagResult(id, text) {
+      if (id && text) {
+        var nfcField = document.getElementById(id);
+        if (nfcField) {
+          nfcField.value = text;
+          nfcField.disabled = true;
+        }
+        
+        var resetButton = document.getElementById("reset_"+id);
+        if (resetButton) {
+          resetButton.style.display = "inline-block";
+        }
+      }
+      _tecit_NFCButtonFinished(id);
+    }
+
+    //----------------------------------------------------------
+    //  _tecit_GetState
+    //----------------------------------------------------------
+    function _tecit_GetState() {
+      var json = inputToJson();
+      json.push(_tecit_GetBarcodePreviewAsJson("barcode_id"));
+      json.push({"type":"stateData","scrollTop":document.documentElement.scrollTop});
+      json.push({"type":"stateData","focusedField":_tecit_GetFocusedFieldId()});
+      return JSON.stringify(json);
+    }
+
+    //----------------------------------------------------------
+    //  _tecit_RestoreState
+    //----------------------------------------------------------
+    function _tecit_RestoreState(state) {
+      if (state) {
+        var json = JSON.parse(state);
+        jsonToInput(json);
+        _tecit_SetBarcodePreviewFromJson("barcode_id", json.shift());
+        var scrollTop = json.shift().scrollTop;
+        if (scrollTop)
+          document.documentElement.scrollTop = scrollTop;
+        var controlId = json.shift().focusedField;
+        if (controlId)
+          _tecit_FocusField(controlId);
+      }
+    }
+
+    //----------------------------------------------------------
+    //  inputIsValid
+    //----------------------------------------------------------
+    function inputIsValid() {
+      var message;
+
+      if (!(document.getElementById("text1_id").value))
+        message = message || "'ITEM NAME' is a required field";
+      if (!(document.getElementById("text4_id").value))
+        message = message || "'BRAND' is a required field";
+      if (!(document.getElementById("list_id").value))
+        message = message || "'SALES GROUP' is a required field";
+      if (!(document.getElementById("text5_id").value))
+        message = message || "'SUPPLIER' is a required field";
+      if (!(document.getElementById("number1_id").value))
+        message = message || "'COST' is a required field";
+      if (!(document.getElementById("number2_id").value))
+        message = message || "'SELL PRICE' is a required field";
+      if (!(document.getElementById("date_id").value))
+        message = message || "'EFFECTIVE DATE' is a required field";
+
+      // set validation message
+      if (message) {
+        document.getElementById("validation_message_id").innerHTML = message;
+        document.getElementById("validation_message_container_id").style.display="block";
+        return false;
+      } else {
+        document.getElementById("validation_message_id").innerHTML="";
+        document.getElementById("validation_message_container_id").style.display="none";
+        return true;
+      }
+    }
+
+    //----------------------------------------------------------
+    //  inputToJson
+    //----------------------------------------------------------
+    function inputToJson() {
+      var json = [];
+
+      json.push(_tecit_GetBarcodeDataAsJson("barcode_id"));
+      json.push({"type":"text/plain", "name":_tecit_GetFieldName("text1_id"), "value":document.getElementById("text1_id").value});
+      json.push({"type":"text/plain", "name":_tecit_GetFieldName("text2_id"), "value":document.getElementById("text2_id").value});
+      json.push({"type":"text/plain", "name":_tecit_GetFieldName("text3_id"), "value":document.getElementById("text3_id").value});
+      json.push({"type":"text/plain", "name":_tecit_GetFieldName("text4_id"), "value":document.getElementById("text4_id").value});
+      json.push({"type":"text/plain", "name":_tecit_GetFieldName("list_id"), "value":_tecit_GetSelectedListValues("list_id", ", ")});
+      json.push({"type":"text/plain", "name":_tecit_GetFieldName("text5_id"), "value":document.getElementById("text5_id").value});
+      json.push({"type":"text/x.number", "name":_tecit_GetFieldName("number1_id"), "value":document.getElementById("number1_id").value});
+      json.push({"type":"text/x.number", "name":_tecit_GetFieldName("number2_id"), "value":document.getElementById("number2_id").value});
+      json.push({"type":"text/x.date", "name":_tecit_GetFieldName("date_id"), "value":_tecit_LocaleToUTCDateString(document.getElementById("date_id").value)});
+
+      return json;
+    }
+
+    //----------------------------------------------------------
+    //  jsonToInput
+    //----------------------------------------------------------
+    function jsonToInput(json) {
+      _tecit_SetBarcodeDataFromJson("barcode_id", json.shift());
+      document.getElementById("text1_id").value = json.shift().value;
+      document.getElementById("text2_id").value = json.shift().value;
+      document.getElementById("text3_id").value = json.shift().value;
+      document.getElementById("text4_id").value = json.shift().value;
+      document.getElementById("list_id").value = json.shift().value;
+      document.getElementById("text5_id").value = json.shift().value;
+      document.getElementById("number1_id").value = json.shift().value;
+      document.getElementById("number2_id").value = json.shift().value;
+      document.getElementById("date_id").value = _tecit_UTCToLocaleDateString(json.shift().value);
+    }
+
+    //----------------------------------------------------------
+    //  jsonToSummary
+    //----------------------------------------------------------
+    function jsonToSummary(json) {
+      var text = [];
+
+      text.push(json[0].value || "<no barcode>");
+      text.push(json[1].value);
+      text.push(json[2].value);
+      text.push(json[3].value);
+      text.push(json[4].value);
+      text.push(json[5].value);
+      text.push(json[6].value);
+      text.push(json[7].value);
+      text.push(json[8].value);
+      text.push(json[9].value);
+
+      return text.join(" | ");
+    }
+    
+    //----------------------------------------------------------
+    //  getSubmitOptions
+    //----------------------------------------------------------
+    function getSubmitOptions() {
+      return "{\"destination\":\"\"}";
+    }
+
+    
+
+    //----------------------------------------------------------
+    //  submit
+    //----------------------------------------------------------
+    function submit() {
+      if (inputIsValid() && (!(typeof(document.forms[0].reportValidity) === "function") || document.forms[0].reportValidity())) {
+        var json = inputToJson();
+        var summary = jsonToSummary(json);
+        var options = "submitOptions=" + getSubmitOptions();
+        
+        _tecit_Submit(JSON.stringify(json), summary, options);
+      }
+      else {
+        isSending = false;
+        document.getElementById("sendButton").disabled = false;
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <form action="javascript:_tecit_UpdateAndSubmit()">
+
+      <div class="section">
+        <div class="heading clearfix">
+          <h1 class="headingWithResetButton" id="heading_barcode_id"><img src="../img/barcode.svg"/> barcode (optional)</h1>
+          <script>_tecit_CreateResetButtonForBarcodeControl("barcode_id");</script>
+        </div>
+        <div class="control clearfix" data-name="BARCODE">
+          <script>_tecit_CreateBarcodeControl("barcode_id", false);</script>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="heading clearfix">
+          <h1><img src="../img/text.svg"/> item_name</h1>
+        </div>
+        <div class="control clearfix" data-name="ITEM NAME">
+          <div class="ocrControl clearfix">
+            <textarea rows="1" class="ocrInput rememberValue" id="text1_id" data-separator="" data-text-search-enabled="true" data-text-search-regex-pattern="Lio=" data-text-search-regex-template="JDA=" data-text-search-match-per-element="true"></textarea>
+            <button type="button" class="ocrButton" id="text1_id_ocrButton" onClick="var data = document.getElementById('text1_id').dataset; _tecit_StartTextRecognition('text1_id', 'separator=&quot;'+data.separator+'&quot; textSearchEnabled=&quot;'+data.textSearchEnabled+'&quot; textSearchMatchPerElement=&quot;'+data.textSearchMatchPerElement+'&quot; textSearchRegexPattern=&quot;'+data.textSearchRegexPattern+'&quot; textSearchRegexTemplate=&quot;'+data.textSearchRegexTemplate+'&quot;');"><img src="../img/image.svg"/></button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="heading clearfix">
+          <h1><img src="../img/text.svg"/> expire_dt (optional)</h1>
+        </div>
+        <div class="control clearfix" data-name="EXPIRE DATE">
+          <div class="ocrControl clearfix">
+            <textarea rows="1" class="ocrInput rememberValue" id="text2_id" data-separator="" data-text-search-enabled="false" data-text-search-regex-pattern="Lio=" data-text-search-regex-template="JDA=" data-text-search-match-per-element="false">9999-12-31</textarea>
+            <button type="button" class="ocrButton" id="text2_id_ocrButton" onClick="var data = document.getElementById('text2_id').dataset; _tecit_StartTextRecognition('text2_id', 'separator=&quot;'+data.separator+'&quot; textSearchEnabled=&quot;'+data.textSearchEnabled+'&quot; textSearchMatchPerElement=&quot;'+data.textSearchMatchPerElement+'&quot; textSearchRegexPattern=&quot;'+data.textSearchRegexPattern+'&quot; textSearchRegexTemplate=&quot;'+data.textSearchRegexTemplate+'&quot;');"><img src="../img/image.svg"/></button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="heading clearfix">
+          <h1><img src="../img/text.svg"/> item_type (optional)</h1>
+        </div>
+        <div class="control clearfix" data-name="ITEM TYPE">
+          <div class="ocrControl clearfix">
+            <textarea rows="1" class="ocrInput rememberValue" id="text3_id" data-separator="" data-text-search-enabled="true" data-text-search-regex-pattern="Lio=" data-text-search-regex-template="JDA=" data-text-search-match-per-element="false"></textarea>
+            <button type="button" class="ocrButton" id="text3_id_ocrButton" onClick="var data = document.getElementById('text3_id').dataset; _tecit_StartTextRecognition('text3_id', 'separator=&quot;'+data.separator+'&quot; textSearchEnabled=&quot;'+data.textSearchEnabled+'&quot; textSearchMatchPerElement=&quot;'+data.textSearchMatchPerElement+'&quot; textSearchRegexPattern=&quot;'+data.textSearchRegexPattern+'&quot; textSearchRegexTemplate=&quot;'+data.textSearchRegexTemplate+'&quot;');"><img src="../img/image.svg"/></button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="heading clearfix">
+          <h1><img src="../img/text.svg"/> brand</h1>
+        </div>
+        <div class="control clearfix" data-name="BRAND">
+          <div class="ocrControl clearfix">
+            <textarea rows="1" class="ocrInput rememberValue" id="text4_id" data-separator="" data-text-search-enabled="true" data-text-search-regex-pattern="Lio=" data-text-search-regex-template="JDA=" data-text-search-match-per-element="true"></textarea>
+            <button type="button" class="ocrButton" id="text4_id_ocrButton" onClick="var data = document.getElementById('text4_id').dataset; _tecit_StartTextRecognition('text4_id', 'separator=&quot;'+data.separator+'&quot; textSearchEnabled=&quot;'+data.textSearchEnabled+'&quot; textSearchMatchPerElement=&quot;'+data.textSearchMatchPerElement+'&quot; textSearchRegexPattern=&quot;'+data.textSearchRegexPattern+'&quot; textSearchRegexTemplate=&quot;'+data.textSearchRegexTemplate+'&quot;');"><img src="../img/image.svg"/></button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="heading clearfix">
+          <h1><img src="../img/list.svg"/> sales_group</h1>
+        </div>
+        <div class="control" data-name="SALES GROUP">
+          <select class="rememberValue" id="list_id" size="1">
+            <option class="emptySelection" value="">- Please select -</option>
+            <option value="Retail">Retail</option>
+            <option value="Wholesale">Wholesale</option>
+          </select>
+          <button type="button" class="searchButton" id="list_id_searchButton" onClick="openListSearch('list_id')"><img src="../img/listSearch.svg"/></button>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="heading clearfix">
+          <h1><img src="../img/text.svg"/> supplier</h1>
+        </div>
+        <div class="control clearfix" data-name="SUPPLIER">
+          <div class="ocrControl clearfix">
+            <textarea rows="1" class="ocrInput rememberValue" id="text5_id" data-separator="" data-text-search-enabled="true" data-text-search-regex-pattern="Lio=" data-text-search-regex-template="JDA=" data-text-search-match-per-element="true"></textarea>
+            <button type="button" class="ocrButton" id="text5_id_ocrButton" onClick="var data = document.getElementById('text5_id').dataset; _tecit_StartTextRecognition('text5_id', 'separator=&quot;'+data.separator+'&quot; textSearchEnabled=&quot;'+data.textSearchEnabled+'&quot; textSearchMatchPerElement=&quot;'+data.textSearchMatchPerElement+'&quot; textSearchRegexPattern=&quot;'+data.textSearchRegexPattern+'&quot; textSearchRegexTemplate=&quot;'+data.textSearchRegexTemplate+'&quot;');"><img src="../img/image.svg"/></button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="heading clearfix">
+          <h1><img src="../img/number.svg"/> cost</h1>
+        </div>
+        <div class="control clearfix" data-name="COST">
+          <input type="number" class="numberWithSteppers rememberValue" id="number1_id" value="0" step="any" data-step="1" min="0.0" max="9999999.0" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 13 || (event.charCode >= 44 && event.charCode <= 46)"/>
+          <div class="stepper">
+            <button type="button" class="decreaseButton" onmousedown="_tecit_BeforeQuantityChange(event)" onClick="_tecit_Decrease(event)">-</button>
+            <button type="button" class="increaseButton" onmousedown="_tecit_BeforeQuantityChange(event)" onClick="_tecit_Increase(event)">+</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="heading clearfix">
+          <h1><img src="../img/number.svg"/> sell_price</h1>
+        </div>
+        <div class="control clearfix" data-name="SELL PRICE">
+          <input type="number" class="numberWithSteppers rememberValue" id="number2_id" value="0" step="any" data-step="1" min="0.0" max="9999999.0" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 13 || (event.charCode >= 44 && event.charCode <= 46)"/>
+          <div class="stepper">
+            <button type="button" class="decreaseButton" onmousedown="_tecit_BeforeQuantityChange(event)" onClick="_tecit_Decrease(event)">-</button>
+            <button type="button" class="increaseButton" onmousedown="_tecit_BeforeQuantityChange(event)" onClick="_tecit_Increase(event)">+</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="heading clearfix">
+          <h1><img src="../img/date.svg"/> effective_dt</h1>
+        </div>
+        <div class="control" data-name="EFFECTIVE DATE">
+          <div class="controlWithButton clearfix">
+            <input type="date" class="dateField rememberValue" id="date_id"/>
+            <button type="button" class="refreshButton" onClick="_tecit_UpdateDateAndTimeFields('date_id')"><img src="../img/refresh.svg"/></button>
+          </div>
+        </div>
+      </div>
+      
+
+      <div class="fixedSendButton">
+        <button type="submit" id="sendButton"><img src="../img/send.svg"/></button>
+      </div>
+
+      <div class="bottomSpacer"></div>
+    </form>
+    
+    <div class="compactModeButton">
+      <button type="button" class="compactModeButton" id="compactModeButton" onclick="_tecit_EnterCompactMode();"><img id="compactModeButtonImg" src="../img/compactMode.svg"/></button>
+    </div>
+
+    <div class="validationMessage" id="validation_message_container_id" onClick="document.getElementById('validation_message_container_id').style.display='none'">
+      <div>
+        <span class="msg" id="validation_message_id"></span>
+      </div>
+    </div>
+  </body>
+</html>

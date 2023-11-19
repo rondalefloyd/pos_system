@@ -42,6 +42,24 @@ def error_tracer(error_exception):
     with open(f"main_error_log.txt", 'a') as file: 
         file.write(error_layout)
 
+def create_req_folders():
+    base_dir = 'G:/My Drive/'
+    folders = ['csv', 'dashboard', 'live_db', 'receipt/saved', 'sito']
+
+    for folder in folders:
+        folder_path = os.path.join(base_dir, folder)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+            print(f"Folder '{folder}' created.")
+        else:
+            print(f"Folder '{folder}' already exists.")
+
+def create_sito_form():
+    try:
+        shutil.copyfile(os.path.join(cwd,'template','sito','pos_entry_form_2023.html'), 'G:/My Drive/sito/pos_entry_form_2023.html')
+    except:
+        shutil.copyfile(os.path.join(cwd,'_internal','pos_entry_form_2023.html'), 'G:/My Drive/sito/pos_entry_form_2023.html')
+
 def export_gsheet_as_csv():
     try:
         file_path = os.path.join(cwd,'src','core','smpos-403608-aa14a49badc1.json')
@@ -120,16 +138,20 @@ def is_connected():
     try:
         urllib.request.urlopen('http://google.com', timeout=1)
         
+        create_sito_form()
+        create_req_folders()
         export_gsheet_as_csv()
         run_pos_app()
         copy_live_db_to_reports_db()
 
     except urllib.request.URLError:
-        confirm_a = QMessageBox.warning(None, 'Confirm', 'Proceed without internet connection?.', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirm_a = QMessageBox.warning(None, 'Confirm', 'Continue internet connection?.', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
         if confirm_a is QMessageBox.StandardButton.Yes:
             confirm_b = QMessageBox.warning(None, 'Confirm', 'The database might not be updated. Proceed?.', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
             if confirm_b is QMessageBox.StandardButton.Yes:
+                create_sito_form()
+                create_req_folders()
                 export_gsheet_as_csv()
                 run_pos_app()
                 copy_live_db_to_reports_db()
