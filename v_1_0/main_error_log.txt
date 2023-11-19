@@ -53,3 +53,8 @@ ERROR_LINE_NO: 33,
 EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
 ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
 
+TIME_STAMP: Sun-Nov-19-2023-11:07AM, 
+ERROR_LINE_NO: 33, 
+EXCEPTION: 'MyLoginController' object has no attribute 'user_id', 
+ERROR_TRACEBACK: AttributeError: 'MyLoginController' object has no attribute 'user_id'
+
