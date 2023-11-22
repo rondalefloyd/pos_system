@@ -1,8 +1,9 @@
 [Setup]
-AppName=POS System
+AppName=POS
 AppVersion=1.0
-DefaultDirName={pf}\POS System
-DefaultGroupName=POS System
+DefaultDirName={userappdata}\POS System
+DisableDirPage=yes
+DefaultGroupName=POS
 UninstallDisplayIcon={app}\POS.exe
 OutputDir=C:\Users\mimoy\Documents\GitHub\pos_system\v_1_0\dist
 OutputBaseFilename=Setup
@@ -16,7 +17,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\mimoy\Documents\GitHub\pos_system\v_1_0\dist\POS.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\mimoy\Documents\GitHub\pos_system\v_1_0\dist\POS\POS.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\mimoy\Documents\GitHub\pos_system\v_1_0\dist\POS\_internal\*"; DestDir: "{app}\_internal"; Flags: ignoreversion recursesubdirs uninsneveruninstall hidden
 
 [Icons]
 Name: "{group}\POS System"; Filename: "{app}\POS.exe"
